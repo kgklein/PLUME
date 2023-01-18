@@ -1,0 +1,9 @@
+This is the directory to which data generated from
+./plume.e example_map_par.in
+will be written.
+
+You should see
+kgklein@Urras:~/Codes/PLUME_git$ ls data/example/
+dispersion_map_par.map    map_par_kpar_1_10000.mode1  map_par_kpar_1_10000.mode3  README.data
+dispersion_map_par.roots  map_par_kpar_1_10000.mode2  map_par_kpar_1_10000.mode4
+
