@@ -37,7 +37,7 @@ LIBS=
 #LFMOD=	nrtype.o nrutil_trim.o bessels.o funcs.o complex_root.o \
 	disprels.o
 
-LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o
+LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -73,7 +73,7 @@ tar:
 	$(COMP) -c $(FLAGS) $<
 
 #########Dependencies
-plume.o:	vars.o functions.o
+plume.o:	vars.o functions.o fpc.o
 
 functions.o:    vars.o
 
