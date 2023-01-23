@@ -23,7 +23,7 @@ module functions
   integer, save :: input_unit_no, error_unit_no=stdout_unit
 
   !string for parameter input file
-  character(50) :: runname
+  character(50) :: runname 
 
   public :: read_in_params, read_map_input, read_scan_input, read_guess_input
   public :: get_unused_unit, read_radial_input
@@ -60,7 +60,7 @@ contains
     !Allocate the species variable to have nspec indicies
     allocate (spec(1:nspec))
 
-    !Allocate the suscetibility tensor to have nspec indicies
+    !Allocate the suscetibility tensor to have nspec indicies 
     allocate(susc(1:nspec,3,3))
     if (low_n) &
          allocate(susc_low(1:nspec,3,3,0:1))
@@ -71,15 +71,14 @@ contains
     !Read in species parameters
     !This is a bit of FORTRAN black magic borrowed from AGK.
     !     which allows us to loop over iterative nml/groupnames
-    do is = 1,nspec
+    do is = 1,nspec 
        call get_indexed_namelist_unit (unit, "species", is)
-       call spec_read(is)
+       call spec_read(is)       
        sum_nq = sum_nq + spec(is)%D_s/spec(is)%Q_s
        sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
        close (unit)
     enddo
 
-    !TODO: define option numbers as global constants to clean up code
     !read in fpc params
     if(option == 6) then
 
@@ -103,7 +102,7 @@ contains
     if (spec(1)%vv_s.ne.0.) &
          write(*,'(a,es11.4)')&
          'ERROR: Not in proton rest frame:    v_par drift p =',sum_nqv
-
+    
   pi = 4.*atan(1.)
 
   end subroutine read_in_params
@@ -123,14 +122,14 @@ subroutine spec_read(is)
   nameList /species/ &
        tauS,muS,alphS,Qs,Ds,vvS
   read (unit=unit,nml=species)
-
+  
   spec(is)%tau_s=tauS
   spec(is)%mu_s=muS
   spec(is)%alph_s=alphS
   spec(is)%Q_s=Qs
   spec(is)%D_s=Ds
   spec(is)%vv_s=vvS
-
+  
 end subroutine spec_read
 
 !-=-=-=-=-
@@ -151,7 +150,7 @@ subroutine scan_read(is)
        scan_type,swi,swf,swlog,scan_style,ns,nres,&
        heating,eigen,tensor
   read (unit=unit,nml=scan_input)
-
+  
   scan(is)%range_i =swi
   scan(is)%range_f =swf
   scan(is)%log_scan=swlog
@@ -162,7 +161,7 @@ subroutine scan_read(is)
   scan(is)%eigen_s =eigen
   scan(is)%heat_s  =heating
   scan(is)%tensor_s  =tensor
-
+  
 end subroutine scan_read
 
 !-=-=-=-=-
@@ -180,11 +179,11 @@ subroutine om_read(is)
   nameList /guess/ &
        g_om,g_gam
   read (unit=unit,nml=guess)
-
+  
   wroots(1,is)=g_om
   wroots(2,is)=g_gam
 !!!
-
+  
 end subroutine om_read
 
 !-=-=-=-=-
@@ -193,7 +192,7 @@ subroutine radial_read_0
   implicit none
   real :: kperp_1, kpar_1
 
-  nameList /k_range/ kperp_1,kpar_1
+  nameList /k_range/ kperp_1,kpar_1     
   open (unit=4,file=runname,status='old',action='read')
   read (unit=4,nml=k_range)
   close (4)
@@ -289,7 +288,7 @@ subroutine radial_read_4
   integer :: nK, kres
 
      !fixed k, scan over theta
-     nameList /k_range/ k_1,theta_1,theta_2,nK,kres
+     nameList /k_range/ k_1,theta_1,theta_2,nK,kres   
      open (unit=4,file=runname,status='old',action='read')
      read (unit=4,nml=k_range)
      close (4)
@@ -316,7 +315,7 @@ subroutine radial_read_5
   integer :: nK, kres, nK2, kres2
 
      nameList /k_range/ kperp_1,kperp_2,kpar_1,kpar_2,&
-          nk,kres,nk2,kres2
+          nk,kres,nk2,kres2   
      open (unit=4,file=runname,status='old',action='read')
      read (unit=4,nml=k_range)
      close (4)
@@ -402,7 +401,7 @@ subroutine radial_read
        radial_heating, radial_eigen, k_scan
   read (unit=4,nml=radial_input)
 !!!
-
+  
 end subroutine radial_read
 
 !-=-=-=-=-
@@ -415,7 +414,7 @@ subroutine map_read
   nameList /maps/ loggridw,loggridg,omi,omf,gami,gamf,positive_roots
 
   read (unit=unit,nml=maps)
-
+  
 !!!
 end subroutine map_read
 
@@ -428,18 +427,18 @@ subroutine read_map_input
   call get_runname(runname)
   !ie ./plume.e system.in
   runname=trim(runname)//".in"
-
+   
   call get_unused_unit (input_unit_no)
   unit=input_unit_no
   open (unit=unit,file=runname,status='old',action='read')
   call map_read
   close (unit)
-
+  
 end subroutine read_map_input
 !-=-=-=-=
 
 !-=-=-=-=
-!Read in limits for scans in plasma parameter space
+!Read in limits for scans in plasma parameter space 
 subroutine read_scan_input
   use vars, only: nscan,scan
   implicit none
@@ -447,12 +446,12 @@ subroutine read_scan_input
 
   !Allocate scan type object
   allocate(scan(1:nscan))
-
+  
   call get_unused_unit (input_unit_no)
   call get_runname(runname)
   runname=trim(runname)//".in"
   unit=input_unit_no
-  open (unit=unit,file=runname,status='old',action='read')
+  open (unit=unit,file=runname,status='old',action='read')  
 
   do is = 1,nscan
      call get_indexed_namelist_unit (unit, "scan_input", is)
@@ -460,33 +459,33 @@ subroutine read_scan_input
      close (unit)
   enddo
   close (input_unit_no)
-
+  
 end subroutine read_scan_input
 !-=-=-=-=
 
 !-=-=-=-=
-!Read in limits for scans in plasma parameter space
+!Read in limits for scans in plasma parameter space 
 subroutine read_guess_input
   use vars, only: nroot_max,wroots
   implicit none
   integer :: is
-
+  
   call get_unused_unit (input_unit_no)
   call get_runname(runname)
   runname=trim(runname)//".in"
   unit=input_unit_no
-  open (unit=unit,file=runname,status='old',action='read')
+  open (unit=unit,file=runname,status='old',action='read')  
 
   do is = 1,nroot_max
      call get_indexed_namelist_unit (unit, "guess", is)
      call om_read(is)
-
+     
      write(*,'(a,i0,a,2es12.4)')'Input for Root ',is,': ',wroots(1:2,is)
      close(unit)
   enddo
   close (input_unit_no)
   !close (unit)
-
+  
 end subroutine read_guess_input
 !-=-=-=-=
 !Read in parameters for radial solar wind model scan
@@ -497,7 +496,7 @@ subroutine read_radial_input
   implicit none
 
   !Local
-  integer :: is, ir !Looping variables
+  integer :: is, ir !Looping variables 
   character(100) :: readName
   real :: tau_in, mu_in, alph_in, Q_in, D_in, vv_in
   real :: kperp_1,kperp_2, kpar_1,kpar_2, k_1, k_2, theta_1, theta_2
@@ -510,14 +509,14 @@ subroutine read_radial_input
   call get_runname(runname)
   !ie ./plume.e system.in
   runname=trim(runname)//".in"
-
-
+  
+  
   open (unit=4,file=runname,status='old',action='read')
   call radial_read
   close (4)
 
   write(*,*)'read in radial parameters'
-  !Allocate the radial parameter scan for each species
+  !Allocate the radial parameter scan for each species 
   allocate (rad_spec(1:nspec,0:nRad))
   !Allocate Radial Distance from Sun
   allocate (radius(0:nRad)); radius = 0.
@@ -569,10 +568,10 @@ subroutine read_radial_input
      spec(is)%D_s    = rad_spec(is,0)%D_s
      spec(is)%vv_s    = rad_spec(is,0)%vv_s
   enddo
-
+  
   call get_runname(runname)
   runname=trim(runname)//".in"
-
+  
   !Determine K range which will be explored
   select case(k_scan)
   case(0)
@@ -738,5 +737,6 @@ end subroutine read_radial_input
     end do
   end subroutine get_unused_unit
 !-=-=-=-=-=-
+
 
 end module functions

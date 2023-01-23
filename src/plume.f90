@@ -10,15 +10,15 @@
 !!*MAIN PROGRAM                                                             *!!
 !=============================================================================!
 !=============================================================================!
-! NOTE: This code uses an F90 adaptation (by Greg Howes) of the Hot Plasma
+! NOTE: This code uses an F90 adaptation (by Greg Howes) of the Hot Plasma 
 !       Dispersion Relation originally by Eliot Quataert.
 
-! PLUME calculates the hot plasma dispersion relation for a plasma with
+! PLUME calculates the hot plasma dispersion relation for a plasma with 
 !       an arbitrary number of ion and electron species with relative drifts
 !       and bi-Maxwellian velocity distributions.
 !       The calculation follows Stix Chapter 10 eqn 66-73.
 
-! The Dispersion relation for omega/Omega_reference
+! The Dispersion relation for omega/Omega_reference 
 !     is dependent on four global parameters:
 !
 !       betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
@@ -48,11 +48,11 @@ program plume
   implicit none
 !-=-=-=-=-=-=
 !Variable Declaration:
-!-=-=-=-=-=-=
+!-=-=-=-=-=-=  
 
   !Integers for code structure
   integer :: is,i,j,k,iroot
-
+  
 !-=-=-=-=-=-=
 !-=-=-=-=-=-=
   !Read in global and species parameters from file.in
@@ -61,7 +61,7 @@ program plume
   call read_in_params
        !functions.f90
 
-  !The value of option (extracted from *.in file) determines
+  !The value of option (extracted from *.in file) determines 
   !    the nature of the dispersion relation calculations
   !    The case options are listed in README.cases
   select case(option)
@@ -74,22 +74,22 @@ program plume
 
         call test_disp
 
-  case(0)
+  case(0)   
      !Calculate Roots for input plasma parameters
 
      !Read in root mapping bounds
      call read_map_input
           !functions.f90
-
+          
      call map_search
           !disprels.f90
      !Calculate complex roots of the dispersion function
      !    Saved as wroots(1:2,1:nroots)
 
-  case(1)
+  case(1)   
      !Calculate Roots for input plasma parameters
      ! OR
-     !Read in root values
+     !Read in root values 
      ! THEN
      !Scan over plasma parameters, with range and type specified in *.in file
 
@@ -97,7 +97,7 @@ program plume
         !Read in root mapping bounds
         call read_map_input
         !functions.f90
-
+        
         !Calculate complex roots of the dispersion function
         !    Saved as wroots(1:2,1:nroots)
         call map_search
@@ -111,12 +111,12 @@ program plume
         call refine_guess
         !disprels.f90
      endif
-
+     
      !Read in parameter scan bounds
      call read_scan_input
           !functions.f90
 
-     do is =1,nscan
+     do is =1,nscan 
         call om_scan(is)
         !disprels.f90
      enddo
@@ -126,7 +126,7 @@ program plume
   case(2)
      !Calculate Roots for input plasma parameters
      ! OR
-     !Read in root values
+     !Read in root values 
      ! THEN
      !Scan over two dimensional plasma parameter space
      !     with range and type specified in *.in file
@@ -137,7 +137,7 @@ program plume
         !Read in root mapping bounds
         call read_map_input
         !functions.f90
-
+        
         !Calculate complex roots of the dispersion function
         !    Saved as wroots(1:2,1:nroots)
         call map_search
@@ -151,27 +151,27 @@ program plume
         call refine_guess
         !disprels.f90
      endif
-
+     
      !Read in parameter scan bounds
      call read_scan_input
           !functions.f90
 
      !Scan over two parameters, given in scan_input_1 and scan_input_2
      call om_double_scan
-        !disprels.f90
+        !disprels.f90     
 
   case(3)
-     !Replicating
+     !Replicating 
      !SAGA scan
      !from Gullveig (the precursor of this code)
-     !A hardwired scan of
-     !  (k, theta)
+     !A hardwired scan of 
+     !  (k, theta) 
      !at a particular value of
      !  (betap, alph_p)
 
-     !start at
+     !start at 
      !(beta,alph_p,kperp, kpar)=
-     !(1.0, 1.0,   1.E-3,1.E-3)
+     !(1.0, 1.0,   1.E-3,1.E-3)    
 
      !scan_1, scan_2 should be over theta, k_fixed, at desired resolution
      !scan_3, scan_4, scan_5  (beta_p, alph_p, (k1,k2))
@@ -184,69 +184,69 @@ program plume
               !Style:  0; Type: 2
      !scan_4: alph_p (1.0 -> desired alph_p)
               !Style:  1; Type: 2
-     !scan_5: alph_p (1.E-3,1.E-3) ->
+     !scan_5: alph_p (1.E-3,1.E-3) -> 
               !(1.E-3 sin(theta_initial), 1.E-3 cos(theta_initial))
               !(range_i,range_f)
-              !Style:  0; Type: 0
+              !Style:  0; Type: 0   
 
 !Initial Roots
 !&guess_1
-!g_om=9.9973E-04
-!g_gam=-2.2572E-10
+!g_om=9.9973E-04   
+!g_gam=-2.2572E-10 
 !/
 
 !&guess_2
-!g_om=2.0304E-03
+!g_om=2.0304E-03   
 !g_gam=-5.4273E-05
 !/
 
 !&guess_3
-!g_om=0.0000E+00
+!g_om=0.0000E+00   
 !g_gam=-7.2110E-04
 !/
 
 !&guess_4
 !g_om=1.1830E-03
 !g_gam=-7.3333E-04
-!/
-
+!/  
+     
 
      call read_guess_input
      !functions.f90
-
+     
      !Take nroot_max inputs and refine guesses
      call refine_guess
      !disprels.f90
-
+     
      !Read in parameter scan bounds
      call read_scan_input
           !functions.f90
 
-     do is =3,nscan
+     do is =3,nscan 
         call om_scan(is)
         !disprels.f90
      enddo
 
      !Scan over two parameters, given in scan_input_1 and scan_input_2
      call om_double_scan
-        !disprels.f90
-
+        !disprels.f90     
+     
   case(4)!Make multiple maps of complex frequency space
 
      !Read in root mapping bounds
      call read_map_input
      !functions.f90
-
+     
      !Read in parameter scan bounds
      !Only scan a single parameter at a time
      call read_scan_input
           !functions.f90
 
      !Calculate complex roots of the dispersion function
-
+     
      call map_scan
      !disprels.f90
-
+     
   case(5)!Find roots for parameters along a prescribed path
      !Path is set by solar wind models, with values calculated and
      !output by helper function:
@@ -261,7 +261,7 @@ program plume
         !Read in root mapping bounds
         call read_map_input
         !functions.f90
-
+        
         !Calculate complex roots of the dispersion function
         !    Saved as wroots(1:2,1:nroots)
         call map_search
@@ -274,14 +274,14 @@ program plume
         !Take nroot_max inputs and refine guesses
         call refine_guess
         !disprels.f90
-     endif
+     endif     
 
      !Scan roots over radius
      call radial_scan
      !disprels.f90
    case(6)
      !calculate field particle correlation as a function of vperp vpar
-     write(*,*)'Running fpc, WIP...'
+     write(*,*)'Predicting FPC...'
 
      if (use_map) then
         !Read in root mapping bounds

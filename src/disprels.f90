@@ -16,7 +16,7 @@ module disprels
 
   private :: find_minima,disp,rtsec,bisect,zet_in,zetout,bessel,get_out_name
   private :: calc_eigen
-  private :: calc_correlation_par, calc_fs0, calc_fs1
+  private :: calc_correlation_par, calc_fs0, calc_fs1 !TODO: move to fpc.f90
 
   public :: map_search, refine_guess, om_scan, om_double_scan, map_scan, test_disp
   public :: radial_scan
@@ -43,13 +43,13 @@ module disprels
     complex, dimension(:,:), pointer :: om     !Value of Dispersion relation
     complex :: omega                           !Complex Frequency
     logical, parameter :: outmap=.true.        !Output binary map file
-    character(100) :: mapName                  !Output file names
-    integer, dimension(1:2,1:numroots) :: iroots !Indices of roots
-    logical, parameter :: refine=.true.        !T=refine roots
+    character(100) :: mapName                  !Output file names   
+    integer, dimension(1:2,1:numroots) :: iroots !Indices of roots  
+    logical, parameter :: refine=.true.        !T=refine roots 
     complex :: om1,om2                         !Bracket Values
     integer :: iflag                           !Flag for Root search
-    real, parameter :: tol=1.0E-13             !Root Search Tolerance
-    real, parameter :: prec=1.E-7              !Root Finding precision
+    real, parameter :: tol=1.0E-13             !Root Search Tolerance 
+    real, parameter :: prec=1.E-7              !Root Finding precision  
     !species parameters:
     real, dimension(1:6,1:nspec) :: params
     !Ingeter for Looping
@@ -91,7 +91,7 @@ module disprels
        write(*,'(a,es10.3,a,es10.3,a)')'gam \in [',gami,',',gamf,']'
        write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
     endif
-
+    
     write(fmt,'(a,i0,a)')'(6es14.4,',6*nspec,'es14.4)'
 
     !Determine spacing in complex omega space (Normal or log)
@@ -116,7 +116,7 @@ module disprels
            omega=cmplx(wr,wi)
            om(ir,ii)=omega
 
-
+           
            dal(ir,ii)=disp(omega)
            val(ir,ii)=abs(dal(ir,ii))
            !disprels.f90
@@ -127,7 +127,7 @@ module disprels
      call find_minima(val,numroots,iroots,nroots)
           !disprels.f90
      if (writeOut) then
-        write(*,'(i3,a)')nroots,'  possible local minima found'
+        write(*,'(i2,a)')nroots,'  possible local minima found'
         do j=1,nroots
           write(*,'(a,i4,a,i4)')'ir = ',iroots(1,j),'    ii = ',iroots(2,j)
           write(*,'(2es14.4)')&
@@ -149,14 +149,14 @@ module disprels
            if ((wroots(1,j) .ne. 0.) .or. (wroots(2,j) .ne. 0.)) then
 
               omega=cmplx(wroots(1,j),wroots(2,j))
-
+              
               om1=omega*(1.-prec)
               om2=omega*(1.+prec)
-
+              
               omega=rtsec(disp,om1,om2,tol,iflag)
 
               !write(*,*)'found root:',j,omega
-
+              
               !check to see if the found root is already
               !an identified solution
               if (j.eq.1) then
@@ -169,7 +169,7 @@ module disprels
                  do ig=1,j-1 !loop through previous solutions
                     !if ( (abs(real(omega)-wroots(1,ig))/abs(wroots(1,ig)).lt.D_gap) .and. &
                     !     (abs(aimag(omega)-wroots(2,ig))/abs(wroots(2,ig)).lt.D_gap) ) then
-
+                    
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
                        !write(*,*) 'fail',ig,j,&
@@ -207,9 +207,9 @@ module disprels
      nroots=k
      endif
 
-     !OUTPUT File with values
-     if (outmap) then
-
+     !OUTPUT File with values 
+     if (outmap) then       
+        
         if (option==4) then
            do ii = 1,nspec
               params(1,ii) = spec(ii)%tau_s
@@ -237,14 +237,14 @@ module disprels
         do ir=0,nr
            do ii=0,ni
               write(21,'(2i6,3es14.6,2es14.4)')&
-                   ir,ii,om(ir,ii),log10(val(ir,ii)),&
+                   ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
                    sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
                    sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
            enddo
            write(21,*)
         enddo
         close(21)
-
+        
         if (option==4) then
            !If constructing mulitple (om,gamma) space maps
            !   for a variety of parameter values
@@ -265,7 +265,7 @@ module disprels
            write(21,fmt)&
                 kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
         enddo
-        close(21)
+        close(21)        
      endif
 
     deallocate(val)
@@ -274,7 +274,7 @@ module disprels
        !Sorting from least to most damped mode
        allocate(temp_om(1:2,1:nroot_max));temp_om = -10.
        allocate(temp_om2(1:2,1:nroot_max));temp_om2 = -10.
-
+       
        !Loop through located roots
        do j = 1, nroots
           do is = 1,nroot_max
@@ -291,7 +291,7 @@ module disprels
              endif
           enddo
        enddo
-
+       
     endif
 
     !gamma less than 1.
@@ -319,10 +319,10 @@ module disprels
        enddo
        nroots=k
     endif
-
+   
 
     if (writeOut) then
-       !WRITE out roots
+       !WRITE out roots 
        write(*,'(a)')'Dispersion Solutions '
        do is = 1,nroot_max
           write(*,'(i3,2es14.4)')is,wroots(1:2,is)
@@ -340,9 +340,9 @@ subroutine test_disp
   implicit none
   complex :: omega                           !Complex Frequency
   complex :: D
-
+  
   omega= cmplx(wroots(1,1),wroots(2,1))
-
+  
   D = disp(omega)
 
   write(*,'(4es14.4)') omega,D*vtp**6.
@@ -362,32 +362,30 @@ subroutine refine_guess
   complex :: omega                           !Complex Frequency
   complex :: om1,om2                         !Bracket Values
   integer :: iflag                           !Flag for Root search
-  real, parameter :: tol=1.0E-13             !Root Search Tolerance
-  real, parameter :: prec=1.E-7              !Root Finding precision
+  real, parameter :: tol=1.0E-13             !Root Search Tolerance 
+  real, parameter :: prec=1.E-7              !Root Finding precision  
   !looping
-  integer :: j
+  integer :: j 
 
 
   do j=1,nroot_max
      if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
-
+        
         omega=cmplx(wroots(1,j),wroots(2,j))
-
+        
         om1=omega*(1.-prec)
         om2=omega*(1.+prec)
-
-        !write(*,*)'Warning, currently doing debug test, where we skip refine_guess. Please uncomment line 380 in disprels.f90 when done.'
+        
         omega=rtsec(disp,om1,om2,tol,iflag)
-        !write(*,*)'Debug---- omega: ', omega, 'disp(omega): ',disp(omega)
-
+        
         wroots(1,j)=real(omega)
         wroots(2,j)=aimag(omega)
-
+        
      endif
   enddo
 
     if (writeOut) then
-       !WRITE out roots
+       !WRITE out roots 
        write(*,'(a)')'Dispersion Solutions '
        do j = 1,nroot_max
           write(*,'(i3,2es14.4)')j,wroots(1:2,j)
@@ -413,12 +411,12 @@ subroutine map_scan
 
   !Assign output name for scan is
   call set_map_pointers(outName,diff,diff2)
-  !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME
+  !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
 
     if ((scan(1)%style_s)==-1) then
      !Scans with multiple components
      if ((scan(1)%type_s)==0) then
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !kperp_1 = range_i, kpar_1 = range_f
         kpari=kpar
@@ -431,62 +429,62 @@ subroutine map_scan
         ki=kpar/cos(theta)
      elseif ((scan(1)%type_s)==2) then
         !k_0-> k_1 along fixed (current) angle
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !|k_1|=swf
         theta = atan(kperp/kpar)
         ki=kpar/cos(theta)
      endif
   endif
-
+  
   !Scan over chosen parameter
 
   !Output %n_scan steps, with %n_res steps inbetween each output
   !%n_res should be set to 1 for these type of runs, as there
   !is no information passed between each map calculation.
-  do jj = 0, (scan(1)%n_scan*scan(1)%n_res)
+  do jj = 0, (scan(1)%n_scan*scan(1)%n_res) 
      !Advance scanned parameter values
      if ((scan(1)%style_s)==-1)then
         if ((scan(1)%type_s)==0) then
            if (scan(1)%log_scan) then
               !k0->k1
-              sw=10.**(log10(kperpi)+diff*real(jj))
-              sw2=10.**(log10(kpari)+diff2*real(jj))
+              sw=10.**(log10(kperpi)+diff*real(jj))    
+              sw2=10.**(log10(kpari)+diff2*real(jj))    
            else
-              sw=(kperpi)+diff*real(jj)
-              sw2=(kpari)+diff2*real(jj)
+              sw=(kperpi)+diff*real(jj)    
+              sw2=(kpari)+diff2*real(jj)    
            endif
         elseif ((scan(1)%type_s)==1) then
            !theta_0->theta_1
            if (scan(1)%log_scan) then
-              theta_q=10.**(log10((theta))+diff*real(jj))
+              theta_q=10.**(log10((theta))+diff*real(jj))    
            else
-              theta_q=(((theta))+diff*real(jj))
+              theta_q=(((theta))+diff*real(jj))    
            endif
            sw=(ki*sin(theta_q))!kperp
            sw2=(ki*cos(theta_q))!kpar
         elseif ((scan(1)%type_s)==2) then
            !k along contant theta
            if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff*real(jj))
-              sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))
+              sw=10.**(log10(ki*sin(theta))+diff*real(jj))    
+              sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))    
            else
-              sw=(ki*sin(theta))+diff*real(jj)
-              sw2=(ki*cos(theta))+diff2*real(jj)
+              sw=(ki*sin(theta))+diff*real(jj)    
+              sw2=(ki*cos(theta))+diff2*real(jj)    
            endif
         endif
      else
         if (scan(1)%log_scan) then
-           sw=10.**(log10(scan(1)%range_i)+diff*real(jj))
+           sw=10.**(log10(scan(1)%range_i)+diff*real(jj))    
         else
-           sw=(scan(1)%range_i)+diff*real(jj)
+           sw=(scan(1)%range_i)+diff*real(jj)    
         endif
      endif
 
      if ((scan(1)%style_s)==-1) then
         !Scans with multiple components
         if ((scan(1)%type_s)==0) then
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !kperp_1 = range_i, kpar_1 = range_f
            kpari=kpar
@@ -502,7 +500,7 @@ subroutine map_scan
                 trim(outName),int(10000*atan(sw/sw2)*180./pi)
         elseif ((scan(1)%type_s)==2) then
            !k_0-> k_1 along fixed (current) angle
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !|k_1|=swf
            write(print_Name,'(a,i0)')&
@@ -519,12 +517,12 @@ subroutine map_scan
      omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-
+     
      call map_search
      !disprels.f90
 
   enddo
-
+  
   !End Parameter Scan
 end subroutine map_scan
 !-=-=-=-=-=
@@ -554,8 +552,8 @@ subroutine om_scan(is)
   complex :: omega     !Complex Frequency
   real    :: val                                  !Dispersion Relation Value
   integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance
-  real, parameter :: prec=1.E-7              !Root Finding precision
+  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
+  real, parameter :: prec=1.E-7              !Root Finding precision  
   !Eigenfunctions
   complex, dimension(1:3)       :: ef, bf !E, B
   complex, dimension(1:nspec)     :: ns     !density
@@ -563,6 +561,7 @@ subroutine om_scan(is)
   !Heating
   real, dimension(1:nspec) :: Ps !Power into/out of species
   real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+  real :: Ew !wave energy
   !complex, dimension(1:nspec,1:6) :: Tensor !Anti-Hermitian Tensor
   !species parameters:
   real, dimension(1:6,1:nspec) :: params
@@ -573,14 +572,14 @@ subroutine om_scan(is)
 
   !Assign output name for scan is
   call get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
-  !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME
+  !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
 
   write(*,'(2a)')' =>',trim(tensorName)
 
   if ((scan(is)%style_s)==-1) then
      !Scans with multiple components
      if ((scan(is)%type_s)==0) then
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !kperp_1 = range_i, kpar_1 = range_f
         kpari=kpar
@@ -593,7 +592,7 @@ subroutine om_scan(is)
         ki=kpar/cos(theta)
      elseif ((scan(is)%type_s)==2) then
         !k_0-> k_1 along fixed (current) angle
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !|k_1|=swf
         theta = atan(kperp/kpar)
@@ -613,7 +612,7 @@ subroutine om_scan(is)
         open(unit=out_unit_2(ii),file=trim(writeName),status='replace')
      endif
   enddo
-
+  
   !Allocate variable for last solution and copy in initial values
   allocate(omlast(nroot_max))
   do ii=1,nroot_max
@@ -626,42 +625,42 @@ subroutine om_scan(is)
   !Scan over chosen parameter
 
   !Output %n_scan steps, with %n_res steps inbetween each output
-  do jj = 0, (scan(is)%n_scan*scan(is)%n_res)
+  do jj = 0, (scan(is)%n_scan*scan(is)%n_res) 
      !Advance scanned parameter values
      if ((scan(is)%style_s)==-1)then
         if ((scan(is)%type_s)==0) then
            if (scan(is)%log_scan) then
               !k0->k1
-              sw=10.**(log10(kperpi)+diff*real(jj))
-              sw2=10.**(log10(kpari)+diff2*real(jj))
+              sw=10.**(log10(kperpi)+diff*real(jj))    
+              sw2=10.**(log10(kpari)+diff2*real(jj))    
            else
-              sw=(kperpi)+diff*real(jj)
-              sw2=(kpari)+diff2*real(jj)
+              sw=(kperpi)+diff*real(jj)    
+              sw2=(kpari)+diff2*real(jj)    
            endif
         elseif ((scan(is)%type_s)==1) then
            !theta_0->theta_1
            if (scan(is)%log_scan) then
-              theta_q=10.**(log10((theta))+diff*real(jj))
+              theta_q=10.**(log10((theta))+diff*real(jj))    
            else
-              theta_q=(((theta))+diff*real(jj))
+              theta_q=(((theta))+diff*real(jj))    
            endif
            sw=(ki*sin(theta_q))!kperp
            sw2=(ki*cos(theta_q))!kpar
         elseif ((scan(is)%type_s)==2) then
            !k along contant theta
            if (scan(is)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff*real(jj))
-              sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))
+              sw=10.**(log10(ki*sin(theta))+diff*real(jj))    
+              sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))    
            else
-              sw=(ki*sin(theta))+diff*real(jj)
-              sw2=(ki*cos(theta))+diff2*real(jj)
+              sw=(ki*sin(theta))+diff*real(jj)    
+              sw2=(ki*cos(theta))+diff2*real(jj)    
            endif
         endif
      else
         if (scan(is)%log_scan) then
-           sw=10.**(log10(scan(is)%range_i)+diff*real(jj))
+           sw=10.**(log10(scan(is)%range_i)+diff*real(jj))    
         else
-           sw=(scan(is)%range_i)+diff*real(jj)
+           sw=(scan(is)%range_i)+diff*real(jj)    
         endif
      endif
 
@@ -687,17 +686,17 @@ subroutine om_scan(is)
         iflag=0
         !Find New Omega Value
         omega=rtsec(disp,om1,om2,tol,iflag)
-
+        
         !Save Root
-        omlast(ii)=omega
-
+        omlast(ii)=omega        
+        
         !Output value every %n_res steps
         if (mod(jj,scan(is)%n_res)==0) then
            !Calculate eigenfns, heating only every %n_res steps
-
+           
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(is)%eigen_s,scan(is)%heat_s)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(is)%eigen_s,scan(is)%heat_s)
               omega=omlast(ii)
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
@@ -711,7 +710,7 @@ subroutine om_scan(is)
 
            !5, 6
 
-           !7,8 9,10 11,12 : 13,14 15,16 17,18 :
+           !7,8 9,10 11,12 : 13,14 15,16 17,18 : 
            !19,20 21,22 23,24 : 25,26 27,28 29,30 :
            !31,32 33,34
            !35, 36
@@ -721,43 +720,43 @@ subroutine om_scan(is)
               if (low_n) then
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
-                      omega,&
+                      omega,&            
                       bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                       Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
+                      params(1:6,1:nspec),Ew
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
-                      omega,&
+                      omega,&            
                       bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                       Ps(1:nspec),&
-                      params(1:6,1:nspec)
+                      params(1:6,1:nspec),Ew
               endif
            case(1) !Om, Eigen
               write(out_unit(ii),fmt)&
                    kperp,kpar,betap,vtp,&
-                   omega,&
+                   omega,&            
                    bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                    params(1:6,1:nspec)
            case(2) !Om, Heating
               if (low_n) then
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
-                      omega,&
+                      omega,&            
                       Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
+                      params(1:6,1:nspec),Ew
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
-                      omega,&
+                      omega,&            
                       Ps(1:nspec),&
-                      params(1:6,1:nspec)
+                      params(1:6,1:nspec),Ew
               endif
            case(3) !Om
               write(out_unit(ii),fmt)&
                    kperp,kpar,betap,vtp,&
-                   omega,&
-                   params(1:6,1:nspec)
+                   omega,&            
+                   params(1:6,1:nspec)                        
            case default
               write(*,'(a)')&
                    'Out_type outside of allowable parameter range'
@@ -778,7 +777,7 @@ subroutine om_scan(is)
            endif
         endif
 
-        !Save Roots for further scans:
+        !Save Roots for further scans:        
         if (jj==scan(is)%n_scan*scan(is)%n_res) then
            wroots(1,ii)=real(omega)
            wroots(2,ii)=aimag(omega)
@@ -825,8 +824,8 @@ subroutine om_double_scan
   complex :: omega     !Complex Frequency
   real    :: val                                  !Dispersion Relation Value
   integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance
-  real, parameter :: prec=1.E-7              !Root Finding precision
+  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
+  real, parameter :: prec=1.E-7              !Root Finding precision  
   !Eigenfunctions
   complex, dimension(1:3)       :: ef, bf !E, B
   complex, dimension(1:nspec)     :: ns     !density
@@ -834,6 +833,7 @@ subroutine om_double_scan
   !Heating
   real, dimension(1:nspec) :: Ps   !Power into/out of species
   real, dimension(1:4,1:nspec) :: Ps_split   !Power into/out of species from LD, TTD
+  real :: Ew !wave energy
   !species parameters:
   real, dimension(1:6,1:nspec) :: params
 
@@ -841,13 +841,13 @@ subroutine om_double_scan
 
   !Assign output name for scan is
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
-  !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME
+  !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME 
 
   do is = 1,2
      if ((scan(is)%style_s)==-1) then
         !Scans with multiple components
         if ((scan(is)%type_s)==0) then
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !kperp_1 = range_i, kpar_1 = range_f
            kpari=kpar
@@ -860,7 +860,7 @@ subroutine om_double_scan
            ki=kpar/cos(theta)
         elseif ((scan(is)%type_s)==2) then
            !k_0-> k_1 along fixed (current) angle
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !|k_1|=swf
            theta = atan(kperp/kpar)
@@ -884,53 +884,53 @@ subroutine om_double_scan
         open(unit=out_unit_2(ii),file=trim(writeName),status='replace')
      endif
   enddo
-
+  
   !Allocate variable for last solution and copy in initial values
   allocate(omlast(nroot_max))
   allocate(omSafe(nroot_max)); omSafe=cmplx(0.,0.)
   do ii=1,nroot_max
      omlast(ii)=cmplx(wroots(1,ii),wroots(2,ii))
-  enddo
+  enddo 
 
   !Parameter 1 scan
   !Output %n_scan steps, with %n_res steps inbetween each output
-  do kk = 0, (scan(1)%n_scan*scan(1)%n_res)
+  do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
      !Advance scanned parameter values
      if ((scan(1)%style_s)==-1)then
         if ((scan(1)%type_s)==0) then
            if (scan(1)%log_scan) then
               !k0->k1
-              sw=10.**(log10(kperpi)+diff(1,1)*real(kk))
-              sw2=10.**(log10(kpari)+diff(1,2)*real(kk))
+              sw=10.**(log10(kperpi)+diff(1,1)*real(kk))    
+              sw2=10.**(log10(kpari)+diff(1,2)*real(kk))    
            else
-              sw=(kperpi)+diff(1,1)*real(kk)
-              sw2=(kpari)+diff(1,2)*real(kk)
+              sw=(kperpi)+diff(1,1)*real(kk)    
+              sw2=(kpari)+diff(1,2)*real(kk)    
            endif
         elseif ((scan(1)%type_s)==1) then
            !theta_0->theta_1
            if (scan(1)%log_scan) then
-              theta_q=10.**(log10((theta))+diff(1,1)*real(kk))
+              theta_q=10.**(log10((theta))+diff(1,1)*real(kk))    
            else
-              theta_q=(((theta))+diff(1,1)*real(kk))
+              theta_q=(((theta))+diff(1,1)*real(kk))    
            endif
            sw=(ki*sin(theta_q))!kperp
            sw2=(ki*cos(theta_q))!kpar
         elseif ((scan(1)%type_s)==2) then
            !k along contant theta
            if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk))
-              sw2=10.**(log10(ki*cos(theta))+diff(1,1)*real(kk))
+              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk))    
+              sw2=10.**(log10(ki*cos(theta))+diff(1,1)*real(kk))    
            else
-              sw=(ki*sin(theta))+diff(1,1)*real(kk)
-              sw2=(ki*cos(theta))+diff(1,1)*real(kk)
+              sw=(ki*sin(theta))+diff(1,1)*real(kk)    
+              sw2=(ki*cos(theta))+diff(1,1)*real(kk)    
            endif
         endif
      else
         if (scan(1)%log_scan) then
-           sw=10.**(log10(scan(1)%range_i)+diff(1,1)*real(kk))
+           sw=10.**(log10(scan(1)%range_i)+diff(1,1)*real(kk))    
         else
-           sw=(scan(1)%range_i)+diff(1,1)*real(kk)
+           sw=(scan(1)%range_i)+diff(1,1)*real(kk)    
         endif
      endif
 
@@ -944,9 +944,9 @@ subroutine om_double_scan
         iflag=0
         !Find New Omega Value
         omega=rtsec(disp,om1,om2,tol,iflag)
-
+        
         !Save Root
-        omlast(ii)=omega
+        omlast(ii)=omega      
 
      enddo
 
@@ -959,45 +959,45 @@ subroutine om_double_scan
         do ii = 1,nroot_max
            omSafe(ii) = omlast(ii)
         enddo
-
+    
         !Parameter 2 scan
         !Output %n_scan steps, with %n_res steps inbetween each output
-        do jj = 0, (scan(2)%n_scan*scan(2)%n_res)
+        do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
            !Advance scanned parameter values
            if ((scan(2)%style_s)==-1)then
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
                     !k0->k1
-                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))
-                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))
+                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))    
+                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))    
                  else
-                    sw3=(kperpi)+diff(2,1)*real(jj)
-                    sw4=(kpari)+diff(2,2)*real(jj)
+                    sw3=(kperpi)+diff(2,1)*real(jj)    
+                    sw4=(kpari)+diff(2,2)*real(jj)    
                  endif
               elseif ((scan(2)%type_s)==1) then
                  !theta_0->theta_1
                  if (scan(2)%log_scan) then
-                    theta_q=10.**(log10((theta))+diff(2,1)*real(jj))
+                    theta_q=10.**(log10((theta))+diff(2,1)*real(jj))    
                  else
-                    theta_q=(((theta))+diff(2,1)*real(jj))
+                    theta_q=(((theta))+diff(2,1)*real(jj))    
                  endif
                  sw3=(ki*sin(theta_q))!kperp
                  sw4=(ki*cos(theta_q))!kpar
               elseif ((scan(2)%type_s)==2) then
                  !k along contant theta
                  if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj))
-                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,1)*real(jj))
+                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj))    
+                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,1)*real(jj))    
                  else
-                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj)
-                    sw4=(ki*cos(theta_q))+diff(2,1)*real(jj)
+                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj)    
+                    sw4=(ki*cos(theta_q))+diff(2,1)*real(jj)    
                  endif
               endif
            else
               if (scan(2)%log_scan) then
-                 sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))
+                 sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))    
               else
-                 sw3=(scan(2)%range_i)+diff(2,1)*real(jj)
+                 sw3=(scan(2)%range_i)+diff(2,1)*real(jj)    
               endif
            endif
 
@@ -1012,77 +1012,77 @@ subroutine om_double_scan
                  params(6,ii) = spec(ii)%vv_s
               enddo
            endif
-
+           
            !Root Scan....
            do ii=1,nroot_max
               !Bracket values for root search
               omold=omlast(ii)
               om1=omold*(1.-prec)
               om2=omold*(1.+prec)
-
+              
               iflag=0
               !Find New Omega Value
               omega=rtsec(disp,om1,om2,tol,iflag)
-
+              
               !Save Root
-              omlast(ii)=omega
-
+              omlast(ii)=omega        
+              
               !Output value every %n_res steps
               if (mod(jj,scan(2)%n_res)==0) then
                  !Calculate eigenfns, heating only every %n_res steps
-
+                 
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
-                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
+                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(2)%eigen_s,scan(2)%heat_s)
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
                     endif
 
                  endif
-
+                 
                  select case(out_type)
                  case(0) !Om, Eigen, Heating
                     if (low_n) then
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
-                            omega,&
+                            omega,&            
                             bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                             Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                            params(1:6,1:nspec)
+                            params(1:6,1:nspec),Ew
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
-                            omega,&
+                            omega,&            
                             bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                             Ps(1:nspec),&
-                            params(1:6,1:nspec)
+                            params(1:6,1:nspec),Ew
                     endif
                  case(1) !Om, Eigen
                     write(out_unit(ii),fmt)&
                          kperp,kpar,betap,vtp,&
-                         omega,&
+                         omega,&            
                          bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                          params(1:6,1:nspec)
                  case(2) !Om, Heating
                     if (low_n) then
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
-                            omega,&
+                            omega,&            
                             Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                            params(1:6,1:nspec)
+                            params(1:6,1:nspec),Ew
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
-                            omega,&
+                            omega,&            
                             Ps(1:nspec),&
-                            params(1:6,1:nspec)
+                            params(1:6,1:nspec),Ew
                     endif
                  case(3) !Om
                     write(out_unit(ii),fmt)&
                          kperp,kpar,betap,vtp,&
-                         omega,&
-                         params(1:6,1:nspec)
+                         omega,&            
+                         params(1:6,1:nspec)             
                  end select
               endif
 
@@ -1108,36 +1108,36 @@ subroutine om_double_scan
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
                     !k0->k1
-                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))
-                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))
+                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))    
+                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))    
                  else
-                    sw3=(kperpi)+diff(2,1)*real(jj)
-                    sw4=(kpari)+diff(2,2)*real(jj)
+                    sw3=(kperpi)+diff(2,1)*real(jj)    
+                    sw4=(kpari)+diff(2,2)*real(jj)    
                  endif
               elseif ((scan(2)%type_s)==1) then
                  !theta_0->theta_1
                  if (scan(2)%log_scan) then
-                    theta_q=10.**(log10((theta))+diff(2,1)*real(jj))
+                    theta_q=10.**(log10((theta))+diff(2,1)*real(jj))    
                  else
-                    theta_q=(((theta))+diff(2,1)*real(jj))
+                    theta_q=(((theta))+diff(2,1)*real(jj))    
                  endif
                  sw3=(ki*sin(theta_q))!kperp
                  sw4=(ki*cos(theta_q))!kpar
               elseif ((scan(2)%type_s)==2) then
                  !k along contant theta
                  if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta))+diff(2,1)*real(jj))
-                    sw4=10.**(log10(ki*cos(theta))+diff(2,1)*real(jj))
+                    sw3=10.**(log10(ki*sin(theta))+diff(2,1)*real(jj))    
+                    sw4=10.**(log10(ki*cos(theta))+diff(2,1)*real(jj))    
                  else
-                    sw3=(ki*sin(theta))+diff(2,1)*real(jj)
-                    sw4=(ki*cos(theta))+diff(2,1)*real(jj)
+                    sw3=(ki*sin(theta))+diff(2,1)*real(jj)    
+                    sw4=(ki*cos(theta))+diff(2,1)*real(jj)    
                  endif
               endif
            else
               if (scan(2)%log_scan) then
-                 sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))
+                 sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))    
               else
-                 sw3=(scan(2)%range_i)+diff(2,1)*real(jj)
+                 sw3=(scan(2)%range_i)+diff(2,1)*real(jj)    
               endif
            endif
            !Recall Saved roots
@@ -1149,7 +1149,7 @@ subroutine om_double_scan
               write(*,'(a,i3,a,2es14.4)')'Root ',ii,': ',omlast(ii)
            enddo
         endif
-
+     
      enddo  !End Parameter 1 Scan
 
 end subroutine om_double_scan
@@ -1185,7 +1185,7 @@ subroutine radial_scan
   !For only writing out every n_scan, not n_scan * n_res steps
   !species parameters: useful for outputing data
   real, dimension(1:6,1:nspec) :: params
-
+  
   real :: theta ! atan(kperp/kpar)
   real :: ki    ! current value of sqrt(kperp^2 + kpar^2)
   real :: pi
@@ -1240,7 +1240,7 @@ subroutine radial_scan
      betap=beta_rad(ir)
      vtp=vtp_rad(ir)
      !Set Species Parameters
-     do is = 1,nspec
+     do is = 1,nspec        
         spec(is)%tau_s  = rad_spec(is,ir)%tau_s
         spec(is)%mu_s   = rad_spec(is,ir)%mu_s
         spec(is)%alph_s = rad_spec(is,ir)%alph_s
@@ -1267,7 +1267,7 @@ subroutine radial_scan
 
         !Root Finder in separate subroutine
         call om_radial(omlast,params,out_unit,fmt,out_type,ir,.true.)
-
+        
      case(1)
         !fixed kperp, scan over kpar
 
@@ -1286,11 +1286,11 @@ subroutine radial_scan
            endif
 
            !set kpar
-           kpar=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           kpar=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+           
            if (ij==0) then
               !Save roots for next scan of k
               do ii=1,nroot_max
@@ -1299,7 +1299,7 @@ subroutine radial_scan
            endif
 
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*);!write(out_unit(ii),*)
@@ -1322,11 +1322,11 @@ subroutine radial_scan
            endif
 
            !set kperp
-           kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+           
            if (ij==0) then
               !Save roots for next scan of k
               do ii=1,nroot_max
@@ -1335,7 +1335,7 @@ subroutine radial_scan
            endif
 
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*);!write(out_unit(ii),*)
@@ -1360,13 +1360,13 @@ subroutine radial_scan
            endif
 
            !set k
-           ki=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           ki=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
            kperp = ki*sin(theta)
            kpar  = ki*cos(theta)
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+           
            if (ij==0) then
               !Save roots for next scan of k
               do ii=1,nroot_max
@@ -1375,7 +1375,7 @@ subroutine radial_scan
            endif
 
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*);!write(out_unit(ii),*)
@@ -1383,7 +1383,7 @@ subroutine radial_scan
 
      case(4)
         !fixed k, scan over theta
-
+        
         theta = atan(kperp/kpar)
         ki=kpar/cos(theta)
 
@@ -1401,13 +1401,13 @@ subroutine radial_scan
            endif
 
            !set k
-           theta = (rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij)
+           theta = (rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij)    
            kperp = ki*sin(theta*pi/180.)
            kpar  = ki*cos(theta*pi/180.)
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+           
            if (ij==0) then
               !Save roots for next scan of k
               do ii=1,nroot_max
@@ -1416,7 +1416,7 @@ subroutine radial_scan
            endif
 
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*);!write(out_unit(ii),*)
@@ -1424,16 +1424,16 @@ subroutine radial_scan
 
      case(5)
         !plane scan over (kperp, kpar)
-
+        
         !reset input roots for new scan of kplane
         do ii = 1,nroot_max
            omLast(ii)=omSafe(1,ii)
         enddo
-
+        
         !kpar loop
         do ik = 0,rad_scan(2)%n_scan*rad_scan(2)%n_res
            !set kpar
-           kpar=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           kpar=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))    
 
            write(*,'(a,es14.4)')&
                 'kpar rho_p :',kpar
@@ -1448,8 +1448,8 @@ subroutine radial_scan
            !kperp loop
            do ij = 0,rad_scan(1)%n_scan*rad_scan(1)%n_res
               !set kperp
-              kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
-
+              kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
+              
               !Determine write status
               if ((mod(ij,rad_scan(1)%n_res)==0).and.&
                    (mod(ik,rad_scan(2)%n_res)==0))then
@@ -1460,7 +1460,7 @@ subroutine radial_scan
 
               !Root Finder in separate subroutine
               call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+              
               if ((ij==0).and.(ik==0)) then
                  !Save roots for next scan of kplane
                  do ii=1,nroot_max
@@ -1474,7 +1474,7 @@ subroutine radial_scan
                     omSafe(2,ii)=omLast(ii)
                  enddo
               endif
-
+              
            enddo
            !Spacing between radial steps for contour plotting
            if ((mod(ik,rad_scan(2)%n_res)==0))then
@@ -1483,7 +1483,7 @@ subroutine radial_scan
               enddo
            endif
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*)
@@ -1491,16 +1491,16 @@ subroutine radial_scan
 
      case(6)
         !plane scan over (k, theta)
-
+        
         !reset input roots for new scan of kplane
         do ii = 1,nroot_max
            omLast(ii)=omSafe(1,ii)
         enddo
-
+        
         !k loop
         do ik = 0,rad_scan(2)%n_scan*rad_scan(2)%n_res
            !set k
-           ki=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           ki=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))    
 
            write(*,'(a,es14.4)')&
                 'k rho_p :',ki
@@ -1529,7 +1529,7 @@ subroutine radial_scan
 
               !Root Finder in separate subroutine
               call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
-
+              
               if ((ij==0).and.(ik==0)) then
                  !Save roots for next scan of kplane
                  do ii=1,nroot_max
@@ -1543,7 +1543,7 @@ subroutine radial_scan
                     omSafe(2,ii)=omLast(ii)
                  enddo
               endif
-
+              
            enddo
            !Spacing between radial steps for contour plotting
            if ((mod(ik,rad_scan(2)%n_res)==0))then
@@ -1552,7 +1552,7 @@ subroutine radial_scan
               enddo
            endif
         enddo
-
+        
         !Spacing between radial steps for contour plotting
         do ii=1,nroot_max
            write(out_unit(ii),*)
@@ -1586,7 +1586,7 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   integer :: out_type !(0-3):advanced logic for outputing
   ! (yes,no) (eigen, heating)
   integer :: ir !radial index
-  logical :: mod_write
+  logical :: mod_write 
   !T-> write freq etc.
   !F-> do not write
   !Local
@@ -1596,15 +1596,16 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   complex :: omega     !Complex Frequency
   real    :: val                                  !Dispersion Relation Value
   integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance
-  real, parameter :: prec=1.E-7              !Root Finding precision
+  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
+  real, parameter :: prec=1.E-7              !Root Finding precision  
   !Eigenfunctions
   complex, dimension(1:3)       :: ef, bf !E, B
   complex, dimension(1:nspec)     :: ns     !density
   complex, dimension(1:3,1:nspec) :: Us     !Velocity
   !Heating
-  real, dimension(1:nspec) :: Ps   !Power into/out of species
+  real, dimension(1:nspec) :: Ps   !Power into/out of species  
   real, dimension(1:4,1:nspec) :: Ps_split   !Power into/out of species from LD, TTD
+  real :: Ew !wave energy
 
   !Root Scan....
   do ii=1,nroot_max
@@ -1616,42 +1617,42 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
         iflag=0
         !Find New Omega Value
         omega=rtsec(disp,om1,om2,tol,iflag)
-
+        
         !Save Root
-        omlast(ii)=omega
+        omlast(ii)=omega        
 
         if (mod_write) then
            !Calculate eigenfunctions and heating rates
            if ((radial_heating).or.(radial_eigen)) then
               val=abs(disp(omega))
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,radial_eigen,radial_heating)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,radial_eigen,radial_heating)
            endif
-
+           
            !Output results
            if (out_type==0) & !Om, Eigen, Heating
                 write(out_unit(ii),fmt)&
                 radius(ir),kperp,kpar,betap,vtp,&
-                omega,&
+                omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                 Ps(1:nspec),&
-                params(1:6,1:nspec)
+                params(1:6,1:nspec),Ew
            if (out_type==1) & !Om, Eigen
                 write(out_unit(ii),fmt)&
                 radius(ir),kperp,kpar,betap,vtp,&
-                omega,&
+                omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                 params(1:6,1:nspec)
            if (out_type==2) & !Om, Heating
                 write(out_unit(ii),fmt)&
                 radius(ir),kperp,kpar,betap,vtp,&
-                omega,&
+                omega,&            
                 Ps(1:nspec),&
-                params(1:6,1:nspec)
+                params(1:6,1:nspec),Ew
            if (out_type==3) & !Om
                 write(out_unit(ii),fmt)&
                 radius(ir),kperp,kpar,betap,vtp,&
-                omega,&
-                params(1:6,1:nspec)
+                omega,&            
+                params(1:6,1:nspec)                        
         endif
      enddo
 
@@ -1665,7 +1666,7 @@ end subroutine om_radial
 !     velocities and density fluctuations for (omega,gamma)
 !     and particle heating/cooling from a given wave
 !-=-=-=-=-=-
-subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_L)
+subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,ewave,eigen_L,heat_L)
   use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
   implicit none
   !!Passed!!
@@ -1680,7 +1681,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
   real, dimension(1:nspec), intent(out) :: Ps   !Power into/out of species
   real, dimension(1:4,1:nspec), intent(out) :: Ps_split!Power into/out of species
   !Power into/out of species from LD, TTD, CD
-  !real, dimension(1:nspec,1:4) :: Ps_split
+  !real, dimension(1:nspec,1:4) :: Ps_split   
   logical :: eigen_L,heat_L !Logical for calculating eigenvalues, heating
   !Local
   real :: sume                                   !Temp sum
@@ -1704,13 +1705,13 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
   !Calculate Magnetic Fields
   !NOTE: There appears to be an overall sign error here --GGH 20 JUN 2008
   !NOTE: Sign error corrected by GGH on 2 SEP 2010 (Verified by EQ 6 JUN 2009)
-  !KGK: need to include a factor of sqrt(T_perp p/T_par p) in the case of
-  !proton temperature anisotropy, as the thermal speed
+  !KGK: need to include a factor of sqrt(T_perp p/T_par p) in the case of 
+  !proton temperature anisotropy, as the thermal speed 
   !since vtp is for the parallel thermal speed (19 DEC 2013)
   magnetic(1) = -1.* kpar*electric(2)/(omega*vtp*sqrt(spec(1)%alph_s))
   magnetic(2) = -1.* (kperp*electric(3) - kpar*electric(1))/(omega*vtp*sqrt(spec(1)%alph_s))
   magnetic(3) = kperp*electric(2)/(omega*vtp*sqrt(spec(1)%alph_s))
-
+  
   !If (scan(is)%eigen_s) loop
   if (eigen_L) then
   !CALCULATE VELOCITY FLUCTUATIONS========================================
@@ -1748,9 +1749,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
      temp1 = cmplx(real(omega),0.)
      !temp1 = omega
      temp1 = disp(temp1)
-
+     
      !if (kpar.gt.0.29) write(*,*)'!/!',susc(:,1,2)
-
+     
      do ii = 1, 3 !tensor index
         do j = 1, 3 !tensor index
            do jj = 1, nspec !species index
@@ -1761,12 +1762,12 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
                 sum(conjg(susc(:,j,ii))))
         enddo
      enddo
-
+     
      term(:,:)=0.
      term1(:)=0.
      do ii = 1, 3
         do jj = 1, nspec
-           term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))
+           term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
         enddo
      enddo
 
@@ -1776,9 +1777,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
      enddo
 
      !if (kpar.gt.0.29) write(*,*)'!!',Ps(:)
-
+     
      temp1 = disp(cmplx(real(omega*1.000001),0.))
-
+     
      do ii = 1, 3
         do j = 1, 3
            susch(ii,j) = 0.5*(sum(susc(:,ii,j)) + &
@@ -1788,23 +1789,23 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
         enddo
      enddo
 
-
-
+     
+     
      ewave = 0.
      do ii = 1, 3
         term1(ii) = sum(conjg(electric(:))*dsusch(:,ii))
      enddo
-
+     
      ewave = sum(term1(:)*electric(:)) + sum(magnetic(:)*conjg(magnetic(:)))
 
      !write(*,*)'term:',term1(:)
      !write(*,*)'wave energy:',ewave,sum(term1(:)*electric(:)),sum(magnetic(:)*conjg(magnetic(:)))
-
+     
      !if (kpar.gt.0.29) write(*,*)'!!!',ewave,sum(term1(:)*electric(:)),term1(1:3)
-
+     
      !Ps = 2.*Ps/ewave
      Ps = Ps/ewave
-
+  
      !LD, TTD, and CD calculation
      if (low_n) then
 
@@ -1817,7 +1818,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
               enddo
            enddo
         enddo
-
+        
         !LANDAU DAMPING
         term(:,:)=0.
         term1(:)=0.
@@ -1825,7 +1826,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
            do jj = 1, nspec
               term(jj,ii) = conjg(electric(3))*susca(jj,3,ii)
            enddo
-        enddo
+        enddo        
         Ps_split(1,:) = 0.
         do jj = 1, nspec
            Ps_split(1,jj) = term(jj,3)*electric(3)
@@ -1838,20 +1839,20 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
            do jj = 1, nspec
               term(jj,ii) = conjg(electric(2))*susca(jj,2,ii)
            enddo
-        enddo
+        enddo        
         Ps_split(2,:) = 0.
         do jj = 1, nspec
            Ps_split(2,jj) = term(jj,2)*electric(2)
         enddo
-
+     
         !Total n=0 terms
         term(:,:)=0.
         term1(:)=0.
         do ii = 1, 3
            do jj = 1, nspec
-              term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))
+              term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
            enddo
-        enddo
+        enddo        
         Ps_split(3,:) = 0.
         do jj = 1, nspec
            Ps_split(3,jj) = sum(term(jj,:)*electric(:))
@@ -1873,15 +1874,15 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_
         term1(:)=0.
         do ii = 1, 3
            do jj = 1, nspec
-              term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))
+              term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
            enddo
-        enddo
+        enddo        
         Ps_split(4,:) = 0.
         do jj = 1, nspec
            Ps_split(4,jj) = sum(term(jj,:)*electric_xy(:))
         enddo
 
-        !Normalization
+        !Normalization             
         Ps_split = Ps_split/ewave
      endif
 
@@ -1924,6 +1925,7 @@ subroutine fpc(wrootindex) !TODO: move this and all related routines to separate
   !Heating (Required parameters of calc eigen)
   real, dimension(1:nspec) :: Ps !Power into/out of species
   real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+  real :: Ew !wave energy
   !loop counter/ loop parameters
   integer :: is                     !species counter
   integer :: unit_s                 !out file unit counter
@@ -1965,8 +1967,8 @@ subroutine fpc(wrootindex) !TODO: move this and all related routines to separate
   ! Refine Omega Value
   iflag=0
   omega=rtsec(disp,om1,om2,tol,iflag)
-
-  call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.false.)
+  
+  call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,.true.,.false.)
 
   do is = 1, nspec
     !make file to store result
@@ -2175,10 +2177,6 @@ subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_
 
   i = (0,1)
   omega_temp = real(omega)+i*aimag(omega) !`fix` sign as people PLUME returns omega as omega=wr-i*gam
-  if(aimag(omega_temp) < 0 ) THEN
-    write(*,*)"WARNING: THIS PETURBED DIST FUNCTION IS ONLY CORRECT WORKS FOR DAMPED WAVES!"
-    write(*,*)"(i.e. omega=omega_r-i*gamma amd gamma < 0)! Please select a different solution..."
-  END IF
 
   i = (0,1.)
   hatV_s = V_s*(tau_s/(mu_s*betap))**(.5)
@@ -2358,12 +2356,12 @@ subroutine set_map_pointers(outName,diff,diff2)
         !Log spacing
         diff=(log10(scan(1)%range_f)-log10(scan(1)%range_i))/&
              real(scan(1)%n_scan*scan(1)%n_res)
-        !par(i)=10.**(log10(scan(1)%range_i)+diff*real(i))
+        !par(i)=10.**(log10(scan(1)%range_i)+diff*real(i))    
      else
         !Linear spacing
         diff=((scan(1)%range_f)-(scan(1)%range_i))/&
              real(scan(1)%n_scan*scan(1)%n_res)
-        !par(i)=(scan(1)%range_i)+diff*real(i)
+        !par(i)=(scan(1)%range_i)+diff*real(i)    
      endif
   endif
 
@@ -2371,7 +2369,7 @@ subroutine set_map_pointers(outName,diff,diff2)
   if (scan(1)%style_s.eq.-1) then
      !Global parameter scan- 2 components
      if (scan(1)%type_s.eq.0) then
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !kperp_1 = range_i, kpar_1 = range_f
         write(param,'(a)')'k'
@@ -2379,7 +2377,7 @@ subroutine set_map_pointers(outName,diff,diff2)
         sw2=>kpar
         kpari=kpar
         kperpi=kperp
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4,a,es14.4,a)') &
              'Scan over ',trim(param),' from ',&
              '(kperp,kpar) = (',kperp,',',kpar,') to (',&
@@ -2398,7 +2396,7 @@ subroutine set_map_pointers(outName,diff,diff2)
            diff2=((scan(1)%range_f)-(kpar))/&
                 real(scan(1)%n_scan*scan(1)%n_res)
         endif
-
+        
 
      elseif (scan(1)%type_s.eq.1) then
         write(param,'(a)')'theta'
@@ -2409,7 +2407,7 @@ subroutine set_map_pointers(outName,diff,diff2)
         ki=kpar/cos(theta)
         sw=>kperp
         sw2=>kpar
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4,a,es14.4,a)') &
              'Scan over ',trim(param),' from ',&
              'theta = ',theta*180./pi,' to ',&
@@ -2428,7 +2426,7 @@ subroutine set_map_pointers(outName,diff,diff2)
      elseif (scan(1)%type_s.eq.2) then
         write(param,'(a)')'k_fixed_theta'
         !k_0-> k_1 along fixed (current) angle
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !|k_1|=swf
         theta = atan(kperp/kpar)
@@ -2436,7 +2434,7 @@ subroutine set_map_pointers(outName,diff,diff2)
         sw=>kperp
         sw2=>kpar
 
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4)') &
              'Scan over ',trim(param),' from ',&
              '|k| = ',ki,' to ',scan(1)%range_f,&
@@ -2457,7 +2455,7 @@ subroutine set_map_pointers(outName,diff,diff2)
         endif
 
      endif
-
+  
   elseif (scan(1)%style_s.eq.0) then
      !Global parameter scan
      if (scan(1)%type_s.eq.0) then
@@ -2474,7 +2472,7 @@ subroutine set_map_pointers(outName,diff,diff2)
         sw=>vtp
      endif
 
-     if (writeOut) &
+     if (writeOut) &          
           write(*,'(3a,es14.4,a,es14.4)') &
           'Scan over ',trim(param),' from ',&
           scan(1)%range_i,' to ',scan(1)%range_f
@@ -2507,7 +2505,7 @@ subroutine set_map_pointers(outName,diff,diff2)
              ' in a ',nspec,' species plasma.'
      endif
 
-     if (writeOut) &
+     if (writeOut) &          
           write(*,'(3a,i3,a,es14.4,a,es14.4)') &
           'Scan over ',trim(param),' for species ',&
           scan(1)%style_s,' from ',&
@@ -2517,7 +2515,7 @@ subroutine set_map_pointers(outName,diff,diff2)
 
   !Scans over n_s, q_s, and vv_s for species s require adjustment of
   !n_s',q_s', and vv_s' for species s' (or, potentially multiple species)
-  !Such a variation is not general, and a user wishing to perform such
+  !Such a variation is not general, and a user wishing to perform such 
   !a scan will have to choose how to vary the s' parameters for their
   !particular case.
   if ((scan(1)%style_s)==1) then
@@ -2579,12 +2577,12 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         !Log spacing
         diff=(log10(scan(is)%range_f)-log10(scan(is)%range_i))/&
              real(scan(is)%n_scan*scan(is)%n_res)
-        !par(i)=10.**(log10(scan(is)%range_i)+diff*real(i))
+        !par(i)=10.**(log10(scan(is)%range_i)+diff*real(i))    
      else
         !Linear spacing
         diff=((scan(is)%range_f)-(scan(is)%range_i))/&
              real(scan(is)%n_scan*scan(is)%n_res)
-        !par(i)=(scan(is)%range_i)+diff*real(i)
+        !par(i)=(scan(is)%range_i)+diff*real(i)    
      endif
   endif
 
@@ -2592,7 +2590,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   if (scan(is)%style_s.eq.-1) then
      !Global parameter scan- 2 components
      if (scan(is)%type_s.eq.0) then
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !kperp_1 = range_i, kpar_1 = range_f
         write(param,'(a)')'k'
@@ -2600,7 +2598,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         sw2=>kpar
         kpari=kpar
         kperpi=kperp
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4,a,es14.4,a)') &
              'Scan over ',trim(param),' from ',&
              '(kperp,kpar) = (',kperp,',',kpar,') to (',&
@@ -2610,18 +2608,18 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
              'data/',trim(dataName),'/',&
              trim(outputName),'_',&
              trim(param),'_',int(1000.*kperp),&
-             '_',int(1000.*kpar),&
+             '_',int(1000.*kpar),&                
              '_',int(1000.*scan(is)%range_i),&
-             '_',int(1000.*scan(is)%range_f)
+             '_',int(1000.*scan(is)%range_f)                
 
         if (scan(is)%tensor_s) then
            write(tensorName,'(7a,i0,a,i0,a,i0,a,i0)')&
                 'data/',trim(dataName),'/',&
                 trim(outputName),'_tensor_',&
                 trim(param),'_',int(1000.*kperp),&
-                '_',int(1000.*kpar),&
+                '_',int(1000.*kpar),&                
                 '_',int(1000.*scan(is)%range_i),&
-                '_',int(1000.*scan(is)%range_f)
+                '_',int(1000.*scan(is)%range_f)                
         endif
 
         if (scan(is)%log_scan) then
@@ -2637,7 +2635,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
            diff2=((scan(is)%range_f)-(kpar))/&
                 real(scan(is)%n_scan*scan(is)%n_res)
         endif
-
+        
 
      elseif (scan(is)%type_s.eq.1) then
         write(param,'(a)')'theta'
@@ -2648,7 +2646,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         ki=kpar/cos(theta)
         sw=>kperp
         sw2=>kpar
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4,a,es14.4,a)') &
              'Scan over ',trim(param),' from ',&
              'theta = ',theta*180./pi,' to ',&
@@ -2658,14 +2656,14 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
              'data/',trim(dataName),'/',&
              trim(outputName),'_',&
              trim(param),'_',int(10.*theta*180./pi),&
-             '_',int(10.*scan(is)%range_i)
+             '_',int(10.*scan(is)%range_i)                
 
         if (scan(is)%tensor_s) then
            write(tensorName,'(7a,i0,a,i0)')&
                 'data/',trim(dataName),'/',&
                 trim(outputName),'_tensor_',&
                 trim(param),'_',int(10.*theta*180./pi),&
-                '_',int(10.*scan(is)%range_i)
+                '_',int(10.*scan(is)%range_i)                
         endif
 
         if (scan(is)%log_scan) then
@@ -2681,7 +2679,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
      elseif (scan(is)%type_s.eq.2) then
         write(param,'(a)')'k_fixed_theta'
         !k_0-> k_1 along fixed (current) angle
-        !k_0 -> k_1;
+        !k_0 -> k_1; 
         !k_0= current k
         !|k_1|=swf
         theta = atan(kperp/kpar)
@@ -2689,7 +2687,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         sw=>kperp
         sw2=>kpar
 
-        if (writeOut) &
+        if (writeOut) &          
              write(*,'(4a,es14.4,a,es14.4,a,es14.4)') &
              'Scan over ',trim(param),' from ',&
              '|k| = ',ki,' to ',scan(is)%range_f,&
@@ -2726,7 +2724,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         endif
 
      endif
-
+  
   elseif (scan(is)%style_s.eq.0) then
      !Global parameter scan
      if (scan(is)%type_s.eq.0) then
@@ -2743,7 +2741,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
         sw=>vtp
      endif
 
-     if (writeOut) &
+     if (writeOut) &          
           write(*,'(3a,es14.4,a,es14.4)') &
           'Scan over ',trim(param),' from ',&
           scan(is)%range_i,' to ',scan(is)%range_f
@@ -2804,7 +2802,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
              ' in a ',nspec,' species plasma.'
      endif
 
-     if (writeOut) &
+     if (writeOut) &          
           write(*,'(3a,i3,a,es14.4,a,es14.4)') &
           'Scan over ',trim(param),' for species ',&
           scan(is)%style_s,' from ',&
@@ -2824,9 +2822,9 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   if (scan(is)%eigen_s) then
      if (scan(is)%heat_s) then
         if (low_n) then
-           write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
+           write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3,es15.6e3)'
         else
-           write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3)'
+           write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
         endif
         out_type=0
      else
@@ -2836,7 +2834,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   else
      if (scan(is)%heat_s) then
         if (low_n) then
-           write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
+           write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3,es15.6e3)'
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3)'
         endif
@@ -2851,7 +2849,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
 
   !Scans over n_s, q_s, and vv_s for species s require adjustment of
   !n_s',q_s', and vv_s' for species s' (or, potentially multiple species)
-  !Such a variation is not general, and a user wishing to perform such
+  !Such a variation is not general, and a user wishing to perform such 
   !a scan will have to choose how to vary the s' parameters for their
   !particular case.
   if ((scan(is)%style_s)==1) then
@@ -2930,7 +2928,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      if (scan(is)%style_s.eq.-1) then
         !Global parameter scan- 2 components
         if (scan(is)%type_s.eq.0) then
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !kperp_1 = range_i, kpar_1 = range_f
            write(param(is),'(a)')'k'
@@ -2943,12 +2941,12 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
            endif
            kpari=kpar
            kperpi=kperp
-           if (writeOut) &
+           if (writeOut) &          
                 write(*,'(a,i0,4a,es15.6e3,a,es15.6e3,a,es15.6e3,a,es15.6e3,a)') &
                 'Scan ',is,' over ',trim(param(is)),' from ',&
                 '(kperp,kpar) = (',kperp,',',kpar,') to (',&
                 scan(is)%range_i,',',scan(is)%range_f,')'
-
+           
            if (scan(is)%log_scan) then
               !Log spacing
               diff(is,1)=(log10(scan(is)%range_i)-log10(kperp))/&
@@ -2962,8 +2960,8 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               diff(is,2)=((scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
            endif
-
-
+           
+           
         elseif (scan(is)%type_s.eq.1) then
            write(param(is),'(a)')'theta'
            !theta_0 -> theta_1
@@ -2978,12 +2976,12 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               sw3=>kperp
               sw4=>kpar
            endif
-           if (writeOut) &
+           if (writeOut) &          
                 write(*,'(a,i0,4a,es15.6e3,a,es15.6e3,a,es15.6e3,a,es15.6e3,a)') &
                 'Scan ',is,' over ',trim(param(is)),' from ',&
                 'theta = ',theta*180./pi,' to ',&
                 scan(is)%range_i
-
+           
            if (scan(is)%log_scan) then
               !Log spacing
               diff(is,1)=(log10(pi*(scan(is)%range_i)/180.)-log10(theta))/&
@@ -2993,11 +2991,11 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               diff(is,1)=((pi*(scan(is)%range_i)/180.)-(theta))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
            endif
-
+           
         elseif (scan(is)%type_s.eq.2) then
            write(param(is),'(a)')'k_fixed_theta'
            !k_0-> k_1 along fixed (current) angle
-           !k_0 -> k_1;
+           !k_0 -> k_1; 
            !k_0= current k
            !|k_1|=swf
            theta = atan(kperp/kpar)
@@ -3009,13 +3007,13 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               sw3=>kperp
               sw4=>kpar
            endif
-
-           if (writeOut) &
+           
+           if (writeOut) &          
                 write(*,'(a,i0,4a,es15.6e3,a,es15.6e3,a,es15.6e3)') &
                 'Scan ',is,' over ',trim(param(is)),' from ',&
                 '|k| = ',ki,' to ',scan(is)%range_f,&
                 ' at fixed theta = ',theta * 180./pi
-
+                      
            if (scan(is)%log_scan) then
               !Log spacing
               diff(is,1)=(log10(sin(theta)*scan(is)%range_f)-log10(kperp))/&
@@ -3029,9 +3027,9 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               diff(is,2)=((cos(theta)*scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
            endif
-
+           
         endif
-
+        
      elseif (scan(is)%style_s.eq.0) then
         !Global parameter scan
         if (scan(is)%type_s.eq.0) then
@@ -3051,11 +3049,11 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
            if (is==1) sw=>vtp
            if (is==2) sw3=>vtp
         endif
-
-        if (writeOut) &
+        
+        if (writeOut) &          
              write(*,'(3a,es15.6e3,a,es15.6e3)') &
              'Scan over ',trim(param(is)),' from ',&
-             scan(is)%range_i,' to ',scan(is)%range_f
+             scan(is)%range_i,' to ',scan(is)%range_f   
      else
         if (scan(is)%style_s.le.nspec) then
            !Species parameter scan
@@ -3089,18 +3087,18 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                 'Attempting to scan parameters for species ',scan(is)%style_s,&
                 ' in a ',nspec,' species plasma.'
         endif
-
-        if (writeOut) &
+        
+        if (writeOut) &          
              write(*,'(3a,i3,a,es15.6e3,a,es15.6e3)') &
              'Scan over ',trim(param(is)),' for species ',&
              scan(is)%style_s,' from ',&
              scan(is)%range_i,' to ',scan(is)%range_f
-
+        
      endif
-
+          
      !Scans over n_s, q_s, and vv_s for species s require adjustment of
      !n_s',q_s', and vv_s' for species s' (or, potentially multiple species)
-     !Such a variation is not general, and a user wishing to perform such
+     !Such a variation is not general, and a user wishing to perform such 
      !a scan will have to choose how to vary the s' parameters for their
      !particular case.
      if ((scan(is)%style_s)==1) then
@@ -3133,7 +3131,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                 'disprels.f90%om_scan module'
         endif
      endif
-
+     
   enddo!End (is) loop for first and second scan information
 
      !Format output structure
@@ -3152,9 +3150,9 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      if (scan(2)%eigen_s) then
         if (scan(2)%heat_s) then
            if (low_n) then
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3,es15.6e3)'
            else
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
            endif
            out_type=0
         else
@@ -3164,9 +3162,9 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      else
         if (scan(2)%heat_s) then
            if (low_n) then
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3,es15.6e3)'
            else
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3,es15.6e3)'
            endif
            out_type=2
         else
@@ -3197,11 +3195,11 @@ end subroutine get_double_out_name
 
 !THE BEATING HEART OF THE CODE....
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!Collisionless Vlasov-Maxwell Dispersion Relation for an
+!Collisionless Vlasov-Maxwell Dispersion Relation for an 
 !Arbitrarily Large Set of ions and electrons, each with a
 !Bi-Maxwellian Velocity Distribution.
 !
-!Based upon the Proton-Electron Maxwellian Vlasov-Maxwell Dispersion Solver
+!Based upon the Proton-Electron Maxwellian Vlasov-Maxwell Dispersion Solver 
 !Written by Greg Howes and Elliot Quataert
 !
 !             Copyright 2015
@@ -3228,7 +3226,7 @@ end subroutine get_double_out_name
 !!!!
    complex function disp(om)
      !Plasma Dispersion Function- allows for +/- k_parallel values
-     use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam
+     use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
      use vars,  only: low_n, susc_low
      implicit none
      complex :: om                          !Complex Frequency
@@ -3249,9 +3247,9 @@ end subroutine get_double_out_name
      complex, dimension(-nbrack:nbrack), save :: zz !Plasma Disp Functions
      complex, dimension(1:6) :: norm !normalization for chi_s
      !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-
+     
      complex, dimension(3,3) :: a                 !Temp Matrix for readability
-
+     
      integer :: is
      complex ::temp
 
@@ -3262,18 +3260,18 @@ end subroutine get_double_out_name
      real :: disp_Q       !q_R/q_s
      real :: disp_D       !n_s/n_R
      real :: disp_v       !v_drift s/v_AR
-
+     
      !For computational efficiency, save Bessel functions between calls==========
      real, save :: kperp_last
      real, allocatable, dimension(:), save :: tau_last,alph_last, mu_last, Q_last
      logical, allocatable, dimension(:) :: reuse_bessel
 
-     if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))
-     if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))
-     if (.not. allocated(tau_last)) allocate(tau_last(nspec))
-     if (.not. allocated(alph_last)) allocate(alph_last(nspec))
-     if (.not. allocated(mu_last)) allocate(mu_last(nspec))
-     if (.not. allocated(Q_last)) allocate(Q_last(nspec))
+     if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
+     if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
+     if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
+     if (.not. allocated(alph_last)) allocate(alph_last(nspec))          
+     if (.not. allocated(mu_last)) allocate(mu_last(nspec))          
+     if (.not. allocated(Q_last)) allocate(Q_last(nspec))          
      if (.not. allocated(reuse_bessel)) allocate(reuse_bessel(nspec))
 
      reuse_bessel=.false.
@@ -3281,11 +3279,11 @@ end subroutine get_double_out_name
      !lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
      !changes, the bessel functions need to be recalculated...
      if ((kperp .eq. kperp_last ).and.(spec(1)%alph_s .eq. alph_last(1))) then
-        do is=1, nspec
+        do is=1, nspec 
            if ((spec(is)%tau_s .eq. tau_last(is)) .and. &
                (spec(is)%alph_s .eq. alph_last(is)) .and. &
                (spec(is)%mu_s .eq. mu_last(is)) .and. &
-               (spec(is)%q_s .eq. q_last(is))) &
+               (spec(is)%q_s .eq. q_last(is))) &                
                 reuse_bessel(is)=.true.
         enddo
      endif
@@ -3295,11 +3293,11 @@ end subroutine get_double_out_name
 
      !Arguments of Bessel functions for reference species
      lambdap = kperp**2./2.
-
+     
      !temperature anisotropy for reference species
      alphp = spec(1)%alph_s
 
-     !Indices of refraction from the dispersion relation
+     !Indices of refraction from the dispersion relation 
      !the dispersion relation  is multiplied by [omega/Omega_R]^2
      !to remove singularities in the function.
      enx2=((kperp/(om*vtp))**2.)/alphp !n_x^2
@@ -3311,12 +3309,12 @@ end subroutine get_double_out_name
      !enxnz=(kperp*kpar/(vtp)**2.)/alphp !n_x n_z
 
      !Initialize eps factors
-     eps_xx = cmplx(0.,0.)
-     eps_yy = cmplx(0.,0.)
-     eps_zz = cmplx(0.,0.)
-     eps_xy = cmplx(0.,0.)
-     eps_xz = cmplx(0.,0.)
-     eps_yz = cmplx(0.,0.)
+     eps_xx = cmplx(0.,0.) 
+     eps_yy = cmplx(0.,0.) 
+     eps_zz = cmplx(0.,0.) 
+     eps_xy = cmplx(0.,0.) 
+     eps_xz = cmplx(0.,0.) 
+     eps_yz = cmplx(0.,0.) 
 
      !Calculate the Susceptibility Tensor for Each Species:
      do is=1,nspec
@@ -3326,23 +3324,23 @@ end subroutine get_double_out_name
         disp_Q    =spec(is)%Q_s
         disp_D    =spec(is)%D_s
         disp_v    =spec(is)%vv_s
-
+        
         !frequently employed v drift normalization
         Vdrifts = kpar * disp_v / sqrt(betap*alphp)
 
         lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
-
+        
         !Clear the Temporary Susceptability
-        eps_xx_t = cmplx(0.,0.)
-        eps_xy_t = cmplx(0.,0.)
-        eps_xz_t = cmplx(0.,0.)
-        eps_yy_t = cmplx(0.,0.)
-        eps_yz_t = cmplx(0.,0.)
-        eps_zz_t = cmplx(0.,0.)
+        eps_xx_t = cmplx(0.,0.) 
+        eps_xy_t = cmplx(0.,0.) 
+        eps_xz_t = cmplx(0.,0.) 
+        eps_yy_t = cmplx(0.,0.) 
+        eps_yz_t = cmplx(0.,0.) 
+        eps_zz_t = cmplx(0.,0.) 
 
      !Compute all necessary plasma dispersion functions and bessel functions
         tsi=0. ;  zz=0. ;
-        if (.not. reuse_bessel(is)) then
+        if (.not. reuse_bessel(is)) then 
            do n = -nbrack-1, nbrack+1
               jn(n,is)=bessel(abs(n),lambdas)
            enddo
@@ -3413,7 +3411,7 @@ end subroutine get_double_out_name
                 (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
                 disp_alph*(om - Vdrifts)*(zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
                 (1.-disp_alph)*(zz(n)-zz(-n))))
-
+           
            !-=-=-=-=-=-=-=-=-=-=
            !ZZ
            !-=-=-=-=-=-=-=-=-=-=
@@ -3426,8 +3424,8 @@ end subroutine get_double_out_name
                 +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*& !changed sign
                 (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
                 n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
-
-
+           
+           
            !-=-=-=-=-=-=-=-=-=-=
            !XY
            !-=-=-=-=-=-=-=-=-=-=
@@ -3455,7 +3453,7 @@ end subroutine get_double_out_name
                 (zz(n)+zz(-n))*(disp_alph*om*(om-Vdrifts) -&
                 (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
                 +(zz(n)-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
-
+           
            !-=-=-=-=-=-=-=-=-=-=
            !n=\pm 1 susceptibility
            if ((low_n).and.(n==1)) then
@@ -3494,7 +3492,7 @@ end subroutine get_double_out_name
                    (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
                    +(zz(n)-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
 
-              susc_low(is,3,2,1) = -susc_low(is,2,3,1)
+              susc_low(is,3,2,1) = -susc_low(is,2,3,1)  
 
               susc_low(is,3,3,1) = norm(3)*&
                    jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
@@ -3548,7 +3546,7 @@ end subroutine get_double_out_name
 
            !jn(0,is)*om*disp_alph*(1.-Vdrifts/om)*(&
            !     1 + zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar))
-
+           
         !Apply the correct species normalization
            !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
         !-=-=-=-=-=-=-=-=-=-=
@@ -3572,10 +3570,10 @@ end subroutine get_double_out_name
 
         !Save the temporary susceptibility to the 'susc' array
         susc(is,1,1) = eps_xx_t
-        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t
-        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t
+        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
+        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
         susc(is,2,2) = eps_yy_t
-        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t
+        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
         susc(is,3,3) = eps_zz_t
         !Add to the total susceptibility
         if (.false.) then
@@ -3599,13 +3597,13 @@ end subroutine get_double_out_name
         Q_last(is) =disp_Q
         mu_last(is)=disp_mu
      enddo
-
+     
      if (.false.) then
         write(*,'(a)')'Sum of Species: '
-
+        
         !write(*,'(a)')'chi_xx n=1:'
         !write(*,'(2es17.7)')testxx(is)
-
+        
         write(*,'(6es17.7)')eps_xx, eps_xy, eps_xz
         write(*,'(6es17.7)')-eps_xy, eps_yy, eps_yz
         write(*,'(6es17.7)')eps_xz, -eps_yz, eps_zz
@@ -3620,7 +3618,7 @@ end subroutine get_double_out_name
      a(1,2) = eps_xy
      a(1,3) = eps_xz + enxnz
      a(2,1) = -a(1,2)
-     a(2,2) = 1. + eps_yy - enx2 - enz2
+     a(2,2) = 1. + eps_yy - enx2 - enz2 
      a(2,3) = eps_yz
      a(3,1) = a(1,3)
      a(3,2) = -a(2,3)
@@ -3638,33 +3636,33 @@ end subroutine get_double_out_name
 
      if (.false.) then
         write(*,'(a)')'Wave Equation: '
-
-        write(*,'(6es15.6e3)')a(1,1),a(1,2),a(1,3)
-        write(*,'(6es15.6e3)')a(2,1),a(2,2),a(2,3)
-        write(*,'(6es15.6e3)')a(3,1),a(3,2),a(3,3)
+        
+        write(*,'(6es15.6e3)')a(1,1),a(1,2),a(1,3)    
+        write(*,'(6es15.6e3)')a(2,1),a(2,2),a(2,3)    
+        write(*,'(6es15.6e3)')a(3,1),a(3,2),a(3,3)    
 
         write(*,'(a,2es15.6e3)')'|D| :',om
         write(*,'(2es15.6e3)')disp
-
+        
      endif
      return
 
    end function disp
+
 
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2005
 !------------------------------------------------------------------------------
    !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
-     use vars, only : writeOut
-     integer, parameter :: maxit=1000
+     integer, parameter :: maxit=75
      complex :: func, x1, xl, x2
-     complex :: fl, f, swap, dx
+     complex :: fl, f, swap, dx 
      real    :: xacc
      integer :: iflag,j
      complex :: maxr,minr
      logical :: limits=.false.
-
+     
      !if (real(x1).eq.0.) &
      !        write(*,'(4es15.6e3)')x1,x2
 
@@ -3673,13 +3671,13 @@ end subroutine get_double_out_name
         maxr=x2*10.
         minr=x1*0.1
      endif
-
+     
      fl=func(x1)
      f=func(x2)
-
+     
      !write(*,'(4es15.6e3)')fl,x1
      !write(*,'(4es15.6e3)')f,x2
-
+     
      if(abs(fl).lt.abs(f))then
         rtsec=x1
         xl=x2
@@ -3739,8 +3737,6 @@ end subroutine get_double_out_name
         !     write(*,'(i3,a,6es15.6e3)')j,': ',dx,rtsec,f
         if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
      enddo
-     ! if (writeOut) WRITE(*,*)'Warning, rtsec was not able to converge to a value within tolerance of ',xacc, ' in ', maxit, ' steps. The dispersion relation solution value, ',rtsec,', may be inaccurate.'
-
  !    stop
      return
 !     pause 'rtsec exceed maximum iterations'
@@ -3763,7 +3759,7 @@ end subroutine get_double_out_name
      f1=func(x1)
      f2=func(x2)
      !Check if root is bracketed
-     if (f1*f2 .ge. 0.) then
+     if (f1*f2 .ge. 0.) then 
         write(*,'(a)')'ERROR: Root for bisection must be bracketed!'
         return
      endif
@@ -3781,7 +3777,7 @@ end subroutine get_double_out_name
         dx=x2-x1
         if (fmid .eq. 0. .or. abs(dx) .lt. xacc) exit
      enddo
-
+     
      return
    end function bisect
 !------------------------------------------------------------------------------
@@ -3795,11 +3791,11 @@ end subroutine get_double_out_name
      !Passed
      real, dimension(:,:), pointer :: val       !Value of Dispersion relation
      integer :: numroots                        !Number of roots
-     integer, dimension(1:2,1:numroots) :: iroots     !Indices of roots
+     integer, dimension(1:2,1:numroots) :: iroots     !Indices of roots 
      integer, intent(out) :: nroots             !Number of roots found
      !Local
      integer :: ir,ii                           !Counters
-
+     
      !Find local minima in map
      iroots=0
      nroots=0
@@ -3926,7 +3922,7 @@ end function zet_in
 !     write (*,11) z
 11    format (' argument wp of subroutine zetvec has too large a negative imaginary part, wp = '/2e14.7)
 !     zetout=zeta_large(zin)
-
+ 
 !     zetout=(0.,0.)
 !     stop
 ! GGH: Modification to return with a fail=.true.
@@ -4013,11 +4009,10 @@ end function zet_in
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006
 !------------------------------------------------------------------------------
-!  Call the correct Numerical Recipes Modified Bessel function
+!  Call the correct Numerical Recipes Bessel function
 !     bessels is a function which calls the numerical recipes
 !     routine of the appropriate order -- this is to avoid
 !     to many if - then statements in the program
-!
    real function bessel(n,x)
      use bessels, only: bessim0,bessim1,bessim
      implicit none
@@ -4025,7 +4020,7 @@ end function zet_in
      integer :: n                                 !Bessel function order
 
      select case(n)
-     case(0)
+     case(0) 
         bessel=bessim0(x)
      case(1)
         bessel = bessim1(x)
@@ -4036,7 +4031,7 @@ end function zet_in
         stop
      end select
 
-     return
+     return 
    end function bessel
 
 end module disprels

@@ -20,11 +20,11 @@ module vars
   real, target :: betap     !beta_p=8 pi n_ref T_p/B^2
   real, target :: kperp     !k_perp rho_ref
   real, target :: kpar      !k_parallel rho_ref
-  real, target :: vtp       !v_th,ref,||/c
+  real, target :: vtp       !v_t,ref||/c
 
   !Numer of species
   integer :: nspec=3
-
+  
   !Number of parameter scans
   integer :: nscan = 0
 
@@ -36,10 +36,10 @@ module vars
         real :: alph_s    !T_perp/T_parallel_s
         real :: Q_s       !q_ref/q_s
         real :: D_s       !n_s/n_ref
-        real :: vv_s      !v_drift/v_alfven
+        real :: vv_s      !v_drift/c
      end type specie
-  type (specie), dimension (:), allocatable, target :: spec
-  type (specie), dimension (:,:), allocatable, target :: rad_spec
+  type (specie), dimension (:), allocatable, target :: spec 
+  type (specie), dimension (:,:), allocatable, target :: rad_spec 
 
   !Scan Parameters
   public :: scanner
@@ -59,7 +59,7 @@ module vars
      !-=-=-=-=-=-=-=-=-
      !Defines nature of parameter scans:
      !Style: -1- Global two component Scan:
-     !     Type: 0 k_0-> k_1
+     !     Type: 0 k_0-> k_1           
      !           1 theta_0 -> theta_1
      !           2 k_fixed angle
      !Style: 0- Global Scan:
@@ -74,7 +74,7 @@ module vars
      !           3 Q_s
      !           4 D_s
      !           5 vv_s
-     !-=-=-=-=-=-=-=-=-
+     !-=-=-=-=-=-=-=-=-    
   type (scanner), dimension (:), allocatable :: scan
   type (scanner), dimension (:), allocatable :: rad_scan
 
@@ -120,7 +120,7 @@ module vars
   !radial scan
   logical :: radial_heating, radial_eigen
   !determines k values to include in radial scan
-  integer :: k_scan
+  integer :: k_scan 
   !0: single point in kperp, kpar space
   !1: fixed kperp, scan over kpar
   !2: fixed kpar,  scan over kperp

@@ -241,7 +241,7 @@ module bessels
       end if
       if (x < 0D0 .and. mod(n, 2) == 1) bessj_s = -bessj_s
       if (n_is_negative .and. mod(n,2) == 1) bessj_s = -bessj_s
-      if (n_is_negative) n = n*(-1) !return n to being negative. TODO: use INTENT(in) for n, which prevents this function from being able to change the value of n
+      if (n_is_negative) n = n*(-1) !return n to being negative. 
    END FUNCTION bessj_s
 
 !------------------------------------------------------------------------------
