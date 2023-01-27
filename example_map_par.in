@@ -23,9 +23,9 @@ nroot_max=4
 !Logical for map search for solutions
 !True-> read in complex frequency region from %maps namelist
 !False-> Read in nroot_max guesses from %guess_# namelists
-use_map=.true. !toggle on low-n susceptibility
-low_n=.true. !Flag to use Revised low_n for LD/TTD separation
-new_low_n=.true.
+use_map=.true. 
+low_n=.true. !toggle on low-n susceptibility
+new_low_n=.true. !Flag to use Revised low_n for LD/TTD separation
 !enable or suppress output to STD_OUT
 writeOut=.true.
 !Subdirectory (below PLUME/data/) where outputs will be writted
