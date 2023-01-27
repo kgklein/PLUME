@@ -36,7 +36,7 @@ contains
     !$ ./plume.e example.in
     use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc,option,writeOut
     use vars, only : dataName,nscan,nroot_max,use_map,outputName, pi
-    use vars, only : low_n, susc_low
+    use vars, only : low_n, susc_low, new_low_n
     implicit none
     !For Testing Quasineutrality
     real :: sum_nq,sum_nqv
@@ -44,7 +44,8 @@ contains
 
     nameList /params/ &
          betap,kperp,kpar,vtp,nspec,nscan,option,nroot_max,&
-         use_map,writeOut,dataName,outputName
+         use_map,low_n, new_low_n, &
+         writeOut,dataName,outputName
     
     call get_unused_unit (input_unit_no)
     call get_runname(runname)
