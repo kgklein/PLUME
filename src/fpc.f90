@@ -55,6 +55,9 @@ module fpc
       !Heating (Required parameters of calc eigen)
       real, dimension(1:nspec) :: Ps !Power into/out of species
       real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+      !>>>KGK: 1/31/23; allow GGH's new LD/TTD calculation
+      real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
+      !<<<KGG: 1/31/23
       real :: Ew !wave energy
       !loop counter/ loop parameters
       integer :: is                     !species counter
@@ -98,7 +101,10 @@ module fpc
       iflag=0
       omega=rtsec(disp,om1,om2,tol,iflag)
       
-      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,.true.,.false.)
+      !call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,.true.,.false.)
+      !>>>KGK: 1/31/23: updated to 'new' form of PS_split, with GGH's LD/TTD differentiation
+      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,PS_split_new,.true.,.false.)
+      !<<<KGK: 1/31/23
 
       do is = 1, nspec
         !make file to store result
