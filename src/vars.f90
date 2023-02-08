@@ -83,7 +83,10 @@ module vars
  !Susceptibility and elements in tensor form of wave equation
   complex, dimension(:,:,:), allocatable:: susc   !Susceptibility tensor
   complex, dimension(:,:,:,:), allocatable:: susc_low   !low-n Susceptibility tensor
-  logical :: low_n=.true. !toggle on low-n susceptibility
+  logical :: low_n=.false. !toggle on low-n susceptibility
+  !>>>GGH: 1/18/23
+  logical :: new_low_n=.false. !Flag to use Revised low_n for LD/TTD separation
+  !<<<GGH: 1/18/23
   complex, dimension(3,3) :: lam                  !Matrix in Wave equation
 
   !Option
@@ -149,5 +152,8 @@ module vars
   public :: radial_heating, radial_eigen, pi
   public :: low_n, susc_low
   public :: vperpmin,vperpmax,vparmin,vparmax,delv
+  !>>>GGH: 1/18/23
+  public :: new_low_n
+  !<<<GGH: 1/18/23
 
 end module vars
