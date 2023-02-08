@@ -98,7 +98,7 @@ module fpc
       iflag=0
       omega=rtsec(disp,om1,om2,tol,iflag)
       
-      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,.true.,.false.)
+      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,.true.,.true.)
 
       do is = 1, nspec
         !make file to store result
