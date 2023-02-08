@@ -1796,11 +1796,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,ewave,eigen_L
      
      ewave = sum(term1(:)*electric(:)) + sum(magnetic(:)*conjg(magnetic(:)))
 
-     !write(*,*)'term:',term1(:)
-     !write(*,*)'wave energy:',ewave,sum(term1(:)*electric(:)),sum(magnetic(:)*conjg(magnetic(:)))
-     
-     !if (kpar.gt.0.29) write(*,*)'!!!',ewave,sum(term1(:)*electric(:)),term1(1:3)
-     
      !Ps = 2.*Ps/ewave
      Ps = Ps/ewave
   
