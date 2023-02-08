@@ -591,12 +591,12 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
         flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
         if(verbose):
             print("Loading ",flnmsweep1,"...")
-        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose)
+        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
         flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
         if(verbose):
             print("Loading ",flnmsweep2,"...")
-        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose)
+        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
         if(verbose):
             print("Combining data and returning as 1 sweep...")
@@ -757,6 +757,7 @@ def loadlinfpcceperp(filename):
     return linfpcdata
 
 def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check which ps split is used automatically or eliminate old one entirely
+
     """
     Load data from plume sweep
 
@@ -897,6 +898,8 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
         plume_sweep['byi'] = plume_sweep['byi']*plume_sweep['vtp']
         plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
         
+        return plume_sweep
+        
     else:
         plume_sweep = {
             "kperp": [],
@@ -942,8 +945,10 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
             "p1ttd2": [], #cross term in tensor; typically small
             "p1n0": [],
             "p1cd": [],
-            "p2ld": [],
-            "p2ttd": [],
+            "p2ld1": [],
+            "p2ld2": [],
+            "p2ttd1": [],
+            "p2ttd2": [],
             "p2n0": [],
             "p2cd": [],
         }
@@ -988,16 +993,18 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
             plume_sweep['n2i'].append(float(line[33]))
             plume_sweep['ps1'].append(float(line[34]))
             plume_sweep['ps2'].append(float(line[35]))
-            plume_sweep['p1ld1'].append(float(line[36]))
-            plume_sweep['p1ld2'].append(float(line[37]))
-            plume_sweep['p1ttd1'].append(float(line[38]))
-            plume_sweep['p1ttd2'].append(float(line[39]))
+            plume_sweep['p1ttd1'].append(float(line[36]))
+            plume_sweep['p1ttd2'].append(float(line[37]))
+            plume_sweep['p1ld1'].append(float(line[38]))
+            plume_sweep['p1ld2'].append(float(line[39]))
             plume_sweep['p1n0'].append(float(line[40]))
             plume_sweep['p1cd'].append(float(line[41]))
-            plume_sweep['p2ld'].append(float(line[42]))
-            plume_sweep['p2ttd'].append(float(line[43]))
-            plume_sweep['p2n0'].append(float(line[44]))
-            plume_sweep['p2cd'].append(float(line[45]))
+            plume_sweep['p2ttd1'].append(float(line[42]))
+            plume_sweep['p2ttd2'].append(float(line[43]))
+            plume_sweep['p2ld1'].append(float(line[44]))
+            plume_sweep['p2ld2'].append(float(line[45]))
+            plume_sweep['p2n0'].append(float(line[46]))
+            plume_sweep['p2cd'].append(float(line[47]))
 
             line = f.readline()
 
@@ -1012,7 +1019,7 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
         plume_sweep['byi'] = plume_sweep['byi']*plume_sweep['vtp']
         plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
 
-    return plume_sweep
+        return plume_sweep
     
 def double_k_scan_from_root(plume_input,ktotsweepmin,ktotsweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200):
     #makes sweep over kperp and kpar from k0=np.sqrt(kperp^2+kpar^2) to k1=np.sqrt(kperp^2+kpar^2)
