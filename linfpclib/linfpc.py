@@ -32,7 +32,6 @@ def find_nearest(array, value): #random but very useful function
     idx = (np.abs(array - value)).argmin()
     return idx
 
-#TODO: rename
 class plume_input:
     #class that have dictss with all inputs for each namelist
     #params
@@ -159,13 +158,13 @@ class plume_input:
         else:
             self.guesses.append(tempguess)
 
-    def write_input(self,flnm,outputname,desc=''):
+    def write_input(self,flnm,outputname,desc='',verbose=True):
         #TODO: option branches to check that all relevant info is there
         #calls write_namelist
         #TODO: write out date and time at top of file
         #TODO: write out description at top
 
-        _replace_input_aux(flnm)
+        _replace_input_aux(flnm,verbose=verbose)
 
         f = open(str(flnm)+'.in', "w")
 
@@ -367,13 +366,14 @@ class plume_input:
 
     dataname = 'default'
 
-def _replace_input_aux(inputflnm):
+def _replace_input_aux(inputflnm,verbose=True):
     from os.path import exists
 
     file_exists = exists(inputflnm+'.in')
     
     if(file_exists):
-        print("Rewriting file...")
+        if(verbose):
+            print("Rewriting file...")
         cmd = 'rm '+str(inputflnm)+'.in'
         os.system(cmd)
     
@@ -415,6 +415,60 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog'):
     tempfile.close()
 
     return np.asarray(roots)
+    
+def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlog='outlog',verbose=True):
+    outputnametemp1 = outputname+'eigenatpoint'
+    inputflnmtemp1 = inputflnm+'eigenatpoint'
+    
+    if(verbose):
+        print("OVERWRITING OPTION; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")   #TODO: or consider making a temporary copy
+    plume_input.params['option'] = 1
+    plume_input.params['use_map'] = '.false.'
+    
+    sweepvar = '0'
+    midsweepval = plume_input.params['kperp']
+    
+    scan_type=sweepvar
+
+    scan_style=0
+    swi=plume_input.params['kperp']
+    swf=plume_input.params['kperp']
+    swlog=False
+    ns=1
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.scan_inputs = [{}]
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+    
+    plume_input.guesses = [{}]
+    g_om = root.real
+    g_gam = root.imag
+    plume_input.make_guess(g_om,g_gam)
+    
+    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
+    plume_input.write_input(inputflnmtemp1,outputnametemp1,verbose=verbose)
+    cmd = './plume.e ' + inputflnmtemp1 + '.in'
+    cmd += ' >> ' + outlog
+    if(verbose):
+        print(cmd)
+    os.system(cmd)
+    
+    flnmsweep = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_kperp_'+str(int(swi*1000))+'_'+str(int(swf*1000))+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep,"...")
+    onepointsweep = load_plume_sweep(flnmsweep,verbose=verbose)
+    
+    #remove redundant point info
+    
+    for _key in onepointsweep:
+        onepointsweep[_key] = np.asarray(onepointsweep[_key][0])
+    
+    
+    
+    return onepointsweep
+    
+    
 
 def load_roots():
     pass
@@ -455,10 +509,11 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog')
 
     return cdatafilenames
 
-def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=2000):
+def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True):
     #makes sweeps that start at params namelist, and branches out
 
-    print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+    if(verbose):
+        print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
     plume_input.params['option'] = 1
     plume_input.params['use_map'] = '.false.'
     plume_input.params['nroot_max'] = 1
@@ -502,10 +557,11 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     plume_input.scan_inputs = [{}]
     plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
     #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
-    plume_input.write_input(inputflnmtemp1,outputnametemp1)
+    plume_input.write_input(inputflnmtemp1,outputnametemp1,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp1 + '.in'
     cmd += ' >> ' + outlog
-    print(cmd)
+    if(verbose):
+        print(cmd)
     os.system(cmd)
 
     #do second sweep
@@ -523,23 +579,27 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     plume_input.scan_inputs = [{}]
     plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
     #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
-    plume_input.write_input(inputflnmtemp2,outputnametemp2)
+    plume_input.write_input(inputflnmtemp2,outputnametemp2,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp2 + '.in'
     cmd += ' >> ' + outlog
-    print(cmd)
+    if(verbose):
+        print(cmd)
     os.system(cmd)
 
     try:
         #load sweeps
         flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-        print("Loading ",flnmsweep1,"...")
-        sweephigh = load_plume_sweep(flnmsweep1)
+        if(verbose):
+            print("Loading ",flnmsweep1,"...")
+        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose)
 
         flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-        print("Loading ",flnmsweep2,"...")
-        sweeplow = load_plume_sweep(flnmsweep2)
+        if(verbose):
+            print("Loading ",flnmsweep2,"...")
+        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose)
 
-        print("Combining data and returning as 1 sweep...")
+        if(verbose):
+            print("Combining data and returning as 1 sweep...")
         for _key in sweeplow.keys():
             sweeplow[_key] = np.flip(sweeplow[_key])
 
@@ -696,7 +756,7 @@ def loadlinfpcceperp(filename):
 
     return linfpcdata
 
-def load_plume_sweep(flnm):
+def load_plume_sweep(flnm,verbose=True):
     """
     Load data from plume sweep
 
@@ -713,7 +773,8 @@ def load_plume_sweep(flnm):
         dictionary of data related to plume
     """
     
-    print("WARNING: assuming 2 species...\n TODO: write load_plume_sweep_nspec...")
+    if(verbose):
+        print("WARNING: assuming 2 species...\n TODO: write load_plume_sweep_nspec...")
 
     f = open(flnm)
 
@@ -828,3 +889,44 @@ def load_plume_sweep(flnm):
     plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
 
     return plume_sweep
+    
+def double_k_scan_from_root(plume_input,ktotsweepmin,ktotsweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200):
+    #makes sweep over kperp and kpar from k0=np.sqrt(kperp^2+kpar^2) to k1=np.sqrt(kperp^2+kpar^2)
+
+    print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+    plume_input.params['option'] = 1
+    plume_input.params['use_map'] = '.false.'
+    plume_input.params['nroot_max'] = 1
+
+    plume_input.guesses = [{}]
+    g_om = root.real
+    g_gam = root.imag
+    plume_input.make_guess(g_om,g_gam)
+
+    #do double sweep
+    outputnametemp1 = outputname+'doublesweep1'
+    inputflnmtemp1 = inputflnm+'doublesweep1'
+    scan_type=0
+    scan_style=-1
+    swi=ktotsweepmin
+    swf=ktotsweepmax
+    swlog=True
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.scan_inputs = [{}]
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
+    plume_input.write_input(inputflnmtemp1,outputnametemp1)
+    cmd = './plume.e ' + inputflnmtemp1 + '.in'
+    cmd += ' >> ' + outlog
+    print(cmd)
+    os.system(cmd)
+
+    #load sweep
+    flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_k_'+str(int(plume_input.params['kperp']*1000))+'_'+str(int(plume_input.params['kpar']*1000))+'_'+str(int(ktotsweepmin*1000))+'_'+str(int(ktotsweepmax*1000))+'.mode1'
+    print("Loading ",flnmsweep1,"...")
+    dblsweep = load_plume_sweep(flnmsweep1)
+    
+    return dblsweep 
