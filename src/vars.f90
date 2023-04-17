@@ -135,7 +135,8 @@ module vars
   real :: pi
 
   !variables for fpc
-  real    :: vperpmin,vperpmax,vparmin,vparmax   !upper and lowerbounds of normalized velocity (v/vts) space samples
+  real    :: vperpmin,vperpmax,vparmin,vparmax   !upper and lowerbounds of normalized velocity (v/vts) space samples (gyro coords)
+  real    :: vxmin,vxmax,vymin,vymax,vzmin,vzmax !upper and lowerbounds of normalized velocity (v/vts) space samples (cart coords)
   real    :: delv                                !normalized velocity (delv/vts) space grid spacing
 
 
@@ -152,8 +153,7 @@ module vars
   public :: radial_heating, radial_eigen, pi
   public :: low_n, susc_low
   public :: vperpmin,vperpmax,vparmin,vparmax,delv
-  !>>>GGH: 1/18/23
+  public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
   public :: new_low_n
-  !<<<GGH: 1/18/23
 
 end module vars

@@ -14,16 +14,16 @@
 !=============================================================================!
 module fpc
   implicit none
-  private :: calc_correlation_par, calc_fs0, calc_fs1 
+  private :: calc_correlation_par_gyro, calc_correlation_perp_gyro, calc_correlation_i_car, calc_fs0, calc_fs1
 
-  public :: compute_fpc, write_fs0
+  public :: compute_fpc_gyro, compute_fpc_cart, write_fs0
 
   contains
     
     !------------------------------------------------------------------------------
     !                           Collin Brown, 2020
     !------------------------------------------------------------------------------
-    subroutine compute_fpc(wrootindex) !TODO: move this and all related routines to separate f90 file
+    subroutine compute_fpc_gyro(wrootindex)
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv
       use vars, only : wroots, nroots
@@ -55,9 +55,7 @@ module fpc
       !Heating (Required parameters of calc eigen)
       real, dimension(1:nspec) :: Ps !Power into/out of species
       real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
-      !>>>KGK: 1/31/23; allow GGH's new LD/TTD calculation
       real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-      !<<<KGG: 1/31/23
       real :: Ew !wave energy
       !loop counter/ loop parameters
       integer :: is                     !species counter
@@ -106,7 +104,6 @@ module fpc
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        !TODO: update sample input file to include all input varaibles (see vars.f90. Ex: we are missing values for tensor_s, thus a 'random' logical is assigned here)
         unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cpar.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s,file=trim(filename),status='replace')
@@ -139,10 +136,10 @@ module fpc
         do vperpindex = 0, numstepvperp
           write(*,*)'vperp = ',vperpi !quick debug 'progress bar'
           do vparindex = 0, numstepvpar
-            call calc_correlation_par(omega,ef,bf,vperpi,vpari,delv,spec(is)%vv_s,&
+            call calc_correlation_par_gyro(omega,ef,bf,vperpi,vpari,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
                                       spec(is)%mu_s,spec(1)%alph_s,Cor_par_s,fs1,dfs1z)
-            call calc_correlation_perp(omega,ef,bf,vperpi,vpari,delv,spec(is)%vv_s,&
+            call calc_correlation_perp_gyro(omega,ef,bf,vperpi,vpari,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
                                       spec(is)%mu_s,spec(1)%alph_s,Cor_perp_s,fs1,dfs1perp)
             if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
@@ -161,7 +158,230 @@ module fpc
         vperpi = vperpmin
       end do
 
-    end subroutine compute_fpc
+    end subroutine compute_fpc_gyro
+
+    subroutine compute_fpc_cart(wrootindex)
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec
+      use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+      use vars, only : wroots, nroots
+      use vars, only : outputName, dataName
+      
+      use disprels, only : calc_eigen, rtsec, disp
+
+      integer, intent(in) :: wrootindex              !index of selected root
+
+      character(60) :: filename                      !Output File name
+      character(60) :: outputPath                    !Output folder
+      character(60) :: cmd                           !Varaible to store command line commands
+      real    :: vxi, vyi, vzi                       !normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
+      integer :: vxindex, vyindex, vzindex           !loop counters
+      real    :: vmax3rdval                          !sampled range when computing projection
+      complex :: omega                               !Complex Frequency
+      real    :: Cor_par_s, Cor_perp1_s, Cor_perp2_s !normalized correlation value
+      complex :: fs1                                 !normalized distribution function
+      real    :: wi,gi                               !Freq and Damping of initial guess
+      complex :: ominit                              !Complex Frequency initial guess
+      complex :: om1,om2                             !Bracket Values
+      integer :: iflag                               !Flag for Root search
+      real, parameter :: tol=1.0E-13                 !Root Search Tolerance
+      real, parameter :: prec=1.E-7                  !Root Finding precision
+      integer :: numstepvx, numstepvy, numstepvz     !total number of steps in loop
+      logical :: ex                                  !used to check if results directory exists
+      complex, dimension(1:3)       :: ef, bf !E, B
+      complex, dimension(1:nspec)     :: ns     !density
+      complex, dimension(1:3,1:nspec) :: Us     !Velocity
+      !Heating (Required parameters of calc eigen)
+      real, dimension(1:nspec) :: Ps !Power into/out of species
+      real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+      real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
+      real :: Ew !wave energy
+      !loop counter/ loop parameters
+      integer :: is                     !species counter
+      integer :: unit_s                 !out file unit counter
+
+      real :: start, finish !debug/test to measure runtime of function
+
+      !check if results directory exists
+      ! INQUIRE (DIRECTORY='data', EXIST=ex)
+      ex = .true. !TODO: make this work for gfortran compiler
+      if(ex) then
+        write(*,*)"Assuming data folder already exists..."
+      else
+        write(*,*)"Creating data folder for output..."
+        write(*,*)'mkdir data'
+        CALL system('mkdir data')
+        write(*,*)"Saving output to data folder..."
+      endif
+
+      write(outputPath,*) 'data/', trim(dataName) !!TODO: use more general pathing
+      ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
+      ex = .true.
+      if(ex) then
+        write(*,*)"assuming subfolder ", trim(dataName), "alreay exists"
+      else
+        write(*,*)"Creating data subfolder ", trim(dataName)
+        write(cmd,*)'mkdir ',trim(outputPath)
+        write(*,*)cmd
+        CALL system(cmd)
+        write(*,*)"Saving to data subfolder ", trim(dataName)
+      endif
+
+      !Grab dispersion relation solution
+      wi = wroots(1,wrootindex)
+      gi = wroots(2,wrootindex)
+      ominit=cmplx(wi,gi)
+      om1=ominit*(1.-prec)
+      om2=ominit*(1.+prec)
+
+      ! Refine Omega Value
+      iflag=0
+      omega=rtsec(disp,om1,om2,tol,iflag)
+      
+      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+
+      do is = 1, nspec
+        !make file to store result
+        !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
+        unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
+        open(unit=unit_s,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp1.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+1,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+2,file=trim(filename),status='replace')
+
+        write(*,*)'Calculating fpc for species ',is
+        write(*,*)'Writing omega/kpar V_a normalization to file. WIP'
+
+        write(unit_s,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                          real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s, *) '-------------'
+        write(unit_s+1,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+1,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                          real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+1, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+1, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+1, *) '-------------'
+        write(unit_s+2,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+2,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                          real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+2, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+2, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+2, *) '-------------'
+
+        !setup loop variables
+        numstepvx = int((vxmax-vxmin)/delv)
+        numstepvy = int((vymax-vymin)/delv)
+        numstepvz = int((vzmax-vzmin)/delv)
+
+
+        !CEi(vx,vy)----------------------------------------------------------------------------
+        vxi = vxmin
+        vyi = vymin
+        do vxindex = 0, numstepvx
+          do vyindex = 0, numstepvy
+            vmax3rdval = vzmax
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,3,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,1,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,2,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+            if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
+            if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
+            if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
+            write(unit_s,'(es17.5)',advance='no')Cor_par_s
+            write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
+            write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+            vxi = vxi+delv
+          end do
+          vxi = vxmin
+          vyi = vyi+delv
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+        end do
+        vxi = vxmin
+        vyi = vymin
+        vzi = vzmin
+
+        !CEi(vx,vz)----------------------------------------------------------------------------
+        vxi = vxmin
+        vzi = vzmin
+        do vxindex = 0, numstepvx
+          do vzindex = 0, numstepvz
+            vmax3rdval = vymax
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,3,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,1,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,2,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+            if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
+            if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
+            if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
+            write(unit_s,'(es17.5)',advance='no')Cor_par_s
+            write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
+            write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+            vxi = vxi+delv
+          end do
+          vxi = vxmin
+          vzi = vzi+delv
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+        end do    
+        vxi = vxmin
+        vyi = vymin
+        vzi = vzmin
+
+        !CEi(vy,vz)----------------------------------------------------------------------------
+        vyi = vymin
+        vzi = vzmin
+        do vyindex = 0, numstepvy
+          do vzindex = 0, numstepvz
+            vmax3rdval = vxmax
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,3,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,1,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+            call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,2,delv,spec(is)%vv_s,&
+                                      spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+            if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
+            if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
+            if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
+            write(unit_s,'(es17.5)',advance='no')Cor_par_s
+            write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
+            write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+            vyi = vyi+delv
+          end do
+          vyi = vymin
+          vzi = vzi+delv
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+        end do
+        vxi = vxmin
+        vyi = vymin
+        vzi = vzmin
+
+      end do
+
+    end subroutine compute_fpc_cart
 
     !------------------------------------------------------------------------------
     !                           Collin Brown, 2020
@@ -215,7 +435,6 @@ module fpc
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        !TODO: update sample input file to include all input varaibles (see vars.f90. Ex: we are missing values for tensor_s, thus a 'random' logical is assigned here)
         unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.specie',(is),'.fs0'
         open(unit=unit_s,file=trim(filename),status='replace')
@@ -355,7 +574,10 @@ module fpc
       fs1 = -1.*i*A*fs0*fs1
     end subroutine calc_fs1
 
-    subroutine calc_correlation_par(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_s,fs1,dfs1z)
+
+    !TODO: the calc_correlation routines are very similar, and should be combined
+    !      That is there should only be 1 calc_correlation_*_gyro func
+    subroutine calc_correlation_par_gyro(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_s,fs1,dfs1z)
       use vars, only : betap,vtp,pi
       !input
       complex, intent(in)                   :: omega            !Complex Frequency
@@ -407,9 +629,9 @@ module fpc
         n_phi = n_phi+1
         phi = phi + delphi
       end do
-    end subroutine calc_correlation_par
+    end subroutine calc_correlation_par_gyro
 
-    subroutine calc_correlation_perp(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_perp_s,fs1,dfs1perp)
+    subroutine calc_correlation_perp_gyro(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_perp_s,fs1,dfs1perp)
       use vars, only : betap,vtp,pi
       !input
       complex, intent(in)                   :: omega            !Complex Frequency
@@ -467,6 +689,134 @@ module fpc
         n_phi = n_phi+1
         phi = phi + delphi
       end do
-    end subroutine calc_correlation_perp
+    end subroutine calc_correlation_perp_gyro
+
+    !TODO: account for projection when computing normalization
+    subroutine calc_correlation_i_car(omega,ef,bf,vxin,vyin,vzin,vmax3rdval,vmax3rdindex,ceiindex,delv, &
+                                      V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_i_s)
+      !calculates projection of CEi(vx,vy,vz) (int CEi(vx,vy,vz) dxi) where vmax3rdindex species which direction the rountine integrates over
+
+      use vars, only : betap,vtp,pi
+      !input
+      complex, intent(in)                   :: omega            !Complex Frequency
+      real, intent(in)                      :: vxin, vyin, vzin !normalized velocity space current value in loop
+      real, intent(in)                      :: vmax3rdval       !integration or range (-vmax3rdindex,+vmax3rdindex)
+      integer, intent(in)                   :: vmax3rdindex     !integration dir index (vx<->1, vx<->2, vz<->3)
+      integer, intent(in)                   :: ceiindex         !select which val to compute (cex=cperp1<->1,cey=cperp2<->2,cez=cpar<->3)
+      real, intent(in)                      :: delv             !normalized velocity grid point spacing
+      real, intent(in)                      :: V_s              !normalized species drift velocity
+      real, intent(in)                      :: q_s              !normalized species charge
+      real, intent(in)                      :: aleph_s          !T_perp/T_parallel_s
+      real, intent(in)                      :: tau_s            !T_ref/T_s|_parallel
+      real, intent(in)                      :: mu_s             !m_ref/m_s
+      real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
+      complex, dimension(1:3),intent(in)    :: ef, bf           !E, B fields from eigen funcs
+
+      !locals
+      real                          :: vx, vy, vz       !velocity coordinates
+
+      complex                       :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
+      complex                       :: fs1              !perturbed distribution function 
+      complex                       :: fs1_1            !numerical derivation var
+      complex                       :: fs1_0            !numerical derivation var
+      complex                       :: dfs1i            !derivative in direction controlled by vmax3rdindex
+      real                          :: piconst          !3.14159...
+
+      real                          :: delphi           !change in phi used when doing finite central difference
+      real                          :: delvpar          !change in vpar used when doing finite central difference
+      real                          :: delvperp         !change in vperp used when doing finite central difference
+      integer                       :: intmax           !max number of integration sample points
+      integer                       :: inti             !integration counter
+
+      real                          :: vperp,vpar,phi   !gyro coordinates vars
+      real                          :: vival            !integration coordinate value tracker (specified by vmax3rdindex)
+      real                          :: vicor            !temp var that holds velocity term withinn FPC. Is defined by ceiindex
+
+
+      !output
+      real, intent(out)             :: Cor_i_s        !total normalized correlation value
+
+      vx = vxin
+      vy = vyin
+      vz = vzin
+
+      intmax = int((vmax3rdval+vmax3rdval)/delv)
+      inti = 0
+      vival = -1*vmax3rdval
+
+      piconst = 4.0*ATAN(1.0)
+      Cor_i_s = 0.
+      do while(inti < intmax)
+        if(vmax3rdval == 1)then 
+          vx = vival
+        endif
+        if(vmax3rdval == 2)then 
+          vy = vival
+        endif
+        if(vmax3rdval == 3)then 
+          vz = vival
+        endif
+
+        !simple finite central difference method for derivative
+        if(ceiindex == 1)then 
+          phi = ATAN2(vx+delv,vy) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = (vx+delv)**2+vy**2
+          vpar = vz
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
+          phi = ATAN2(vx-delv,vy) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = (vx-delv)**2+vy**2
+          vpar = vz
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+        endif
+        if(ceiindex == 2)then 
+          phi = ATAN2(vx,vy+delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = vx**2+(vy+delv)**2
+          vpar = vz
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
+          phi = ATAN2(vx,vy-delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = vx**2+(vy-delv)**2
+          vpar = vz
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+        endif
+        if(ceiindex == 3)then 
+          phi = ATAN2(vx,vy) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = vx**2+vy**2
+          vpar = vz+delv
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
+          phi = ATAN2(vx,vy) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          vperp = vx**2+vy**2
+          vpar = vz-delv
+          call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+          call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+        endif
+        dfs1i = (fs1_1-fs1_0)/(2.*delv)
+
+        phi = ATAN2(vx,vy) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        vperp = vx**2+vy**2
+        vpar = vz
+        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
+
+        if(ceiindex == 1)then 
+          vicor = vx
+        endif
+        if(ceiindex == 2)then 
+          vicor = vy
+        endif
+        if(ceiindex == 3)then 
+          vicor = vz
+        endif
+
+        Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))+Cor_i_s !TODO: remember include normalization due to integration factor
+
+        inti = inti + 1
+        vival = vival + delv
+      end do
+    end subroutine calc_correlation_i_car
     
 end module fpc

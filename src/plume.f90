@@ -43,7 +43,7 @@ program plume
   use functions, only: read_guess_input,read_radial_input
   use disprels, only: map_search,refine_guess,om_scan,om_double_scan,map_scan
   use disprels, only: test_disp, radial_scan
-  use fpc, only: compute_fpc, write_fs0
+  use fpc, only: compute_fpc_gyro, write_fs0
 
   implicit none
 !-=-=-=-=-=-=
@@ -306,7 +306,7 @@ program plume
      call read_scan_input
 
      do iroot=1,nroot_max
-       call compute_fpc(iroot)
+       call compute_fpc_gyro(iroot)
      enddo
 
      call write_fs0()

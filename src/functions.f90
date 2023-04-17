@@ -38,6 +38,7 @@ contains
     use vars, only : dataName,nscan,nroot_max,use_map,outputName, pi
     use vars, only : low_n, susc_low, new_low_n
     use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv
+    use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax
     implicit none
     !For Testing Quasineutrality
     real :: sum_nq,sum_nqv
@@ -49,7 +50,8 @@ contains
          writeOut,dataName,outputName
 
     nameList /fpc/ &
-         vperpmin,vperpmax,vparmin,vparmax,delv
+         vperpmin,vperpmax,vparmin,vparmax,delv,&
+         vxmin,vxmax,vymin,vymax,vzmin,vzmax
 
     call get_unused_unit (input_unit_no)
     call get_runname(runname)
