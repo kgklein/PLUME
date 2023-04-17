@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,xlim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
+def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
     from matplotlib import ticker, cm
     import matplotlib.colors as colors
 
@@ -90,11 +90,17 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,xlim=N
     if(xlim != None):
         print("Changing xlim of plot!!!")
         plt.gca().set_xlim(xlim[0],xlim[1])
+    if(ylim != None):
+        print("Changing ylim of plot!!!")
+        plt.gca().set_ylim(ylim[0],zlim[1])
     plt.title(plttitle)
     plt.xlabel('$v_{||}/v_{ts}$')
     plt.ylabel('$v_{\perp}/v_{ts}$')
     plt.colorbar()
     plt.grid()
+
+    if(setequal):
+        plt.gca().set_aspect('equal')
 
     if(computeEner == True):
         ener = np.sum(C)*delv*delv
@@ -102,8 +108,10 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,xlim=N
         xtext = np.min(plt.gca().get_xlim())+xscale*.1
         ytext = np.max(plt.gca().get_ylim())*.75
 
-
-        plt.text(xtext,ytext,r"$\int C_{E_{||}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+        if('CEpar' in linfpcdata.keys()):
+            plt.text(xtext,ytext,r"$\int C_{E_{\perp}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+        elif('CEperp' in linfpcdata.keys()):
+            plt.text(xtext,ytext,r"$\int C_{E_{\perp}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
 
     if(extraText != None):
         xtext = .5
