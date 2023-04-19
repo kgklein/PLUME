@@ -747,6 +747,135 @@ def loadlinfpccepar(filename):
 
     return linfpcdata
 
+#TODO: make one load function
+def loadlinfpccart(filename):
+    print("Opening " + filename)
+    try:
+        f = open(filename)
+    except:
+        print("Couldnt open: " + filename)
+        return
+    line = f.readline()
+    line = f.readline()
+    line = line.split()
+    tau   = float(line[0])
+    bi    = float(line[1])
+    kpar  = float(line[2]) #kpar rho
+    kperp = float(line[3]) #kperp rho
+    vts   = float(line[4])
+    mu    = float(line[5])
+    omega = complex(float(line[6]),float(line[7]))
+
+    line = f.readline()
+    line = f.readline()
+    line = line.split()
+    vxmin = float(line[0])
+    vxmax = float(line[1])
+    vymin  = float(line[2])
+    vymax  = float(line[3])
+    vzmin = float(line[4])
+    vzmax = float(line[5])
+    delv     = float(line[6])
+    resonant_int = omega/math.sqrt(bi) #calc resonant interval
+    species = ''
+    if(filename.find('specie02')>=0):
+        resonant_int = resonant_int*tau**(.5)*mu**(-.5)
+        print("Calculated resonant interval (elec): " + str(resonant_int))
+        species = 'elec'
+    else:
+        print("Calculated resonant interval (ion): " + str(resonant_int))
+        species = 'ion'
+
+    resonant_int = resonant_int.real
+
+    vx = []
+    vy = []
+    vz = []
+    vxindex = vxmin
+    vyindex = vymin
+    vzindex = vzmin
+    vx.append(float(vxindex))
+    while(vxindex < vxmax):
+        vxindex += delv
+        vx.append(float(vxindex))
+    vy.append(float(vyindex))
+    while(vyindex < vymax):
+        vyindex += delv
+        vy.append(float(vyindex))
+    vz.append(float(vzindex))
+    while(vzindex < vzmax):
+        vzindex += delv
+        vz.append(float(vzindex))
+        
+
+    line = f.readline()
+    Cvxvy = []
+    line = f.readline()
+    linecounter = 1
+    while (linecounter <= len(vx)):
+        line = line.split()
+        row = []
+        for k in line:
+            if(math.isnan(float(k))):
+                row.append(0.)
+            else:
+                row.append(float(k))
+        Cvxvy.append(row)
+        line = f.readline()
+        linecounter += 1
+
+    Cvxvz = []
+    linecounter = 1
+    line = f.readline()
+    while (linecounter <= len(vx)):
+        line = line.split()
+        row = []
+        for k in line:
+            if(math.isnan(float(k))):
+                row.append(0.)
+            else:
+                row.append(float(k))
+        Cvxvz.append(row)
+        line = f.readline()
+        linecounter += 1
+
+    Cvyvz = []
+    linecounter = 1
+    line = f.readline()
+    while (linecounter <= len(vy)):
+        line = line.split()
+        row = []
+        for k in line:
+            if(math.isnan(float(k))):
+                row.append(0.)
+            else:
+                row.append(float(k))
+        Cvyvz.append(row)
+        line = f.readline()
+        linecounter += 1
+
+
+    # #weird index rounding bug fix #TODO: figure out when this happens and remove from all load functions
+    # if(len(vpar) < len(C[0])):
+    #     vpar.append(float(vparindex))
+    # elif(len(vpar) > len(C[0])):
+    #     vpar.pop()
+    # if(len(vperp) < len(C)):
+    #     vperp.append(float(vperpindex))
+    # elif(len(vperp) > len(C)):
+    #     vperp.pop()
+
+    linfpcckeyname = 'CEpar'
+    print(filename,'eperp1' in filename,'eperp2' in filename)
+    if('perp1' in filename):
+        linfpcckeyname = 'CEperp1'
+    elif('perp2' in filename):
+        linfpcckeyname = 'CEperp2'
+
+    linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,'delv':delv,'species':species,'omega':omega}
+
+    return linfpcdata
+
 def loadlinfpcceperp(filename):
     import copy
     linfpcdata = loadlinfpccepar(filename)

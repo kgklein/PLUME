@@ -43,7 +43,7 @@ program plume
   use functions, only: read_guess_input,read_radial_input
   use disprels, only: map_search,refine_guess,om_scan,om_double_scan,map_scan
   use disprels, only: test_disp, radial_scan
-  use fpc, only: compute_fpc_gyro, write_fs0
+  use fpc, only: compute_fpc_gyro, compute_fpc_cart, write_fs0
 
   implicit none
 !-=-=-=-=-=-=
@@ -281,7 +281,7 @@ program plume
      !disprels.f90
    case(6)
      !calculate field particle correlation as a function of vperp vpar
-     write(*,*)'Predicting FPC...'
+     write(*,*)'Predicting FPC (gyro coords)...'
 
      if (use_map) then
         !Read in root mapping bounds
@@ -310,6 +310,36 @@ program plume
      enddo
 
      call write_fs0()
+
+  case(7)
+     !calculate field particle correlation as a function of vx vy vz (vperp1, vperp2, vpar)
+     write(*,*)'Predicting FPC (cart coords)...'
+
+     if (use_map) then
+        !Read in root mapping bounds
+        call read_map_input
+        !functions.f90
+
+        !Calculate complex roots of the dispersion function
+        !    Saved as wroots(1:2,1:nroots)
+        call map_search
+        !disprels.f90
+
+     else!Read in nroot_max (om,gam) inputs from *.in file
+        call read_guess_input
+        !functions.f90
+
+        !Take nroot_max inputs and refine guesses
+        call refine_guess
+        !disprels.f90
+     endif
+
+     !Read in parameter scan bounds
+     call read_scan_input
+
+     do iroot=1,nroot_max
+       call compute_fpc_cart(iroot)
+     enddo
   end select
 
 !contains

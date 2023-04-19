@@ -112,7 +112,7 @@ module fpc
         open(unit=unit_s+1,file=trim(filename),status='replace')
 
         write(*,*)'Calculating fpc for species ',is
-        write(*,*)'Writing omega/kpar V_a normalization to file. WIP'
+        write(*,*)'Writing omega/kpar V_a normalization to file...'
 
         write(unit_s,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
         write(unit_s,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
@@ -253,25 +253,25 @@ module fpc
         open(unit=unit_s+2,file=trim(filename),status='replace')
 
         write(*,*)'Calculating fpc for species ',is
-        write(*,*)'Writing omega/kpar V_a normalization to file. WIP'
+        write(*,*)'Writing omega/kpar V_a normalization to file...'
 
         write(unit_s,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
         write(unit_s,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
                           real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
-        write(unit_s, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
-        write(unit_s, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s, *) '-------------'
         write(unit_s+1,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
         write(unit_s+1,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
                           real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
-        write(unit_s+1, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
-        write(unit_s+1, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+1, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+1, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s+1, *) '-------------'
         write(unit_s+2,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
         write(unit_s+2,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
                           real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
-        write(unit_s+2, '(5a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
-        write(unit_s+2, '(5es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+2, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+2, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s+2, *) '-------------'
 
         !setup loop variables
@@ -279,10 +279,12 @@ module fpc
         numstepvy = int((vymax-vymin)/delv)
         numstepvz = int((vzmax-vzmin)/delv)
 
+        write(*,*)vzmax,vzmin,delv
 
         !CEi(vx,vy)----------------------------------------------------------------------------
         vxi = vxmin
         vyi = vymin
+
         do vxindex = 0, numstepvx
           do vyindex = 0, numstepvy
             vmax3rdval = vzmax
@@ -301,10 +303,10 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            vxi = vxi+delv
+            vyi = vyi+delv
           end do
-          vxi = vxmin
-          vyi = vyi+delv
+          vyi = vymin
+          vxi = vxi+delv
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
@@ -312,6 +314,9 @@ module fpc
         vxi = vxmin
         vyi = vymin
         vzi = vzmin
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
 
         !CEi(vx,vz)----------------------------------------------------------------------------
         vxi = vxmin
@@ -334,10 +339,10 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            vxi = vxi+delv
+            vzi = vzi+delv
           end do
-          vxi = vxmin
-          vzi = vzi+delv
+          vzi = vzmin
+          vxi = vxi+delv
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
@@ -345,6 +350,9 @@ module fpc
         vxi = vxmin
         vyi = vymin
         vzi = vzmin
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
 
         !CEi(vy,vz)----------------------------------------------------------------------------
         vyi = vymin
@@ -367,10 +375,10 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            vyi = vyi+delv
+            vzi = vzi+delv
           end do
-          vyi = vymin
-          vzi = vzi+delv
+          vzi = vzmin
+          vyi = vyi+delv
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
@@ -378,6 +386,9 @@ module fpc
         vxi = vxmin
         vyi = vymin
         vzi = vzmin
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
 
       end do
 
@@ -746,6 +757,7 @@ module fpc
 
       piconst = 4.0*ATAN(1.0)
       Cor_i_s = 0.
+
       do while(inti < intmax)
         if(vmax3rdval == 1)then 
           vx = vival
@@ -774,11 +786,13 @@ module fpc
           phi = ATAN2(vx,vy+delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
           vperp = vx**2+(vy+delv)**2
           vpar = vz
+          !write(*,*)'phi1',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
           phi = ATAN2(vx,vy-delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
           vperp = vx**2+(vy-delv)**2
           vpar = vz
+          !write(*,*)'phi2',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         endif

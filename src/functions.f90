@@ -83,7 +83,7 @@ contains
     enddo
 
     !read in fpc params
-    if(option == 6) then
+    if(option == 6 .or. option == 7) then
 
       rewind(input_unit_no)
       read (unit=input_unit_no,nml=fpc)
@@ -107,7 +107,7 @@ contains
          'ERROR: Not in proton rest frame:    v_par drift p =',sum_nqv
     
   pi = 4.*atan(1.)
-
+  
   end subroutine read_in_params
 
 !-=-=-=-=-
