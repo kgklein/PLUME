@@ -667,6 +667,9 @@ module fpc
       integer                       :: num_phi          !number over integration sample points
       integer                       :: n_phi            !integration counter
 
+      real                          :: vxtemp,vytemp,vztemp  !temp vars to convert between gyro and cartesian velocity space when taking derivative of f1 (dist func)
+      real                          :: vpartemp,phitemp,vperptemp !temp vars used to convert back from cart to gyro to help compute derivative in the correct direction
+
       real                          :: Cor_ex_s,Cor_ey_s!intermediate correlation values
 
       !output
@@ -674,7 +677,7 @@ module fpc
       complex, intent(out)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
       complex, intent(out)          :: dfs1perp         !first order distribution partial wrt z * c^4 B_0 (times c^4 B_0 due to normalization)
 
-      num_phi = 20 !TODO: dont hard code this
+      num_phi = 30 !TODO: dont hard code this
 
       piconst = 4.0*ATAN(1.0)
       phi = 0.
@@ -682,19 +685,53 @@ module fpc
       n_phi = 0
       Cor_perp_s = 0.
       do while(n_phi < num_phi)
+        !TODO: derive analytical form when calculating location to compute f1 for computing df1
         !simple finite central difference method for derivative
-        call calc_fs0(vperp+delv,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
-        call calc_fs1(omega,vperp+delv,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-        call calc_fs0(vperp-delv,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
-        call calc_fs1(omega,vperp-delv,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+        vxtemp = vperp*SIN(phi)+delv
+        vytemp = vperp*COS(phi)
+        vztemp = vpar
+        phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        vperptemp = (vxtemp)**2+(vytemp)**2
+        vpartemp = vztemp
+        call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
+        vxtemp = vperp*SIN(phi)-delv
+        vytemp = vperp*COS(phi)
+        vztemp = vpar
+        phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        vperptemp = (vxtemp)**2+(vytemp)**2
+        vpartemp = vztemp
+        call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
 
         call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
-
-        !
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         Cor_ex_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(1)
+
+        !simple finite central difference method for derivative
+        vxtemp = vperp*SIN(phi)
+        vytemp = vperp*COS(phi)+delv
+        vztemp = vpar
+        phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        vperptemp = (vxtemp)**2+(vytemp)**2
+        vpartemp = vztemp
+        call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
+        vxtemp = vperp*SIN(phi)
+        vytemp = vperp*COS(phi)-delv
+        vztemp = vpar
+        phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        vperptemp = (vxtemp)**2+(vytemp)**2
+        vpartemp = vztemp
+        call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+
+        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1) !TODO: remove this? fs1 should be computed in its own routine and is not needed here (similar fix in compute Cepar (gyro))
+        dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         Cor_ey_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(2)
+
         Cor_perp_s = vperp*(Cor_ex_s+Cor_ey_s)*2.0*piconst/num_phi + Cor_perp_s
 
         n_phi = n_phi+1
