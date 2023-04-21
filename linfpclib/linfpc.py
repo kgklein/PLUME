@@ -867,19 +867,7 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
 
-
-    # #weird index rounding bug fix #TODO: figure out when this happens and remove from all load functions
-    # if(len(vpar) < len(C[0])):
-    #     vpar.append(float(vparindex))
-    # elif(len(vpar) > len(C[0])):
-    #     vpar.pop()
-    # if(len(vperp) < len(C)):
-    #     vperp.append(float(vperpindex))
-    # elif(len(vperp) > len(C)):
-    #     vperp.pop()
-
     linfpcckeyname = 'CEpar'
-    print(filename,'eperp1' in filename,'eperp2' in filename)
     if('perp1' in filename):
         linfpcckeyname = 'CEperp1'
     elif('perp2' in filename):

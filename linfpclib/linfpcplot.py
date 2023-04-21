@@ -174,3 +174,52 @@ def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple spec
     plt.savefig('figures/'+filename+'dist.png',format='png',dpi=1000,facecolor='white', transparent=False)
     plt.show()
     plt.close()
+
+def plot_9pan_cart(foldername):
+    from linfpclib.linfpc import loadlinfpccart
+
+    print("Loading files...")
+    print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
+
+    flnm = foldername + 'fpc.cparcart.specie01.mode01'
+    cartpar = loadlinfpccart(flnm)
+
+    flnm = foldername + 'fpc.cperp1.specie01.mode01'
+    cartperp1 = loadlinfpccart(flnm)
+
+    flnm = foldername + 'fpc.cperp2.specie01.mode01'
+    cartperp2 = loadlinfpccart(flnm)
+
+
+    fig, axs = plt.subplots(3,3,figsize=(3*5,3*5),sharex=True)
+
+    _hspace = .2
+    _wspace = .2
+    fig.subplots_adjust(hspace=_hspace,wspace=_wspace)
+
+    dirkeys = ['vxvy','vxvz','vyvz']
+    cartcdatas = [cartpar,cartperp1,cartperp2]
+    ckeyprefixes = ['CEpar','CEperp1','CEperp2']
+    titlesprefixes = [r'$C_{E_{||}}',r'$C_{E_{\perp,1}}',r'$C_{E_{\perp,2}}']
+    titlesuffixes = [r'(v_{\perp,1},v_{\perp,2})$',r'(v_{\perp,1},v_{||})$',r'(v_{\perp,2},v_{||})$']
+    xaxlabels = [r'$v_{\perp,1}$',r'$v_{\perp,1}$',r'$v_{\perp,2}$']
+    yaxlabels = [r'$v_{\perp,2}$',r'$v_{||}$',r'$v_{||}$']
+    _i = 0
+    _j = 0
+    for dirkey in dirkeys:
+        for cartcdata in cartcdatas:
+            ckey = ckeyprefixes[_j]+dirkey
+            absmax = np.max(np.abs(cartcdata[ckey]))
+            axs[_j,_i].pcolormesh(cartcdata[dirkey[0:2]],cartcdata[dirkey[2:4]],np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
+            axs[_j,_i].grid()
+            axs[_j,_i].set_title(titlesprefixes[_j]+titlesuffixes[_i])
+            axs[_j,_i].set_xlabel(xaxlabels[_i])
+            axs[_j,_i].set_ylabel(yaxlabels[_i])
+            _j = _j + 1
+        _j = 0
+        _i = _i + 1
+
+    plt.show()
+
+
+#
