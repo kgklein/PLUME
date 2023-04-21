@@ -759,13 +759,13 @@ module fpc
       Cor_i_s = 0.
 
       do while(inti < intmax)
-        if(vmax3rdval == 1)then 
+        if(vmax3rdindex == 1)then 
           vx = vival
         endif
-        if(vmax3rdval == 2)then 
+        if(vmax3rdindex == 2)then 
           vy = vival
         endif
-        if(vmax3rdval == 3)then 
+        if(vmax3rdindex == 3)then 
           vz = vival
         endif
 

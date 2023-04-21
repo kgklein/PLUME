@@ -788,26 +788,39 @@ def loadlinfpccart(filename):
 
     resonant_int = resonant_int.real
 
+
+    numstepvx = int(math.floor((vxmax-vxmin)/delv)) #TODO: implement this fix into all load functions
+    numstepvy = int(math.floor((vymax-vymin)/delv))
+    numstepvz = int(math.floor((vzmax-vzmin)/delv))
+
     vx = []
     vy = []
     vz = []
     vxindex = vxmin
     vyindex = vymin
     vzindex = vzmin
+
+    _i = 0
     vx.append(float(vxindex))
-    while(vxindex < vxmax):
+    while(_i < numstepvx):
         vxindex += delv
         vx.append(float(vxindex))
+        _i += 1
+
+    _i = 0
     vy.append(float(vyindex))
-    while(vyindex < vymax):
+    while(_i < numstepvy):
         vyindex += delv
         vy.append(float(vyindex))
+        _i += 1
+
     vz.append(float(vzindex))
-    while(vzindex < vzmax):
+    _i = 0
+    while(_i < numstepvz):
         vzindex += delv
         vz.append(float(vzindex))
+        _i += 1
         
-
     line = f.readline()
     Cvxvy = []
     line = f.readline()
