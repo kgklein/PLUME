@@ -687,16 +687,16 @@ module fpc
       do while(n_phi < num_phi)
         !TODO: derive analytical form when calculating location to compute f1 for computing df1
         !simple finite central difference method for derivative
-        vxtemp = vperp*SIN(phi)+delv
-        vytemp = vperp*COS(phi)
+        vxtemp = vperp*COS(phi)+delv
+        vytemp = vperp*SIN(phi)
         vztemp = vpar
         phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
         vperptemp = (vxtemp)**2+(vytemp)**2
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-        vxtemp = vperp*SIN(phi)-delv
-        vytemp = vperp*COS(phi)
+        vxtemp = vperp*COS(phi)-delv
+        vytemp = vperp*SIN(phi)
         vztemp = vpar
         phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
         vperptemp = (vxtemp)**2+(vytemp)**2
@@ -710,16 +710,16 @@ module fpc
         Cor_ex_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(1)
 
         !simple finite central difference method for derivative
-        vxtemp = vperp*SIN(phi)
-        vytemp = vperp*COS(phi)+delv
+        vxtemp = vperp*COS(phi)
+        vytemp = vperp*SIN(phi)+delv
         vztemp = vpar
         phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
         vperptemp = (vxtemp)**2+(vytemp)**2
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-        vxtemp = vperp*SIN(phi)
-        vytemp = vperp*COS(phi)-delv
+        vxtemp = vperp*COS(phi)
+        vytemp = vperp*SIN(phi)-delv
         vztemp = vpar
         phitemp = ATAN2(vxtemp,vytemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
         vperptemp = (vxtemp)**2+(vytemp)**2
