@@ -175,20 +175,20 @@ def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple spec
     plt.show()
     plt.close()
 
-def plot_9pan_cart(foldername):
+def plot_9pan_cart(foldername,flnm=''):
     from linfpclib.linfpc import loadlinfpccart
 
     print("Loading files...")
     print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
 
-    flnm = foldername + 'fpc.cparcart.specie01.mode01'
-    cartpar = loadlinfpccart(flnm)
+    flnmread = foldername + 'fpc.cparcart.specie01.mode01'
+    cartpar = loadlinfpccart(flnmread)
 
-    flnm = foldername + 'fpc.cperp1.specie01.mode01'
-    cartperp1 = loadlinfpccart(flnm)
+    flnmread = foldername + 'fpc.cperp1.specie01.mode01'
+    cartperp1 = loadlinfpccart(flnmread)
 
-    flnm = foldername + 'fpc.cperp2.specie01.mode01'
-    cartperp2 = loadlinfpccart(flnm)
+    flnmread = foldername + 'fpc.cperp2.specie01.mode01'
+    cartperp2 = loadlinfpccart(flnmread)
 
 
     fig, axs = plt.subplots(3,3,figsize=(3*5,3*5),sharex=True)
@@ -219,7 +219,10 @@ def plot_9pan_cart(foldername):
         _j = 0
         _i = _i + 1
 
-    plt.show()
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+    else:
+        plt.show()
 
 
 #
