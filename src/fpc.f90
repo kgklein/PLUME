@@ -691,7 +691,7 @@ module fpc
         vytemp = vperp*SIN(phi)
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-        vperptemp = (vxtemp)**2+(vytemp)**2
+        vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
@@ -699,7 +699,7 @@ module fpc
         vytemp = vperp*SIN(phi)
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-        vperptemp = (vxtemp)**2+(vytemp)**2
+        vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
@@ -714,7 +714,7 @@ module fpc
         vytemp = vperp*SIN(phi)+delv
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-        vperptemp = (vxtemp)**2+(vytemp)**2
+        vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
@@ -722,7 +722,7 @@ module fpc
         vytemp = vperp*SIN(phi)-delv
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-        vperptemp = (vxtemp)**2+(vytemp)**2
+        vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
@@ -809,25 +809,25 @@ module fpc
         !simple finite central difference method for derivative
         if(ceiindex == 1)then 
           phi = ATAN2(vy,vx+delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = (vx+delv)**2+vy**2
+          vperp = SQRT((vx+delv)**2+vy**2)
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
           phi = ATAN2(vy,vx-delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = (vx-delv)**2+vy**2
+          vperp = SQRT((vx-delv)**2+vy**2)
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         endif
         if(ceiindex == 2)then 
           phi = ATAN2(vy+delv,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = vx**2+(vy+delv)**2
+          vperp = SQRT(vx**2+(vy+delv)**2)
           vpar = vz
           !write(*,*)'phi1',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
           phi = ATAN2(vy-delv,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = vx**2+(vy-delv)**2
+          vperp = SQRT(vx**2+(vy-delv)**2)
           vpar = vz
           !write(*,*)'phi2',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -835,12 +835,12 @@ module fpc
         endif
         if(ceiindex == 3)then 
           phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = vx**2+vy**2
+          vperp = SQRT(vx**2+vy**2)
           vpar = vz+delv
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
           phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-          vperp = vx**2+vy**2
+          vperp = SQRT(vx**2+vy**2)
           vpar = vz-delv
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
@@ -848,7 +848,7 @@ module fpc
         dfs1i = (fs1_1-fs1_0)/(2.*delv)
 
         phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
-        vperp = vx**2+vy**2
+        vperp = SQRT(vx**2+vy**2)
         vpar = vz
         call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
