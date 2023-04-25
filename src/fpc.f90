@@ -242,7 +242,7 @@ module fpc
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+        unit_s = 10+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
         open(unit=unit_s,file=trim(filename),status='replace')
 
