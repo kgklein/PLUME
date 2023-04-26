@@ -100,6 +100,9 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+      ef(2) = -ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtley different coordinates, so we fix them here
+      ef(3) = -ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
+                     !   In this code, we use two different sources that take different coordinates, and we must account for them here.
 
       do is = 1, nspec
         !make file to store result
@@ -238,11 +241,14 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+      ef(2) = -ef(2)
+      ef(3) = -ef(3)
+
 
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        unit_s = 10+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+        unit_s = 12+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
         open(unit=unit_s,file=trim(filename),status='replace')
 
@@ -279,11 +285,10 @@ module fpc
         numstepvy = int((vymax-vymin)/delv)
         numstepvz = int((vzmax-vzmin)/delv)
 
-        write(*,*)vzmax,vzmin,delv
-
         !CEi(vx,vy)----------------------------------------------------------------------------
         vxi = vxmin
         vyi = vymin
+        vzi = vzmin
 
         do vxindex = 0, numstepvx
           do vyindex = 0, numstepvy
@@ -320,6 +325,7 @@ module fpc
 
         !CEi(vx,vz)----------------------------------------------------------------------------
         vxi = vxmin
+        vyi = vymin
         vzi = vzmin
         do vxindex = 0, numstepvx
           do vzindex = 0, numstepvz
@@ -355,6 +361,7 @@ module fpc
         write(unit_s+2,*)'---'
 
         !CEi(vy,vz)----------------------------------------------------------------------------
+        vxi = vxmin
         vyi = vymin
         vzi = vzmin
         do vyindex = 0, numstepvy
@@ -537,16 +544,16 @@ module fpc
 
       !real :: start, finish !debug/test to measure runtime of function
 
-      i = (0,1)
+      i = (0,1.)
       omega_temp = real(omega)+i*aimag(omega) !`fix` sign as people PLUME returns omega as omega=wr-i*gam
 
-      i = (0,1.)
       hatV_s = V_s*(tau_s/(mu_s*betap))**(.5)
 
       UExB = -ef(1)/sqrt(bf(1)**2+bf(2)**2+bf(3)**2) !-Ex/|\mathbf{B}|
+      !UExB = -(ef(1)*bf(3)-ef(3)*bf(1))/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
       A = mu_s**1.5/(q_s*tau_s**0.5)*UExB/vtp
       Ubar_s = -2.*vperp*((tau_s/mu_s)**(.5)/aleph_s+(kpar/(omega_temp*(aleph_r**0.5)))*(vpar-hatV_s-vpar/aleph_s))
-      b_s = (kperp*q_s*vperp)/(mu_s*tau_s*aleph_s)**0.5
+      b_s = (kperp*q_s*vperp)/(mu_s*tau_s*aleph_r)**0.5
 
       !quick check to see if we take nbesmax to be large enough to approximate our infinite sum
       !note as a rule of thumb, bessj_s(n,x) is 'small' when both n<x and n is large
@@ -690,7 +697,7 @@ module fpc
         vxtemp = vperp*COS(phi)+delv
         vytemp = vperp*SIN(phi)
         vztemp = vpar
-        phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -698,7 +705,7 @@ module fpc
         vxtemp = vperp*COS(phi)-delv
         vytemp = vperp*SIN(phi)
         vztemp = vpar
-        phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -713,7 +720,7 @@ module fpc
         vxtemp = vperp*COS(phi)
         vytemp = vperp*SIN(phi)+delv
         vztemp = vpar
-        phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -721,7 +728,7 @@ module fpc
         vxtemp = vperp*COS(phi)
         vytemp = vperp*SIN(phi)-delv
         vztemp = vpar
-        phitemp = ATAN2(vytemp,vxtemp) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -747,6 +754,7 @@ module fpc
       use vars, only : betap,vtp,pi
       !input
       complex, intent(in)                   :: omega            !Complex Frequency
+      complex, dimension(1:3),intent(in)    :: ef, bf           !E, B fields from eigen funcs
       real, intent(in)                      :: vxin, vyin, vzin !normalized velocity space current value in loop
       real, intent(in)                      :: vmax3rdval       !integration or range (-vmax3rdindex,+vmax3rdindex)
       integer, intent(in)                   :: vmax3rdindex     !integration dir index (vx<->1, vx<->2, vz<->3)
@@ -758,7 +766,6 @@ module fpc
       real, intent(in)                      :: tau_s            !T_ref/T_s|_parallel
       real, intent(in)                      :: mu_s             !m_ref/m_s
       real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
-      complex, dimension(1:3),intent(in)    :: ef, bf           !E, B fields from eigen funcs
 
       !locals
       real                          :: vx, vy, vz       !velocity coordinates
@@ -770,9 +777,6 @@ module fpc
       complex                       :: dfs1i            !derivative in direction controlled by vmax3rdindex
       real                          :: piconst          !3.14159...
 
-      real                          :: delphi           !change in phi used when doing finite central difference
-      real                          :: delvpar          !change in vpar used when doing finite central difference
-      real                          :: delvperp         !change in vperp used when doing finite central difference
       integer                       :: intmax           !max number of integration sample points
       integer                       :: inti             !integration counter
 
@@ -808,46 +812,46 @@ module fpc
 
         !simple finite central difference method for derivative
         if(ceiindex == 1)then 
-          phi = ATAN2(vy,vx+delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy,vx+delv) 
           vperp = SQRT((vx+delv)**2+vy**2)
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-          phi = ATAN2(vy,vx-delv) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy,vx-delv) 
           vperp = SQRT((vx-delv)**2+vy**2)
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+          dfs1i = (fs1_1-fs1_0)/(2.*delv)
         endif
         if(ceiindex == 2)then 
-          phi = ATAN2(vy+delv,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy+delv,vx) 
           vperp = SQRT(vx**2+(vy+delv)**2)
           vpar = vz
-          !write(*,*)'phi1',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-          phi = ATAN2(vy-delv,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy-delv,vx) 
           vperp = SQRT(vx**2+(vy-delv)**2)
           vpar = vz
-          !write(*,*)'phi2',phi,'vperp',vperp,'vpar',vpar
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !Note: we have a negative sign here due to coordinate conversion (i.e. we flipped Eperp2 and Epar) (see note labeled 'coord trans'). !TODO: consider rewriting this for clarity
         endif
         if(ceiindex == 3)then 
-          phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy,vx) 
           vperp = SQRT(vx**2+vy**2)
           vpar = vz+delv
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
-          phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+          phi = ATAN2(vy,vx) 
           vperp = SQRT(vx**2+vy**2)
           vpar = vz-delv
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
+          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !Note: we have a negative sign here due to coordinate conversion (i.e. we flipped Eperp2 and Epar) (see note labeled 'coord trans'). !TODO: consider rewriting this for clarity
         endif
-        dfs1i = (fs1_1-fs1_0)/(2.*delv)
 
-        phi = ATAN2(vy,vx) !TODO: make sure we aren't off by a pi/2 factor due to definition of where phi=0 is and how atan works
+        phi = ATAN2(vy,vx) 
         vperp = SQRT(vx**2+vy**2)
         vpar = vz
         call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -863,8 +867,7 @@ module fpc
           vicor = vz
         endif
 
-        Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))+Cor_i_s !TODO: remember include normalization due to integration factor
-
+        Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
         inti = inti + 1
         vival = vival + delv
       end do

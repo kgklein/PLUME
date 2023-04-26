@@ -211,11 +211,13 @@ def plot_9pan_cart(foldername,flnm='',specnum='01'):
         for cartcdata in cartcdatas:
             ckey = ckeyprefixes[_j]+dirkey
             absmax = np.max(np.abs(cartcdata[ckey]))
-            axs[_j,_i].pcolormesh(cartcdata[dirkey[0:2]],cartcdata[dirkey[2:4]],np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
+            _tempim = axs[_j,_i].pcolormesh(cartcdata[dirkey[0:2]],cartcdata[dirkey[2:4]],np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
             axs[_j,_i].grid()
             axs[_j,_i].set_title(titlesprefixes[_j]+titlesuffixes[_i])
             axs[_j,_i].set_xlabel(xaxlabels[_i])
             axs[_j,_i].set_ylabel(yaxlabels[_i])
+
+            fig.colorbar(_tempim, ax=axs[_j,_i])
             _j = _j + 1
         _j = 0
         _i = _i + 1
