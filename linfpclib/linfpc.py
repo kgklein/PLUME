@@ -68,13 +68,20 @@ class plume_input:
                        'writeOut':usewriteOut_out
         }
 
-    def set_fpc(self,vperpmin,vperpmax,vparmin,vparmax,delv):
+    def set_fpc(self,vperpmin,vperpmax,vparmin,vparmax,delv,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None):
         self.fpc = {'vperpmin':vperpmin,
                     'vperpmax':vperpmax,
                     'vparmin':vparmin,
                     'vparmax':vparmax,
                     'delv':delv
         }
+        if(vxmin!=None and vxmax!=None and vymin!=None and vymax!=None and vzmin!=None and vzmax!=None):
+           self.fpc['vxmin'] = vxmin
+           self.fpc['vxmax'] = vxmax
+           self.fpc['vymin'] = vymin 
+           self.fpc['vymax'] = vymax 
+           self.fpc['vzmin'] = vzmin 
+           self.fpc['vzmax'] = vzmax  
 
     def set_maps(self,loggridw,omi,omf,gami,gamf,positive_roots):
         loggridw_out = '.true.'
@@ -473,10 +480,13 @@ def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlo
 def load_roots():
     pass
 
-def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog'):
+def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',cart=False):
     #use guess to compute fpc
     print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
-    plume_input.params['option'] = 6
+    if(not(cart)):
+        plume_input.params['option'] = 6
+    else:
+        plume_input.params['option'] = 7
     plume_input.params['use_map'] = '.false.'
     plume_input.params['nroot_max'] = 1
 
@@ -655,6 +665,8 @@ def loadlinfpcdist(filename,vparmin,vperpmin,vparmax,vperpmax,delv): #TODO: writ
         dist.append(row)
         line = f.readline()
 
+    dist=np.flip(dist,axis=1) #flip coordinates as they are backwards due to inconsistency of basis between routines
+
         #weird index rounding bug fix
     if(len(vpar) < len(dist[0])):
         vpar.append(float(vparindex))
@@ -732,6 +744,8 @@ def loadlinfpccepar(filename):
                 row.append(float(k))
         C.append(row)
         line = f.readline()
+
+    C = np.flip(C,axis=1) #flip coordinates as they are backwards due to inconsistency of basis between routines
 
         #weird index rounding bug fix
     if(len(vpar) < len(C[0])):

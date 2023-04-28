@@ -100,14 +100,14 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
-      ef(2) = -ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtley different coordinates, so we fix them here
+      ef(2) = -ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
       ef(3) = -ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
                      !   In this code, we use two different sources that take different coordinates, and we must account for them here.
 
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+        unit_s = 10+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cpar.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s,file=trim(filename),status='replace')
 
@@ -595,11 +595,11 @@ module fpc
 
     !TODO: the calc_correlation routines are very similar, and should be combined
     !      That is there should only be 1 calc_correlation_*_gyro func
-    subroutine calc_correlation_par_gyro(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_s,fs1,dfs1z)
+    subroutine calc_correlation_par_gyro(omega,ef,bf,vperpin,vparin,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_s,fs1,dfs1z)
       use vars, only : betap,vtp,pi
       !input
       complex, intent(in)                   :: omega            !Complex Frequency
-      real, intent(in)                      :: vperp, vpar      !normalized velocity space current value in loop
+      real, intent(in)                      :: vperpin, vparin  !normalized velocity space current value input
       real, intent(in)                      :: delv             !normalized velocity grid point spacing
       real, intent(in)                      :: V_s              !normalized species drift velocity
       real, intent(in)                      :: q_s              !normalized species charge
@@ -614,6 +614,7 @@ module fpc
       complex                       :: fs1_1            !numerical derivation var
       complex                       :: fs1_0            !numerical derivation var
       real                          :: piconst          !3.14159...
+      real                          :: vperp, vpar      !normalized velocity space current value in loop
 
       real                          :: phi              !azimuthal angle (we integrate over this)
       real                          :: delphi
@@ -632,6 +633,9 @@ module fpc
       delphi = 2.0*piconst/num_phi
       n_phi = 0
       Cor_s = 0.
+
+      vperp = vperpin
+      vpar = -vparin !see note 'coord trans'
       do while(n_phi < num_phi)
         !simple finite central difference method for derivative
         call calc_fs0(vperp,vpar+delv,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -649,11 +653,12 @@ module fpc
       end do
     end subroutine calc_correlation_par_gyro
 
-    subroutine calc_correlation_perp_gyro(omega,ef,bf,vperp,vpar,delv,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_perp_s,fs1,dfs1perp)
+    subroutine calc_correlation_perp_gyro(omega,ef,bf,vperpin,vparin,delv,&
+                                          V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_perp_s,fs1,dfs1perp)
       use vars, only : betap,vtp,pi
       !input
       complex, intent(in)                   :: omega            !Complex Frequency
-      real, intent(in)                      :: vperp, vpar      !normalized velocity space current value in loop
+      real, intent(in)                      :: vperpin, vparin  !normalized velocity space input
       real, intent(in)                      :: delv             !normalized velocity grid point spacing
       real, intent(in)                      :: V_s              !normalized species drift velocity
       real, intent(in)                      :: q_s              !normalized species charge
@@ -668,6 +673,7 @@ module fpc
       complex                       :: fs1_1            !numerical derivation var
       complex                       :: fs1_0            !numerical derivation var
       real                          :: piconst          !3.14159...
+      real                          :: vperp, vpar      !normalized velocity space current value in loop
 
       real                          :: phi              !azimuthal angle (we integrate over this)
       real                          :: delphi
@@ -686,6 +692,9 @@ module fpc
 
       num_phi = 30 !TODO: dont hard code this
 
+      vperp = vperpin
+      vpar = -vparin !see note 'coord trans'
+ 
       piconst = 4.0*ATAN(1.0)
       phi = 0.
       delphi = 2.0*piconst/num_phi
@@ -695,7 +704,7 @@ module fpc
         !TODO: derive analytical form when calculating location to compute f1 for computing df1
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi)+delv
-        vytemp = vperp*SIN(phi)
+        vytemp = -vperp*SIN(phi) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
@@ -703,22 +712,19 @@ module fpc
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         vxtemp = vperp*COS(phi)-delv
-        vytemp = vperp*SIN(phi)
+        vytemp = -vperp*SIN(phi) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-
-        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
-        call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         Cor_ex_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(1)
 
         !simple finite central difference method for derivative
-        vxtemp = vperp*COS(phi)
-        vytemp = vperp*SIN(phi)+delv
+        vxtemp = vperp*COS(phi) 
+        vytemp = -1.*(vperp*SIN(phi)+delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
@@ -726,16 +732,13 @@ module fpc
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         vxtemp = vperp*COS(phi)
-        vytemp = vperp*SIN(phi)-delv
+        vytemp = -1.*(vperp*SIN(phi)-delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-
-        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
-        call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1) !TODO: remove this? fs1 should be computed in its own routine and is not needed here (similar fix in compute Cepar (gyro))
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         Cor_ey_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(2)
 
