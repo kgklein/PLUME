@@ -866,7 +866,7 @@ def loadlinfpccart(filename):
         Cvxvz.append(row)
         line = f.readline()
         linecounter += 1
-    Cvxvz = np.flip(Cvxvz,axis=1) #We must adjust for coordinate transform that is a result of the subtly different coordinates used to calculate the eigenfunctions and the FPC related quantities
+    Cvxvz = np.asarray(Cvxvz)
 
     Cvyvz = []
     linecounter = 1
@@ -883,7 +883,6 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvyvz = np.flip(Cvyvz,axis=0) #We must adjust for coordinate transform that is a result of the subtly different coordinates used to calculate the eigenfunctions and the FPC related quantities
-    Cvyvz = np.flip(Cvyvz,axis=1)
 
     linfpcckeyname = 'CEpar'
     if('perp1' in filename):
