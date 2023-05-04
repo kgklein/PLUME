@@ -109,7 +109,7 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequ
         ytext = np.max(plt.gca().get_ylim())*.75
 
         if('CEpar' in linfpcdata.keys()):
-            plt.text(xtext,ytext,r"$\int C_{E_{\perp}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+            plt.text(xtext,ytext,r"$\int C_{E_{||}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
         elif('CEperp' in linfpcdata.keys()):
             plt.text(xtext,ytext,r"$\int C_{E_{\perp}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
 
@@ -175,7 +175,7 @@ def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple spec
     plt.show()
     plt.close()
 
-def plot_9pan_cart(foldername,flnm='',specnum='01'):
+def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
     from linfpclib.linfpc import loadlinfpccart
 
     print("Loading files...")
@@ -218,6 +218,21 @@ def plot_9pan_cart(foldername,flnm='',specnum='01'):
             axs[_j,_i].set_ylabel(yaxlabels[_i])
 
             fig.colorbar(_tempim, ax=axs[_j,_i])
+            
+            if(computeEner == True):
+                delv = cartcdata[dirkey[0:2]][1]-cartcdata[dirkey[0:2]][0] #WARNING: ASSUMES SQUARE GRID
+                ener = np.sum(np.asarray(cartcdata[ckey]).T[:,:])*delv*delv
+                xscale = np.max(axs[_j,_i].get_xlim())-np.min(axs[_j,_i].get_xlim())
+                xtext = np.min(axs[_j,_i].get_xlim())+xscale*.1
+                ytext = np.max(axs[_j,_i].get_ylim())*.75
+
+                if('par' in ckey):
+                    axs[_j,_i].text(xtext,ytext,r"$\int C_{E_{||}} \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+                elif('perp1' in ckey):
+                    axs[_j,_i].text(xtext,ytext,r"$\int C_{E_{\perp,1}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+                elif('perp2' in ckey):
+                    axs[_j,_i].text(xtext,ytext,r"$\int C_{E_{\perp,2}}(v_{||},v_\perp) \, \, d\mathbf{v}$ = "+"{:.2e}".format(ener))
+            
             _j = _j + 1
         _j = 0
         _i = _i + 1
