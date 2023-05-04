@@ -181,6 +181,7 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
     print("Loading files...")
     print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
 
+    #TODO: this assumes that outputname was fpc when writing output. TODO: generalize this
     flnmread = foldername + 'fpc.cparcart.specie'+specnum+'.mode01'
     print('Reading: ',flnmread)
     cartpar = loadlinfpccart(flnmread)
