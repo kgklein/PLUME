@@ -33,9 +33,9 @@ module fpc
 
       integer, intent(in) :: wrootindex              !index of selected root
 
-      character(60) :: filename                      !Output File name
-      character(60) :: outputPath                    !Output folder
-      character(60) :: cmd                           !Varaible to store command line commands
+      character(1000) :: filename                      !Output File name
+      character(1000) :: outputPath                    !Output folder
+      character(1000) :: cmd                           !Varaible to store command line commands
       real    :: vperpi, vpari                       !normalized velocity space current value in loop
       integer :: vperpindex, vparindex               !loop counters
       complex :: omega                               !Complex Frequency
@@ -79,7 +79,7 @@ module fpc
       ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
       ex = .true.
       if(ex) then
-        write(*,*)"assuming subfolder ", trim(dataName), "alreay exists"
+        write(*,*)"assuming subfolder ", trim(dataName), "already exists"
       else
         write(*,*)"Creating data subfolder ", trim(dataName)
         write(cmd,*)'mkdir ',trim(outputPath)
@@ -173,9 +173,9 @@ module fpc
 
       integer, intent(in) :: wrootindex              !index of selected root
 
-      character(60) :: filename                      !Output File name
-      character(60) :: outputPath                    !Output folder
-      character(60) :: cmd                           !Varaible to store command line commands
+      character(1000) :: filename                      !Output File name
+      character(1000) :: outputPath                    !Output folder
+      character(1000) :: cmd                           !Varaible to store command line commands
       real    :: vxi, vyi, vzi                       !normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
       integer :: vxindex, vyindex, vzindex           !loop counters
       real    :: vmax3rdval                          !sampled range when computing projection
@@ -220,7 +220,7 @@ module fpc
       ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
       ex = .true.
       if(ex) then
-        write(*,*)"assuming subfolder ", trim(dataName), "alreay exists"
+        write(*,*)"assuming subfolder ", trim(dataName), "already exists"
       else
         write(*,*)"Creating data subfolder ", trim(dataName)
         write(cmd,*)'mkdir ',trim(outputPath)
@@ -249,7 +249,11 @@ module fpc
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
         unit_s = 12+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
-        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
+        !TODO: fix formating in the write statements here and in gyro...
+        !write(*,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
+        !'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex
+        write(filename,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
+        'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
         open(unit=unit_s,file=trim(filename),status='replace')
 
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp1.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
@@ -410,9 +414,9 @@ module fpc
       use vars, only : wroots, nroots
       use vars, only : outputName, dataName
 
-      character(60) :: filename                      !Output File name
-      character(60) :: outputPath                    !Output folder
-      character(60) :: cmd                           !Varaible to store command line commands
+      character(1000) :: filename                      !Output File name
+      character(1000) :: outputPath                    !Output folder
+      character(1000) :: cmd                           !Varaible to store command line commands
       real    :: vperpi, vpari                       !normalized velocity space current value in loop
       integer :: vperpindex, vparindex               !loop counters
       complex :: omega                               !Complex Frequency
@@ -440,7 +444,7 @@ module fpc
       ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
       ex = .true.
       if(ex) then
-        write(*,*)"Assuming subfolder ", trim(dataName), "alreay exists"
+        write(*,*)"Assuming subfolder ", trim(dataName), " already exists"
       else
         write(*,*)"Creating data subfolder ", trim(dataName)
         write(cmd,*)'mkdir ',trim(outputPath)
