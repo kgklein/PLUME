@@ -252,7 +252,7 @@ module fpc
         !TODO: fix formating in the write statements here and in gyro...
         !write(*,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
         !'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex
-        write(filename,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
+        write(filename,'(5A,I0.2,1A,I0.2)')&
         'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
         open(unit=unit_s,file=trim(filename),status='replace')
 
