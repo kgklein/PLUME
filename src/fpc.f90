@@ -100,8 +100,9 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
-      ef(2) = -ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
-      ef(3) = -ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
+      ef(1) = ef(1)
+      ef(2) = ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
+      ef(3) = ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
                      !   In this code, we use two different sources that take different coordinates, and we must account for them here.
 
       do is = 1, nspec
@@ -241,8 +242,9 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
-      ef(2) = -ef(2)
-      ef(3) = -ef(3)
+      ef(1) = ef(1)
+      ef(2) = ef(2)
+      ef(3) = ef(3)
 
 
       do is = 1, nspec
@@ -842,7 +844,7 @@ module fpc
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !Note: we have a negative sign here due to coordinate conversion (i.e. we flipped Eperp2 and Epar) (see note labeled 'coord trans'). !TODO: consider rewriting this for clarity
+          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
         endif
         if(ceiindex == 3)then 
           phi = ATAN2(vy,vx) 
@@ -855,7 +857,7 @@ module fpc
           vpar = vz-delv
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !Note: we have a negative sign here due to coordinate conversion (i.e. we flipped Eperp2 and Epar) (see note labeled 'coord trans'). !TODO: consider rewriting this for clarity
+          dfs1i = (fs1_1-fs1_0)/(2.*delv)
         endif
 
         phi = ATAN2(vy,vx) 
