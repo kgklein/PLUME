@@ -103,8 +103,9 @@ module fpc
       ef(1) = ef(1)
       ef(2) = ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
       ef(3) = ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
-                     !   In this code, we use two different sources that take different coordinates, and we must account for them here.
-
+                    !   In this code, we use two different sources that take different coordinates, and we must account for them here.
+                    !TODO: move this note ^^^^^
+                    
       do is = 1, nspec
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
@@ -245,6 +246,12 @@ module fpc
       ef(1) = ef(1)
       ef(2) = ef(2)
       ef(3) = ef(3)
+
+      ! !DEBUG TEST: hard code needed quants
+      ! ef(1) = (1,0)
+      ! ef(2) = (2,0)
+      ! ef(3) = (0,0)
+      ! omega = (.2,-.2)
 
 
       do is = 1, nspec
@@ -540,7 +547,7 @@ module fpc
       complex :: Ubar_s
       real :: b_s
       complex :: fsi !intermediate variable used to compute summation total
-      real, dimension(1000) :: jbesselvals !array used to prevent repeated calculations 
+      real, dimension(200) :: jbesselvals !array used to prevent repeated calculations 
                                                                                         
 
       real                                  :: hatV_s           !normalized drift velocity by parallel thermal velocity
@@ -551,7 +558,7 @@ module fpc
       !real :: start, finish !debug/test to measure runtime of function
 
       i = (0,1.)
-      omega_temp = real(omega)+i*aimag(omega) !`fix` sign as people PLUME returns omega as omega=wr-i*gam
+      omega_temp = real(omega)+i*aimag(omega) !`fix` sign as people PLUME returns omega as omega=wr-i*gam 
 
       hatV_s = V_s*(tau_s/(mu_s*betap))**(.5)
 
@@ -572,7 +579,6 @@ module fpc
       do while(n <= nbesmax+1)
         jbesselvals(n+1+nbesmax+1) = bessj_s(n,b_s) !here we use the 'unmodified' bessel function rather than the modified bessel function that 'bessel(n,x)' returns
                                                   !note as n starts at a negative value, we must offset our indexing
-                                                  !not sure how to index this jbesselvals array 'cleanly'. Just note the potential for off by one errors as we need 2*nbesmax+2 values here
         n = n+1
       end do
 
@@ -632,7 +638,7 @@ module fpc
       complex, intent(out)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
       complex, intent(out)          :: dfs1z            !first order distribution partial wrt z * c^4 B_0 (times c^4 B_0 due to normalization)
 
-      num_phi = 20 !TODO: dont hard code this
+      num_phi = 20
 
       piconst = 4.0*ATAN(1.0)
       phi = 0.
@@ -653,7 +659,9 @@ module fpc
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)
-        Cor_s = vperp*-1.*q_s*(vpar**2./2.)*dfs1z*ef(3)*2.0*piconst/num_phi+Cor_s !Note: this implicitly is a real cast due to the type of Cor_s
+        Cor_s = vperp*0.5*(-1.*q_s*(vpar**2./2.)*dfs1z*CONJG(ef(3))&
+          -1.*q_s*(vpar**2./2.)*CONJG(dfs1z)*ef(3))*2.0*piconst/num_phi+Cor_s
+
         n_phi = n_phi+1
         phi = phi + delphi
       end do
@@ -726,7 +734,9 @@ module fpc
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
-        Cor_ex_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(1)
+        vxtemp = vperp*COS(phi)
+        Cor_ex_s = 0.5*(-1.*q_s*(vxtemp**2./2.)*dfs1perp*CONJG(ef(1))&
+          -1.*q_s*(vperp**2./2.)*CONJG(dfs1perp)*ef(1))
 
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi) 
@@ -745,8 +755,10 @@ module fpc
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-        dfs1perp = (fs1_1-fs1_0)/(2.*delv)
-        Cor_ey_s = -1.*q_s*(vperp**2./2.)*dfs1perp*ef(2)
+        dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable here for clarity
+        vytemp = -1.*(vperp*SIN(phi)) !TODO: fix signs in the function above?
+        Cor_ey_s = 0.5*(-1.*q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
+          -1.*q_s*(vperp**2./2.)*CONJG(dfs1perp)*ef(2))
 
         Cor_perp_s = vperp*(Cor_ex_s+Cor_ey_s)*2.0*piconst/num_phi + Cor_perp_s
 
@@ -844,7 +856,7 @@ module fpc
           vpar = vz
           call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
           call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-          dfs1i = -(fs1_1-fs1_0)/(2.*delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
+          dfs1i = (fs1_1-fs1_0)/(2.*delv) 
         endif
         if(ceiindex == 3)then 
           phi = ATAN2(vy,vx) 
@@ -876,7 +888,10 @@ module fpc
           vicor = vz
         endif
 
-        Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
+        !Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
+        Cor_i_s = 0.5*(-1.*q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
+          -1.*q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
+
         inti = inti + 1
         vival = vival + delv
       end do

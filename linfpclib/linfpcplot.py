@@ -120,7 +120,7 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequ
 
     print("Saving figure to figures folder!")
     plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
-    plt.show()
+    # plt.show() #TODO: option to save or show
     plt.close()
 
 def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple species
@@ -240,6 +240,7 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
 
     if(flnm != ''):
         plt.savefig(flnm,format='png',dpi=300)
+        plt.close()
     else:
         plt.show()
 

@@ -519,7 +519,7 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
 
     return cdatafilenames
 
-def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True,use_ps_split_new=False):
+def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True,use_ps_split_new=False,swlog=True):
     #makes sweeps that start at params namelist, and branches out
 
     if(verbose):
@@ -559,7 +559,7 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     scan_style=0
     swi=midsweepval
     swf=sweepmax
-    swlog=True
+    swlog=swlog
     ns=nsamps
     nres=1
     heating=True
@@ -581,7 +581,7 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     scan_style=0
     swi=midsweepval
     swf=sweepmin
-    swlog=True
+    swlog=swlog
     ns=nsamps
     nres=1
     heating=True
@@ -851,7 +851,7 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvxvy = np.asarray(Cvxvy)
-    Cvxvy = np.flip(Cvxvy,axis=1)
+    # Cvxvy = np.flip(Cvxvy,axis=1) #TODO: remove?
 
     Cvxvz = []
     linecounter = 1
@@ -868,7 +868,7 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvxvz = np.asarray(Cvxvz)
-    Cvxvz = np.flip(Cvxvz,axis=1) 
+    # Cvxvz = np.flip(Cvxvz,axis=1)  #TODO: remove?
 
     Cvyvz = []
     linecounter = 1
@@ -885,8 +885,8 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvyvz = np.asarray(Cvyvz)
-    Cvyvz = np.flip(Cvyvz,axis=0)
-    Cvyvz = np.flip(Cvyvz,axis=1)
+    # Cvyvz = np.flip(Cvyvz,axis=0) #TODO: remove?
+    # Cvyvz = np.flip(Cvyvz,axis=1) #TODO: remove
 
     linfpcckeyname = 'CEpar'
     if('perp1' in filename):
