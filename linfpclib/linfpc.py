@@ -851,7 +851,6 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvxvy = np.asarray(Cvxvy)
-    # Cvxvy = np.flip(Cvxvy,axis=1) #TODO: remove?
 
     Cvxvz = []
     linecounter = 1
@@ -868,7 +867,6 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvxvz = np.asarray(Cvxvz)
-    # Cvxvz = np.flip(Cvxvz,axis=1)  #TODO: remove?
 
     Cvyvz = []
     linecounter = 1
@@ -885,8 +883,6 @@ def loadlinfpccart(filename):
         line = f.readline()
         linecounter += 1
     Cvyvz = np.asarray(Cvyvz)
-    # Cvyvz = np.flip(Cvyvz,axis=0) #TODO: remove?
-    # Cvyvz = np.flip(Cvyvz,axis=1) #TODO: remove
 
     linfpcckeyname = 'CEpar'
     if('perp1' in filename):
