@@ -555,15 +555,20 @@ module fpc
 
       complex, intent(out)                  :: fs1               !first order distribution
 
-      !real :: start, finish !debug/test to measure runtime of function
-
       i = (0,1.)
-      omega_temp = real(omega)+i*aimag(omega) !`fix` sign as people PLUME returns omega as omega=wr-i*gam 
+      omega_temp = real(omega)+i*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
 
       hatV_s = V_s*(tau_s/(mu_s*betap))**(.5)
 
-      UExB = -ef(1)/sqrt(bf(1)**2+bf(2)**2+bf(3)**2) !-Ex/|\mathbf{B}|
+      !UExB = -ef(1)/sqrt(bf(1)**2+bf(2)**2+bf(3)**2) !-Ex/|\mathbf{B}|
       !UExB = -(ef(1)*bf(3)-ef(3)*bf(1))/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
+
+      UExB = (ef(2)*bf(3)-ef(3)*bf(2))**(2.)
+      UExB = (ef(1)*bf(3)-ef(3)*bf(1))**(2.) + UExB
+      UExB = (ef(1)*bf(2)-ef(2)*bf(1))**(2.) + UExB
+      UExB = (UExB)**(0.5)
+      UExB = -UExB/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
+
       A = mu_s**1.5/(q_s*tau_s**0.5)*UExB/vtp
       Ubar_s = -2.*vperp*((tau_s/mu_s)**(.5)/aleph_s+(kpar/(omega_temp*(aleph_r**0.5)))*(vpar-hatV_s-vpar/aleph_s))
       b_s = (kperp*q_s*vperp)/(mu_s*tau_s*aleph_r)**0.5
@@ -590,7 +595,7 @@ module fpc
         do while(m <= nbesmax)
           Wbar_s = -2.*((tau_s/mu_s)**(.5)*(vpar-hatV_s)-(n/omega_temp)*(((mu_s*tau_s)**(0.5))/q_s)*(vpar-hatV_s-vpar/aleph_s))
           D = (omega_temp-n*mu_s/q_s-kpar*(mu_s/(aleph_s*tau_s))**(.5)*vpar)
-          fsi = 0.
+          fsi = (0.,0.)
           fsi = (jbesselvals(n+1+nbesmax+1))*Wbar_s*ef(3) !here we use the 'unmodified' bessel function rather than the modified bessel function that 'bessel(n,x)' returns
           fsi = i*((jbesselvals(n+nbesmax+1)-jbesselvals(n+2+nbesmax+1))/2.)*Ubar_s*ef(2)+fsi
           fsi = n*(jbesselvals(n+1+nbesmax+1)/b_s)*Ubar_s*ef(1)+fsi
@@ -707,7 +712,7 @@ module fpc
       num_phi = 30 !TODO: dont hard code this
 
       vperp = vperpin
-      vpar = -vparin !see note 'coord trans'
+      vpar = vparin
  
       piconst = 4.0*ATAN(1.0)
       phi = 0.
@@ -718,7 +723,7 @@ module fpc
         !TODO: derive analytical form when calculating location to compute f1 for computing df1
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi)+delv
-        vytemp = -vperp*SIN(phi) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
+        vytemp = vperp*SIN(phi)
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
@@ -726,7 +731,7 @@ module fpc
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         vxtemp = vperp*COS(phi)-delv
-        vytemp = -vperp*SIN(phi) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
+        vytemp = vperp*SIN(phi) 
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
@@ -740,7 +745,7 @@ module fpc
 
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi) 
-        vytemp = -1.*(vperp*SIN(phi)+delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
+        vytemp = (vperp*SIN(phi)+delv)
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
@@ -748,15 +753,15 @@ module fpc
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         vxtemp = vperp*COS(phi)
-        vytemp = -1.*(vperp*SIN(phi)-delv) !minus sign is a result of the difference in coordinate system (see note 'coord trans')
+        vytemp = (vperp*SIN(phi)-delv)
         vztemp = vpar
         phitemp = ATAN2(vytemp,vxtemp) 
         vperptemp = SQRT((vxtemp)**2+(vytemp)**2)
         vpartemp = vztemp
         call calc_fs0(vperptemp,vpartemp,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-        dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable here for clarity
-        vytemp = -1.*(vperp*SIN(phi)) !TODO: fix signs in the function above?
+        dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable name for dfs1perp here for clarity
+        vytemp = vperp*SIN(phi)
         Cor_ey_s = 0.5*(-1.*q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
           -1.*q_s*(vperp**2./2.)*CONJG(dfs1perp)*ef(2))
 
