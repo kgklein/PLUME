@@ -665,8 +665,8 @@ def loadlinfpcdist(filename,vparmin,vperpmin,vparmax,vperpmax,delv): #TODO: writ
         dist.append(row)
         line = f.readline()
 
-    # dist=np.flip(dist,axis=1) #TODO: REMOVE? #flip coordinates as they are backwards due to inconsistency of basis between routines
-    dist = np.asarray(dist)
+    dist=np.flip(dist,axis=1) #TODO: perhaps this should be done in the plotting routine
+    dist = np.asarray(dist) 
 
         #weird index rounding bug fix
     if(len(vpar) < len(dist[0])):
@@ -746,7 +746,7 @@ def loadlinfpccepar(filename):
         C.append(row)
         line = f.readline()
 
-    # C = np.flip(C,axis=1) #TODO: remove? #flip coordinates as they are backwards due to inconsistency of basis between routines
+    C = np.flip(C,axis=1) #TODO: perhaps this should be done in the plotting routine
     C = np.asarray(C)
 
         #weird index rounding bug fix

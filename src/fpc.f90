@@ -561,13 +561,16 @@ module fpc
       hatV_s = V_s*(tau_s/(mu_s*betap))**(.5)
 
       !UExB = -ef(1)/sqrt(bf(1)**2+bf(2)**2+bf(3)**2) !-Ex/|\mathbf{B}|
+
+      UExB = -ef(1)/sqrt(abs(bf(1))**2+abs(bf(2))**2+abs(bf(3))**2) !-Ex/|\mathbf{B}|
+
       !UExB = -(ef(1)*bf(3)-ef(3)*bf(1))/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
 
-      UExB = (ef(2)*bf(3)-ef(3)*bf(2))**(2.)
-      UExB = (ef(1)*bf(3)-ef(3)*bf(1))**(2.) + UExB
-      UExB = (ef(1)*bf(2)-ef(2)*bf(1))**(2.) + UExB
-      UExB = (UExB)**(0.5)
-      UExB = -UExB/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
+      ! UExB = (ef(2)*bf(3)-ef(3)*bf(2))**(2.)
+      ! UExB = (ef(1)*bf(3)-ef(3)*bf(1))**(2.) + UExB
+      ! UExB = (ef(1)*bf(2)-ef(2)*bf(1))**(2.) + UExB
+      ! UExB = (UExB)**(0.5)
+      ! UExB = -UExB/sqrt(abs(bf(1))**2+abs(bf(2))**2+abs(bf(3))**2)
 
       A = mu_s**1.5/(q_s*tau_s**0.5)*UExB/vtp
       Ubar_s = -2.*vperp*((tau_s/mu_s)**(.5)/aleph_s+(kpar/(omega_temp*(aleph_r**0.5)))*(vpar-hatV_s-vpar/aleph_s))
