@@ -218,6 +218,8 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
             axs[_j,_i].set_xlabel(xaxlabels[_i])
             axs[_j,_i].set_ylabel(yaxlabels[_i])
 
+            axs[_j,_i].axis('equal')
+
             fig.colorbar(_tempim, ax=axs[_j,_i])
             
             if(computeEner == True):
