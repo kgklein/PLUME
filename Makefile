@@ -9,8 +9,9 @@
 #  LAST UPDATE:  2023/01/23
 ###############################################################################
 
- SYSTEM=IFORT
-#SYSTEM=GFORT
+
+# SYSTEM=IFORT
+SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \

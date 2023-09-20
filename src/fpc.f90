@@ -27,8 +27,7 @@ module fpc
   real :: eperp1_bar=1.0    !Overall amplitude of the linear mode
   !END NEW GLOBAL VARIABLES=====================================================
 
-
-contains
+  contains
     
     !------------------------------------------------------------------------------
     !                           Collin Brown, 2020
@@ -314,8 +313,6 @@ contains
         write(unit_s+3, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s+3, *) '-------------'
 
-        
-
         !setup loop variables
         numstepvx = int((vxmax-vxmin)/delv)
         numstepvy = int((vymax-vymin)/delv)
@@ -353,7 +350,7 @@ contains
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
-       end do
+        end do
         vxi = vxmin
         vyi = vymin
         vzi = vzmin
@@ -1293,9 +1290,8 @@ contains
       !output
       complex, intent(out)                  :: fs0              !zero order distribution
 
-      !GGH: Error: 
-      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))  !Fixed 13 JUL 2023
-      !hatV_s = V_s*(tau_s/(mu_s*betap))
+      
+      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))  !(GGH: Error: Fixed 13 JUL 2023)
       
 
       fs0 = EXP(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
@@ -1400,25 +1396,6 @@ contains
         n = n + 1
       end do
       fs1 = -1.*i*A*fs0*fs1
-
-! OLD VERSION      
-!      do while(n <= nbesmax)
-!        do while(m <= nbesmax)
-!           Wbar_s = -2.*((tau_s/mu_s)**(.5)*(vpar-hatV_s)-(n/omega_temp)*(((mu_s*tau_s)**(0.5))/q_s)*(vpar-hatV_s-vpar/aleph_s))
-           !GGH ERROR: Should be aleph_r below
-!          D = (omega_temp-n*mu_s/q_s-kpar*(mu_s/(aleph_s*tau_s))**(.5)*vpar)
-!          fsi = (0.,0.)
-!          fsi = (jbesselvals(n+1+nbesmax+1))*Wbar_s*ef(3) !here we use the 'unmodified' bessel function rather than the modified bessel function that 'bessel(n,x)' returns
-!          fsi = i*((jbesselvals(n+nbesmax+1)-jbesselvals(n+2+nbesmax+1))/2.)*Ubar_s*ef(2)+fsi
-!          fsi = n*(jbesselvals(n+1+nbesmax+1)/b_s)*Ubar_s*ef(1)+fsi
-!          fsi = jbesselvals(m+1+nbesmax+1)*(cexp(i*(m-n)*phi)/D)*fsi
-!          fs1 = fs1 + fsi
-!          m = m + 1
-!        end do
-!        m = -nbesmax
-!        n = n + 1
-!     end do
-!      fs1 = -1.*i*A*fs0*fs1
     end subroutine calc_fs1
 
 
@@ -1471,7 +1448,6 @@ contains
         call calc_fs1(omega,vperp,vpar+delv,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         call calc_fs0(vperp,vpar-delv,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar-delv,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-
         call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
@@ -1711,9 +1687,7 @@ contains
         Cor_i_s = 0.5*(-1.*q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
           -1.*q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
 
-
-        sum_fs1=sum_fs1+fs1*delv
-        
+        sum_fs1=sum_fs1+fs1*delv        
         inti = inti + 1
         vival = vival + delv
      end do
