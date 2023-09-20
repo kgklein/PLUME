@@ -711,13 +711,13 @@ def loadlinfpccepar(filename):
     delv     = float(line[4])
     resonant_int = omega/math.sqrt(bi) #calc resonant interval
     species = ''
-    if(filename.find('specie02')>=0):
-        resonant_int = resonant_int*tau**(.5)*mu**(-.5)
-        print("Calculated resonant interval (elec): " + str(resonant_int))
-        species = 'elec'
-    else:
-        print("Calculated resonant interval (ion): " + str(resonant_int))
-        species = 'ion'
+    # if(filename.find('specie02')>=0): #DEBUG: TODO: remove?
+    #     resonant_int = resonant_int*tau**(.5)*mu**(-.5)
+    #     print("Calculated resonant interval (elec): " + str(resonant_int))
+    #     species = 'elec'
+    # else:
+    #     print("Calculated resonant interval (ion): " + str(resonant_int))
+    #     species = 'ion'
 
     resonant_int = resonant_int.real
 

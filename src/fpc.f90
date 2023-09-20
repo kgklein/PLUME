@@ -95,7 +95,7 @@ module fpc
       om1=ominit*(1.-prec)
       om2=ominit*(1.+prec)
 
-      ! Refine Omega Value
+      ! Refine Omega Value (again)
       iflag=0
       omega=rtsec(disp,om1,om2,tol,iflag)
       
@@ -104,7 +104,7 @@ module fpc
       ef(2) = ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
       ef(3) = ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
                     !   In this code, we use two different sources that take different coordinates, and we must account for them here.
-                    !TODO: move this note ^^^^^
+                    !TODO: move this note after fixing code^^^^^
                     
       do is = 1, nspec
         !make file to store result
@@ -271,6 +271,12 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+2,file=trim(filename),status='replace')
 
+        !DEBUG
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.debugcperp1.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+3,file=trim(filename),status='replace')
+        write(unit_s+3,'(16A)')'CEperp1 vx vy vz'
+        !END DEBUG
+
         write(*,*)'Calculating fpc for species ',is
         write(*,*)'Writing omega/kpar V_a normalization to file...'
 
@@ -321,6 +327,11 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+
+            !DEBUG
+            write(unit_s+3,'(es17.5,es17.5,es17.5,es17.5)')Cor_perp1_s,vxi,vyi,vzi
+            !END DEBUG
+
             vyi = vyi+delv
           end do
           vyi = vymin
@@ -663,7 +674,7 @@ module fpc
         call calc_fs0(vperp,vpar-delv,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar-delv,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
 
-        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
+        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0) !TODO: update how fs0/ fs1 out is computed!
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)

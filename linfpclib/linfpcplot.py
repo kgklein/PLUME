@@ -175,7 +175,7 @@ def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple spec
     plt.show()
     plt.close()
 
-def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
+def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scalevelocity=1):
     from linfpclib.linfpc import loadlinfpccart
 
     print("Loading files...")
@@ -212,7 +212,7 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
         for cartcdata in cartcdatas:
             ckey = ckeyprefixes[_j]+dirkey
             absmax = np.max(np.abs(cartcdata[ckey]))
-            _tempim = axs[_j,_i].pcolormesh(cartcdata[dirkey[2:4]],cartcdata[dirkey[0:2]],np.asarray(cartcdata[ckey]).T[:,::-1],vmax=absmax,vmin=-absmax,cmap="seismic")
+            _tempim = axs[_j,_i].pcolormesh(np.asarray(cartcdata[dirkey[2:4]])*scalevelocity,np.asarray(cartcdata[dirkey[0:2]])*scalevelocity,np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
             axs[_j,_i].grid()
             axs[_j,_i].set_title(titlesprefixes[_j]+titlesuffixes[_i])
             axs[_j,_i].set_xlabel(xaxlabels[_i])
@@ -224,7 +224,7 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False):
             
             if(computeEner == True):
                 delv = cartcdata[dirkey[0:2]][1]-cartcdata[dirkey[0:2]][0] #WARNING: ASSUMES SQUARE GRID
-                ener = np.sum(np.asarray(cartcdata[ckey]).T[:,:])*delv*delv
+                ener = np.sum(np.asarray(cartcdata[ckey]).T[:,:])*delv*delv*delv
                 xscale = np.max(axs[_j,_i].get_xlim())-np.min(axs[_j,_i].get_xlim())
                 xtext = np.min(axs[_j,_i].get_xlim())+xscale*.1
                 ytext = np.max(axs[_j,_i].get_ylim())*.75
