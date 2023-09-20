@@ -9,12 +9,13 @@
 #  LAST UPDATE:  2023/01/23
 ###############################################################################
 
+
 # SYSTEM=IFORT
 SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
-	*gfort*.in \
+	*.in \
 	README* \
 	data/gfort/ \
 	include/

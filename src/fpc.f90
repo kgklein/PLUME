@@ -18,6 +18,15 @@ module fpc
 
   public :: compute_fpc_gyro, compute_fpc_cart, write_fs0
 
+  !GGH: Optimized Routines
+  public :: compute_fpc_cart_new
+
+  !NEW GLOBAL VARIABLES=========================================================
+  real :: bs_last=0.0       !Last Bessel function argument
+  real, allocatable :: jbess(:)  !Regular Bessel function values
+  real :: eperp1_bar=1.0    !Overall amplitude of the linear mode
+  !END NEW GLOBAL VARIABLES=====================================================
+
   contains
     
     !------------------------------------------------------------------------------
@@ -60,6 +69,7 @@ module fpc
       !loop counter/ loop parameters
       integer :: is                     !species counter
       integer :: unit_s                 !out file unit counter
+      character(100)  :: fmt                          !Eigenfunction Output Format
 
       real :: start, finish !debug/test to measure runtime of function
 
@@ -95,7 +105,7 @@ module fpc
       om1=ominit*(1.-prec)
       om2=ominit*(1.+prec)
 
-      ! Refine Omega Value (again)
+      ! Refine Omega Value
       iflag=0
       omega=rtsec(disp,om1,om2,tol,iflag)
       
@@ -104,7 +114,7 @@ module fpc
       ef(2) = ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
       ef(3) = ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
                     !   In this code, we use two different sources that take different coordinates, and we must account for them here.
-                    !TODO: move this note after fixing code^^^^^
+                    !TODO: move this note ^^^^^
                     
       do is = 1, nspec
         !make file to store result
@@ -203,6 +213,7 @@ module fpc
       !loop counter/ loop parameters
       integer :: is                     !species counter
       integer :: unit_s                 !out file unit counter
+      character(100)  :: fmt                          !Eigenfunction Output Format
 
       real :: start, finish !debug/test to measure runtime of function
 
@@ -271,12 +282,9 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+2,file=trim(filename),status='replace')
 
-        !DEBUG
-        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.debugcperp1.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+3,file=trim(filename),status='replace')
-        write(unit_s+3,'(16A)')'CEperp1 vx vy vz'
-        !END DEBUG
-
+        
         write(*,*)'Calculating fpc for species ',is
         write(*,*)'Writing omega/kpar V_a normalization to file...'
 
@@ -298,6 +306,12 @@ module fpc
         write(unit_s+2, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
         write(unit_s+2, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s+2, *) '-------------'
+        write(unit_s+3,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+3,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+             real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+3, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+3, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+3, *) '-------------'
 
         !setup loop variables
         numstepvx = int((vxmax-vxmin)/delv)
@@ -314,24 +328,20 @@ module fpc
             vmax3rdval = vzmax
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,3,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,1,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,3,2,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s,fs1)
             if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
             if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
             if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-
-            !DEBUG
-            write(unit_s+3,'(es17.5,es17.5,es17.5,es17.5)')Cor_perp1_s,vxi,vyi,vzi
-            !END DEBUG
-
+            write(unit_s+3,'(2es17.5)',advance='no')fs1
             vyi = vyi+delv
           end do
           vyi = vymin
@@ -339,6 +349,7 @@ module fpc
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
+          write(unit_s+3,*)
         end do
         vxi = vxmin
         vyi = vymin
@@ -346,6 +357,7 @@ module fpc
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
 
         !CEi(vx,vz)----------------------------------------------------------------------------
         vxi = vxmin
@@ -356,19 +368,20 @@ module fpc
             vmax3rdval = vymax
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,3,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,1,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,2,2,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s,fs1)
             if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
             if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
             if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+            write(unit_s+3,'(2es17.5)',advance='no')fs1
             vzi = vzi+delv
           end do
           vzi = vzmin
@@ -376,6 +389,7 @@ module fpc
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
+          write(unit_s+3,*)
         end do    
         vxi = vxmin
         vyi = vymin
@@ -383,6 +397,7 @@ module fpc
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
 
         !CEi(vy,vz)----------------------------------------------------------------------------
         vxi = vxmin
@@ -393,19 +408,20 @@ module fpc
             vmax3rdval = vxmax
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,3,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_par_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,1,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp1_s,fs1)
             call calc_correlation_i_car(omega,ef,bf,vxi,vyi,vzi,vmax3rdval,1,2,delv,spec(is)%vv_s,&
                                       spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,&
-                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s)
+                                      spec(is)%mu_s,spec(1)%alph_s,Cor_perp2_s,fs1)
             if(ABS(Cor_par_s) .lt. 9.999E-99) Cor_par_s = 0. !file formating bug fix
             if(ABS(Cor_perp1_s) .lt. 9.999E-99) Cor_perp1_s = 0. !file formating bug fix
             if(ABS(Cor_perp2_s) .lt. 9.999E-99) Cor_perp2_s = 0. !file formating bug fix
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
+            write(unit_s+3,'(2es17.5)',advance='no')fs1
             vzi = vzi+delv
           end do
           vzi = vzmin
@@ -413,6 +429,7 @@ module fpc
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
+          write(unit_s+3,*)
         end do
         vxi = vxmin
         vyi = vymin
@@ -420,10 +437,761 @@ module fpc
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
+
+     end do
+     close(unit_s)
+     close(unit_s+1)
+     close(unit_s+2)
+     close(unit_s+3)
+
+     !Write Complex Eigenfunction-------------------------------------------
+      write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+      open(unit=unit_s+4,file=trim(filename),status='replace')
+
+      !Write format (consistent with usual PLUME output)
+      write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
+      write(unit_s+4,fmt)&
+           kperp,kpar,betap,vtp,&
+           omega,&            
+           bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
+           Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
+      close(unit_s+4)
+      
+    end subroutine compute_fpc_cart
+
+
+    !------------------------------------------------------------------------------
+    !                           Collin Brown and Greg Howes, 2023
+    !------------------------------------------------------------------------------
+    subroutine compute_fpc_cart_new(wrootindex)
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec
+      use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv,nbesmax
+      use vars, only : wroots, nroots
+      use vars, only : outputName, dataName
+      
+      use disprels, only : calc_eigen, rtsec, disp
+
+      integer, intent(in) :: wrootindex              !index of selected root
+
+      character(1000) :: filename                      !Output File name
+      character(1000) :: outputPath                    !Output folder
+      character(1000) :: cmd                           !Varaible to store command line commands
+      real    :: vxi, vyi, vzi                       !normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
+      integer :: vxindex, vyindex, vzindex           !loop counters
+      real    :: vmax3rdval                          !sampled range when computing projection
+      complex :: omega                               !Complex Frequency
+      real    :: Cor_par_s, Cor_perp1_s, Cor_perp2_s !normalized correlation value
+!      complex :: fs1                                 !normalized distribution function
+      real    :: wi,gi                               !Freq and Damping of initial guess
+      complex :: ominit                              !Complex Frequency initial guess
+      complex :: om1,om2                             !Bracket Values
+      integer :: iflag                               !Flag for Root search
+      real, parameter :: tol=1.0E-13                 !Root Search Tolerance
+      real, parameter :: prec=1.E-7                  !Root Finding precision
+      integer :: numstepvx, numstepvy, numstepvz     !total number of steps in loop
+      logical :: ex                                  !used to check if results directory exists
+      complex, dimension(1:3)       :: ef, bf !E, B
+      complex, dimension(1:nspec)     :: ns     !density
+      complex, dimension(1:3,1:nspec) :: Us     !Velocity
+      !Heating (Required parameters of calc eigen)
+      real, dimension(1:nspec) :: Ps !Power into/out of species
+      real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+      real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
+      real :: Ew !wave energy
+      !loop counter/ loop parameters
+      integer :: is                     !species counter
+      integer :: unit_s                 !out file unit counter
+
+      real :: start, finish !debug/test to measure runtime of function
+      !NEW VARIABLES================================================================
+      real, allocatable, dimension(:) :: vvx,vvy,vvz  !Velocity grid values (norm: w_par_s)
+      integer :: ivx,ivy,ivz                    !Index for each velocity dimension
+      integer :: ivxmin,ivxmax,ivymin,ivymax,ivzmin,ivzmax  !Index limits 
+      real,  allocatable, dimension(:,:,:,:) :: fs0   !Dimensionless equilibrium fs0
+      complex, allocatable, dimension(:,:,:,:) :: fs1 !Perturbed Dist for all species
+      real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
+      real :: vperp                                   !Perpendicular velocity
+      real :: phi                                     !Gyrophase angle (azimuthal)
+      complex, allocatable, dimension(:,:,:,:) :: dfs1dvx,dfs1dvy,dfs1dvz !Derivatives
+      real, allocatable, dimension(:,:,:,:) :: corex,corey,corez !3V Correlations
+      real, allocatable, dimension(:,:,:) :: corex_xy,corex_xz,corex_zy !2V Corrs
+      real, allocatable, dimension(:,:,:) :: corey_xy,corey_xz,corey_zy !2V Corrs
+      real, allocatable, dimension(:,:,:) :: corez_xy,corez_xz,corez_zy !2V Corrs
+      complex, allocatable, dimension(:,:,:) :: fs1_xy,fs1_xz,fs1_zy !2V fs1 
+      complex, allocatable, dimension(:) :: ns1 !Density Fluctuation
+      complex, allocatable, dimension(:,:) :: us1 !Fluid Velocity Fluctuation
+      real, allocatable, dimension(:) :: jxex,jyey,jzez !int_v 3V Correlations
+      integer :: jj                                   !Index
+      character(100)  :: fmt                          !Eigenfunction Output Format
+      real :: delv3                                  !delv^3
+      real :: pi
+      character(100)  :: fmt_dbg1,fmt_dbg2           !Eigenfunction Output Format
+
+      !END NEW VARIABLES============================================================
+
+      pi = 4.0*ATAN(1.0)
+
+      !check if results directory exists
+      ! INQUIRE (DIRECTORY='data', EXIST=ex)
+      ex = .true. !TODO: make this work for gfortran compiler
+      if(ex) then
+        write(*,*)"Assuming data folder already exists..."
+      else
+        write(*,*)"Creating data folder for output..."
+        write(*,*)'mkdir data'
+        CALL system('mkdir data')
+        write(*,*)"Saving output to data folder..."
+      endif
+
+      write(outputPath,*) 'data/', trim(dataName) !!TODO: use more general pathing
+      ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
+      ex = .true.
+      if(ex) then
+        write(*,*)"assuming subfolder ", trim(dataName), " already exists"
+      else
+        write(*,*)"Creating data subfolder ", trim(dataName)
+        write(cmd,*)'mkdir ',trim(outputPath)
+        write(*,*)cmd
+        CALL system(cmd)
+        write(*,*)"Saving to data subfolder ", trim(dataName)
+      endif
+
+      !Grab dispersion relation solution
+      wi = wroots(1,wrootindex)
+      gi = wroots(2,wrootindex)
+      ominit=cmplx(wi,gi)
+      om1=ominit*(1.-prec)
+      om2=ominit*(1.+prec)
+
+      ! Refine Omega Value
+      iflag=0
+      omega=rtsec(disp,om1,om2,tol,iflag)
+      
+      call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+      
+      
+      !==============================================================================
+      ! Create Velocity grid and allocate variables
+      !==============================================================================
+
+      ! Create velocity grid variables: vvx,vvy,vvz
+      ! NOTE: All (x,y,z) velocity values are normalized to species parallel thermal velocity
+      ! NOTE: Code below assumes max.min values are integral values of delv (if not, throw warning flag!)
+      ivxmin=int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write(*,*)'WARNING: vxmin not integral value of delv'
+      ivxmax=int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write(*,*)'WARNING: vxmax not integral value of delv'
+      ivymin=int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write(*,*)'WARNING: vymin not integral value of delv'
+      ivymax=int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write(*,*)'WARNING: vymax not integral value of delv'
+      ivzmin=int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write(*,*)'WARNING: vzmin not integral value of delv'
+      ivzmax=int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write(*,*)'WARNING: vzmax not integral value of delv'
+      !Allocate velocity grid variables
+      allocate(vvx(ivxmin:ivxmax)); vvx(:)=0.
+      allocate(vvy(ivymin:ivymax)); vvy(:)=0.
+      allocate(vvz(ivzmin:ivzmax)); vvz(:)=0.
+      !Populate velocity grid values
+      do ivx=ivxmin,ivxmax
+         vvx(ivx)=real(ivx)*delv
+      enddo
+      do ivy=ivymin,ivymax
+         vvy(ivy)=real(ivy)*delv
+      enddo
+      do ivz=ivzmin,ivzmax
+         vvz(ivz)=real(ivz)*delv
+      enddo
+      
+      !Allocate fs1 and fs0 variables 
+      allocate(fs0(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+      fs0(:,:,:,:)=0.
+      allocate(fs1(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+      fs1(:,:,:,:)=0.
+
+      !Allocate Bessel function values
+      allocate(jbess(-nbesmax-1:nbesmax+1)); jbess(:)=0.
+      
+      !=============================================================================
+      ! END Create Velocity grid and allocate variables
+      !=============================================================================
+
+      !=============================================================================
+      ! Calculate fs0 and fs1 on (vx,vy.vz) grid
+      !=============================================================================
+      allocate(hatV_s(nspec))
+      !Loop over (vx,vy,vz) grid and compute fs0 and fs1
+      do is = 1, nspec
+         !Create variable for parallel flow velocity normalized to
+         !       species parallel thermal speed
+         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+         do ivx=ivxmin,ivxmax
+            do ivy=ivymin,ivymax
+               vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
+               do ivz=ivzmin,ivzmax
+                  !Compute dimensionless equilibrium Distribution value, fs0
+                  fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+                  !Compute perturbed  Distribution value, fs1
+                  phi = ATAN2(vvy(ivy),vvx(ivx))
+                  call calc_fs1_new(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+
+               enddo
+            enddo
+         enddo
+      enddo
+      !=============================================================================
+      ! End Calculate fs0 and fs1 on (vx,vy.vz) grid
+      !=============================================================================
+
+      !=============================================================================
+      ! Calculate velocity derivatives of fs1
+      !=============================================================================
+      allocate(dfs1dvx(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+      dfs1dvx=0.
+      allocate(dfs1dvy(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+      dfs1dvy=0.
+      allocate(dfs1dvz(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+      dfs1dvz=0.
+
+      do is = 1, nspec
+         !dfs1/dvx-------------------------------------------------------
+         do ivz=ivzmin,ivzmax
+            do ivy=ivymin,ivymax
+               !First point: 1st order Finite difference
+               dfs1dvx(ivxmin,ivy,ivz,is)=(fs1(ivxmin+1,ivy,ivz,is)-fs1(ivxmin,ivy,ivz,is))/(vvx(ivxmin+1)-vvx(ivxmin));
+               !Loop: 2nd order Centered Finite difference
+               do ivx=ivxmin+1,ivxmax-1
+                  dfs1dvx(ivx,ivy,ivz,is)=(fs1(ivx+1,ivy,ivz,is)-fs1(ivx-1,ivy,ivz,is))/(vvx(ivx+1)-vvx(ivx-1));
+               end do
+               !Last point: 1st order Finite difference
+               dfs1dvx(ivxmax,ivy,ivz,is)=(fs1(ivxmax,ivy,ivz,is)-fs1(ivxmax-1,ivy,ivz,is))/(vvx(ivxmax)-vvx(ivxmax-1));
+            end do
+         end do
+         !dfs1/dvy-------------------------------------------------------
+         do ivz=ivzmin,ivzmax
+            do ivx=ivxmin,ivxmax
+               !First point: 1st order Finite difference
+               dfs1dvy(ivx,ivymin,ivz,is)=(fs1(ivx,ivymin+1,ivz,is)-fs1(ivx,ivymin,ivz,is))/(vvy(ivymin+1)-vvy(ivymin));
+               !Loop: 2nd order Centered Finite difference
+               do ivy=ivymin+1,ivymax-1
+                  dfs1dvy(ivx,ivy,ivz,is)=(fs1(ivx,ivy+1,ivz,is)-fs1(ivx,ivy-1,ivz,is))/(vvy(ivy+1)-vvy(ivy-1));
+               end do
+               !Last point: 1st order Finite difference
+               dfs1dvy(ivx,ivymax,ivz,is)=(fs1(ivx,ivymax,ivz,is)-fs1(ivx,ivymax-1,ivz,is))/(vvy(ivymax)-vvy(ivymax-1));
+            end do
+         end do
+         !dfs1/dvz-------------------------------------------------------
+         do ivy=ivymin,ivymax
+            do ivx=ivxmin,ivxmax
+               !First point: 1st order Finite difference
+               dfs1dvz(ivx,ivy,ivzmin,is)=(fs1(ivx,ivy,ivzmin+1,is)-fs1(ivx,ivy,ivzmin,is))/(vvz(ivzmin+1)-vvz(ivzmin));
+               !Loop: 2nd order Centered Finite difference
+               do ivz=ivzmin+1,ivzmax-1
+                  dfs1dvz(ivx,ivy,ivz,is)=(fs1(ivx,ivy,ivz+1,is)-fs1(ivx,ivy,ivz-1,is))/(vvz(ivz+1)-vvz(ivz-1));
+               end do
+               !Last point: 1st order Finite difference
+               dfs1dvz(ivx,ivy,ivzmax,is)=(fs1(ivx,ivy,ivzmax,is)-fs1(ivx,ivy,ivzmax-1,is))/(vvz(ivzmax)-vvz(ivzmax-1));
+            end do
+         end do
+
+      enddo
+      !=============================================================================
+      ! END Calculate velocity derivatives of fs1
+      !=============================================================================
+
+      !=============================================================================
+      ! Calculate 3V CEx, CEy, CEz Correlations
+      !=============================================================================
+      allocate(corex(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec)); corex=0.
+      allocate(corey(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec)); corey=0.
+      allocate(corez(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec)); corez=0.
+      
+      !Loop over (vx,vy,vz) grid and compute CEx, CEy, CEz Correlations
+      do is = 1, nspec
+         do ivx=ivxmin,ivxmax
+            do ivy=ivymin,ivymax
+               do ivz=ivzmin,ivzmax
+                  ! CEx
+                  corex(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)* 0.5*(CONJG(dfs1dvx(ivx,ivy,ivz,is))*ef(1)+dfs1dvx(ivx,ivy,ivz,is)*CONJG(ef(1)) )
+                  
+                  ! CEy
+                  corey(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)* 0.5*(CONJG(dfs1dvy(ivx,ivy,ivz,is))*ef(2)+dfs1dvy(ivx,ivy,ivz,is)*CONJG(ef(2)) )
+                  
+                  ! CEz
+                  corez(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)* 0.5*(CONJG(dfs1dvz(ivx,ivy,ivz,is))*ef(3)+dfs1dvz(ivx,ivy,ivz,is)*CONJG(ef(3)) )
+                  
+               enddo
+            enddo
+         enddo
+      enddo
+
+      !=============================================================================
+      ! END Calculate 3V CEx, CEy, CEz Correlations
+      !=============================================================================
+
+      !=============================================================================
+      ! Reduce to 2V fs1 and 2V CEx, CEy, CEz Correlations
+      !=============================================================================
+      !Perturbed Distribution------------------------------------------------
+      allocate(fs1_xy(ivxmin:ivxmax,ivymin:ivymax,1:nspec)); fs1_xy=0.
+      allocate(fs1_xz(ivxmin:ivxmax,ivzmin:ivzmax,1:nspec)); fs1_xz=0.
+      allocate(fs1_zy(ivzmin:ivzmax,ivymin:ivymax,1:nspec)); fs1_zy=0.
+
+      !Reduce Distribution
+      fs1_xy(:,:,:)=sum(fs1(:,:,:,:),3)*delv
+      fs1_xz(:,:,:)=sum(fs1(:,:,:,:),2)*delv
+      fs1_zy(:,:,:)=sum(fs1(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
+      
+      !Transpose zy reductions to correct array ordering: (vz,vy) instead of (vy,vz)
+      do is=1,nspec
+         fs1_zy(:,:,is)=transpose(fs1_zy(:,:,is))
+      enddo
+      
+      !Correlations---------------------------------------------------------
+      allocate(corex_xy(ivxmin:ivxmax,ivymin:ivymax,1:nspec)); corex_xy=0.
+      allocate(corex_xz(ivxmin:ivxmax,ivzmin:ivzmax,1:nspec)); corex_xz=0.
+      allocate(corex_zy(ivzmin:ivzmax,ivymin:ivymax,1:nspec)); corex_zy=0.
+      allocate(corey_xy(ivxmin:ivxmax,ivymin:ivymax,1:nspec)); corey_xy=0.
+      allocate(corey_xz(ivxmin:ivxmax,ivzmin:ivzmax,1:nspec)); corey_xz=0.
+      allocate(corey_zy(ivzmin:ivzmax,ivymin:ivymax,1:nspec)); corey_zy=0.
+      allocate(corez_xy(ivxmin:ivxmax,ivymin:ivymax,1:nspec)); corez_xy=0.
+      allocate(corez_xz(ivxmin:ivxmax,ivzmin:ivzmax,1:nspec)); corez_xz=0.
+      allocate(corez_zy(ivzmin:ivzmax,ivymin:ivymax,1:nspec)); corez_zy=0.
+
+      !Reduce Correlations
+      corex_xy(:,:,:)=sum(corex(:,:,:,:),3)*delv
+      corex_xz(:,:,:)=sum(corex(:,:,:,:),2)*delv
+      corex_zy(:,:,:)=sum(corex(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
+      corey_xy(:,:,:)=sum(corey(:,:,:,:),3)*delv
+      corey_xz(:,:,:)=sum(corey(:,:,:,:),2)*delv
+      corey_zy(:,:,:)=sum(corey(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
+      corez_xy(:,:,:)=sum(corez(:,:,:,:),3)*delv
+      corez_xz(:,:,:)=sum(corez(:,:,:,:),2)*delv
+      corez_zy(:,:,:)=sum(corez(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
+      
+      !Transpose zy reductions to correct array ordering: (vz,vy) instead of (vy.vz)
+                 !NOTE: Assumes nvy=nvz!
+      do is=1,nspec    
+         corex_zy(:,:,is)=transpose(corex_zy(:,:,is))
+         corey_zy(:,:,is)=transpose(corey_zy(:,:,is))
+         corez_zy(:,:,is)=transpose(corez_zy(:,:,is))
+      enddo
+      !=============================================================================
+      ! END Reduce to 2V CEx, CEy, CEz Correlations
+      !=============================================================================
+
+      !=============================================================================
+      ! Integrate Distribution and Correlations over velocity 
+      !=============================================================================
+      !Integrate 0th and 1st Fluid moments of fs1
+      delv3=delv*delv*delv
+      allocate(ns1(nspec)); ns1=0.
+      allocate(us1(3,nspec)); us1=0.
+      do is = 1, nspec
+      ! Density Fluctuation: Zeroth Moment of delta f
+         ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
+         !Correct Normalization to n_0R
+         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
+      ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
+         !x-component
+         do ivx=ivxmin,ivxmax
+            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+         enddo
+         !y-component
+         do ivy=ivymin,ivymax
+            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+         enddo
+         !z-component
+         do ivz=ivzmin,ivzmax
+            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+         enddo
+         !Correct Normalization to v_AR
+         us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
+      enddo
+
+      !Integrate Correlations
+      allocate(jxex(nspec)); jxex=0.
+      allocate(jyey(nspec)); jyey=0.
+      allocate(jzez(nspec)); jzez=0.
+      do is = 1, nspec
+      !int_v CEx= jxEx
+         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3
+      !int_v CEy= jyEy
+         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3
+      !int_v CEz= jzEz
+         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3
+      enddo
+      !=============================================================================
+      ! END Integrate Distribution and Correlations over velocity
+      !=============================================================================
+
+      !=============================================================================
+      ! Output Distributions and Correlations to Files
+      !=============================================================================
+      do is = 1, nspec
+        !make file to store result
+        !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
+        unit_s = 12+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+        !TODO: fix formating in the write statements here and in gyro...
+        !write(*,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
+        !'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex
+        write(filename,'(5A,I0.2,1A,I0.2)')&
+        'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
+        open(unit=unit_s,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp1.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+1,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+2,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+3,file=trim(filename),status='replace')
+
+        write(*,*)'Calculating fpc for species ',is
+        write(*,*)'Writing omega/kpar V_a normalization to file...'
+
+        !Write header information to output all 4 files
+        do jj=0,3
+           write(unit_s+jj,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+           write(unit_s+jj,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+           write(unit_s+jj, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+           write(unit_s+jj, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+           write(unit_s+jj, *) '-------------'
+        enddo
+        
+        !CEi(vx,vy)--------------------------------------------------------------
+        do ivx=ivxmin,ivxmax
+           do ivy=ivymin,ivymax
+              write(unit_s,'(es17.5)',advance='no') corez_xy(ivx,ivy,is)
+              write(unit_s+1,'(es17.5)',advance='no')corex_xy(ivx,ivy,is)
+              write(unit_s+2,'(es17.5)',advance='no')corey_xy(ivx,ivy,is)
+              write(unit_s+3,'(2es17.5)',advance='no')fs1_xy(ivx,ivy,is)
+           enddo
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+          write(unit_s+3,*)
+        enddo
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
+        
+        !CEi(vx,vz)--------------------------------------------------------------
+         do ivx=ivxmin,ivxmax
+            do ivz=ivzmin,ivzmax
+              write(unit_s,'(es17.5)',advance='no') corez_xz(ivx,ivz,is)
+              write(unit_s+1,'(es17.5)',advance='no')corex_xz(ivx,ivz,is)
+              write(unit_s+2,'(es17.5)',advance='no')corey_xz(ivx,ivz,is)
+              write(unit_s+3,'(2es17.5)',advance='no')fs1_xz(ivx,ivz,is)
+           enddo
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+          write(unit_s+3,*)
+        enddo
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
+
+        !CEi(vy,vz)-------------------------------------------------------------
+        do ivz=ivzmin,ivzmax
+           do ivy=ivymin,ivymax
+              write(unit_s,'(es17.5)',advance='no') corez_zy(ivz,ivy,is)
+              write(unit_s+1,'(es17.5)',advance='no')corex_zy(ivz,ivy,is)
+              write(unit_s+2,'(es17.5)',advance='no')corey_zy(ivz,ivy,is)
+              write(unit_s+3,'(2es17.5)',advance='no')fs1_zy(ivz,ivy,is)
+           enddo
+          write(unit_s,*)
+          write(unit_s+1,*)
+          write(unit_s+2,*)
+          write(unit_s+3,*)
+        enddo
+        write(unit_s,*)'---'
+        write(unit_s+1,*)'---'
+        write(unit_s+2,*)'---'
+        write(unit_s+3,*)'---'
 
       end do
 
-    end subroutine compute_fpc_cart
+      close(unit_s)
+      close(unit_s+1)
+      close(unit_s+2)
+      close(unit_s+3)
+
+      !Write Complex Eigenfunction-------------------------------------------
+      write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+      open(unit=unit_s+4,file=trim(filename),status='replace')
+
+      !Write format (consistent with usual PLUME output)
+      write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
+      write(unit_s+4,fmt)&
+           kperp,kpar,betap,vtp,&
+           omega,&            
+           bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
+           Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
+      close(unit_s+4)
+
+
+       !Write Velocity Integrated Moments-------------------------------------------
+      write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+      open(unit=unit_s+4,file=trim(filename),status='replace')
+
+      !Write format 
+      write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
+      write(unit_s+4,fmt)&
+           ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
+      close(unit_s+4)
+     
+      !=============================================================================
+      ! END Output Distributions and Correlations to Files
+      !=============================================================================
+
+      !=============================================================================
+      ! DEBUG: Moment comparisons
+      !=============================================================================
+      if (1 == 1) then !DEBUG
+         !Density
+         write(*,'(a,2es12.2,5X,f6.3)')'nir=  ',real(ns(1)),real(ns1(1)), &
+              real(ns(1))/real(ns1(1))
+         write(*,'(a,2es12.2,5X,f6.3)')'nii=  ',aimag(ns(1)),aimag(ns1(1)), &
+              aimag(ns(1))/aimag(ns1(1))
+         write(*,'(a,2es12.2,5X,f6.3)')'ner=  ',real(ns(2)),real(ns1(2)), &
+              real(ns(2))/real(ns1(2))
+         write(*,'(a,2es12.2,5X,f6.3)')'nei=  ',aimag(ns(2)),aimag(ns1(2)), &
+              aimag(ns(2))/aimag(ns1(2))
+         write(*,*)
+         
+         !Fluid Moment
+         fmt_dbg1='(a,2es12.2,5X,es12.2,5X,2es12.2)'
+         fmt_dbg2='(a,2es12.2,5X,es12.2,5X,2f12.3)'
+         write(*,fmt_dbg1)'uxir= ',real(Us(1,1)),real(us1(1,1)), &
+              real(Us(1,1))/real(us1(1,1)), abs(Us(1,1)), abs(us1(1,1))
+         write(*,fmt_dbg2)'uxii= ',aimag(Us(1,1)),aimag(us1(1,1)), &
+              aimag(Us(1,1))/aimag(us1(1,1)),atan2(aimag(Us(1,1)),real(Us(1,1)))/pi, &
+              atan2(aimag(us1(1,1)),real(us1(1,1)))/pi
+         write(*,fmt_dbg1)'uyir= ',real(Us(2,1)),real(us1(2,1)), &
+              real(Us(2,1))/real(us1(2,1)), abs(Us(2,1)), abs(us1(2,1))
+         write(*,fmt_dbg2)'uyii= ',aimag(Us(2,1)),aimag(us1(2,1)), &
+              aimag(Us(2,1))/aimag(us1(2,1)),atan2(aimag(Us(2,1)),real(Us(2,1)))/pi, &
+              atan2(aimag(us1(2,1)),real(us1(2,1)))/pi
+         write(*,fmt_dbg1)'uzir= ',real(Us(3,1)),real(us1(3,1)), &
+              real(Us(3,1))/real(us1(3,1)), abs(Us(3,1)), abs(us1(3,1))
+         write(*,fmt_dbg2)'uzii= ',aimag(Us(3,1)),aimag(us1(3,1)), &
+              aimag(Us(3,1))/aimag(us1(3,1)),atan2(aimag(Us(3,1)),real(Us(3,1)))/pi, &
+              atan2(aimag(us1(3,1)),real(us1(3,1)))/pi
+         write(*,*)
+         write(*,fmt_dbg1)'uxer= ',real(Us(1,2)),real(us1(1,2)), &
+              real(Us(1,2))/real(us1(1,2)), abs(Us(1,2)), abs(us1(1,2))
+         write(*,fmt_dbg2)'uxei= ',aimag(Us(1,2)),aimag(us1(1,2)), &
+              aimag(Us(1,2))/aimag(us1(1,2)),atan2(aimag(Us(1,2)),real(Us(1,2)))/pi, &
+              atan2(aimag(us1(1,2)),real(us1(1,2)))/pi
+         write(*,fmt_dbg1)'uyer= ',real(Us(2,2)),real(us1(2,2)), &
+              real(Us(2,2))/real(us1(2,2)), abs(Us(2,2)), abs(us1(2,2))
+         write(*,fmt_dbg2)'uyei= ',aimag(Us(2,2)),aimag(us1(2,2)), &
+              aimag(Us(2,2))/aimag(us1(2,2)),atan2(aimag(Us(2,2)),real(Us(2,2)))/pi, &
+              atan2(aimag(us1(2,2)),real(us1(2,2)))/pi
+         write(*,fmt_dbg1)'uzer= ',real(Us(3,2)),real(us1(3,2)), &
+              real(Us(3,2))/real(us1(3,2)), abs(Us(3,2)), abs(us1(3,2))
+         write(*,fmt_dbg2)'uzei= ',aimag(Us(3,2)),aimag(us1(3,2)), &
+              aimag(Us(3,2))/aimag(us1(3,2)),atan2(aimag(Us(3,2)),real(Us(3,2)))/pi, &
+              atan2(aimag(us1(3,2)),real(us1(3,2)))/pi
+!         write(*,'(a,2es12.2,5X,f6.3)')'uxer= ',real(Us(1,2)),real(us1(1,2)), &
+!              real(Us(1,2))/real(us1(1,2))
+!         write(*,'(a,2es12.2,5X,f6.3)')'uxei= ',aimag(Us(1,2)),aimag(us1(1,2)), &
+!              aimag(Us(1,2))/aimag(us1(1,2))
+!         write(*,'(a,2es12.2,5X,f6.3)')'uyer= ',real(Us(2,2)),real(us1(2,2)), &
+!              real(Us(2,2))/real(us1(2,2))
+!         write(*,'(a,2es12.2,5X,f6.3)')'uyei= ',aimag(Us(2,2)),aimag(us1(2,2)), &
+!              aimag(Us(2,2))/aimag(us1(2,2))
+!         write(*,'(a,2es12.2,5X,f6.3)')'uzer= ',real(Us(3,2)),real(us1(3,2)), &
+!              real(Us(3,2))/real(us1(3,2))
+!         write(*,'(a,2es12.2,5X,f6.3)')'uzei= ',aimag(Us(3,2)),aimag(us1(3,2)), &
+!              aimag(Us(3,2))/aimag(us1(3,2))
+
+      end if
+      !=============================================================================
+      ! END DEBUG: Moment comparisons
+      !=============================================================================
+
+      
+      !Deallocate variables
+      deallocate(ns1,us1,jxex,jyey,jzez)
+      deallocate(corex_xy,corex_xz,corex_zy)
+      deallocate(corey_xy,corey_xz,corey_zy)
+      deallocate(corez_xy,corez_xz,corez_zy)
+      deallocate(corex,corey,corez)
+      deallocate(dfs1dvx,dfs1dvy,dfs1dvz)
+      deallocate(fs0,fs1)
+      deallocate(hatV_s)
+      deallocate(vvx,vvy,vvz)
+      
+        !==========================================================================
+        !==========================================================================
+        !==========================================================================
+
+
+     
+    end subroutine compute_fpc_cart_new
+
+    !------------------------------------------------------------------------------
+    !                           Collin Brown and Greg Howes, 2023
+    !------------------------------------------------------------------------------
+    ! Determine dimensionless species equilibrium VDF \hat{fs0} at (vperp,vpar)
+    real function fs0hat_new(vperp,vpar,hatV_s,aleph_s) 
+      !input
+      real         :: vperp, vpar      !normalized velocity space
+      real         :: hatV_s           !normalized species drift velocity by wpar_s
+      real         :: q_s              !normalized species charge
+      real         :: aleph_s          !T_perp/T_parallel_s
+      real         :: tau_s            !T_ref/T_s_parallel
+      real         :: mu_s             !m_ref/m_s
+
+      fs0hat_new = exp(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
+
+    end function fs0hat_new
+
+    !------------------------------------------------------------------------------
+    !                           Collin Brown and Greg Howes, 2023
+    !------------------------------------------------------------------------------
+    ! Determine species perturbed VDF fs1 at (vperp,vpar)
+    subroutine calc_fs1_new(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
+      use vars, only : betap,kperp,kpar,vtp,pi
+      use vars, only : nbesmax
+      use bessels, only : bessj_s
+      USE nrtype, only: SP, I4B
+
+      complex, intent(in)   :: omega            !Complex Frequency
+      real, intent(in)      :: vperp, vpar      !normalized velocity space
+      real, intent(in)      :: phi              !azimuthal angle in velocity space
+      complex, dimension(1:3), intent(in)   :: ef, bf           !E, B
+      real, intent(in)      :: hatV_s           !Drift velocity norm to wpar_s
+      real, intent(in)      :: q_s              !normalized species charge
+      real, intent(in)      :: aleph_s          !T_perp/T_parallel_s
+      real, intent(in)      :: tau_s            !T_ref/T_s|_parallel
+      real, intent(in)      :: mu_s             !m_ref/m_s
+      real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
+      real, intent(in)      :: fs0                 !normalized zero order distribution
+      complex, intent(out)                  :: fs1               !first order distribution
+
+      integer :: n !bessel sum counter
+      integer :: m !bessel sum counter
+      complex :: ii= (0,1.) !Imaginary unit: 0+1i
+      real :: b_s                           !Bessel function argument
+
+      !intermediate values (see calculation notes for definitions)
+      complex :: denom
+      complex :: emult
+      complex :: Wbar_s
+      complex :: Ubar_s
+
+      !Compute Bessel functions (if necessary)
+      ! NOTE: If bs is same as last time, no need to recompute Bessels
+      b_s = (kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
+      if (b_s .ne. bs_last) then
+         !Populate jbess with current values
+         do n= -nbesmax-1,nbesmax+1
+             jbess(n) = bessj_s(n,b_s)
+         enddo
+         bs_last=b_s 
+      end if
+      
+      !Double Bessel Sum to calculate fs1=========================================
+      fs1 = 0.
+      !Calculate all parts of solution that don't depend on m or n
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega * ( (aleph_s-1)*vpar - aleph_s*hatV_s ))
+
+      do n = -nbesmax,nbesmax
+         !Calculate all parts of solution that don't depend on m
+         denom=omega-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s
+         Wbar_s=2.*(n*mu_s/(q_s*omega)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega*aleph_s))*vpar
+         if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
+            emult=n*jbess(n)*Ubar_s/b_s*ef(1) +ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef(2) + jbess(n)*Wbar_s*ef(3)
+         else
+             emult= +ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef(2) + jbess(n)*Wbar_s*ef(3)
+         end if
+         
+         do m = -nbesmax,nbesmax
+            fs1=fs1+jbess(m)*exp(ii*(m-n)*phi)*emult/denom
+         enddo
+      enddo
+      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
+      
+    end subroutine calc_fs1_new
+
+    !============================================================================
+    !============================================================================
+    !============================================================================
+    !------------------------------------------------------------------------------
+    !                           Collin Brown and Greg Howes, 2023
+    !------------------------------------------------------------------------------
+    ! Verscharen 2016 formula for delta f eq A.2.12???
+    ! Determine species perturbed VDF fs1 at (vperp,vpar)
+    subroutine calc_fs1_new2(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
+      use vars, only : betap,kperp,kpar,vtp,pi
+      use vars, only : nbesmax
+      use bessels, only : bessj_s
+      USE nrtype, only: SP, I4B
+
+      complex, intent(in)   :: omega            !Complex Frequency
+      real, intent(in)      :: vperp, vpar      !normalized velocity space
+      real, intent(in)      :: phi              !azimuthal angle in velocity space
+      complex, dimension(1:3), intent(in)   :: ef, bf           !E, B
+      real, intent(in)      :: hatV_s           !Drift velocity norm to wpar_s
+      real, intent(in)      :: q_s              !normalized species charge
+      real, intent(in)      :: aleph_s          !T_perp/T_parallel_s
+      real, intent(in)      :: tau_s            !T_ref/T_s|_parallel
+      real, intent(in)      :: mu_s             !m_ref/m_s
+      real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
+      real, intent(in)      :: fs0                 !normalized zero order distribution
+      complex, intent(out)                  :: fs1               !first order distribution
+
+      integer :: n !bessel sum counter
+      integer :: m !bessel sum counter
+      complex :: ii= (0,1.) !Imaginary unit: 0+1i
+      real :: b_s                           !Bessel function argument
+
+      !intermediate values (see calculation notes for definitions)
+      complex :: denom
+      complex :: emult
+      complex :: Vbar_s
+      complex :: Ubar_s
+      complex :: a_ns
+                                                                                        
+      !Compute Bessel functions (if necessary)
+      ! NOTE: If bs is same as last time, no need to recompute Bessels
+      b_s = (kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
+      if (b_s .ne. bs_last) then
+         !Populate jbess with current values
+         do n= -nbesmax-1,nbesmax+1
+             jbess(n) = bessj_s(n,b_s)
+         enddo
+         bs_last=b_s 
+      end if
+      
+      !Double Bessel Sum to calculate fs1=========================================
+      fs1 = 0.
+      !Calculate all parts of solution that don't depend on m or n
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega * ( (aleph_s-1)*vpar - aleph_s*hatV_s ))
+      Vbar_s= -2.*kperp*vperp*sqrt(mu_s/(tau_s*aleph_r))/(aleph_s*omega)* ( (aleph_s-1)*vpar - aleph_s*hatV_s )
+
+      do n = -nbesmax,nbesmax
+         a_ns=omega-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s
+         !Calculate all parts of solution that don't depend on m
+         denom=a_ns*a_ns-(mu_s/q_s)**2.
+         emult=(ef(1)*Ubar_s-ef(3)*Vbar_s)*(ii*a_ns*cos(phi)+mu_s/q_s*sin(phi)) &
+              +ef(2)*Ubar_s*(ii*a_ns*sin(phi)-mu_s/q_s*cos(phi)) &
+              -ef(3)*ii*2*(vpar-hatV_s)/a_ns         
+         do m = -nbesmax,nbesmax
+            fs1=fs1+jbess(m)*jbess(n)*exp(ii*(m-n)*phi)*emult/denom
+         enddo
+      enddo
+      fs1 = -1.*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
+      
+    end subroutine calc_fs1_new2
+
+    !============================================================================
+    !============================================================================
+    !============================================================================
 
     !------------------------------------------------------------------------------
     !                           Collin Brown, 2020
@@ -522,7 +1290,9 @@ module fpc
       !output
       complex, intent(out)                  :: fs0              !zero order distribution
 
-      hatV_s = V_s*(tau_s/(mu_s*betap))
+      
+      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))  !(GGH: Error: Fixed 13 JUL 2023)
+      
 
       fs0 = EXP(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
     end subroutine calc_fs0
@@ -573,7 +1343,8 @@ module fpc
 
       !UExB = -ef(1)/sqrt(bf(1)**2+bf(2)**2+bf(3)**2) !-Ex/|\mathbf{B}|
 
-      UExB = -ef(1)/sqrt(abs(bf(1))**2+abs(bf(2))**2+abs(bf(3))**2) !-Ex/|\mathbf{B}|
+      !GGH ERROR 7 JUL 2023: ExB should use the equilibrium B, not the perturbed B!
+!      UExB = -ef(1)/sqrt(abs(bf(1))**2+abs(bf(2))**2+abs(bf(3))**2) !-Ex/|\mathbf{B}|  !GGH: This line removed 13 JUL 2023 to correct amplitude calculation
 
       !UExB = -(ef(1)*bf(3)-ef(3)*bf(1))/(sqrt(bf(1)**2+bf(2)**2+bf(3)**2))
 
@@ -583,8 +1354,10 @@ module fpc
       ! UExB = (UExB)**(0.5)
       ! UExB = -UExB/sqrt(abs(bf(1))**2+abs(bf(2))**2+abs(bf(3))**2)
 
-      A = mu_s**1.5/(q_s*tau_s**0.5)*UExB/vtp
-      Ubar_s = -2.*vperp*((tau_s/mu_s)**(.5)/aleph_s+(kpar/(omega_temp*(aleph_r**0.5)))*(vpar-hatV_s-vpar/aleph_s))
+      A=  mu_s/(q_s*sqrt(betap))* eperp1_bar !NEW version to agree with GH version
+! OLD VERSION      
+!      A = mu_s**1.5/(q_s*tau_s**0.5)*UExB/vtp
+      Ubar_s = -2.*vperp*( (tau_s/mu_s)**(.5)/aleph_s+(kpar/(omega_temp*(aleph_r**0.5)))*(vpar-hatV_s-vpar/aleph_s))
       b_s = (kperp*q_s*vperp)/(mu_s*tau_s*aleph_r)**0.5
 
       !quick check to see if we take nbesmax to be large enough to approximate our infinite sum
@@ -605,16 +1378,18 @@ module fpc
       n = -nbesmax
       m = -nbesmax
 
+      !Corrected and slightly optimized new version (GGH 13 JUL 2023)
       do while(n <= nbesmax)
-        do while(m <= nbesmax)
-          Wbar_s = -2.*((tau_s/mu_s)**(.5)*(vpar-hatV_s)-(n/omega_temp)*(((mu_s*tau_s)**(0.5))/q_s)*(vpar-hatV_s-vpar/aleph_s))
-          D = (omega_temp-n*mu_s/q_s-kpar*(mu_s/(aleph_s*tau_s))**(.5)*vpar)
+           Wbar_s = -2.*((tau_s/mu_s)**(.5)*(vpar-hatV_s)-(n/omega_temp)*(((mu_s*tau_s)**(0.5))/q_s)*(vpar-hatV_s-vpar/aleph_s))
+           !GGH ERROR: Should be aleph_r below (FIXED!)
+           D = (omega_temp-n*mu_s/q_s-kpar*(mu_s/(aleph_r*tau_s))**(.5)*vpar)
+           
           fsi = (0.,0.)
           fsi = (jbesselvals(n+1+nbesmax+1))*Wbar_s*ef(3) !here we use the 'unmodified' bessel function rather than the modified bessel function that 'bessel(n,x)' returns
           fsi = i*((jbesselvals(n+nbesmax+1)-jbesselvals(n+2+nbesmax+1))/2.)*Ubar_s*ef(2)+fsi
-          fsi = n*(jbesselvals(n+1+nbesmax+1)/b_s)*Ubar_s*ef(1)+fsi
-          fsi = jbesselvals(m+1+nbesmax+1)*(cexp(i*(m-n)*phi)/D)*fsi
-          fs1 = fs1 + fsi
+          fsi = ( n*(jbesselvals(n+1+nbesmax+1)/b_s)*Ubar_s*ef(1)+fsi)/D
+        do while(m <= nbesmax)
+          fs1 = fs1 + jbesselvals(m+1+nbesmax+1)*(cexp(i*(m-n)*phi))*fsi
           m = m + 1
         end do
         m = -nbesmax
@@ -654,7 +1429,7 @@ module fpc
 
       !output
       real, intent(out)             :: Cor_s            !normalized correlation value
-      complex, intent(out)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
+      complex, intent(inout)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
       complex, intent(out)          :: dfs1z            !first order distribution partial wrt z * c^4 B_0 (times c^4 B_0 due to normalization)
 
       num_phi = 20
@@ -673,8 +1448,7 @@ module fpc
         call calc_fs1(omega,vperp,vpar+delv,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_1)
         call calc_fs0(vperp,vpar-delv,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar-delv,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
-
-        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0) !TODO: update how fs0/ fs1 out is computed!
+        call calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)
@@ -720,7 +1494,7 @@ module fpc
 
       !output
       real, intent(out)             :: Cor_perp_s       !total normalized correlation value
-      complex, intent(out)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
+      complex, intent(inout)          :: fs1              !first order distribution * c^3 (times c^3 due to normalization)
       complex, intent(out)          :: dfs1perp         !first order distribution partial wrt z * c^4 B_0 (times c^4 B_0 due to normalization)
 
       num_phi = 30 !TODO: dont hard code this
@@ -788,7 +1562,7 @@ module fpc
 
     !TODO: account for projection when computing normalization
     subroutine calc_correlation_i_car(omega,ef,bf,vxin,vyin,vzin,vmax3rdval,vmax3rdindex,ceiindex,delv, &
-                                      V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_i_s)
+                                      V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,Cor_i_s,fs1)
       !calculates projection of CEi(vx,vy,vz) (int CEi(vx,vy,vz) dxi) where vmax3rdindex species which direction the rountine integrates over
 
       use vars, only : betap,vtp,pi
@@ -811,7 +1585,8 @@ module fpc
       real                          :: vx, vy, vz       !velocity coordinates
 
       complex                       :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
-      complex                       :: fs1              !perturbed distribution function 
+      complex                       :: sum_fs1              !perturbed distri
+      complex, intent(out)                       :: fs1              !perturbed distribution function 
       complex                       :: fs1_1            !numerical derivation var
       complex                       :: fs1_0            !numerical derivation var
       complex                       :: dfs1i            !derivative in direction controlled by vmax3rdindex
@@ -839,6 +1614,7 @@ module fpc
       piconst = 4.0*ATAN(1.0)
       Cor_i_s = 0.
 
+      sum_fs1=0.
       do while(inti < intmax)
         if(vmax3rdindex == 1)then 
           vx = vival
@@ -911,9 +1687,11 @@ module fpc
         Cor_i_s = 0.5*(-1.*q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
           -1.*q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
 
+        sum_fs1=sum_fs1+fs1*delv        
         inti = inti + 1
         vival = vival + delv
-      end do
-    end subroutine calc_correlation_i_car
+     end do
+     fs1=sum_fs1
+   end subroutine calc_correlation_i_car
     
 end module fpc

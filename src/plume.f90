@@ -44,6 +44,7 @@ program plume
   use disprels, only: map_search,refine_guess,om_scan,om_double_scan,map_scan
   use disprels, only: test_disp, radial_scan
   use fpc, only: compute_fpc_gyro, compute_fpc_cart, write_fs0
+  use fpc, only: compute_fpc_cart_new
 
   implicit none
 !-=-=-=-=-=-=
@@ -338,7 +339,11 @@ program plume
      call read_scan_input
 
      do iroot=1,nroot_max
-       call compute_fpc_cart(iroot)
+        if (0 .eq. 1) then
+           call compute_fpc_cart(iroot)
+        else
+           call compute_fpc_cart_new(iroot)
+        endif
      enddo
   end select
 

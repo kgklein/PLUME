@@ -1805,9 +1805,14 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
   vmean(:,:)=0.
   do j=1,3!x,y,z
      do jj = 1,nspec !Species velocity fluctuations
+! Old Version
         vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
              omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
              sum(electric(:)*susc(jj,j,:))
+!       9 AUG 2023: Fixed U calculation
+!        vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
+!             omega/sqrt(betap)*vtp* &
+!             sum(electric(:)*susc(jj,j,:))
      enddo
   enddo
 
