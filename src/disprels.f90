@@ -14,11 +14,11 @@ module disprels
   private
   integer, parameter :: nbrack=128              !# of Bessel functions to sum
 
-  private :: find_minima,disp,rtsec,bisect,zet_in,zetout,bessel,get_out_name
-  private :: calc_eigen
+  private :: find_minima,bisect,zet_in,zetout,bessel,get_out_name
 
   public :: map_search, refine_guess, om_scan, om_double_scan, map_scan, test_disp
   public :: radial_scan
+  public :: rtsec, calc_eigen, disp
 
   contains
 !-=-=-=-=-
@@ -700,7 +700,7 @@ subroutine om_scan(is)
            
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
-!              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(is)%eigen_s,scan(is)%heat_s)
+              !call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(is)%eigen_s,scan(is)%heat_s)
               !>>>GGH: 1/18/23
               call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
               !<<<GGH: 1/18/23
@@ -727,26 +727,26 @@ subroutine om_scan(is)
 
            select case(out_type)
            case(0)!Om, Eigen, Heating
-              if (low_n) then
-                               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
-                      params(1:6,1:nspec)
-              else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
+              if (low_n .or. new_low_n) then
+                 !>>>GGH: 1/18/23
+                 if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
+                    write(out_unit(ii),fmt)&
+                         kperp,kpar,betap,vtp,&
+                         omega,&            
+                         bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
+                         Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                         params(1:6,1:nspec)
+                 else  !Old version of low_n using Stix/Quataert version of LD/TTD 
+                    !<<<GGH: 1/18/23
+                    write(out_unit(ii),fmt)&
+                         kperp,kpar,betap,vtp,&
+                         omega,&            
+                         bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
+                         Ps(1:nspec),Ps_split(1:4,1:nspec),&
+                         params(1:6,1:nspec)
+                    !>>>GGH: 1/18/23
+                 endif
+                 !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -762,7 +762,7 @@ subroutine om_scan(is)
                    bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                    params(1:6,1:nspec)
            case(2) !Om, Heating
-              if (low_n) then
+              if (low_n .or. new_low_n) then
                  !>>>GGH: 1/18/23
               if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                  write(out_unit(ii),fmt)&
@@ -1075,7 +1075,7 @@ subroutine om_double_scan
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
                     !>>>GGH: 1/18/23
-!                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
+                    !call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(2)%eigen_s,scan(2)%heat_s)
                     !<<<GGH: 1/18/23
                     if (abs(real(omega)).lt.1.E-7) then
@@ -1089,8 +1089,8 @@ subroutine om_double_scan
                  endif
                  
                  select case(out_type)
-                 case(0) !Om, Eigen, Heating                    
-                    if (low_n) then
+                 case(0) !Om, Eigen, Heating
+                    if (low_n .or. new_low_n) then
                        !>>>GGH: 1/18/23
                        if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
@@ -1125,7 +1125,7 @@ subroutine om_double_scan
                          bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                          params(1:6,1:nspec)
                  case(2) !Om, Heating
-                    if (low_n) then
+                    if (low_n .or. new_low_n) then
                        !>>>GGH: 1/18/23
                        if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
@@ -1805,9 +1805,14 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
   vmean(:,:)=0.
   do j=1,3!x,y,z
      do jj = 1,nspec !Species velocity fluctuations
+! Old Version
         vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
              omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
              sum(electric(:)*susc(jj,j,:))
+!       9 AUG 2023: Fixed U calculation
+!        vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
+!             omega/sqrt(betap)*vtp* &
+!             sum(electric(:)*susc(jj,j,:))
      enddo
   enddo
 
@@ -1881,16 +1886,11 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
      
      ewave = sum(term1(:)*electric(:)) + sum(magnetic(:)*conjg(magnetic(:)))
 
-     !write(*,*)'term:',term1(:)
-     !write(*,*)'wave energy:',ewave,sum(term1(:)*electric(:)),sum(magnetic(:)*conjg(magnetic(:)))
-     
-     !if (kpar.gt.0.29) write(*,*)'!!!',ewave,sum(term1(:)*electric(:)),term1(1:3)
-     
      !Ps = 2.*Ps/ewave
      Ps = Ps/ewave
   
      !LD, TTD, and CD calculation
-     if (low_n) then
+     if (low_n .or. new_low_n) then
      !>>>GGH: 1/18/23
      if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
        !N=0
@@ -2538,7 +2538,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   !Species (tau, mu, alph, Q, n, v_drift)|s
   if (scan(is)%eigen_s) then
      if (scan(is)%heat_s) then
-        if (low_n) then
+        if (low_n .or. new_low_n) then
            if (new_low_n) then  !Greg's New low_n calculation
               write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
            else  !Old version of low_n 
@@ -2557,7 +2557,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
      endif
   else
      if (scan(is)%heat_s) then
-        if (low_n) then
+        if (low_n .or. new_low_n) then
            !>>>GGH: 1/18/23
            if (new_low_n) then  !Greg's New low_n calculation
               write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
@@ -2884,7 +2884,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !ADD PS_SPLIT!
      if (scan(2)%eigen_s) then
         if (scan(2)%heat_s) then
-           if (low_n) then
+           if (low_n .or. new_low_n) then
               !>>>GGH: 1/18/23
               if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
@@ -2904,7 +2904,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
         endif
      else
         if (scan(2)%heat_s) then
-           if (low_n) then
+           if (low_n .or. new_low_n) then
               !>>>GGH: 1/18/23
               if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
@@ -3284,7 +3284,7 @@ end subroutine get_double_out_name
                 zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar) &
                 *disp_alph*(om-Vdrifts))
 
-           if (low_n) then
+           if (low_n .or. new_low_n) then
               susc_low(is,2,2,0) =  (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
                 ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
                 (disp_alph*(om-Vdrifts))*(zz(0))) * norm(2)
@@ -3327,7 +3327,7 @@ end subroutine get_double_out_name
         susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
         susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
         susc(is,2,2) = eps_yy_t
-        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
+        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t      
         susc(is,3,3) = eps_zz_t
         !Add to the total susceptibility
         if (.false.) then

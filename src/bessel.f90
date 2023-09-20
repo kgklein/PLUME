@@ -23,13 +23,14 @@ module bessels
 
   public :: bessim0,bessim1,bessim
   public :: bessj0, bessj1
+  public :: bessj_s
 
  contains
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2005
 !------------------------------------------------------------------------------
 !This calculates I_0(x) e^(-x) instead of just I_n(x) to
-!  avoid problems for large x
+!  avoid problems for large x. Note I_n(x) is the modified bessel fuction
    FUNCTION bessim0(x)
      USE nrtype; USE nrutil_trim, ONLY : poly
      IMPLICIT NONE
@@ -54,7 +55,7 @@ module bessels
 !                           Greg Howes, 2005
 !------------------------------------------------------------------------------
 !This calculates I_1(x) e^(-x) instead of just I_n(x) to
-!  avoid problems for large x
+!  avoid problems for large x. Note I_n(x) is the modified bessel fuction
    FUNCTION bessim1(x)
      USE nrtype; USE nrutil_trim, ONLY : poly
      IMPLICIT NONE
@@ -80,7 +81,7 @@ module bessels
 !                           Greg Howes, 2005
 !------------------------------------------------------------------------------
 !This calculates I_n(x) e^(-x) instead of just I_n(x) to
-!  avoid problems for large x
+!  avoid problems for large x. Note I_n(x) is the modified bessel fuction
    FUNCTION bessim(n,x)
      USE nrtype; USE nrutil_trim, ONLY : assert
      IMPLICIT NONE
@@ -175,6 +176,73 @@ module bessels
              poly(y,p)-z*sin(xx)*poly(y,q))*sign(1.0_sp,x)
      end if
    END FUNCTION bessj1
+
+   !Collin Brown-------------------------------------------------------------------------
+   !warning, casting was used between DP and SP precision when interfacing with
+   !the bessj0 and bessj1 functions. Unsure if this causes any significant numerical error
+   FUNCTION bessj_s(n, x)
+      USE nrtype; USE nrutil_trim, ONLY : assert
+      INTEGER(I4B) :: n
+      REAL(SP), INTENT(IN) :: x
+      REAL(SP) :: bessj_s
+      INTEGER(I4B), PARAMETER :: IACC=40, IEXP=maxexponent(x)/2
+      INTEGER(I4B) :: j, jsum, m
+      REAL(DP) :: ax, bj, bjm, bjp, summ, tox
+      LOGICAL :: n_is_negative !fix to handle negative n's
+
+      if(n < 0) then
+       n_is_negative = .true.
+       n = n*(-1)
+      else
+       n_is_negative = .false.
+      end if
+
+      ax = abs(x)
+      if(n == 0) then
+        bessj_s = bessj0(REAL(ax,SP))
+      else if (n == 1) then
+        bessj_s = bessj1(REAL(ax,SP))
+      else if (ax*ax <= 8.0D0*tiny(x)) then
+         bessj_s = 0D0
+      else if (ax > real(n, DP)) then
+         tox = 2.0D0/ax
+         bjm = bessj0(REAL(ax,SP))
+         bj = bessj1(REAL(ax,SP))
+         do j = 1, n-1
+            bjp = j*tox*bj-bjm
+            bjm = bj
+            bj = bjp
+         end do
+         bessj_s = bj
+      else
+         tox = 2D0/ax
+         m = 2*((n+int(sqrt(real(IACC*n, DP))))/2)
+         bessj_s = 0D0
+         jsum = 0
+         summ = 0D0
+         bjp = 0D0
+         bj = 1D0
+         do j = m, 1, -1
+            bjm = j*tox*bj-bjp
+            bjp = bj
+            bj = bjm
+            if (exponent(bj) > IEXP) then
+               bj = scale(bj, -IEXP)
+               bjp = scale(bjp, -IEXP)
+               bessj_s = scale(bessj_s, -IEXP)
+               summ = scale(summ,-IEXP)
+            end if
+            if (jsum /= 0)  summ = summ+bj
+            jsum = 1 - jsum
+            if (j == n)     bessj_s = bjp
+         end do
+         summ = 2D0*summ-bj
+         bessj_s = bessj_s/summ
+      end if
+      if (x < 0D0 .and. mod(n, 2) == 1) bessj_s = -bessj_s
+      if (n_is_negative .and. mod(n,2) == 1) bessj_s = -bessj_s
+      if (n_is_negative) n = n*(-1) !return n to being negative. 
+   END FUNCTION bessj_s
 
 !------------------------------------------------------------------------------
  end module bessels

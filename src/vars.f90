@@ -83,9 +83,9 @@ module vars
  !Susceptibility and elements in tensor form of wave equation
   complex, dimension(:,:,:), allocatable:: susc   !Susceptibility tensor
   complex, dimension(:,:,:,:), allocatable:: susc_low   !low-n Susceptibility tensor
-  logical :: low_n=.false. !toggle on low-n susceptibility
+  logical :: low_n=.true. !toggle on low-n susceptibility
   !>>>GGH: 1/18/23
-  logical :: new_low_n=.false. !Flag to use Revised low_n for LD/TTD separation
+  logical :: new_low_n=.true. !Flag to use Revised low_n for LD/TTD separation
   !<<<GGH: 1/18/23
   complex, dimension(3,3) :: lam                  !Matrix in Wave equation
 
@@ -106,8 +106,10 @@ module vars
   logical :: positive_roots=.false.
   !Number of grid point in complex frequency space
   integer, parameter :: nr=128     !Number points along Re axis: 128 is a good value
-  integer, parameter :: ni=128     !Number points along Im axis: 128 is a good value  
+  integer, parameter :: ni=128     !Number points along Im axis: 128 is a good value
   integer, parameter :: numroots=500  !Number of minima to keep
+  !numerical calculation constants
+  integer, parameter :: nbesmax=20 !maximum bessel sum counter 1 (from -nbesmax, to nbesmax)
 
   !variables for radial scan of solar wind models
   !rad_spec (species radial parameters) defined above
@@ -132,21 +134,26 @@ module vars
 
   real :: pi
 
+  !variables for fpc
+  real    :: vperpmin,vperpmax,vparmin,vparmax   !upper and lowerbounds of normalized velocity (v/vts) space samples (gyro coords)
+  real    :: vxmin,vxmax,vymin,vymax,vzmin,vzmax !upper and lowerbounds of normalized velocity (v/vts) space samples (cart coords)
+  real    :: delv                                !normalized velocity (delv/vts) space grid spacing
 
 
-  integer :: nroots                              !Number of roots found    
+
+  integer :: nroots                              !Number of roots found
   real, dimension(1:2,1:numroots) :: wroots      !Omega space of roots
   integer :: nroot_max                           !input specified nroots
 
   public :: betap,kperp,kpar,vtp,nspec,spec,susc,lam,option,writeOut
-  public :: loggridw,loggridg,omi,omf,gami,gamf,nr,ni,numroots,nroot_max
+  public :: loggridw,loggridg,omi,omf,gami,gamf,nr,ni,numroots,nroot_max,nbesmax
   public :: nroots, wroots,dataName,outputName,use_map,print_Name
   public :: nscan,scan,sw,sw2,sw3,sw4, k_scan, rad_scan, positive_roots
   public :: nRad,modelName,rad_spec,radius, beta_rad, vtp_rad
   public :: radial_heating, radial_eigen, pi
   public :: low_n, susc_low
-  !>>>GGH: 1/18/23
+  public :: vperpmin,vperpmax,vparmin,vparmax,delv
+  public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
   public :: new_low_n
-  !<<<GGH: 1/18/23
 
 end module vars

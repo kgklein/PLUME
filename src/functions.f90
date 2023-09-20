@@ -37,6 +37,8 @@ contains
     use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc,option,writeOut
     use vars, only : dataName,nscan,nroot_max,use_map,outputName, pi
     use vars, only : low_n, susc_low, new_low_n
+    use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv
+    use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax
     implicit none
     !For Testing Quasineutrality
     real :: sum_nq,sum_nqv
@@ -46,7 +48,11 @@ contains
          betap,kperp,kpar,vtp,nspec,nscan,option,nroot_max,&
          use_map,low_n, new_low_n, &
          writeOut,dataName,outputName
-    
+
+    nameList /fpc/ &
+         vperpmin,vperpmax,vparmin,vparmax,delv,&
+         vxmin,vxmax,vymin,vymax,vzmin,vzmax
+
     call get_unused_unit (input_unit_no)
     call get_runname(runname)
     runname=trim(runname)//".in"
@@ -75,6 +81,15 @@ contains
        sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
        close (unit)
     enddo
+
+    !read in fpc params
+    if(option == 6 .or. option == 7) then
+
+      rewind(input_unit_no)
+      read (unit=input_unit_no,nml=fpc)
+    end if
+
+
     close (input_unit_no)
 
     !Notify if not Quasineutral,
@@ -92,7 +107,7 @@ contains
          'ERROR: Not in proton rest frame:    v_par drift p =',sum_nqv
     
   pi = 4.*atan(1.)
-
+  
   end subroutine read_in_params
 
 !-=-=-=-=-

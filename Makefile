@@ -6,15 +6,15 @@
 #
 #  Version notes:
 #
-#  LAST UPDATE:  2023/01/18
+#  LAST UPDATE:  2023/01/23
 ###############################################################################
 
-#SYSTEM=IFORT
-SYSTEM=GFORT
+ SYSTEM=IFORT
+#SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
-	*gfort*.in \
+	*.in \
 	README* \
 	data/gfort/ \
 	include/
@@ -29,18 +29,17 @@ endif
 ifeq ($(SYSTEM),GFORT)
 #NOTE	: For gfortran
 #gfortran orders roots a bit differently...
-	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math #
-#	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 #this works!
+	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 #this works!
 	COMP= gfortran
 endif
-LIBS=	
+LIBS=
 
 #LFMOD=	nrtype.o nrutil_trim.o bessels.o funcs.o complex_root.o \
-	disprels.o 
+	disprels.o
 
-LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o
+LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o fpc.o
 
-LFX=  	plume.o 
+LFX=  	plume.o
 
 VPATH= src:include:/usr/include/
 
@@ -49,32 +48,34 @@ all: heat
 
 heat: $(LFMOD) $(LFX)
 	$(COMP) -o plume.e $(FLAGS) $(LIBS) $(LFMOD) $(LFX)
+	mv *.o include/
+	mv *.mod include/
 
 ###############################################################################
 
 ###############################################################################
 
-tidyup:	
+tidyup:
 	mv *.o include/
 	mv *.mod include/
 
 clean:
-	rm -f include/*.o 
+	rm -f include/*.o
 	rm -f include/*.mod
 	rm -f plume*.e
 
-tar: 
-	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar; \
-	cp pack_plume_`date +'%y%m%d'`.tar.gz ~/Dropbox/Codes/PLUME 
+tar:
+	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar
+#	cp pack_plume_`date +'%y%m%d'`.tar.gz ~/Dropbox/Codes/PLUME
 
 #########Rules
 %.o : %.f90
 	$(COMP) -c $(FLAGS) $<
 
 #########Dependencies
-plume.o:	vars.o functions.o
+plume.o:	vars.o functions.o fpc.o
 
-functions.o:    vars.o     
+functions.o:    vars.o
 
 disprels.o:	vars.o bessel.o
 
