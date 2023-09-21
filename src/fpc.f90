@@ -8,13 +8,14 @@
 !!                                                                           !!
 !!*lin fpc routines                                                          !!
 !!Collin Brown (author of FPC routine in PLUME)                              !!
-!!collin.crbrown@gmail.com or collbrown@uiowa.edu                            !!
+!!collin.crbrown@gmail.com or collbrown@uiowa.edum                            !!
 !!University of Iowa                                                         !!
 !=============================================================================!
 !=============================================================================!
 module fpc
   implicit none
-  private :: calc_correlation_par_gyro, calc_correlation_perp_gyro, calc_correlation_i_car, calc_fs0, calc_fs1
+  private :: calc_correlation_par_gyro, calc_correlation_perp_gyro, calc_correlation_i_car, calc_fs0, calc_fs1, &
+  calc_fs1_new, calc_fs1_new2
 
   public :: compute_fpc_gyro, compute_fpc_cart, write_fs0
 
@@ -120,6 +121,8 @@ module fpc
                     !TODO: move this note ^^^^^
                     
       do is = 1, nspec
+        call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
+
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
         unit_s = 10+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
@@ -262,6 +265,9 @@ module fpc
       ef(3) = ef(3)
 
       do is = 1, nspec
+        call check_nbesmax(MAX(ABS(vxmin),ABS(vxmax),ABS(vymin),ABS(vymax),ABS(vzmin),ABS(vzmax))&
+          ,spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
+
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
         unit_s = 12+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
@@ -825,6 +831,9 @@ module fpc
       ! Output Distributions and Correlations to Files
       !=============================================================================
       do is = 1, nspec
+        call check_nbesmax(MAX(ABS(vxmin),ABS(vxmax),ABS(vymin),ABS(vymax),ABS(vzmin),ABS(vzmax)),&
+          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
+
         !make file to store result
         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
         unit_s = 12+5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
@@ -1153,7 +1162,7 @@ module fpc
       ivperpmax=int(vperpmax/delv); if (real(ivperpmax) .ne. vperpmax/delv) &
       write(*,*)'WARNING: vperpmax not integer multiple of delv'
       ivphimin=0 !TODO: load this in input
-      ivphimax=30
+      ivphimax=15 !WARNING: this is aggressively small
 
       !Allocate velocity grid variables
       allocate(vvperp(ivperpmin:ivperpmax)); vvperp(:)=0.
@@ -1199,11 +1208,12 @@ module fpc
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
       do is = 1, nspec
+        call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
+
         !Create variable for parallel flow velocity normalized to
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
         do ivperp=ivperpmin,ivperpmax
-          write(*,*)"DEBUG: ivperp",ivperp
           do ivpar=ivparmin,ivparmax
             do ivphi=ivphimin,ivphimax
                   !Compute dimensionless equilibrium Distribution value, fs0
@@ -1248,8 +1258,6 @@ module fpc
           enddo
       enddo
 
-      write(*,*)"DEBUG: End Calculate fs0 and fs1 on (vx,vy,vz) grid"
-
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
       !=============================================================================
@@ -1276,8 +1284,8 @@ module fpc
               dfs1dvpar(ivperp,ivpar,ivphi,is)=&
               (fs1(ivperp,ivpar+1,ivphi,is)-fs1(ivperp,ivpar-1,ivphi,is))/(vvpar(ivpar+1)-vvpar(ivpar-1));
             enddo
-            !Last point: 1st order Finite difference
-            dfs1dvpar(ivperp,ivpar,ivphi,is)=&
+            !Last point: 1st order Finite difference !TODO: ivpar might need to be reset after this-> similar issue may exist in compute_fpc_cart_new. Fix both
+            dfs1dvpar(ivperp,ivpar,ivphi,is)=& 
             (fs1(ivperp,ivpar,ivphi,is)-fs1(ivperp,ivpar-1,ivphi,is))/(vvpar(ivparmax)-vvpar(ivparmax-1));
           enddo
         enddo
@@ -1303,7 +1311,6 @@ module fpc
         enddo
       enddo
 
-      write(*,*)"DEBUG: END Calculate velocity derivatives of fs1"
       !=============================================================================
       ! END Calculate velocity derivatives of fs1
       !=============================================================================
@@ -1335,9 +1342,7 @@ module fpc
                enddo
             enddo
          enddo
-      enddo
-
-      write(*,*)"DEBUG: END Calculate 3V CEpar, CEperp Correlations"      
+      enddo   
 
       !=============================================================================
       ! END Calculate 3V CEpar, CEperp Correlations
@@ -1418,7 +1423,7 @@ module fpc
         do ivperp=ivperpmin,ivperpmax
           do ivpar=ivparmin,ivparmax
               write(unit_s,'(es17.5)',advance='no') corepar_cyln(ivperp,ivpar,is)
-              write(unit_s+1,'(es17.5)',advance='no')coreperp_cyln(ivperp,ivpar,is)
+              write(unit_s+1,'(es17.5)',advance='no') coreperp_cyln(ivperp,ivpar,is)
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -1667,7 +1672,6 @@ module fpc
         vpari = vparmin
 
         do vperpindex = 0, numstepvperp
-          write(*,*)'vperp = ',vperpi !quick debug 'progress bar'
           do vparindex = 0, numstepvpar
             call calc_fs0(vperpi,vpari,spec(is)%vv_s,spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,spec(is)%mu_s,fs0)
             if(ABS(real(fs0)) .lt. 9.999E-99) fs0 = (0.,0.) !file formating bug fix
@@ -1850,7 +1854,7 @@ module fpc
       Cor_s = 0.
 
       vperp = vperpin
-      vpar = -vparin !see note 'coord trans'
+      vpar = vparin !TODO: remove redundant variables
       do while(n_phi < num_phi)
         !simple finite central difference method for derivative
         call calc_fs0(vperp,vpar+delv,V_s,q_s,aleph_s,tau_s,mu_s,fs0)
@@ -2102,5 +2106,31 @@ module fpc
      end do
      fs1=sum_fs1
    end subroutine calc_correlation_i_car
+
+   subroutine check_nbesmax(vperpmax,tau_s,mu_s,aleph_r)
+      !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
+      !TODO: if using wrapper, the user will not see this error- find a way to warn user if using wrapper (or atleast leave note to check output!)
+      use vars, only : kperp
+      use vars, only : nbesmax
+
+      real, intent(in)                      :: vperpmax         !max value to be computed in normalized velocity space
+      real, intent(in)                      :: tau_s            !T_ref/T_s|_parallel
+      real, intent(in)                      :: mu_s             !m_ref/m_s
+      real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
+
+      real                                  :: b_s              !argument to bessel functions (see calc_fs1)
+
+
+      b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r))
+
+      if(nbesmax/2 < b_s) then
+        write(*,*)"***************************************"
+        write(*,*)"Warning in check_nbesmax in fpc.f90!!! (see for more info)"
+        write(*,*)"nbesmax is too small!!!"
+        write(*,*)"nbesmax should be great than b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r)) for all species!!!"
+        write(*,*)"***************************************"
+      endif
+
+   end subroutine check_nbesmax
     
 end module fpc

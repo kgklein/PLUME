@@ -109,7 +109,8 @@ module vars
   integer, parameter :: ni=128     !Number points along Im axis: 128 is a good value
   integer, parameter :: numroots=500  !Number of minima to keep
   !numerical calculation constants
-  integer, parameter :: nbesmax=20 !maximum bessel sum counter 1 (from -nbesmax, to nbesmax)
+  integer, parameter :: nbesmax=10 !maximum bessel sum counter 1 (from -nbesmax, to nbesmax)
+                                   !rule of thumb: As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
 
   !variables for radial scan of solar wind models
   !rad_spec (species radial parameters) defined above
