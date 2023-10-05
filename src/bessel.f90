@@ -23,7 +23,7 @@ module bessels
 
   public :: bessim0,bessim1,bessim
   public :: bessj0, bessj1
-  public :: bessj_s
+  public :: bessj_s,bess0_s_prime
 
  contains
 !------------------------------------------------------------------------------
@@ -239,10 +239,22 @@ module bessels
          summ = 2D0*summ-bj
          bessj_s = bessj_s/summ
       end if
-      if (x < 0D0 .and. mod(n, 2) == 1) bessj_s = -bessj_s
-      if (n_is_negative .and. mod(n,2) == 1) bessj_s = -bessj_s
+      if (x < 0D0 .and. mod(n, 2) == 1 .and. .not. n_is_negative) bessj_s = -bessj_s
+      if (x > 0D0 .and. mod(n, 2) == 1 .and. n_is_negative) bessj_s = -bessj_s
       if (n_is_negative) n = n*(-1) !return n to being negative. 
    END FUNCTION bessj_s
+
+   !TODO: the way this function is implemented causes for many redundanct calculations. Should reuse calculations to speed things up
+   FUNCTION bess0_s_prime(x)
+      IMPLICIT NONE
+      REAL, INTENT(IN) :: x
+      REAL :: bess0_s_prime
+      REAL :: h
+      integer :: n 
+
+      n = -1
+      bess0_s_prime = bessj_s(n,x)
+   END FUNCTION bess0_s_prime
 
 !------------------------------------------------------------------------------
  end module bessels

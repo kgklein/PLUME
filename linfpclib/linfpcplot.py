@@ -212,7 +212,13 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scaleveloc
         for cartcdata in cartcdatas:
             ckey = ckeyprefixes[_j]+dirkey
             absmax = np.max(np.abs(cartcdata[ckey]))
-            _tempim = axs[_j,_i].pcolormesh(np.asarray(cartcdata[dirkey[2:4]])*scalevelocity,np.asarray(cartcdata[dirkey[0:2]])*scalevelocity,np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
+            # if(dirkey == 'vyvz'):
+            #     _tempim = axs[_j,_i].pcolormesh(np.asarray(cartcdata[dirkey[2:4]])*scalevelocity,np.asarray(cartcdata[dirkey[0:2]])*scalevelocity,np.asarray(cartcdata[ckey])[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
+            # else:
+            #     _tempim = axs[_j,_i].pcolormesh(np.asarray(cartcdata[dirkey[2:4]])*scalevelocity,np.asarray(cartcdata[dirkey[0:2]])*scalevelocity,np.asarray(cartcdata[ckey]).T[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
+            _plot1 = cartcdata['v'+dirkey[1]+'_'+dirkey[1]+dirkey[3]]
+            _plot2 = cartcdata['v'+dirkey[3]+'_'+dirkey[1]+dirkey[3]]
+            _tempim = axs[_j,_i].pcolormesh(np.asarray(_plot1)*scalevelocity,np.asarray(_plot2)*scalevelocity,np.asarray(cartcdata[ckey])[:,:],vmax=absmax,vmin=-absmax,cmap="seismic")
             axs[_j,_i].grid()
             axs[_j,_i].set_title(titlesprefixes[_j]+titlesuffixes[_i])
             axs[_j,_i].set_xlabel(xaxlabels[_i])

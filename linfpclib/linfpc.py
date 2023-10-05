@@ -749,7 +749,7 @@ def loadlinfpccepar(filename):
     # C = np.flip(C,axis=1) #TODO: perhaps this should be done in the plotting routine #TODO: remove?
     C = np.asarray(C)
 
-        #weird index rounding bug fix
+    #weird index rounding bug fix
     if(len(vpar) < len(C[0])):
         vpar.append(float(vparindex))
     elif(len(vpar) > len(C[0])):
@@ -804,10 +804,25 @@ def loadlinfpccart(filename):
 
     resonant_int = resonant_int.real
 
+    ivxmin=int(vxmin/delv)
+    ivxmax=int(vxmax/delv)
+    ivymin=int(vymin/delv)
+    ivymax=int(vymax/delv)
+    ivzmin=int(vzmin/delv)
+    ivzmax=int(vzmax/delv)
 
-    numstepvx = int(math.floor((vxmax-vxmin)/delv)) #TODO: implement this fix into all load functions
-    numstepvy = int(math.floor((vymax-vymin)/delv))
-    numstepvz = int(math.floor((vzmax-vzmin)/delv))
+    numstepvx = ivxmax-ivxmin+1
+    numstepvy = ivymax-ivymin+1
+    numstepvz = ivzmax-ivzmin+1
+
+    vx_xy = np.zeros((numstepvx,numstepvy))
+    vy_xy = np.zeros((numstepvx,numstepvy))
+
+    vx_xz = np.zeros((numstepvx,numstepvz))
+    vz_xz = np.zeros((numstepvx,numstepvz))
+
+    vy_yz = np.zeros((numstepvy,numstepvz))
+    vz_yz = np.zeros((numstepvy,numstepvz))
 
     vx = []
     vy = []
@@ -841,14 +856,18 @@ def loadlinfpccart(filename):
     Cvxvy = []
     line = f.readline()
     linecounter = 1
-    while (linecounter <= len(vx)):
+    while (linecounter < len(vx)):
         line = line.split()
         row = []
+        rowcounter = 0
         for k in line:
             if(math.isnan(float(k))):
                 row.append(0.)
             else:
                 row.append(float(k))
+            vx_xy[linecounter-1,rowcounter] = vx[linecounter-1]
+            vy_xy[linecounter-1,rowcounter] = vy[rowcounter]
+            rowcounter += 1
         Cvxvy.append(row)
         line = f.readline()
         linecounter += 1
@@ -857,14 +876,18 @@ def loadlinfpccart(filename):
     Cvxvz = []
     linecounter = 1
     line = f.readline()
-    while (linecounter <= len(vx)):
+    while (linecounter < len(vx)):
         line = line.split()
         row = []
+        rowcounter = 0
         for k in line:
             if(math.isnan(float(k))):
                 row.append(0.)
             else:
                 row.append(float(k))
+            vx_xz[linecounter-1,rowcounter] = vx[linecounter-1]
+            vz_xz[linecounter-1,rowcounter] = vz[rowcounter]
+            rowcounter += 1
         Cvxvz.append(row)
         line = f.readline()
         linecounter += 1
@@ -873,18 +896,24 @@ def loadlinfpccart(filename):
     Cvyvz = []
     linecounter = 1
     line = f.readline()
-    while (linecounter <= len(vy)):
+    while (linecounter < len(vy)):
         line = line.split()
         row = []
+        rowcounter = 0
         for k in line:
             if(math.isnan(float(k))):
                 row.append(0.)
             else:
                 row.append(float(k))
+            vy_yz[linecounter-1,rowcounter] = vy[linecounter-1]
+            vz_yz[linecounter-1,rowcounter] = vz[rowcounter]
+            rowcounter += 1
         Cvyvz.append(row)
         line = f.readline()
         linecounter += 1
     Cvyvz = np.asarray(Cvyvz)
+    vy_yz = vy_yz.T
+    vz_yz = vz_yz.T
 
     linfpcckeyname = 'CEpar'
     if('perp1' in filename):
@@ -892,7 +921,10 @@ def loadlinfpccart(filename):
     elif('perp2' in filename):
         linfpcckeyname = 'CEperp2'
 
-    linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,'delv':delv,'species':species,'omega':omega}
+    linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,
+                  'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,
+                  'delv':delv,'species':species,'omega':omega,
+                  'vx_xy':vx_xy,'vy_xy':vy_xy,'vx_xz':vx_xz,'vz_xz':vz_xz,'vy_yz':vy_yz,'vz_yz':vz_yz}
 
     return linfpcdata
 
@@ -1169,6 +1201,68 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
         plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
 
         return plume_sweep
+
+def loadeigen(flnm):
+
+    eigendict = {}
+
+    f = open(flnm)
+    line = f.readline()
+    line = line.split()
+
+    #TODO: this assumes nspec = 2. TODO: generalize for any num of nspec
+
+    eigendict['kperp'] = line[0]
+    eigendict['kpar'] = line[1]
+    eigendict['betap'] = line[2]
+    eigendict['vtp'] = line[3]
+    eigendict['omega'] = complex(float(line[4]),float(line[5]))
+    eigendict['bx'] = complex(float(line[6]),float(line[7]))
+    eigendict['by'] = complex(float(line[8]),float(line[9]))
+    eigendict['bz'] = complex(float(line[10]),float(line[11]))
+    eigendict['ex'] = complex(float(line[12]),float(line[13]))
+    eigendict['ey'] = complex(float(line[14]),float(line[15]))
+    eigendict['ez'] = complex(float(line[16]),float(line[17]))
+    eigendict['uxi'] = complex(float(line[18]),float(line[19]))
+    eigendict['uyi'] = complex(float(line[20]),float(line[21]))
+    eigendict['uzi'] = complex(float(line[22]),float(line[23]))
+    eigendict['uxe'] = complex(float(line[24]),float(line[25]))
+    eigendict['uye'] = complex(float(line[26]),float(line[27]))
+    eigendict['uze'] = complex(float(line[28]),float(line[29]))
+    eigendict['ni'] = complex(float(line[30]),float(line[31]))
+    eigendict['ne'] = complex(float(line[32]),float(line[33]))
+    eigendict['Pi'] = complex(float(line[34]),float(line[35]))
+    eigendict['Pe'] = complex(float(line[36]),float(line[37]))
+
+    #TODO: load Ps_split_new
+
+    return eigendict
+
+def loadmoms(flnm):
+
+    momsdict = {}
+
+    f = open(flnm)
+    line = f.readline()
+    line = line.split()
+
+    momsdict['ni'] = complex(float(line[0]),float(line[1]))
+    momsdict['ne'] = complex(float(line[2]),float(line[3]))
+    momsdict['uxi'] = complex(float(line[4]),float(line[5]))
+    momsdict['uyi'] = complex(float(line[6]),float(line[7]))
+    momsdict['uzi'] = complex(float(line[8]),float(line[9]))
+    momsdict['uxe'] = complex(float(line[10]),float(line[11]))
+    momsdict['uye'] = complex(float(line[12]),float(line[13]))
+    momsdict['uze'] = complex(float(line[14]),float(line[15]))
+    momsdict['jxiex'] = float(line[16])
+    momsdict['jyiey'] = float(line[17])
+    momsdict['jziez'] = float(line[18])
+    momsdict['jxeex'] = float(line[19])
+    momsdict['jyeey'] = float(line[20])
+    momsdict['jzeez'] = float(line[21])
+
+    return momsdict
+
     
 def double_k_scan_from_root(plume_input,ktotsweepmin,ktotsweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200):
     #makes sweep over kperp and kpar from k0=np.sqrt(kperp^2+kpar^2) to k1=np.sqrt(kperp^2+kpar^2)

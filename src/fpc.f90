@@ -28,7 +28,7 @@ module fpc
   !NEW GLOBAL VARIABLES=========================================================
   real :: bs_last=0.0       !Last Bessel function argument
   real, allocatable :: jbess(:)  !Regular Bessel function values
-  real :: eperp1_bar=1.0    !Overall amplitude of the linear mode
+  real :: eperp1_bar=1.0    !Overall amplitude of the linear mode TODO: move to calc_fs1 and make it local
   !END NEW GLOBAL VARIABLES=====================================================
 
   contains
@@ -114,12 +114,7 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
-      ef(1) = ef(1)
-      ef(2) = ef(2) !note: 'coord trans': The routine used to calculate the eigen functions (calc_eigen) and the routine used to calculate fs0/fs1/CEi(i.e. FPC related functions) use subtly different coordinates, so we fix them here
-      ef(3) = ef(3) !   In field aligned coordinates, Epar (aka Ez) is fixed in the direction of the guiding magnetic field, but Eperp1/Eperp2 (aka Ex/Ey) have freedom in what direction they can be in
-                    !   In this code, we use two different sources that take different coordinates, and we must account for them here.
-                    !TODO: move this note ^^^^^
-                    
+   
       do is = 1, nspec
         call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
 
@@ -194,6 +189,7 @@ module fpc
       character(1000) :: filename                      !Output File name
       character(1000) :: outputPath                    !Output folder
       character(1000) :: cmd                           !Varaible to store command line commands
+      integer :: ivxmin,ivxmax,ivymin,ivymax,ivzmin,ivzmax  !Index limits 
       real    :: vxi, vyi, vzi                       !normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
       integer :: vxindex, vyindex, vzindex           !loop counters
       real    :: vmax3rdval                          !sampled range when computing projection
@@ -260,9 +256,6 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
-      ef(1) = ef(1)
-      ef(2) = ef(2)
-      ef(3) = ef(3)
 
       do is = 1, nspec
         call check_nbesmax(MAX(ABS(vxmin),ABS(vxmax),ABS(vymin),ABS(vymax),ABS(vzmin),ABS(vzmax))&
@@ -316,9 +309,16 @@ module fpc
         write(unit_s+3, *) '-------------'
 
         !setup loop variables
-        numstepvx = int((vxmax-vxmin)/delv)
-        numstepvy = int((vymax-vymin)/delv)
-        numstepvz = int((vzmax-vzmin)/delv)
+        ivxmin=int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write(*,*)'WARNING: vxmin not integer multiple of delv'
+        ivxmax=int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write(*,*)'WARNING: vxmax not integer multiple of delv'
+        ivymin=int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write(*,*)'WARNING: vymin not integer multiple of delv'
+        ivymax=int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write(*,*)'WARNING: vymax not integer multiple of delv'
+        ivzmin=int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write(*,*)'WARNING: vzmin not integer multiple of delv'
+        ivzmax=int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write(*,*)'WARNING: vzmax not integer multiple of delv'
+      
+        numstepvx = (ivxmax-ivxmin)
+        numstepvy = (ivymax-ivymin)
+        numstepvz = (ivzmax-ivzmin)
 
         !CEi(vx,vy)----------------------------------------------------------------------------
         vxi = vxmin
@@ -527,7 +527,7 @@ module fpc
       integer :: jj                                   !Index
       character(100)  :: fmt                          !Eigenfunction Output Format
       real :: delv3                                  !delv^3
-      real :: pi
+      real :: pi                                     !3.1415....
       character(100)  :: fmt_dbg1,fmt_dbg2           !Eigenfunction Output Format
 
       !END NEW VARIABLES============================================================
@@ -692,7 +692,6 @@ module fpc
                dfs1dvz(ivx,ivy,ivzmax,is)=(fs1(ivx,ivy,ivzmax,is)-fs1(ivx,ivy,ivzmax-1,is))/(vvz(ivzmax)-vvz(ivzmax-1));
             end do
          end do
-
       enddo
       !=============================================================================
       ! END Calculate velocity derivatives of fs1
@@ -711,15 +710,15 @@ module fpc
             do ivy=ivymin,ivymax
                do ivz=ivzmin,ivzmax
                   ! CEx
-                  corex(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)* 0.5*(CONJG(dfs1dvx(ivx,ivy,ivz,is))*ef(1) &
+                  corex(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)* 0.5*(CONJG(dfs1dvx(ivx,ivy,ivz,is))*ef(1) &
                                        +dfs1dvx(ivx,ivy,ivz,is)*CONJG(ef(1)) )
                   
                   ! CEy
-                  corey(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)* 0.5*(CONJG(dfs1dvy(ivx,ivy,ivz,is))*ef(2) &
+                  corey(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)* 0.5*(CONJG(dfs1dvy(ivx,ivy,ivz,is))*ef(2) &
                                         +dfs1dvy(ivx,ivy,ivz,is)*CONJG(ef(2)) )
                   
                   ! CEz
-                  corez(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)* 0.5*(CONJG(dfs1dvz(ivx,ivy,ivz,is))*ef(3) &
+                  corez(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)* 0.5*(CONJG(dfs1dvz(ivx,ivy,ivz,is))*ef(3) &
                                         +dfs1dvz(ivx,ivy,ivz,is)*CONJG(ef(3)) )
                   
                enddo
@@ -763,7 +762,7 @@ module fpc
       !Reduce Correlations
       corex_xy(:,:,:)=sum(corex(:,:,:,:),3)*delv
       corex_xz(:,:,:)=sum(corex(:,:,:,:),2)*delv
-      corex_zy(:,:,:)=sum(corex(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
+      corex_zy(:,:,:)=sum(corex(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz! TODO: remove this requirement (and fix comments everywhere)
       corey_xy(:,:,:)=sum(corey(:,:,:,:),3)*delv
       corey_xz(:,:,:)=sum(corey(:,:,:,:),2)*delv
       corey_zy(:,:,:)=sum(corey(:,:,:,:),1)*delv !NOTE: Assumes nvy=nvz!
@@ -807,6 +806,7 @@ module fpc
          do ivz=ivzmin,ivzmax
             us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
          enddo
+
          !Correct Normalization to v_AR
          us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
       enddo
@@ -873,6 +873,9 @@ module fpc
               write(unit_s+1,'(es17.5)',advance='no')corex_xy(ivx,ivy,is)
               write(unit_s+2,'(es17.5)',advance='no')corey_xy(ivx,ivy,is)
               write(unit_s+3,'(2es17.5)',advance='no')fs1_xy(ivx,ivy,is)
+
+              write(*,*)'xy Debug: vx: ',vvx(ivx),' vz: ',vvy(ivy),'coreperp1: ', &
+              corex_xy(ivx,ivy,is),'coreperp2: ', corey_xy(ivx,ivy,is),'corepar: ', corez_xy(ivx,ivy,is), 'spec ', is
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -891,6 +894,9 @@ module fpc
               write(unit_s+1,'(es17.5)',advance='no')corex_xz(ivx,ivz,is)
               write(unit_s+2,'(es17.5)',advance='no')corey_xz(ivx,ivz,is)
               write(unit_s+3,'(2es17.5)',advance='no')fs1_xz(ivx,ivz,is)
+
+              ! write(*,*)'xz Debug: vx: ',vvx(ivx),' vz: ',vvz(ivz),'coreperp1: ', &
+              ! corex_xz(ivx,ivz,is),'coreperp2: ', corey_xz(ivx,ivz,is),'corepar: ', corez_xz(ivx,ivz,is), 'spec ', is
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -909,6 +915,9 @@ module fpc
               write(unit_s+1,'(es17.5)',advance='no')corex_zy(ivz,ivy,is)
               write(unit_s+2,'(es17.5)',advance='no')corey_zy(ivz,ivy,is)
               write(unit_s+3,'(2es17.5)',advance='no')fs1_zy(ivz,ivy,is)
+
+              ! write(*,*)'zy Debug: vy: ',vvy(ivy),' vz: ',vvz(ivz),'coreperp1: ', &
+              ! corex_zy(ivz,ivy,is),'coreperp2: ', corey_zy(ivz,ivy,is),'corepar: ', corez_zy(ivz,ivy,is),  'spec ', is
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -928,7 +937,6 @@ module fpc
       close(unit_s+3)
 
       !Write Complex Eigenfunction-------------------------------------------
-      !TODO: check that the format of this file works with linfpc python wrapper...
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
       open(unit=unit_s+4,file=trim(filename),status='replace')
 
@@ -942,15 +950,15 @@ module fpc
       close(unit_s+4)
 
 
-       !Write Velocity Integrated Moments-------------------------------------------
+      !Write Velocity Integrated Moments-------------------------------------------
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
-      open(unit=unit_s+4,file=trim(filename),status='replace')
+      open(unit=unit_s+5,file=trim(filename),status='replace')
 
       !Write format 
       write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
-      write(unit_s+4,fmt)&
+      write(unit_s+5,fmt)&
            ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
-      close(unit_s+4)
+      close(unit_s+5)
      
       !=============================================================================
       ! END Output Distributions and Correlations to Files
@@ -959,7 +967,7 @@ module fpc
       !=============================================================================
       ! DEBUG: Moment comparisons
       !=============================================================================
-      if (0 == 1) then !DEBUG
+      if (1 == 1) then !DEBUG
          !Density
          write(*,'(a,2es12.2,5X,f6.3)')'nir=  ',real(ns(1)),real(ns1(1)), &
               real(ns(1))/real(ns1(1))
@@ -995,8 +1003,6 @@ module fpc
          write(*,fmt_dbg2)'uxei= ',aimag(Us(1,2)),aimag(us1(1,2)), &
               aimag(Us(1,2))/aimag(us1(1,2)),atan2(aimag(Us(1,2)),real(Us(1,2)))/pi, &
               atan2(aimag(us1(1,2)),real(us1(1,2)))/pi
-         write(*,fmt_dbg1)'uyer= ',real(Us(2,2)),real(us1(2,2)), &
-              real(Us(2,2))/real(us1(2,2)), abs(Us(2,2)), abs(us1(2,2))
          write(*,fmt_dbg2)'uyei= ',aimag(Us(2,2)),aimag(us1(2,2)), &
               aimag(Us(2,2))/aimag(us1(2,2)),atan2(aimag(Us(2,2)),real(Us(2,2)))/pi, &
               atan2(aimag(us1(2,2)),real(us1(2,2)))/pi
@@ -1005,20 +1011,7 @@ module fpc
          write(*,fmt_dbg2)'uzei= ',aimag(Us(3,2)),aimag(us1(3,2)), &
               aimag(Us(3,2))/aimag(us1(3,2)),atan2(aimag(Us(3,2)),real(Us(3,2)))/pi, &
               atan2(aimag(us1(3,2)),real(us1(3,2)))/pi
-!         write(*,'(a,2es12.2,5X,f6.3)')'uxer= ',real(Us(1,2)),real(us1(1,2)), &
-!              real(Us(1,2))/real(us1(1,2))
-!         write(*,'(a,2es12.2,5X,f6.3)')'uxei= ',aimag(Us(1,2)),aimag(us1(1,2)), &
-!              aimag(Us(1,2))/aimag(us1(1,2))
-!         write(*,'(a,2es12.2,5X,f6.3)')'uyer= ',real(Us(2,2)),real(us1(2,2)), &
-!              real(Us(2,2))/real(us1(2,2))
-!         write(*,'(a,2es12.2,5X,f6.3)')'uyei= ',aimag(Us(2,2)),aimag(us1(2,2)), &
-!              aimag(Us(2,2))/aimag(us1(2,2))
-!         write(*,'(a,2es12.2,5X,f6.3)')'uzer= ',real(Us(3,2)),real(us1(3,2)), &
-!              real(Us(3,2))/real(us1(3,2))
-!         write(*,'(a,2es12.2,5X,f6.3)')'uzei= ',aimag(Us(3,2)),aimag(us1(3,2)), &
-!              aimag(Us(3,2))/aimag(us1(3,2))
-
-      end if
+      endif
       !=============================================================================
       ! END DEBUG: Moment comparisons
       !=============================================================================
@@ -1034,9 +1027,9 @@ module fpc
       deallocate(hatV_s)
       deallocate(vvx,vvy,vvz)
       
-        !==========================================================================
-        !==========================================================================
-        !==========================================================================
+      !==========================================================================
+      !==========================================================================
+      !==========================================================================
     end subroutine compute_fpc_cart_new
 
 
@@ -1196,7 +1189,6 @@ module fpc
       !Allocate Bessel function values
       allocate(jbess(-nbesmax-1:nbesmax+1)); jbess(:)=0.
 
-      write(*,*)"DEBUG: END Create Velocity grid and allocate variables"
       !=============================================================================
       ! END Create Velocity grid and allocate variables
       !=============================================================================
@@ -1328,16 +1320,16 @@ module fpc
                do ivphi=ivphimin,ivphimax
                   ! CEpar
                   corepar(ivperp,ivpar,ivphi,is)=&
-                  -spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* 0.5*(CONJG(dfs1dvpar(ivperp,ivpar,ivphi,is))*ef(3) &
+                  spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* 0.5*(CONJG(dfs1dvpar(ivperp,ivpar,ivphi,is))*ef(3) &
                   +dfs1dvpar(ivperp,ivpar,ivphi,is)*CONJG(ef(3)) )
                   
                   ! CEperp
                   vvperp1temp = vvperp(ivperp)*COS(vvphi(ivphi))
                   vvperp2temp = vvperp(ivperp)*SIN(vvphi(ivphi))
                   coreperp(ivperp,ivpar,ivphi,is)=&
-                  (-spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*(0.5*(CONJG(dfs1dvperp1(ivperp,ivpar,ivphi,is))*ef(1) &
+                  (spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*(0.5*(CONJG(dfs1dvperp1(ivperp,ivpar,ivphi,is))*ef(1) &
                   +dfs1dvperp1(ivperp,ivpar,ivphi,is)*CONJG(ef(1))))) &
-                  -(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*(0.5*(CONJG(dfs1dvperp2(ivperp,ivpar,ivphi,is))*ef(2) &
+                  +(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*(0.5*(CONJG(dfs1dvperp2(ivperp,ivpar,ivphi,is))*ef(2) &
                   +dfs1dvperp2(ivperp,ivpar,ivphi,is)*CONJG(ef(2))))) 
                enddo
             enddo
@@ -1471,7 +1463,7 @@ module fpc
     subroutine calc_fs1_new(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
       use vars, only : betap,kperp,kpar,vtp,pi
       use vars, only : nbesmax
-      use bessels, only : bessj_s
+      use bessels, only : bessj_s, bess0_s_prime
       USE nrtype, only: SP, I4B
 
       complex, intent(in)   :: omega            !Complex Frequency
@@ -1498,6 +1490,22 @@ module fpc
       complex :: Wbar_s
       complex :: Ubar_s
 
+      complex :: omega_temp
+
+      !TODO: delete these
+      complex :: ef1,ef2,ef3
+      ef1 = ef(1)
+      ef2 = ef(2)
+      ef3 = ef(3)
+
+      !TODO: is this needed? think so, but it should be checked anyways
+      omega_temp = real(omega)+ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
+
+      !TODO: debug- remove this
+      ! ef1 = 0
+      ! ! ef2 = 0
+      ! ef3 = 0
+
       !Compute Bessel functions (if necessary)
       ! NOTE: If bs is same as last time, no need to recompute Bessels
       b_s = (kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
@@ -1512,16 +1520,27 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = 0.
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega * ( (aleph_s-1)*vpar - aleph_s*hatV_s ))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp * ( (aleph_s-1)*vpar - aleph_s*hatV_s ))
 
       do n = -nbesmax,nbesmax
          !Calculate all parts of solution that don't depend on m
-         denom=omega-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s
-         Wbar_s=2.*(n*mu_s/(q_s*omega)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega*aleph_s))*vpar
+         denom=omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s
+         Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar
          if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
-            emult=n*jbess(n)*Ubar_s/b_s*ef(1) +ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef(2) + jbess(n)*Wbar_s*ef(3)
+            emult=n*jbess(n)*Ubar_s/b_s*ef1
+            if(n .ne. 0) then
+              emult=emult+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2
+            else
+              emult=emult+ii*bess0_s_prime(b_s)*Ubar_s*ef2
+            end if
+            emult=emult+jbess(n)*Wbar_s*ef3
          else
-             emult= +ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef(2) + jbess(n)*Wbar_s*ef(3)
+            if(n .ne. 0) then
+              emult=+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2 
+            else
+              emult=+ii*bess0_s_prime(b_s)*Ubar_s*ef2 
+            end if 
+            emult=emult + jbess(n)*Wbar_s*ef3
          end if
          
          do m = -nbesmax,nbesmax
@@ -1622,7 +1641,7 @@ module fpc
       real    :: vperpi, vpari                       !normalized velocity space current value in loop
       integer :: vperpindex, vparindex               !loop counters
       complex :: omega                               !Complex Frequency
-      complex :: fs0                                 !normalized distribution function and first partial derivatives
+      real    :: fs0                                 !normalized distribution function and first partial derivatives
       integer :: numstepvperp, numstepvpar           !total number of steps in loop
       logical :: ex                                  !used to check if results directory exists
 
@@ -1701,7 +1720,7 @@ module fpc
       real                                  :: hatV_s           !normalized drift velocity by parallel thermal velocity
 
       !output
-      complex, intent(out)                  :: fs0              !zero order distribution
+      real, intent(out)                  :: fs0              !zero order distribution
 
       
       hatV_s = V_s*sqrt(tau_s/(mu_s*betap))  !(GGH: Error: Fixed 13 JUL 2023)
@@ -1726,7 +1745,7 @@ module fpc
       real, intent(in)                      :: tau_s            !T_ref/T_s|_parallel
       real, intent(in)                      :: mu_s             !m_ref/m_s
       real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
-      complex, intent(in)                   :: fs0              !normalized zero order distribution
+      real, intent(in)                      :: fs0              !normalized zero order distribution
 
       integer :: n !bessel sum counter
       integer :: m !bessel sum counter
@@ -1829,7 +1848,7 @@ module fpc
       complex, dimension(1:3),intent(in)    :: ef, bf           !E, B fields from eigen funcs
 
       !locals
-      complex                       :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
+      real                          :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
       complex                       :: fs1_1            !numerical derivation var
       complex                       :: fs1_0            !numerical derivation var
       real                          :: piconst          !3.14159...
@@ -1865,8 +1884,8 @@ module fpc
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)
-        Cor_s = vperp*0.5*(-1.*q_s*(vpar**2./2.)*dfs1z*CONJG(ef(3))&
-          -1.*q_s*(vpar**2./2.)*CONJG(dfs1z)*ef(3))*2.0*piconst/num_phi+Cor_s
+        Cor_s = vperp*0.5*(q_s*(vpar**2./2.)*dfs1z*CONJG(ef(3))&
+          +q_s*(vpar**2./2.)*CONJG(dfs1z)*ef(3))*2.0*piconst/num_phi+Cor_s
 
         n_phi = n_phi+1
         phi = phi + delphi
@@ -1889,7 +1908,7 @@ module fpc
       complex, dimension(1:3),intent(in)    :: ef, bf           !E, B fields from eigen funcs
 
       !locals
-      complex                       :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
+      real                          :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
       complex                       :: fs1_1            !numerical derivation var
       complex                       :: fs1_0            !numerical derivation var
       real                          :: piconst          !3.14159...
@@ -1941,8 +1960,8 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         vxtemp = vperp*COS(phi)
-        Cor_ex_s = 0.5*(-1.*q_s*(vxtemp**2./2.)*dfs1perp*CONJG(ef(1))&
-          -1.*q_s*(vxtemp**2./2.)*CONJG(dfs1perp)*ef(1))
+        Cor_ex_s = 0.5*(q_s*(vxtemp**2./2.)*dfs1perp*CONJG(ef(1))&
+          +q_s*(vxtemp**2./2.)*CONJG(dfs1perp)*ef(1))
 
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi) 
@@ -1963,8 +1982,8 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable name for dfs1perp here for clarity
         vytemp = vperp*SIN(phi)
-        Cor_ey_s = 0.5*(-1.*q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
-          -1.*q_s*(vytemp**2./2.)*CONJG(dfs1perp)*ef(2))
+        Cor_ey_s = 0.5*(q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
+          +q_s*(vytemp**2./2.)*CONJG(dfs1perp)*ef(2))
 
         Cor_perp_s = vperp*(Cor_ex_s+Cor_ey_s)*2.0*piconst/num_phi + Cor_perp_s
 
@@ -1997,7 +2016,7 @@ module fpc
       !locals
       real                          :: vx, vy, vz       !velocity coordinates
 
-      complex                       :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
+      real                          :: fs0              !zero-order distribution function * c^3 (times c^3 due to normalization)
       complex                       :: sum_fs1              !perturbed distri
       complex, intent(out)                       :: fs1              !perturbed distribution function 
       complex                       :: fs1_1            !numerical derivation var
@@ -2097,8 +2116,8 @@ module fpc
         endif
 
         !Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
-        Cor_i_s = 0.5*(-1.*q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
-          -1.*q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
+        Cor_i_s = 0.5*(q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
+          +q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
 
         sum_fs1=sum_fs1+fs1*delv        
         inti = inti + 1
@@ -2110,6 +2129,7 @@ module fpc
    subroutine check_nbesmax(vperpmax,tau_s,mu_s,aleph_r)
       !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
       !TODO: if using wrapper, the user will not see this error- find a way to warn user if using wrapper (or atleast leave note to check output!)
+      !TODO: alternatively, automatically set nbesmax to be some multiple of the minimum value calculated using this formula...
       use vars, only : kperp
       use vars, only : nbesmax
 
