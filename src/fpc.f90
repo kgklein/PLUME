@@ -13,6 +13,14 @@
 !=============================================================================!
 !=============================================================================!
 module fpc
+
+  !CB Note: due to an effective sign difference between the textbooks by Stix/Swanson (used to compute eigen functions and fs1 respectively),
+  !      we drop the minus sign in the correlation C_{E_i} = -q/2 v_i^2 d fs1/d v_i, so it is "q/2 v_i^2 d fs1/d v_i" when implemented...
+  !      This minus sign difference is a result in Swanson 'suppressing the exp[i(k dot r - om t)]' (above 4.180) rather than taking the fourier transform of the product
+  !      Note that the fourier transform of this term is F{exp[i(k dot r - om t)]} \proportional_to delta(kx`+kx) delta(ky`+ky) delta(kz`+kz) delta(om`-om)
+  !      Effectively swaping the sign in kx ky kz (equivalently changing the frame). Typically, this does not matter as one can still get the same eigen functions, 
+  !      but since we are correlating quantities in two diffferent frames, we must account for it somewhere...
+
   implicit none
   private :: calc_correlation_par_gyro, calc_correlation_perp_gyro, calc_correlation_i_car, calc_fs0, calc_fs1, &
   calc_fs1_new, calc_fs1_new2
@@ -586,6 +594,7 @@ module fpc
       ivymax=int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write(*,*)'WARNING: vymax not integer multiple of delv'
       ivzmin=int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write(*,*)'WARNING: vzmin not integer multiple of delv'
       ivzmax=int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write(*,*)'WARNING: vzmax not integer multiple of delv'
+
       !Allocate velocity grid variables
       allocate(vvx(ivxmin:ivxmax)); vvx(:)=0.
       allocate(vvy(ivymin:ivymax)); vvy(:)=0.
@@ -710,16 +719,13 @@ module fpc
             do ivy=ivymin,ivymax
                do ivz=ivzmin,ivzmax
                   ! CEx
-                  corex(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)* 0.5*(CONJG(dfs1dvx(ivx,ivy,ivz,is))*ef(1) &
-                                       +dfs1dvx(ivx,ivy,ivz,is)*CONJG(ef(1)) )
+                  corex(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)*dfs1dvx(ivx,ivy,ivz,is)*ef(1)
                   
                   ! CEy
-                  corey(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)* 0.5*(CONJG(dfs1dvy(ivx,ivy,ivz,is))*ef(2) &
-                                        +dfs1dvy(ivx,ivy,ivz,is)*CONJG(ef(2)) )
+                  corey(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)*dfs1dvy(ivx,ivy,ivz,is)*ef(2)
                   
                   ! CEz
-                  corez(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)* 0.5*(CONJG(dfs1dvz(ivx,ivy,ivz,is))*ef(3) &
-                                        +dfs1dvz(ivx,ivy,ivz,is)*CONJG(ef(3)) )
+                  corez(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)*dfs1dvz(ivx,ivy,ivz,is)*ef(3)
                   
                enddo
             enddo
@@ -869,13 +875,26 @@ module fpc
         !CEi(vx,vy)--------------------------------------------------------------
         do ivx=ivxmin,ivxmax
            do ivy=ivymin,ivymax
-              write(unit_s,'(es17.5)',advance='no') corez_xy(ivx,ivy,is)
-              write(unit_s+1,'(es17.5)',advance='no')corex_xy(ivx,ivy,is)
-              write(unit_s+2,'(es17.5)',advance='no')corey_xy(ivx,ivy,is)
-              write(unit_s+3,'(2es17.5)',advance='no')fs1_xy(ivx,ivy,is)
-
-              write(*,*)'xy Debug: vx: ',vvx(ivx),' vz: ',vvy(ivy),'coreperp1: ', &
-              corex_xy(ivx,ivy,is),'coreperp2: ', corey_xy(ivx,ivy,is),'corepar: ', corez_xy(ivx,ivy,is), 'spec ', is
+              if(ABS(corez_xy(ivx,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s,'(es17.5)',advance='no') corez_xy(ivx,ivy,is)
+              endif
+              if(ABS(corex_xy(ivx,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+1,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+1,'(es17.5)',advance='no') corex_xy(ivx,ivy,is)
+              endif
+              if(ABS(corey_xy(ivx,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+2,'(es17.5)',advance='no') 0. 
+              else
+                write(unit_s+2,'(es17.5)',advance='no') corey_xy(ivx,ivy,is)
+              endif
+              if(ABS(fs1_xy(ivx,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+3,'(2es17.5)',advance='no') 0. 
+              else
+                write(unit_s+3,'(2es17.5)',advance='no') fs1_xy(ivx,ivy,is)
+              endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -890,13 +909,26 @@ module fpc
         !CEi(vx,vz)--------------------------------------------------------------
          do ivx=ivxmin,ivxmax
             do ivz=ivzmin,ivzmax
-              write(unit_s,'(es17.5)',advance='no') corez_xz(ivx,ivz,is)
-              write(unit_s+1,'(es17.5)',advance='no')corex_xz(ivx,ivz,is)
-              write(unit_s+2,'(es17.5)',advance='no')corey_xz(ivx,ivz,is)
-              write(unit_s+3,'(2es17.5)',advance='no')fs1_xz(ivx,ivz,is)
-
-              ! write(*,*)'xz Debug: vx: ',vvx(ivx),' vz: ',vvz(ivz),'coreperp1: ', &
-              ! corex_xz(ivx,ivz,is),'coreperp2: ', corey_xz(ivx,ivz,is),'corepar: ', corez_xz(ivx,ivz,is), 'spec ', is
+              if(ABS(corez_xz(ivx,ivz,is)) .lt. 9.999E-99) then
+                write(unit_s,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s,'(es17.5)',advance='no') corez_xz(ivx,ivz,is)
+              endif
+              if(ABS(corex_xz(ivx,ivz,is)) .lt. 9.999E-99) then
+                write(unit_s+1,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+1,'(es17.5)',advance='no') corex_xz(ivx,ivz,is)
+              endif
+              if(ABS(corey_xz(ivx,ivz,is)) .lt. 9.999E-99) then
+                write(unit_s+2,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+2,'(es17.5)',advance='no') corey_xz(ivx,ivz,is)
+              endif
+              if(ABS(fs1_xz(ivx,ivz,is)) .lt. 9.999E-99) then
+                write(unit_s+3,'(2es17.5)',advance='no') 0.
+              else
+                write(unit_s+3,'(2es17.5)',advance='no') fs1_xz(ivx,ivz,is)
+              endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -911,13 +943,26 @@ module fpc
         !CEi(vy,vz)-------------------------------------------------------------
         do ivz=ivzmin,ivzmax
            do ivy=ivymin,ivymax
-              write(unit_s,'(es17.5)',advance='no') corez_zy(ivz,ivy,is)
-              write(unit_s+1,'(es17.5)',advance='no')corex_zy(ivz,ivy,is)
-              write(unit_s+2,'(es17.5)',advance='no')corey_zy(ivz,ivy,is)
-              write(unit_s+3,'(2es17.5)',advance='no')fs1_zy(ivz,ivy,is)
-
-              ! write(*,*)'zy Debug: vy: ',vvy(ivy),' vz: ',vvz(ivz),'coreperp1: ', &
-              ! corex_zy(ivz,ivy,is),'coreperp2: ', corey_zy(ivz,ivy,is),'corepar: ', corez_zy(ivz,ivy,is),  'spec ', is
+              if(ABS(corez_zy(ivz,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s,'(es17.5)',advance='no') corez_zy(ivz,ivy,is)
+              endif
+              if(ABS(corex_zy(ivz,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+1,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+1,'(es17.5)',advance='no') corex_zy(ivz,ivy,is)
+              endif
+              if(ABS(corey_zy(ivz,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+2,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+2,'(es17.5)',advance='no') corey_zy(ivz,ivy,is)
+              endif
+              if(ABS(fs1_zy(ivz,ivy,is)) .lt. 9.999E-99) then
+                write(unit_s+3,'(2es17.5)',advance='no') 0.
+              else
+                write(unit_s+3,'(2es17.5)',advance='no') fs1_zy(ivz,ivy,is)
+              endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -928,7 +973,6 @@ module fpc
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
-
       end do
 
       close(unit_s)
@@ -1320,17 +1364,14 @@ module fpc
                do ivphi=ivphimin,ivphimax
                   ! CEpar
                   corepar(ivperp,ivpar,ivphi,is)=&
-                  spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* 0.5*(CONJG(dfs1dvpar(ivperp,ivpar,ivphi,is))*ef(3) &
-                  +dfs1dvpar(ivperp,ivpar,ivphi,is)*CONJG(ef(3)) )
-                  
+                  spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* dfs1dvpar(ivperp,ivpar,ivphi,is)*ef(3)
+
                   ! CEperp
                   vvperp1temp = vvperp(ivperp)*COS(vvphi(ivphi))
                   vvperp2temp = vvperp(ivperp)*SIN(vvphi(ivphi))
                   coreperp(ivperp,ivpar,ivphi,is)=&
-                  (spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*(0.5*(CONJG(dfs1dvperp1(ivperp,ivpar,ivphi,is))*ef(1) &
-                  +dfs1dvperp1(ivperp,ivpar,ivphi,is)*CONJG(ef(1))))) &
-                  +(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*(0.5*(CONJG(dfs1dvperp2(ivperp,ivpar,ivphi,is))*ef(2) &
-                  +dfs1dvperp2(ivperp,ivpar,ivphi,is)*CONJG(ef(2))))) 
+                  (spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*dfs1dvperp1(ivperp,ivpar,ivphi,is)*ef(1)) &
+                  +(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*dfs1dvperp2(ivperp,ivpar,ivphi,is)*ef(2)) 
                enddo
             enddo
          enddo
@@ -1414,8 +1455,16 @@ module fpc
 
         do ivperp=ivperpmin,ivperpmax
           do ivpar=ivparmin,ivparmax
-              write(unit_s,'(es17.5)',advance='no') corepar_cyln(ivperp,ivpar,is)
-              write(unit_s+1,'(es17.5)',advance='no') coreperp_cyln(ivperp,ivpar,is)
+              if(ABS(corepar_cyln(ivperp,ivpar,is)) .lt. 9.999E-99) then
+                write(unit_s,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s,'(es17.5)',advance='no') corepar_cyln(ivperp,ivpar,is)
+              endif
+              if(ABS(coreperp_cyln(ivperp,ivpar,is)) .lt. 9.999E-99) then
+                write(unit_s+1,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+1,'(es17.5)',advance='no') coreperp_cyln(ivperp,ivpar,is)
+              endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
@@ -1490,20 +1539,12 @@ module fpc
       complex :: Wbar_s
       complex :: Ubar_s
 
-      complex :: omega_temp
-
-      !TODO: delete these
       complex :: ef1,ef2,ef3
-      ef1 = ef(1)
+      ef1 = ef(1) !Used to 'turn off' contributes due to ef1/2/3
       ef2 = ef(2)
       ef3 = ef(3)
-
-      !TODO: is this needed? think so, but it should be checked anyways
-      omega_temp = real(omega)+ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
-
-      !TODO: debug- remove this
       ! ef1 = 0
-      ! ! ef2 = 0
+      ! ef2 = 0
       ! ef3 = 0
 
       !Compute Bessel functions (if necessary)
@@ -1518,34 +1559,34 @@ module fpc
       end if
 
       !Double Bessel Sum to calculate fs1=========================================
-      fs1 = 0.
+      fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp * ( (aleph_s-1)*vpar - aleph_s*hatV_s ))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega*((aleph_s-1)*vpar-aleph_s*hatV_s))
 
       do n = -nbesmax,nbesmax
-         !Calculate all parts of solution that don't depend on m
-         denom=omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s
-         Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar
-         if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
-            emult=n*jbess(n)*Ubar_s/b_s*ef1
-            if(n .ne. 0) then
-              emult=emult+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2
-            else
-              emult=emult+ii*bess0_s_prime(b_s)*Ubar_s*ef2
-            end if
-            emult=emult+jbess(n)*Wbar_s*ef3
-         else
-            if(n .ne. 0) then
-              emult=+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2 
-            else
-              emult=+ii*bess0_s_prime(b_s)*Ubar_s*ef2 
-            end if 
-            emult=emult + jbess(n)*Wbar_s*ef3
-         end if
-         
-         do m = -nbesmax,nbesmax
-            fs1=fs1+jbess(m)*exp(ii*(m-n)*phi)*emult/denom
-         enddo
+       !Calculate all parts of solution that don't depend on m
+       denom=omega-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))   -n*mu_s/q_s
+       Wbar_s=2.*(n*mu_s/(q_s*omega)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega*aleph_s))*vpar
+       if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
+          emult=n*jbess(n)*Ubar_s/b_s*ef1
+          if(n .ne. 0) then
+            emult=emult+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2
+          else
+            emult=emult+ii*bess0_s_prime(b_s)*Ubar_s*ef2
+          end if
+          emult=emult+jbess(n)*Wbar_s*ef3
+       else
+          if(n .ne. 0) then
+            emult=+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2 
+          else
+            emult=+ii*bess0_s_prime(b_s)*Ubar_s*ef2 
+          end if 
+          emult=emult + jbess(n)*Wbar_s*ef3
+       end if
+       
+       do m = -nbesmax,nbesmax
+          fs1=fs1+jbess(m)*exp(ii*(m-n)*phi)*emult/denom
+       enddo
       enddo
       fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
       
@@ -1884,8 +1925,7 @@ module fpc
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)
-        Cor_s = vperp*0.5*(q_s*(vpar**2./2.)*dfs1z*CONJG(ef(3))&
-          +q_s*(vpar**2./2.)*CONJG(dfs1z)*ef(3))*2.0*piconst/num_phi+Cor_s
+        Cor_s = vperp*(q_s*(vpar**2./2.)*dfs1z*ef(3))*2.0*piconst/num_phi+Cor_s
 
         n_phi = n_phi+1
         phi = phi + delphi
@@ -1960,8 +2000,7 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         vxtemp = vperp*COS(phi)
-        Cor_ex_s = 0.5*(q_s*(vxtemp**2./2.)*dfs1perp*CONJG(ef(1))&
-          +q_s*(vxtemp**2./2.)*CONJG(dfs1perp)*ef(1))
+        Cor_ex_s = (q_s*(vxtemp**2./2.)*dfs1perp*ef(1))
 
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi) 
@@ -1982,8 +2021,7 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable name for dfs1perp here for clarity
         vytemp = vperp*SIN(phi)
-        Cor_ey_s = 0.5*(q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
-          +q_s*(vytemp**2./2.)*CONJG(dfs1perp)*ef(2))
+        Cor_ey_s = (q_s*(vytemp**2./2.)*dfs1perp*ef(2))
 
         Cor_perp_s = vperp*(Cor_ex_s+Cor_ey_s)*2.0*piconst/num_phi + Cor_perp_s
 
@@ -2116,8 +2154,7 @@ module fpc
         endif
 
         !Cor_i_s = (-1.*q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
-        Cor_i_s = 0.5*(q_s*(vicor**2./2.)*dfs1i*CONJG(ef(ceiindex))&
-          +q_s*(vicor**2./2.)*CONJG(dfs1i)*ef(ceiindex))*delv+Cor_i_s
+        Cor_i_s = (q_s*(vicor**2./2.)*dfs1i*ef(ceiindex))*delv+Cor_i_s
 
         sum_fs1=sum_fs1+fs1*delv        
         inti = inti + 1

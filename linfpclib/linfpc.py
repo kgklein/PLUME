@@ -711,13 +711,13 @@ def loadlinfpccepar(filename):
     delv     = float(line[4])
     resonant_int = omega/math.sqrt(bi) #calc resonant interval
     species = ''
-    # if(filename.find('specie02')>=0): #DEBUG: TODO: remove?
-    #     resonant_int = resonant_int*tau**(.5)*mu**(-.5)
-    #     print("Calculated resonant interval (elec): " + str(resonant_int))
-    #     species = 'elec'
-    # else:
-    #     print("Calculated resonant interval (ion): " + str(resonant_int))
-    #     species = 'ion'
+    if(filename.find('specie02')>=0):
+        resonant_int = resonant_int*tau**(.5)*mu**(-.5)
+        print("Calculated resonant interval (elec): " + str(resonant_int))
+        species = 'elec'
+    else:
+        print("Calculated resonant interval (ion): " + str(resonant_int))
+        species = 'ion'
 
     resonant_int = resonant_int.real
 
@@ -764,169 +764,177 @@ def loadlinfpccepar(filename):
     return linfpcdata
 
 #TODO: make one load function
-def loadlinfpccart(filename):
-    print("Opening " + filename)
-    try:
-        f = open(filename)
-    except:
-        print("Couldnt open: " + filename)
+def loadlinfpccart(filename,idxoffset=0):
+    #idxoffset is used to handle off by 1 division errors when computing the number of points on the grid
+    #assumes equal bounds in vx vy and vz direction
+    if(abs(idxoffset) > 2):
+        print("Error! Couldn't load  ",filename)
         return
-    line = f.readline()
-    line = f.readline()
-    line = line.split()
-    tau   = float(line[0])
-    bi    = float(line[1])
-    kpar  = float(line[2]) #kpar rho
-    kperp = float(line[3]) #kperp rho
-    vts   = float(line[4])
-    mu    = float(line[5])
-    omega = complex(float(line[6]),float(line[7]))
+    try:
+        print("Opening " + filename)
+        try:
+            f = open(filename)
+        except:
+            print("Couldnt open: " + filename)
+            return
+        line = f.readline()
+        line = f.readline()
+        line = line.split()
+        tau   = float(line[0])
+        bi    = float(line[1])
+        kpar  = float(line[2]) #kpar rho
+        kperp = float(line[3]) #kperp rho
+        vts   = float(line[4])
+        mu    = float(line[5])
+        omega = complex(float(line[6]),float(line[7]))
 
-    line = f.readline()
-    line = f.readline()
-    line = line.split()
-    vxmin = float(line[0])
-    vxmax = float(line[1])
-    vymin  = float(line[2])
-    vymax  = float(line[3])
-    vzmin = float(line[4])
-    vzmax = float(line[5])
-    delv     = float(line[6])
-    resonant_int = omega/math.sqrt(bi) #calc resonant interval
-    species = ''
-    if(filename.find('specie02')>=0):
-        resonant_int = resonant_int*tau**(.5)*mu**(-.5)
-        print("Calculated resonant interval (elec): " + str(resonant_int))
-        species = 'elec'
-    else:
-        print("Calculated resonant interval (ion): " + str(resonant_int))
-        species = 'ion'
+        line = f.readline()
+        line = f.readline()
+        line = line.split()
+        vxmin = float(line[0])
+        vxmax = float(line[1])
+        vymin  = float(line[2])
+        vymax  = float(line[3])
+        vzmin = float(line[4])
+        vzmax = float(line[5])
+        delv     = float(line[6])
+        resonant_int = omega/math.sqrt(bi) #calc resonant interval
+        species = ''
+        if(filename.find('specie02')>=0):
+            resonant_int = resonant_int*tau**(.5)*mu**(-.5)
+            print("Calculated resonant interval (elec): " + str(resonant_int))
+            species = 'elec'
+        else:
+            print("Calculated resonant interval (ion): " + str(resonant_int))
+            species = 'ion'
 
-    resonant_int = resonant_int.real
+        resonant_int = resonant_int.real
 
-    ivxmin=int(vxmin/delv)
-    ivxmax=int(vxmax/delv)
-    ivymin=int(vymin/delv)
-    ivymax=int(vymax/delv)
-    ivzmin=int(vzmin/delv)
-    ivzmax=int(vzmax/delv)
+        ivxmin=int(round(vxmin/delv))
+        ivxmax=int(round(vxmax/delv))
+        ivymin=int(round(vymin/delv))
+        ivymax=int(round(vymax/delv))
+        ivzmin=int(round(vzmin/delv))
+        ivzmax=int(round(vzmax/delv))
 
-    numstepvx = ivxmax-ivxmin+1
-    numstepvy = ivymax-ivymin+1
-    numstepvz = ivzmax-ivzmin+1
+        numstepvx = ivxmax-ivxmin+1-idxoffset
+        numstepvy = ivymax-ivymin+1-idxoffset
+        numstepvz = ivzmax-ivzmin+1-idxoffset
 
-    vx_xy = np.zeros((numstepvx,numstepvy))
-    vy_xy = np.zeros((numstepvx,numstepvy))
+        vx_xy = np.zeros((numstepvx,numstepvy))
+        vy_xy = np.zeros((numstepvx,numstepvy))
 
-    vx_xz = np.zeros((numstepvx,numstepvz))
-    vz_xz = np.zeros((numstepvx,numstepvz))
+        vx_xz = np.zeros((numstepvx,numstepvz))
+        vz_xz = np.zeros((numstepvx,numstepvz))
 
-    vy_yz = np.zeros((numstepvy,numstepvz))
-    vz_yz = np.zeros((numstepvy,numstepvz))
+        vy_yz = np.zeros((numstepvy,numstepvz))
+        vz_yz = np.zeros((numstepvy,numstepvz))
 
-    vx = []
-    vy = []
-    vz = []
-    vxindex = vxmin
-    vyindex = vymin
-    vzindex = vzmin
+        vx = []
+        vy = []
+        vz = []
+        vxindex = vxmin
+        vyindex = vymin
+        vzindex = vzmin
 
-    _i = 0
-    vx.append(float(vxindex))
-    while(_i < numstepvx):
-        vxindex += delv
+        _i = 0
         vx.append(float(vxindex))
-        _i += 1
+        while(_i < numstepvx):
+            vxindex += delv
+            vx.append(float(vxindex))
+            _i += 1
 
-    _i = 0
-    vy.append(float(vyindex))
-    while(_i < numstepvy):
-        vyindex += delv
+        _i = 0
         vy.append(float(vyindex))
-        _i += 1
+        while(_i < numstepvy):
+            vyindex += delv
+            vy.append(float(vyindex))
+            _i += 1
 
-    vz.append(float(vzindex))
-    _i = 0
-    while(_i < numstepvz):
-        vzindex += delv
         vz.append(float(vzindex))
-        _i += 1
-        
-    line = f.readline()
-    Cvxvy = []
-    line = f.readline()
-    linecounter = 1
-    while (linecounter < len(vx)):
-        line = line.split()
-        row = []
-        rowcounter = 0
-        for k in line:
-            if(math.isnan(float(k))):
-                row.append(0.)
-            else:
-                row.append(float(k))
-            vx_xy[linecounter-1,rowcounter] = vx[linecounter-1]
-            vy_xy[linecounter-1,rowcounter] = vy[rowcounter]
-            rowcounter += 1
-        Cvxvy.append(row)
+        _i = 0
+        while(_i < numstepvz):
+            vzindex += delv
+            vz.append(float(vzindex))
+            _i += 1
+            
         line = f.readline()
-        linecounter += 1
-    Cvxvy = np.asarray(Cvxvy)
-
-    Cvxvz = []
-    linecounter = 1
-    line = f.readline()
-    while (linecounter < len(vx)):
-        line = line.split()
-        row = []
-        rowcounter = 0
-        for k in line:
-            if(math.isnan(float(k))):
-                row.append(0.)
-            else:
-                row.append(float(k))
-            vx_xz[linecounter-1,rowcounter] = vx[linecounter-1]
-            vz_xz[linecounter-1,rowcounter] = vz[rowcounter]
-            rowcounter += 1
-        Cvxvz.append(row)
+        Cvxvy = []
         line = f.readline()
-        linecounter += 1
-    Cvxvz = np.asarray(Cvxvz)
+        linecounter = 1
+        while (linecounter < len(vx)):
+            line = line.split()
+            row = []
+            rowcounter = 0
+            for k in line:
+                if(math.isnan(float(k))):
+                    row.append(0.)
+                else:
+                    row.append(float(k))
+                vx_xy[linecounter-1,rowcounter] = vx[linecounter-1]
+                vy_xy[linecounter-1,rowcounter] = vy[rowcounter]
+                rowcounter += 1
+            Cvxvy.append(row)
+            line = f.readline()
+            linecounter += 1
+        Cvxvy = np.asarray(Cvxvy)
 
-    Cvyvz = []
-    linecounter = 1
-    line = f.readline()
-    while (linecounter < len(vy)):
-        line = line.split()
-        row = []
-        rowcounter = 0
-        for k in line:
-            if(math.isnan(float(k))):
-                row.append(0.)
-            else:
-                row.append(float(k))
-            vy_yz[linecounter-1,rowcounter] = vy[linecounter-1]
-            vz_yz[linecounter-1,rowcounter] = vz[rowcounter]
-            rowcounter += 1
-        Cvyvz.append(row)
+        Cvxvz = []
+        linecounter = 1
         line = f.readline()
-        linecounter += 1
-    Cvyvz = np.asarray(Cvyvz)
-    vy_yz = vy_yz.T
-    vz_yz = vz_yz.T
+        while (linecounter < len(vx)):
+            line = line.split()
+            row = []
+            rowcounter = 0
+            for k in line:
+                if(math.isnan(float(k))):
+                    row.append(0.)
+                else:
+                    row.append(float(k))
+                vx_xz[linecounter-1,rowcounter] = vx[linecounter-1]
+                vz_xz[linecounter-1,rowcounter] = vz[rowcounter]
+                rowcounter += 1
+            Cvxvz.append(row)
+            line = f.readline()
+            linecounter += 1
+        Cvxvz = np.asarray(Cvxvz)
 
-    linfpcckeyname = 'CEpar'
-    if('perp1' in filename):
-        linfpcckeyname = 'CEperp1'
-    elif('perp2' in filename):
-        linfpcckeyname = 'CEperp2'
+        Cvyvz = []
+        linecounter = 1
+        line = f.readline()
+        while (linecounter < len(vy)):
+            line = line.split()
+            row = []
+            rowcounter = 0
+            for k in line:
+                if(math.isnan(float(k))):
+                    row.append(0.)
+                else:
+                    row.append(float(k))
+                vy_yz[linecounter-1,rowcounter] = vy[linecounter-1]
+                vz_yz[linecounter-1,rowcounter] = vz[rowcounter]
+                rowcounter += 1
+            Cvyvz.append(row)
+            line = f.readline()
+            linecounter += 1
+        Cvyvz = np.asarray(Cvyvz)
+        vy_yz = vy_yz.T
+        vz_yz = vz_yz.T
 
-    linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,
-                  'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,
-                  'delv':delv,'species':species,'omega':omega,
-                  'vx_xy':vx_xy,'vy_xy':vy_xy,'vx_xz':vx_xz,'vz_xz':vz_xz,'vy_yz':vy_yz,'vz_yz':vz_yz}
+        linfpcckeyname = 'CEpar'
+        if('perp1' in filename):
+            linfpcckeyname = 'CEperp1'
+        elif('perp2' in filename):
+            linfpcckeyname = 'CEperp2'
 
-    return linfpcdata
+        linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,
+                      'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,
+                      'delv':delv,'species':species,'omega':omega,
+                      'vx_xy':vx_xy,'vy_xy':vy_xy,'vx_xz':vx_xz,'vz_xz':vz_xz,'vy_yz':vy_yz,'vz_yz':vz_yz}
+
+        return linfpcdata
+    except:
+        return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
 def loadlinfpcceperp(filename):
     import copy
