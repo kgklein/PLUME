@@ -1,27 +1,67 @@
-!=============================================================================!
-!=============================================================================!
-!!*PLUME                                                                    *!!
-!!Plasma in a Linear Uniform Magnetized Environment                          !!
-!!                                                                           !!
-!!Kristopher Klein                                                           !!
-!!kris.klein@gmail.com                                                       !!
-!!Lunar and Planetary Laboratory, University of Arizona
-!!                                                                           !!
-!!*README                                                                   *!!
-!=============================================================================!
-!=============================================================================!
+# PLUME (Plasma in a Linear Uniform Magnetized Environment)
+Kristopher Klein
+kris.klein@gmail.com
+Lunar and Planetary Laboratory, University of Arizona
 
+PLUME calculates the hot plasma dispersion relation for a plasma with an arbitrary number of ion and electron species with relative drifts and bi-Maxwellian velocity distributions. The calculation follows Waves in Plasma by Stix, Chapter 10 equatios 66-73.
 
-! PLUME calculates the hot plasma dispersion relation for a plasma with 
-!       an arbitrary number of ion and electron species with relative drifts
-!       and bi-Maxwellian velocity distributions.
-!       The calculation follows Stix Chapter 10 eqn 66-73.
+This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
 
-! NOTE: This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma 
-!       Dispersion Relation originally by Eliot Quataert, extending the
-!	solver from a proton-electron plasma with Maxwellian velocity distributions
-! 	to the generalized case of n components with biMaxwellian 
-!	velocity distributions and arbitrary parallel drift velocities.
+# JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
+Collin Brown
+collin.crbrown@gmail.com
+University of Iowa
+
+JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique. 
+
+## Other Contributing Authors
+Greg Howes
+Eliot Quataert
+Jason TenBarge
+
+## PLUME/JET-PLUME Setup
+To compile and run, first open a terminal, navigate to the desired folder and clone this repo:
+```
+git clone https://github.com/kgklein/PLUME/tree/linfpc
+```
+Open the newly downloaded folder:
+```
+cd PLUME
+```
+Clean any old builds:
+```
+make clean
+```
+Compile:
+```
+Make
+```
+
+From here, there two ways to use PLUME or JET-PLUME. The first way is with the command line:
+
+### Command Line
+
+Make output folder (folder name is found in input file)
+```
+mkdir data/*datafoldername*
+```
+Run:
+```
+./plume.e *path*/*to*/inputputflnm.in
+```
+This will output data into the 'data/*datafoldername*' directory as text.
+
+### Jupyter Notebook Wrapper
+
+The second way is to use the jupyter notebook
+
+```
+jupyter notebook
+```
+
+Then run 'examplelinfpc.ipynb'. The jupyter notebook wrapper will assist in making inputs, output folders, loading output, and plotting output. It is recommended for most use cases of PLUME or JET-PLUME.
+
+## PLUME/JET-PLUME Normalization
 
 ! The Dispersion relation for omega/Omega_ref 
 !     is dependent on four global parameters:
@@ -73,12 +113,12 @@
 !The (4 + nspec * 6 ) parameters can be varied, with particular solutions 
 !being followed for the variations. 
 
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-INPUT PARAMETERS specified in *.in file
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Organized by namelist:
-======
-======
+
+## PLUME/JET-PLUME Input parameters
+Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist.
+
+Params:
+```
 &params
 betap=1.00
 kperp=1.E-3
@@ -93,16 +133,17 @@ writeOut=.true.
 dataName='test'
 outputName='b1a1'
 /
+```
 
 GLOBAL PLASMA PARAMETERS
 betap, kperp, kpar, vtp
 %used for calculation of dispersion relation
 
-# OF PLASMA SPECIES
+NUMBER OF PLASMA SPECIES
 nspec
 %determines how many %species_n namelists to read in
 
-# OF PARAMETER SCANS
+NUMBER OF PARAMETER SCANS
 nscan
 %determines how many %scan_n namelists to read in
 
@@ -111,7 +152,7 @@ option
 %option determines the type of calculation(s) to be performed
 %with cases outlined in README.cases
 
-# OF DISPERSION ROOTS TO FOLLOW
+NUMBER OF DISPERSION ROOTS TO FOLLOW
 nroot_max
 
 USE MAPPING SUBROUTINE
