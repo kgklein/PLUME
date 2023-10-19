@@ -259,12 +259,12 @@ class plume_input:
                         break
                     if(parse[0] in paramkeys):
                         if(parse[0] in ['nspec','nscan','option','nroot_max']):
-                            tempparamdict[parse[0]] = int(parse[1].replace('\n',''))
+                            tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
                         else:
                             try:
-                                tempparamdict[parse[0]] = float(parse[1].replace('\n',''))
+                                tempparamdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                             except:
-                                tempparamdict[parse[0]] = parse[1].replace('\n','')
+                                tempparamdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 self.params = tempparamdict
 
@@ -277,9 +277,9 @@ class plume_input:
                         break
                     if(parse[0] in fpckeys):
                         try:
-                            tempfpcdict[parse[0]] = float(parse[1].replace('\n',''))
+                            tempfpcdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                         except:
-                            tempfpcdict[parse[0]] = parse[1].replace('\n','')
+                            tempfpcdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 self.fpc = tempfpcdict
 
@@ -292,9 +292,9 @@ class plume_input:
                         break
                     if(parse[0] in mapskeys):
                         try:
-                            tempmapdict[parse[0]] = float(parse[1].replace('\n',''))
+                            tempmapdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                         except:
-                            tempmapdict[parse[0]] = parse[1].replace('\n','')
+                            tempmapdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 self.maps = tempmapdict
 
@@ -308,9 +308,9 @@ class plume_input:
                         break
                     if(parse[0] in specieskeys):
                         try:
-                            tempspecdict[parse[0]] = float(parse[1].replace('\n',''))
+                            tempspecdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                         except:
-                            tempspecdict[parse[0]] = parse[1].replace('\n','')
+                            tempspecdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 if(len(self.species[0]) == 0):
                     self.species = [tempspecdict]
@@ -326,12 +326,12 @@ class plume_input:
                         break
                     if(parse[0] in scaninputkeys):
                         if(parse[0] in ['scan_type','scan_style','ns','nres']):
-                            tempscandict[parse[0]] = int(parse[1].replace('\n',''))
+                            tempscandict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
                         else:
                             try:
-                                tempscandict[parse[0]] = float(parse[1].replace('\n',''))
+                                tempscandict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                             except:
-                                tempscandict[parse[0]] = parse[1].replace('\n','')
+                                tempscandict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 if(len(self.scan_inputs[0]) == 0):
                     self.scan_inputs = [tempscandict]
@@ -347,9 +347,9 @@ class plume_input:
                         break
                     if(parse[0] in guesskeys):
                         try:
-                            tempguessdict[parse[0]] = float(parse[1].replace('\n',''))
+                            tempguessdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                         except:
-                            tempguessdict[parse[0]] = parse[1].replace('\n','')
+                            tempguessdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
                     _i += 1
                 if(len(self.guesses[0]) == 0):
                     self.guesses = [tempguessdict]
