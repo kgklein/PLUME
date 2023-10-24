@@ -285,8 +285,11 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+2,file=trim(filename),status='replace')
 
-        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.real.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+3,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.imag.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+4,file=trim(filename),status='replace')
         
         write(*,*)'Calculating fpc for species ',is
         write(*,*)'Writing omega/kpar V_a normalization to file...'
@@ -315,6 +318,12 @@ module fpc
         write(unit_s+3, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
         write(unit_s+3, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
         write(unit_s+3, *) '-------------'
+        write(unit_s+4,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+4,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+             real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+4, '(7a22)')'vxmin','vxmax','vymin','vymax','vzmin','vzmax','delv'
+        write(unit_s+4, '(7es22.7)')vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv
+        write(unit_s+4, *) '-------------'
 
         !setup loop variables
         ivxmin=int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write(*,*)'WARNING: vxmin not integer multiple of delv'
@@ -351,7 +360,8 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            write(unit_s+3,'(2es17.5)',advance='no')fs1
+            write(unit_s+3,'(2es17.5)',advance='no')real(fs1)
+            write(unit_s+4,'(2es17.5)',advance='no')aimag(fs1)
             vyi = vyi+delv
           end do
           vyi = vymin
@@ -360,6 +370,7 @@ module fpc
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         end do
         vxi = vxmin
         vyi = vymin
@@ -368,6 +379,7 @@ module fpc
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
+        write(unit_s+4,*)'---'
 
         !CEi(vx,vz)----------------------------------------------------------------------------
         vxi = vxmin
@@ -391,7 +403,8 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            write(unit_s+3,'(2es17.5)',advance='no')fs1
+            write(unit_s+3,'(2es17.5)',advance='no')real(fs1)
+            write(unit_s+4,'(2es17.5)',advance='no')aimag(fs1)   
             vzi = vzi+delv
           end do
           vzi = vzmin
@@ -400,6 +413,7 @@ module fpc
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         end do    
         vxi = vxmin
         vyi = vymin
@@ -408,6 +422,7 @@ module fpc
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
+        write(unit_s+4,*)'---'
 
         !CEi(vy,vz)----------------------------------------------------------------------------
         vxi = vxmin
@@ -431,7 +446,8 @@ module fpc
             write(unit_s,'(es17.5)',advance='no')Cor_par_s
             write(unit_s+1,'(es17.5)',advance='no')Cor_perp1_s
             write(unit_s+2,'(es17.5)',advance='no')Cor_perp2_s
-            write(unit_s+3,'(2es17.5)',advance='no')fs1
+            write(unit_s+3,'(2es17.5)',advance='no')real(fs1)
+            write(unit_s+4,'(2es17.5)',advance='no')aimag(fs1)  
             vzi = vzi+delv
           end do
           vzi = vzmin
@@ -440,6 +456,7 @@ module fpc
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         end do
         vxi = vxmin
         vyi = vymin
@@ -448,25 +465,26 @@ module fpc
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
-
+        write(unit_s+4,*)'---'
      end do
      close(unit_s)
      close(unit_s+1)
      close(unit_s+2)
      close(unit_s+3)
+     close(unit_s+4)
 
      !Write Complex Eigenfunction-------------------------------------------
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
-      open(unit=unit_s+4,file=trim(filename),status='replace')
+      open(unit=unit_s+5,file=trim(filename),status='replace')
 
       !Write format (consistent with usual PLUME output)
       write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
-      write(unit_s+4,fmt)&
+      write(unit_s+5,fmt)&
            kperp,kpar,betap,vtp,&
            omega,&            
            bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
            Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
-      close(unit_s+4)
+      close(unit_s+5)
       
     end subroutine compute_fpc_cart
 
@@ -474,6 +492,7 @@ module fpc
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
+    !TODO: add write/load fs1 to gyro
     subroutine compute_fpc_cart_new(wrootindex)
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv,nbesmax
@@ -642,7 +661,6 @@ module fpc
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1_new(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
-
                enddo
             enddo
          enddo
@@ -719,13 +737,16 @@ module fpc
             do ivy=ivymin,ivymax
                do ivz=ivzmin,ivzmax
                   ! CEx
-                  corex(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)*dfs1dvx(ivx,ivy,ivz,is)*ef(1)
+                  corex(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)* 0.5*(CONJG(dfs1dvx(ivx,ivy,ivz,is))*ef(1) &
+                                       +dfs1dvx(ivx,ivy,ivz,is)*CONJG(ef(1)) )
                   
                   ! CEy
-                  corey(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)*dfs1dvy(ivx,ivy,ivz,is)*ef(2)
+                  corey(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)* 0.5*(CONJG(dfs1dvy(ivx,ivy,ivz,is))*ef(2) &
+                                        +dfs1dvy(ivx,ivy,ivz,is)*CONJG(ef(2)) )
                   
                   ! CEz
-                  corez(ivx,ivy,ivz,is)=spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)*dfs1dvz(ivx,ivy,ivz,is)*ef(3)
+                  corez(ivx,ivy,ivz,is)=-spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)* 0.5*(CONJG(dfs1dvz(ivx,ivy,ivz,is))*ef(3) &
+                                        +dfs1dvz(ivx,ivy,ivz,is)*CONJG(ef(3)) )
                   
                enddo
             enddo
@@ -856,14 +877,17 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp2.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+2,file=trim(filename),status='replace')
 
-        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.real.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+3,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.dfs.imag.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+4,file=trim(filename),status='replace')
 
         write(*,*)'Calculating fpc for species ',is
         write(*,*)'Writing omega/kpar V_a normalization to file...'
 
         !Write header information to output all 4 files
-        do jj=0,3
+        do jj=0,5
            write(unit_s+jj,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
            write(unit_s+jj,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
                 real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
@@ -890,21 +914,28 @@ module fpc
               else
                 write(unit_s+2,'(es17.5)',advance='no') corey_xy(ivx,ivy,is)
               endif
-              if(ABS(fs1_xy(ivx,ivy,is)) .lt. 9.999E-99) then
+              if(ABS(real(fs1_xy(ivx,ivy,is))) .lt. 9.999E-99) then
                 write(unit_s+3,'(2es17.5)',advance='no') 0. 
               else
-                write(unit_s+3,'(2es17.5)',advance='no') fs1_xy(ivx,ivy,is)
+                write(unit_s+3,'(2es17.5)',advance='no') real(fs1_xy(ivx,ivy,is))
+              endif
+              if(ABS(aimag(fs1_xy(ivx,ivy,is))) .lt. 9.999E-99) then
+                write(unit_s+4,'(2es17.5)',advance='no') 0. 
+              else
+                write(unit_s+4,'(2es17.5)',advance='no') aimag(fs1_xy(ivx,ivy,is))
               endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         enddo
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
+        write(unit_s+4,*)'---'
         
         !CEi(vx,vz)--------------------------------------------------------------
          do ivx=ivxmin,ivxmax
@@ -924,21 +955,28 @@ module fpc
               else
                 write(unit_s+2,'(es17.5)',advance='no') corey_xz(ivx,ivz,is)
               endif
-              if(ABS(fs1_xz(ivx,ivz,is)) .lt. 9.999E-99) then
+              if(ABS(real(fs1_xz(ivx,ivz,is))) .lt. 9.999E-99) then
                 write(unit_s+3,'(2es17.5)',advance='no') 0.
               else
-                write(unit_s+3,'(2es17.5)',advance='no') fs1_xz(ivx,ivz,is)
+                write(unit_s+3,'(2es17.5)',advance='no') real(fs1_xz(ivx,ivz,is))
+              endif
+              if(ABS(aimag(fs1_xz(ivx,ivz,is))) .lt. 9.999E-99) then
+                write(unit_s+4,'(2es17.5)',advance='no') 0.
+              else
+                write(unit_s+4,'(2es17.5)',advance='no') aimag(fs1_xz(ivx,ivz,is))
               endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         enddo
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
+        write(unit_s+4,*)'---'
 
         !CEi(vy,vz)-------------------------------------------------------------
         do ivz=ivzmin,ivzmax
@@ -958,41 +996,48 @@ module fpc
               else
                 write(unit_s+2,'(es17.5)',advance='no') corey_zy(ivz,ivy,is)
               endif
-              if(ABS(fs1_zy(ivz,ivy,is)) .lt. 9.999E-99) then
+              if(ABS(real(fs1_zy(ivz,ivy,is))) .lt. 9.999E-99) then
                 write(unit_s+3,'(2es17.5)',advance='no') 0.
               else
-                write(unit_s+3,'(2es17.5)',advance='no') fs1_zy(ivz,ivy,is)
+                write(unit_s+3,'(2es17.5)',advance='no') real(fs1_zy(ivz,ivy,is))
+              endif
+              if(ABS(aimag(fs1_zy(ivz,ivy,is))) .lt. 9.999E-99) then
+                write(unit_s+4,'(2es17.5)',advance='no') 0.
+              else
+                write(unit_s+4,'(2es17.5)',advance='no') aimag(fs1_zy(ivz,ivy,is))
               endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
           write(unit_s+2,*)
           write(unit_s+3,*)
+          write(unit_s+4,*)
         enddo
         write(unit_s,*)'---'
         write(unit_s+1,*)'---'
         write(unit_s+2,*)'---'
         write(unit_s+3,*)'---'
+        write(unit_s+4,*)'---'
       end do
 
       close(unit_s)
       close(unit_s+1)
       close(unit_s+2)
       close(unit_s+3)
+      close(unit_s+4)
 
       !Write Complex Eigenfunction-------------------------------------------
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
-      open(unit=unit_s+4,file=trim(filename),status='replace')
+      open(unit=unit_s+5,file=trim(filename),status='replace')
 
       !Write format (consistent with usual PLUME output)
       write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
-      write(unit_s+4,fmt)&
+      write(unit_s+5,fmt)&
            kperp,kpar,betap,vtp,&
            omega,&            
            bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
            Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
-      close(unit_s+4)
-
+      close(unit_s+5)
 
       !Write Velocity Integrated Moments-------------------------------------------
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
@@ -1364,14 +1409,17 @@ module fpc
                do ivphi=ivphimin,ivphimax
                   ! CEpar
                   corepar(ivperp,ivpar,ivphi,is)=&
-                  spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* dfs1dvpar(ivperp,ivpar,ivphi,is)*ef(3)
-
+                  -spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)* 0.5*(CONJG(dfs1dvpar(ivperp,ivpar,ivphi,is))*ef(3) &
+                  +dfs1dvpar(ivperp,ivpar,ivphi,is)*CONJG(ef(3)))
+                  
                   ! CEperp
                   vvperp1temp = vvperp(ivperp)*COS(vvphi(ivphi))
                   vvperp2temp = vvperp(ivperp)*SIN(vvphi(ivphi))
                   coreperp(ivperp,ivpar,ivphi,is)=&
-                  (spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*dfs1dvperp1(ivperp,ivpar,ivphi,is)*ef(1)) &
-                  +(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*dfs1dvperp2(ivperp,ivpar,ivphi,is)*ef(2)) 
+                  (-spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*(0.5*(CONJG(dfs1dvperp1(ivperp,ivpar,ivphi,is))*ef(1) &
+                  +dfs1dvperp1(ivperp,ivpar,ivphi,is)*CONJG(ef(1))))) &
+                  -(spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*(0.5*(CONJG(dfs1dvperp2(ivperp,ivpar,ivphi,is))*ef(2) &
+                  +dfs1dvperp2(ivperp,ivpar,ivphi,is)*CONJG(ef(2)))))
                enddo
             enddo
          enddo
@@ -1540,12 +1588,19 @@ module fpc
       complex :: Ubar_s
 
       complex :: ef1,ef2,ef3
+      complex :: omega_temp
+      real :: phi_temp
+
+      phi_temp = phi
       ef1 = ef(1) !Used to 'turn off' contributes due to ef1/2/3
       ef2 = ef(2)
       ef3 = ef(3)
-      ! ef1 = 0
-      ! ef2 = 0
-      ! ef3 = 0
+      !ef1 = 0
+      !ef2 = 0
+      !ef3 = 0
+
+      omega_temp = real(omega)+ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
+
 
       !Compute Bessel functions (if necessary)
       ! NOTE: If bs is same as last time, no need to recompute Bessels
@@ -1561,12 +1616,19 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega*((aleph_s-1)*vpar-aleph_s*hatV_s))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
+
+      write(*,*)'denoms (vpar,mu_s)', vpar, mu_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))&
+      -mu_s/q_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)),omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))+mu_s/q_s
+
+      write(*,*)jbess(-1)*Ubar_s/b_s*ef1,jbess(0)*Ubar_s/b_s*ef1,jbess(1)*Ubar_s/b_s*ef1
+      write(*,*)ii*0.5*(jbess(-1-1)-jbess(-1+1))*Ubar_s*ef2,&
+      ii*0.5*bess0_s_prime(b_s)*Ubar_s*ef2,ii*0.5*(jbess(1-1)-jbess(1+1))*Ubar_s*ef2
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
-       denom=omega-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))   -n*mu_s/q_s
-       Wbar_s=2.*(n*mu_s/(q_s*omega)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega*aleph_s))*vpar
+       denom=omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s
+       Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/b_s*ef1
           if(n .ne. 0) then
@@ -1585,7 +1647,7 @@ module fpc
        end if
        
        do m = -nbesmax,nbesmax
-          fs1=fs1+jbess(m)*exp(ii*(m-n)*phi)*emult/denom
+          fs1=fs1+jbess(m)*exp(ii*(m-n)*phi_temp)*emult/denom
        enddo
       enddo
       fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
@@ -1925,7 +1987,8 @@ module fpc
         call calc_fs1(omega,vperp,vpar,phi,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
 
         dfs1z = (fs1_1-fs1_0)/(2.*delv)
-        Cor_s = vperp*(q_s*(vpar**2./2.)*dfs1z*ef(3))*2.0*piconst/num_phi+Cor_s
+        Cor_s = vperp*0.5*(-1.*q_s*(vpar**2./2.)*dfs1z*CONJG(ef(3))&
+          -1.*q_s*(vpar**2./2.)*CONJG(dfs1z)*ef(3))*2.0*piconst/num_phi+Cor_s
 
         n_phi = n_phi+1
         phi = phi + delphi
@@ -2000,7 +2063,8 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv)
         vxtemp = vperp*COS(phi)
-        Cor_ex_s = (q_s*(vxtemp**2./2.)*dfs1perp*ef(1))
+        Cor_ex_s = 0.5*(-1.*q_s*(vxtemp**2./2.)*dfs1perp*CONJG(ef(1))&
+          -1.*q_s*(vxtemp**2./2.)*CONJG(dfs1perp)*ef(1))
 
         !simple finite central difference method for derivative
         vxtemp = vperp*COS(phi) 
@@ -2021,7 +2085,8 @@ module fpc
         call calc_fs1(omega,vperptemp,vpartemp,phitemp,ef,bf,V_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1_0)
         dfs1perp = (fs1_1-fs1_0)/(2.*delv) !TODO: use different variable name for dfs1perp here for clarity
         vytemp = vperp*SIN(phi)
-        Cor_ey_s = (q_s*(vytemp**2./2.)*dfs1perp*ef(2))
+        Cor_ey_s = 0.5*(-1.*q_s*(vytemp**2./2.)*dfs1perp*CONJG(ef(2))&
+          -1.*q_s*(vytemp**2./2.)*CONJG(dfs1perp)*ef(2))
 
         Cor_perp_s = vperp*(Cor_ex_s+Cor_ey_s)*2.0*piconst/num_phi + Cor_perp_s
 

@@ -252,5 +252,58 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scaleveloc
     else:
         plt.show()
 
+def plot_fs1_re_im_cart(foldername,flnm='',specnum='01', scalevelocity=1):
+    from linfpclib.linfpc import loadlinfpccart_dist
+
+    print("Loading files...")
+    print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
+
+    #TODO: this assumes that outputname was fpc when writing output. TODO: generalize this
+    flnmreadimag = foldername + 'fpc.dfs.imag.specie'+specnum+'.mode01'
+    flnmreadreal = foldername + 'fpc.dfs.real.specie'+specnum+'.mode01'
+    print('Reading: ',flnmreadimag,flnmreadreal)
+    distfunccart = loadlinfpccart_dist(flnmreadreal,flnmreadimag)
+
+    fig, axs = plt.subplots(2,3,figsize=(3*5,2*5),sharex=True)
+
+    _hspace = .2
+    _wspace = .2
+    fig.subplots_adjust(hspace=_hspace,wspace=_wspace)
+
+    dirkeys = ['vxvy','vxvz','vyvz']
+    cartcdatas = [distfunccart,distfunccart]
+    ckeyprefixes = ['re_f','im_f']
+    titlesprefixes = [r'Real{$f',r'Imag{$f']
+    titlesuffixes = [r'(v_{\perp,1},v_{\perp,2})$}',r'(v_{\perp,1},v_{||})$}',r'(v_{\perp,2},v_{||})$}']
+    xaxlabels = [r'$v_{\perp,1}$',r'$v_{\perp,1}$',r'$v_{\perp,2}$']
+    yaxlabels = [r'$v_{\perp,2}$',r'$v_{||}$',r'$v_{||}$']
+    _i = 0
+    _j = 0
+    for dirkey in dirkeys:
+        for cartcdata in cartcdatas:
+            ckey = ckeyprefixes[_j]+dirkey
+            absmax = np.max(np.abs(cartcdata[ckey]))
+            _plot1 = cartcdata['v'+dirkey[1]+'_'+dirkey[1]+dirkey[3]]
+            _plot2 = cartcdata['v'+dirkey[3]+'_'+dirkey[1]+dirkey[3]]
+            _tempim = axs[_j,_i].pcolormesh(np.asarray(_plot1)*scalevelocity,np.asarray(_plot2)*scalevelocity,np.asarray(cartcdata[ckey])[:,:],vmax=absmax,vmin=-absmax,cmap="PuOr")
+            axs[_j,_i].grid()
+            axs[_j,_i].set_title(titlesprefixes[_j]+titlesuffixes[_i])
+            axs[_j,_i].set_xlabel(xaxlabels[_i])
+            axs[_j,_i].set_ylabel(yaxlabels[_i])
+
+            axs[_j,_i].axis('equal')
+
+            fig.colorbar(_tempim, ax=axs[_j,_i])
+            
+            _j = _j + 1
+        _j = 0
+        _i = _i + 1
+
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+        plt.close()
+    else:
+        plt.show()
+
 
 #

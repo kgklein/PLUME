@@ -763,6 +763,33 @@ def loadlinfpccepar(filename):
 
     return linfpcdata
 
+def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
+    #Warning: does not check if the input parameters are the same for both files
+
+    realpartdict = loadlinfpccart(filenamereal)
+    imagpartdict = loadlinfpccart(filenameimag)
+
+    outdict = {}
+
+    for key in imagpartdict.keys():
+        outdict[key] = imagpartdict[key]
+
+    outdict['im_fvxvy'] = outdict['CEparvxvy'] 
+    outdict['im_fvxvz'] = outdict['CEparvxvz'] 
+    outdict['im_fvyvz'] = outdict['CEparvyvz']
+
+    for key in realpartdict.keys():
+        outdict[key] = realpartdict[key]
+    outdict['re_fvxvy'] = outdict['CEparvxvy'] 
+    outdict['re_fvxvz'] = outdict['CEparvxvz'] 
+    outdict['re_fvyvz'] = outdict['CEparvyvz']
+
+    del outdict['CEparvxvy']
+    del outdict['CEparvxvz']
+    del outdict['CEparvyvz']
+
+    return outdict
+
 #TODO: make one load function
 def loadlinfpccart(filename,idxoffset=0):
     #idxoffset is used to handle off by 1 division errors when computing the number of points on the grid
@@ -1240,7 +1267,7 @@ def loadeigen(flnm):
     eigendict['ni'] = complex(float(line[30]),float(line[31]))
     eigendict['ne'] = complex(float(line[32]),float(line[33]))
     eigendict['Pi'] = complex(float(line[34]),float(line[35]))
-    eigendict['Pe'] = complex(float(line[36]),float(line[37]))
+    eigendict['Pe'] = complex(0,0)#complex(float(line[36]),float(line[37]))
 
     #TODO: load Ps_split_new
 
