@@ -3,7 +3,7 @@ Kristopher Klein
 kris.klein@gmail.com
 Lunar and Planetary Laboratory, University of Arizona
 
-PLUME calculates the hot plasma dispersion relation for a plasma with an arbitrary number of ion and electron species with relative drifts and bi-Maxwellian velocity distributions. The calculation follows Waves in Plasma by Stix, Chapter 10 equatios 66-73.
+PLUME calculates the hot plasma dispersion relation for a plasma with an arbitrary number of ion and electron species with relative drifts and bi-Maxwellian velocity distributions. The calculation follows Waves in Plasma by Stix, Chapter 10 equations 66-73.
 
 This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
 
@@ -16,10 +16,14 @@ JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer i
 
 ## Other Contributing Authors
 Greg Howes
+
 Eliot Quataert
+
 Jason TenBarge
 
 ## PLUME/JET-PLUME Setup
+GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
+
 To compile and run, first open a terminal, navigate to the desired folder and clone this repo:
 ```
 git clone https://github.com/kgklein/PLUME/tree/linfpc
@@ -53,13 +57,13 @@ This will output data into the 'data/*datafoldername*' directory as text.
 
 ### Jupyter Notebook Wrapper
 
-The second way is to use the jupyter notebook
+The second way is to use the jupyter notebook (to install, see [here](https://jupyter.org/install))
 
 ```
 jupyter notebook
 ```
 
-Then run 'examplelinfpc.ipynb'. The jupyter notebook wrapper will assist in making inputs, output folders, loading output, and plotting output. It is recommended for most use cases of PLUME or JET-PLUME.
+Then run 'examplelinfpc.ipynb'. The jupyter notebook wrapper will assist in making inputs, output folders, loading output, and plotting output. It is recommended for most use cases of PLUME or JET-PLUME. The notebook will provide examples of all key functionalities of the wrapper.
 
 ## PLUME/JET-PLUME Normalization
 
@@ -82,39 +86,31 @@ and six species dependent parameters:
 ```
 The values for these parameters are extracted from *.in file, appended after the executable program call.
 
-Time is normalized to the reference cyclotron velocity,
-```
-Omega_ref = q_ref B/m_ref c
-```
-
-space is normalized to the reference gyroradius,
-```
-rho_ref = w_perp,ref/Omega_ref
-```
-
-and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species,
-```
-v_A,ref = B/sqrt{4 pi n_ref m_ref}
-```
-
+Time is normalized to the reference cyclotron velocity, $\Omega_{ref} = q_{ref} B/m_{ref} c$, space is normalized to the reference gyroradius, $\rho_{ref} = w_{\perp,ref}/\Omega_{ref}$ and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species, $v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}$.
 
 ## PLUME Routines
 
 The main program (plume.f90) executes different subroutines from the disprels.f90 module depending on the input value of 'option'.
 
 PLUME has two main procedures:
-+Find roots of the dispersion relation within a given region of complex frequency space (omega_r,gamma)/Omega_ref
+
+1.) Find roots of the dispersion relation within a given region of complex frequency space (omega_r,gamma)/Omega_ref
 (Using the map_search routine with use_map=.true.)
 
-+Calculate the dispersion relation as a function of varying parameters
+2.) Calculate the dispersion relation as a function of varying parameters
 (Using the om_scan routine with the map_search or an input guess providing the initial values for the frequencies)
-
 
 The code will either find 'nroot_max' roots of the dispersion relation for the input parameters, or refine 'nroot_max' input guesses for such roots. The (4 + nspec * 6 ) parameters can be varied, with particular solutions being followed for the variations. 
 
 ## JET-PLUME Routines
 
-TODO!
+JET-PLUME is a key subroutine of PLUME that is called by specifying the correct input value of 'option'. JET-PLUME has two procedures:
+
+1.) compute the perturbed distribution function, $f_{s,1}(\mathbf{v},\mathbf{k},\omega)$ (real and imaginary parts), velocity-space energy transfer for all 3 components of $\mathbf{E}$ (i.e. $E_i$ $\in$  { $E_x$, $E_y$, $E_z$ }), $C_{E_i}(\mathbf{v})$, for specified $k_{||}$, and $k_{\perp}$ in 3D cartesian-space coordinates. If $\omega$ is specified, the quantites will be computed for each provided $\omega$. If $\omega$ is not specified, a PLUME subroutine will be called to attempt too compute up to the specified number of roots in the system, and the above quantities will be computed for each.
+
+(Note without loss of generality, we choose coordiates such that $k_{\perp,1} = k_{\perp}$, thus the $\perp,1$ direction is in the plane of the wave and magnetic field.)
+
+2.) Same as one, except in 2D 'gyro coordinates', i.e. $f_{s,1}(v_{||},v_{\perp},\mathbf{k},\omega)$, $C_{E_i}(\mathbf{v})(v_{||},v_{\perp},\mathbf{k},\omega)$, equal to integrating out the third coorindate, $\theta$, in cylindrical coordinates in velocity space.
 
 ## PLUME/JET-PLUME Input parameters
 Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist.
@@ -137,25 +133,32 @@ outputName='b1a1'
 /
 ```
 
-GLOBAL PLASMA PARAMETERS
->betap, kperp, kpar, vtp
-
+Global plasma parameters:
+```
+betap
+kperp
+kpar
+vtp
+```
 used for calculation of dispersion relation
 
-NUMBER OF PLASMA SPECIES
->nspec
-
+Number of plasma species:
+```
+nspec
+```
 determines how many %species_n namelists to read in
 
-NUMBER OF PARAMETER SCANS
->nscan
-
+Number of parameter scans:
+```
+nscan
+```
 determines how many %scan_n namelists to read in
 
 CASE SELECTION
-> option
-
-determines the type of calculation(s) to be performed with cases outlined in README.cases (TODO: move to below)
+```
+option
+```
+determines the type of calculation(s) to be performed with cases outlined in cases section (see below).
 
 NUMBER OF DISPERSION ROOTS TO FOLLOW
 > nroot_max
@@ -279,8 +282,96 @@ _nres_ is the number of steps between output steps
 
 heating, eigen determine if heating eigenfunctions/eigenvalues are calculated and output eigenfunctions and wavepower
 
+TODO: add JET-PLUME input parameter section
 
-OUTPUT FORMAT (TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT)
+## PLUME/JET-PLUME OPTIONS
+The following values correspond to the value that should be passed to the 'option' input parameter to specify which routine is ran
+
+### PLUME routines
+0: Calculate Roots for input plasma parameters.
+
+1: {Calculate Roots for input plasma parameters
+    OR
+   Read in guesses for frequency values, and refine}
+   Scan over 'nscan' parameters, with range and type specified in *.in file
+   Outputing 'nscan'x'nroot_max' files, each calculating the dispersion relation
+   for mode n along for the variation of a given parameter
+
+2: {Calculate Roots for input plasma parameters
+    OR
+   Read in guesses for frequency values, and refine}
+   Scan over two parameters, with range and type specified in *.in file
+   Produces maps of dispersion relations in (parameter 1, parameter 2) space
+   of nroot_max modes
+
+   !MAKE SURE TO SET NSCAN=2 FOR THIS OPTION
+
+3:   !Replicating 
+     !SAGA scan
+     !from Gullveig (the precursor of this code)
+     !A hardwired scan of 
+     !  (k, theta) 
+     !at a particular value of
+     !  (betap, alph_p)
+
+     !start at 
+     !(beta,alph_p,kperp, kpar)=
+     !(1.0, 1.0,   1.E-3,1.E-3)    
+
+     !scan_1, scan_2 should be over theta, k_fixed, at desired resolution
+     !scan_3, scan_4, scan_5  (beta_p, alph_p, (k1,k2))
+     !-=-=-=-=-=
+     !scan_1: theta (desired resolution) range_i:theta_final
+              !Style: -1; Type: 1
+     !scan_2: k_fixed angle (desired resolution) range_f:
+              !Style: -1; Type: 2
+     !scan_3: beta_p (1.0 -> desired beta_p)
+              !Style:  0; Type: 2
+     !scan_4: alph_p (1.0 -> desired alph_p)
+              !Style:  1; Type: 2
+     !scan_5: alph_p (1.E-3,1.E-3) -> 
+              !(1.E-3 sin(theta_initial), 1.E-3 cos(theta_initial))
+              !(range_i,range_f)
+              !Style:  0; Type: 0     
+
+!Initial Roots
+&guess_1
+g_om=9.9973E-04   
+g_gam=-2.2572E-10 
+/
+
+&guess_2
+g_om=2.0304E-03   
+g_gam=-5.4273E-05
+/
+
+&guess_3
+g_om=0.0000E+00   
+g_gam=-7.2110E-04
+/
+
+&guess_4
+g_om=1.1830E-03
+g_gam=-7.3333E-04
+/
+
+4: Calculate map of complex frequency space for a scan of plasma parameters.
+
+5: Find roots for parameters along a prescribed path.
+
+### JET-PLUME routines
+
+6: Compute FPC, fs1, in gyro coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
+
+7: Compute FPC, fs1, in cartesian coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
+
+## OUTPUT FORMAT 
+(TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT!!!)
+
+The power of each species by each mode can be computed using two different ways by changes the value of TODO in vars.f90 and recompiling the code.
+
+The format for TODO is shown below:
+
 The output format for parameter depends on the number of species in the plasma
 FOR EACH MODE:
 ```
@@ -330,7 +421,7 @@ omega,gamma,          !5-6
 (tau,mu,alph,q,D,vv)|species   !64-69,70-75,76-81,82-87,88-93
 ```
 
-The value of the dispersion relation is written to the file:
+The value of the dispersion relation is written to the files:
 ```
           'data/',trim(dataName),'/',&
           trim(param),'_',int(1000.*scan(is)%range_i),&
@@ -344,7 +435,7 @@ OR
 ```
 where 'param' is the name of the parameter being scanned. 
 
-Thus, the index of U_s onward will differ depending on the
+Note, the index of U_s onward will differ depending on the
 number of plasma species and if eigen and heating are turned on.
 
 
@@ -361,56 +452,61 @@ nroot_max namelist files read in (if map_true == F)
 
 ## Eigenfunction Calculation:
 
-**E**,**B**,**Us**,**ns**, and **Ps** are all calculated in the routine calc_eigen.
+The eigenfunctions $\mathbf{E}$,$\mathbf{B}$,$\mathbf{U_s}$,$\mathbf{n_s}$, and $\mathbf{P_s}$ are all calculated in the routine calc_eigen.
 
-_Ex_,_y_,_z_ are found using linear algebra in manipulation of the equation (TODO: latex below if possible)
+$E_x$, $E_y$, $E_z$ are found using linear algebra in manipulation of the equation. Note, it is common to write $E_x = E_{\perp,1}$, $E_y = E_{\perp,2}$, $E_z = E_{\perp,||}$ as done below.
 
+```math
+\lambda \cdot E = 0
 ```
-(wave vector tensor = lam) . E = 0
+where $\lambda$ is the wave vector tensor, defined as the matrix such that $\lambda \mathbf{E} \equiv \mathbf{n} \times {n} \times \mathbf{E} + \epsilon \cdot \mathbf{E} = 0$,  where $\mathbf{n} = \mathbf{k}c/\omega$ is the refractive index and the right expression is the wave vector equation, and $\epsilon = \mathbf{I} + \sum \chi_s$ is the dielectric tensor with species suseptibilities $\chi_s$, computed in Chapter 10 of Stix (1992).
+
+We take $E_x = (1 + 0i)$, which yields
+```math
+E_z/E_x = -(\lambda_{21} \lambda_{32} - \lambda_{31} \lambda_{22})/(\lambda_{23} \lambda_{32} - \lambda_{33} \lambda_{22})
 ```
-We take Ex = (1 + 0i), which yields
-```
-Ez/Ex = -(lam 21 lam 32 - lam 31 lam 22)/(lam 23 lam 32 - lam 33 lam 22)
-Ey/Ex = -(Ez/Ex lam 33 - lam 31)/lam 32
+```math
+E_y/E_x = -(Ez/Ex \lambda_{33} - \lambda_{31})/\lambda_{32}
 ```
 
-We can express _Bx_,_y_,_z_ using Faraday's law
-```
-nabla x E = -(1/c)partial B/ partial t
+We can express $B_x$,$B_y$,$B_z$ using Faraday's law,
+```math
+\nabla \times \mathbf{E} = -(1/c) \partial B/ \partial t
 ```
 
 Rearrangement and expressing in our dimensionless units yields
-```
-(1/Ex)(Bx    (1/(om vtp sqrt(alph_p) Ex)) (-kpar Ey
+```math
+(1/$E_x$)($B_x$)    (1/(om vtp sqrt(alph_p) Ex)) (-kpar Ey
        By  =                                kpar Ex - kperp Ez
        Bz)                                  kperp Ey)
 ```
+
 For the velocity fluctuations, we use the expression for the first order current fluctuations
-```
-j_s = -i omega Chi_s /(4 pi) . E = n_s q_s V_s
-```
-
-We choose a normalization by v_Ap, yielding
-```
-V_s/v_Ap = -i om (Qs/Ds)(vtp^2 sqrt(alph_p/beta_p)) Chi_s . E/Ex
+```math
+j_s = -i \omega \chi_s /(4 pi) . E = n_s q_s V_s
 ```
 
-Density is extracted from the linearized continuity equation
+We choose a normalization by v_Ap, yielding (TODO: we might need to update this equation)
+```math
+V_s/v_Ap = -i om (Q_s/D_s)(v_{tp}^2 sqrt(\alpeh_p/\beta_p)) \chi_s . \mathbf{E}/E_x
 ```
-partial n/partial t + nabla . (Us ns)
+
+Density is extracted from the linearized continuity equation (TODO: check below?)
+```math
+\partial n/\partial t + \nabla \cdot (U_s n_s)
 ```
+```math
+\omega (n_0 + n_s) - \mathbf{k} \cdot [(U_0+U_s)(n_0+n_s)] = 0
 ```
-omega (n0 + ns) - k . [(U0+Us)(n0+ns)] = 0
-```
-Taking the 1st order contribution
-```
-ns/n0 = (k . Us/v_Ap)/(om - kpar vv_s/sqrt(beta_p alph_p)) * (1/sqrt(beta_p alph_p))
+Taking the 1st order contribution (TODO: rewrite vv_s)
+```math
+n_s/n_0 = (\mathbf{k} \cdot U_s/v_Ap)/(\omega - k_{||} vv_s/sqrt(\beta_p \aleph_p)) * (1/\sqrt{\beta_p \aleph_p})
 ```
 
 The heating calculation for species s is described in _Stix 1992, pg 289_ and _Quatart 1998_
 
 The calculation of (PS) the energy per wave period injected into or extracted from species s per unit wave energy (W) is valid for om >> gam, and definately falls apart for om = 0 
-(which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below?)
+(which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below!! (include both forms!!)
 ```
 Ps = (E* . Chi_s^a |gam = 0 . E)/4W
 ```
@@ -418,5 +514,4 @@ Ps = (E* . Chi_s^a |gam = 0 . E)/4W
 ```
 Chi_s^a = (Chi_s - Chi_s*)/(2i)
 ```
--=--=-=-=-=- 
-We have now added in the gyrokinetic dispersion relation!
+(TODO: add commentary  to the above two equations)
