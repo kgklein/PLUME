@@ -1,25 +1,23 @@
 # PLUME (Plasma in a Linear Uniform Magnetized Environment)
-Kristopher Klein
-kris.klein@gmail.com
-Lunar and Planetary Laboratory, University of Arizona
+Kristopher Klein<br />
+kris.klein@gmail.com<br />
+Lunar and Planetary Laboratory, University of Arizona<br />
 
 PLUME calculates the hot plasma dispersion relation for a plasma with an arbitrary number of ion and electron species with relative drifts and bi-Maxwellian velocity distributions. The calculation follows Waves in Plasma by Stix, Chapter 10 equations 66-73.
 
 This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
 
 # JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
-Collin Brown
-collin.crbrown@gmail.com
-University of Iowa
+Collin Brown<br />
+collin.crbrown@gmail.com<br />
+University of Iowa<br />
 
 JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique. 
 
 ## Other Contributing Authors
-Greg Howes
-
-Eliot Quataert
-
-Jason TenBarge
+Greg Howes<br />
+Eliot Quataert<br />
+Jason TenBarge<br />
 
 ## PLUME/JET-PLUME Setup
 GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
@@ -86,7 +84,7 @@ and six species dependent parameters:
 ```
 The values for these parameters are extracted from *.in file, appended after the executable program call.
 
-Time is normalized to the reference cyclotron velocity, $\Omega_{ref} = q_{ref} B/m_{ref} c$, space is normalized to the reference gyroradius, $\rho_{ref} = w_{\perp,ref}/\Omega_{ref}$ and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species, $v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}$.
+Time is normalized to the reference cyclotron velocity, $\Omega_{r} = q_{r} B/m_{r} c$, space is normalized to the reference gyroradius, $\rho_{r} = w_{\perp,ref}/\Omega_{r}$ and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species, $v_{A,ref} = B/\sqrt{4 \pi n_{r} m_{r}}$.
 
 ## PLUME Routines
 
@@ -113,9 +111,10 @@ JET-PLUME is a key subroutine of PLUME that is called by specifying the correct 
 2.) Same as one, except in 2D 'gyro coordinates', i.e. $f_{s,1}(v_{||},v_{\perp},\mathbf{k},\omega)$, $C_{E_i}(\mathbf{v})(v_{||},v_{\perp},\mathbf{k},\omega)$, equal to integrating out the third coorindate, $\theta$, in cylindrical coordinates in velocity space.
 
 ## PLUME/JET-PLUME Input parameters
-Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist.
+Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist. First, we provide the format of the namelist, and then we break down each input.
 
-Params:
+### Global Parameters:
+Example global parameter namelist:
 ```
 &params
 betap=1.00
@@ -140,7 +139,7 @@ kperp
 kpar
 vtp
 ```
-used for calculation of dispersion relation
+used for calculation of dispersion relation. 'betap' is $\beta_{||}$, the total parallel plasma beta, 'kperp' is $k_{\perp}$, the total perpendicular wavenumber, 'kpar' is $k_{||}$, the parallel wavenumber, 'vtp' is $v_{th,r}/c$, the ratio of the reference species' (typically protons) thermal velocity to the speed of light.
 
 Number of plasma species:
 ```
@@ -154,35 +153,45 @@ nscan
 ```
 determines how many %scan_n namelists to read in
 
-CASE SELECTION
+Case selection
 ```
 option
 ```
 determines the type of calculation(s) to be performed with cases outlined in cases section (see below).
 
-NUMBER OF DISPERSION ROOTS TO FOLLOW
-> nroot_max
-
+Number of dispersion roots to follow
+```
+nroot_max
+```
 determines max number of roots to follow (i.e. follow gradient and attempt to find root at)
 
-USE MAPPING SUBROUTINE
-> use_map
+Use mapping subroutine
+```
+use_map
+```
+if use_map==.false., read in nroot_max guess_n namelists<br />
+if use_map==.true., map subroutine outputs nroot_max roots of the system code<br />
 
-if use_map==.false., read in nroot_max guess_n namelists
-if use_map==.true., map subroutine outputs nroot_max roots of the system code
-
-OUTPUT/SUPPRESS OUTPUT TO SCREEN
+Output or suppress output to screen
+```
 writeOut
+```
 
-LOCATION OF DATA OUTPUT
+Location of data output
+```
 dataName=
+```
 data is output into folder 'data/_dataName_/' 
 **Please make sure this folder exists before running PLUME or JET-PLUME**
 
+Data name
+```
 outputName=
-name of data that is put into above folder
+```
+name of data that is put into above folder<br />
 
-header for multiparameter map (i.e. option 2) (TODO: check what this means- is it possible to have single parameter map? Thought plasma had to be neutral?)
+###Species parameters
+Example namelist for species input (Note: 'species_1' is the reference species and is typically the proton species. There should be additional namelists for 'nspec' number of species with names of the form 'species_n'):
 ```
 &species_1
 tauS=1.0
@@ -193,24 +202,33 @@ Ds=1.0
 vvS=0.0
 /
 ```
-nspec of these namelists will be read in
 
-SPECIES DEPENDENT PLASMA PARAMETERS
->tauS,muS,alphaS,Qs,Ds,vvS
-used for calculation of dispersion relation
-NOTE: v drift_proton = 0.0 
-(Calculations are done in the proton rest frame)
+Species dependent plasma parameters
+```
+tauS
+muS
+alphS
+Qs
+Ds
+vvS
+```
+Theses are species parameters for calculation of dispersion relation. 'tauS' is the ratio of the reference parallel temperature to the species parallel temperature, $\tau_s = T_{||,r}/T_{||,s}$. 'muS' is the mass ratio of the reference species to the spcies mass, $\mu_s = m_r/m_s$. 'alphS' is the ratio of the perpendicular species temperature to the parallel species temperature, $\aleph_s = T_{\perp,s}/T_{||,s}$. 'Qs' is the ratio of the reference species charge to the species charge, $Q_s = q_r/q_s$. 'Ds' is the ratio of the species number density to the refence species number density, $D_s = n_s/n_r$. 'vvS' is the species drift velocity normalized to the reference Alfven speed, $\bar{V}_s = V_s/V_{a,r}$. 
+
+NOTE: v drift_reference should be 0.0 (Calculations are done in the proton rest frame)
 
 **Make sure to insure that the plasma is:**
-QUASINEUTRAL
->Sum_s [n_s q_s] = 0
-and 
-CURRENT-FREE
->Sum_s [n_s q_s V_s] = 0
+Quasineutral
+```math
+\sum_s n_s q_s = 0
+```
+and current free
+```math
+\sum_s n_s q_s V_s = 0
+```
+(NOTE: The code will only output warnings, but it will not halt calculation if either of these condition fail.)
 
-(Will output warnings, but will not halt calculation if either of these condition fail)
-
-Map scan inputs
+###Map scan inputs
+Example map scan inputs namelist (only used if use_map==T):
 ```
 &maps
 loggridw=.false.	
@@ -221,12 +239,23 @@ gami    =-1.E-3
 gamf    = 1.E-4
 /
 ```
-if use_map==T, determines bounds of map scan
-_omi_, _omf_ upper and lower bounds for real frequency
-_gami_, _gamf_ upper and lower bounds for imaginary frequency
-_loggridw_,_loggridg_ determines log (T) or linear (F) spacing for real (w) or imaginary (g) scan
+Log spacing
+```
+loggridw,loggridg
+```
+'loggridw', 'loggridg' determines log (T) or linear (F) spacing for real (w) or imaginary (g) scan
 
-Parameter scan inputs
+Grid bounds
+```
+omi,omf
+gami,gamf
+```
+These variable determine the bounds of the grid that the code will use as start points to try and find roots from. <br />
+'omi', 'omf' are the upper and lower bounds for real frequency <br />
+'gami', 'gamf' are upper and lower bounds for imaginary frequency <br />
+
+###Parameter scan inputs
+Example namelist for a parameter scan (typically, only one scan_input is used, but it is possible for nscan namelists to be read in, each of which determine the nature of the plasma parameters scans):
 ```
 &scan_input_1
 scan_type=0
@@ -240,49 +269,101 @@ heating=.true.
 eigen=.true.
 /
 ```
-Typically, only one scan_input is used, but it is possible for nscan namelists to be read in, each of which determine the nature of the plasma parameters scans
 
+Type and style of scan
+```
 scan_type, scan_style;
 ```
-Defines nature of parameter scans:
-Style: -1- Global two component Scan:
-     Type: 0 k_0-> k_1           
-           1 theta_0 -> theta_1
-           2 k_fixed angle
-Style: 0- Global Scan:
-     Type: 0 kperp
-           1 kpar
-           2 betap
-           3 vtp
-Style: 1-nspec-> Species Scan:
-    Type: 0 tau_s
-           1 mu_s
-           2 alph_s
-           3 Q_s
-           4 D_s
-           5 vv_s
+Defines nature of parameter scans. Can scan over either global or specific species parameter.<br />
+Style: -1- Global two component Scan:<br />
+     Type: 0 k_0-> k_1<br />
+           1 theta_0 -> theta_1<br />
+           2 k_fixed angle<br />
+Style: 0- Global Scan:<br />
+     Type: 0 kperp<br />
+           1 kpar<br />
+           2 betap<br />
+           3 vtp<br />
+Style: 1-nspec (1 for reference, 'n' for nth species) -> Species Parameter Scan:<br />
+    Type: 0 tau_s<br />
+           1 mu_s<br />
+           2 alph_s<br />
+           3 Q_s<br />
+           4 D_s<br />
+           5 vv_s<br />
+
+Parameter range
 ```
-
-PARAMETER RANGE
-_swi_, _swf_ are the initial, final values of parameter range
-(EXCEPTIONS
-style_s=-1 are scans with multiple components
-type_s=0: scan from current value of (kperp,kpar) to (kperp,kpar)=(swi,swf)
-type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees
-type_s=2: k scan from current value of (kperp,kpar) to (k=swf) with constant theta=atan(kperp/kpar))
-
+swi, swf 
+```
+'swi'/'swf' are the initial/final values of parameter range for selected paramter<br />
+EXCEPTIONS:<br />
+style_s=-1 are scans with multiple components<br />
+type_s=0: scan from current value of (kperp,kpar) to (kperp,kpar)=(swi,swf)<br />
+type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees<br />
+type_s=2: k scan from current value of (kperp,kpar) to (k=swf) with constant theta=atan(kperp/kpar)<br />
+<br />
 When making a map of two parameters (om_double_scan, called with option=2) do the theta scan before the k_fixed angle scan.
 
-_swlog_ is log (T) or linear (F) scan of variables
+Scan spacing
+```
+swlog
+```
+'swlog' is true for log spaced scan or false for linear spaced scan.
 
-_ns_ is the number of output steps along scan
+Scan number of steps
+```
+ns
+```
+'ns' is the number of output steps along scan.
 
-_nres_ is the number of steps between output steps
+Scan output steps
+```
+nres
+```
+'nres' is the number of steps between output steps.
 
+Scan outputs
+```
+heating, eigen
+```
+'heating'/'eigen' determine if heating eigenfunctions/eigenvalues are calculated/output.
 
-heating, eigen determine if heating eigenfunctions/eigenvalues are calculated and output eigenfunctions and wavepower
+### JET-PLUME/FPC inputs
+Example JET-PLUME/FPC namelist:
+```
+&fpc
+vperpmin=0.01
+vperpmax=3.0
+vparmin=-3.0
+vparmax=3.0
+delv=0.15
+vxmin=-3.0
+vxmax=3.0
+vymin=-3.0
+vymax=3.0
+vzmin=-3.0
+vzmax=3.0
+/
+```
 
-TODO: add JET-PLUME input parameter section
+Gyro velocity space grid bounds
+```
+vperpmin,vperpmax,vparmin,vparmax
+```
+These correspond to the minimum and maximum values of $v_{\perp}$ and $v_{||}$ computed when computing the FPC in gyro coordinates. These values are ignored when using the cartesian routine.
+
+Cartesian velocity space grid bounds
+```
+vxmin,vxmax,vymin,vymax,vzmin,vzmax
+```
+These correspond to the minimum and maximum values of $v_{x}$, $v_{y}$ and $v_{z}$ computed when computing the FPC in cartesian coordinates. These values are ignored when using the gyro routine.
+
+Velocity grid spacing 
+```
+delv
+```
+'delv' is the spacing in between grid points in both routines. Spacing is equal in all directions.
 
 ## PLUME/JET-PLUME OPTIONS
 The following values correspond to the value that should be passed to the 'option' input parameter to specify which routine is ran
@@ -476,7 +557,7 @@ We can express $B_x$,$B_y$,$B_z$ using Faraday's law,
 
 Rearrangement and expressing in our dimensionless units yields
 ```math
-(1/$E_x$)($B_x$)    (1/(om vtp sqrt(alph_p) Ex)) (-kpar Ey
+(1/E_x$)(B_x)    (1/(om vtp sqrt(alph_p) Ex)) (-kpar Ey
        By  =                                kpar Ex - kperp Ez
        Bz)                                  kperp Ey)
 ```
@@ -507,11 +588,11 @@ The heating calculation for species s is described in _Stix 1992, pg 289_ and _Q
 
 The calculation of (PS) the energy per wave period injected into or extracted from species s per unit wave energy (W) is valid for om >> gam, and definately falls apart for om = 0 
 (which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below!! (include both forms!!)
-```
-Ps = (E* . Chi_s^a |gam = 0 . E)/4W
+```math
+P_s = (E^* \cdot \chi_s^a |_{\gamma = 0} \cdot E)/4W
 ```
 
-```
-Chi_s^a = (Chi_s - Chi_s*)/(2i)
+```math
+\chi_s^a = (Chi_s - Chi_s^*)/(2i)
 ```
 (TODO: add commentary  to the above two equations)
