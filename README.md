@@ -19,7 +19,13 @@ Greg Howes<br />
 Eliot Quataert<br />
 Jason TenBarge<br />
 
-## PLUME/JET-PLUME Setup
+<br />
+<br />
+<br />
+<br />
+<br />
+
+# PLUME/JET-PLUME Setup
 GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
 
 To compile and run, first open a terminal, navigate to the desired folder and clone this repo:
@@ -41,7 +47,7 @@ Make
 
 From here, there are two ways to use PLUME or JET-PLUME. The first way is with the command line:
 
-### Command Line
+## Command Line
 
 Make output folder (folder name is found in input file)
 ```
@@ -53,7 +59,7 @@ Run:
 ```
 This will output data into the 'data/*datafoldername*' directory as text.
 
-### Jupyter Notebook Wrapper
+## Jupyter Notebook Wrapper
 
 The second way is to use the jupyter notebook (to install, see [here](https://jupyter.org/install))
 
@@ -63,7 +69,13 @@ jupyter notebook
 
 Then run 'examplelinfpc.ipynb'. The jupyter notebook wrapper will assist in making inputs, output folders, loading output, and plotting output. It is recommended for most use cases of PLUME or JET-PLUME. The notebook will provide examples of all key functionalities of the wrapper.
 
-## PLUME/JET-PLUME Normalization
+<br />
+<br />
+<br />
+<br />
+<br />
+
+# PLUME/JET-PLUME Normalization
 
 The Dispersion relation for omega/Omega_ref is dependent on four global parameters:
 ```
@@ -84,9 +96,15 @@ and six species dependent parameters:
 ```
 The values for these parameters are extracted from *.in file, appended after the executable program call.
 
-Time is normalized to the reference cyclotron velocity, $\Omega_{r} = q_{r} B/m_{r} c$, space is normalized to the reference gyroradius, $\rho_{r} = w_{\perp,ref}/\Omega_{r}$ and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species, $v_{A,ref} = B/\sqrt{4 \pi n_{r} m_{r}}$.
+Time is normalized to the reference cyclotron velocity, $\Omega_{r} = q_{r} B/m_{r} c$, space is normalized to the reference gyroradius, $\rho_{r} = w_{\perp,r}/\Omega_{r}$ and the relative drift speeds are normalized to the Alfven velocity calculated using the mass and density of the reference species, $v_{A,r} = B/\sqrt{4 \pi n_{r} m_{r}}$.
 
-## PLUME Routines
+<br />
+<br />
+<br />
+<br />
+<br />
+
+# PLUME Routines
 
 The main program (plume.f90) executes different subroutines from the disprels.f90 module depending on the input value of 'option'.
 
@@ -100,7 +118,7 @@ PLUME has two main procedures:
 
 The code will either find 'nroot_max' roots of the dispersion relation for the input parameters, or refine 'nroot_max' input guesses for such roots. The (4 + nspec * 6 ) parameters can be varied, with particular solutions being followed for the variations. 
 
-## JET-PLUME Routines
+# JET-PLUME Routines
 
 JET-PLUME is a key subroutine of PLUME that is called by specifying the correct input value of 'option'. JET-PLUME has two procedures:
 
@@ -110,10 +128,81 @@ JET-PLUME is a key subroutine of PLUME that is called by specifying the correct 
 
 2.) Same as one, except in 2D 'gyro coordinates', i.e. $f_{s,1}(v_{||},v_{\perp},\mathbf{k},\omega)$, $C_{E_i}(\mathbf{v})(v_{||},v_{\perp},\mathbf{k},\omega)$, equal to integrating out the third coorindate, $\theta$, in cylindrical coordinates in velocity space.
 
-## PLUME/JET-PLUME Input parameters
+# PLUME/JET-PLUME OPTIONS
+The following values correspond to the value that should be passed to the 'option' input parameter to specify which routine is ran.
+
+## PLUME routines
+0: Calculate Roots for input plasma parameters.
+
+1: {Calculate Roots for input plasma parameters<br />
+    OR<br />
+   Read in guesses for frequency values, and refine}<br />
+   Scan over 'nscan' parameters, with range and type specified in *.in file, Outputing 'nscan'x'nroot_max' files, each calculating the dispersion relation for mode n along for the variation of a given parameter
+
+2: {Calculate Roots for input plasma parameters<br />
+    OR<br />
+   Read in guesses for frequency values, and refine}<br />
+   Scan over two parameters, with range and type specified in *.in file. Produces maps of dispersion relations in (parameter 1, parameter 2) space of nroot_max modes. (**Make sure to set nscan = 2 for this option**.)
+
+3: Replicating SAGA scan from Gullveig (the precursor of this code). A hardwired scan of (k, theta) at a particular value of (betap, alph_p). This is used primarily for testing/ verification.
+
+```
+     !start at 
+     !(beta,alph_p,kperp, kpar)=
+     !(1.0, 1.0,   1.E-3,1.E-3)    
+
+     !scan_1, scan_2 should be over theta, k_fixed, at desired resolution
+     !scan_3, scan_4, scan_5  (beta_p, alph_p, (k1,k2))
+     !-=-=-=-=-=
+     !scan_1: theta (desired resolution) range_i:theta_final
+              !Style: -1; Type: 1
+     !scan_2: k_fixed angle (desired resolution) range_f:
+              !Style: -1; Type: 2
+     !scan_3: beta_p (1.0 -> desired beta_p)
+              !Style:  0; Type: 2
+     !scan_4: alph_p (1.0 -> desired alph_p)
+              !Style:  1; Type: 2
+     !scan_5: alph_p (1.E-3,1.E-3) -> 
+              !(1.E-3 sin(theta_initial), 1.E-3 cos(theta_initial))
+              !(range_i,range_f)
+              !Style:  0; Type: 0     
+
+!Initial Roots
+&guess_1
+g_om=9.9973E-04   
+g_gam=-2.2572E-10 
+/
+
+&guess_2
+g_om=2.0304E-03   
+g_gam=-5.4273E-05
+/
+
+&guess_3
+g_om=0.0000E+00   
+g_gam=-7.2110E-04
+/
+
+&guess_4
+g_om=1.1830E-03
+g_gam=-7.3333E-04
+/
+```
+
+4: Calculate map of complex frequency space for a scan of plasma parameters.
+
+5: Find roots for parameters along a prescribed path.
+
+## JET-PLUME routines
+
+6: Compute FPC, fs1, in gyro coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
+
+7: Compute FPC, fs1, in cartesian coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
+
+# PLUME/JET-PLUME Input parameters
 Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist. First, we provide the format of the namelist, and then we break down each input.
 
-### Global Parameters:
+## Global Parameters:
 Example global parameter namelist:
 ```
 &params
@@ -190,7 +279,7 @@ outputName=
 ```
 name of data that is put into above folder<br />
 
-###Species parameters
+## Species parameters
 Example namelist for species input (Note: 'species_1' is the reference species and is typically the proton species. There should be additional namelists for 'nspec' number of species with names of the form 'species_n'):
 ```
 &species_1
@@ -227,7 +316,7 @@ and current free
 ```
 (NOTE: The code will only output warnings, but it will not halt calculation if either of these condition fail.)
 
-###Map scan inputs
+## Map scan inputs
 Example map scan inputs namelist (only used if use_map==T):
 ```
 &maps
@@ -239,6 +328,7 @@ gami    =-1.E-3
 gamf    = 1.E-4
 /
 ```
+
 Log spacing
 ```
 loggridw,loggridg
@@ -254,7 +344,7 @@ These variable determine the bounds of the grid that the code will use as start 
 'omi', 'omf' are the upper and lower bounds for real frequency <br />
 'gami', 'gamf' are upper and lower bounds for imaginary frequency <br />
 
-###Parameter scan inputs
+## Parameter scan inputs
 Example namelist for a parameter scan (typically, only one scan_input is used, but it is possible for nscan namelists to be read in, each of which determine the nature of the plasma parameters scans):
 ```
 &scan_input_1
@@ -329,7 +419,23 @@ heating, eigen
 ```
 'heating'/'eigen' determine if heating eigenfunctions/eigenvalues are calculated/output.
 
-### JET-PLUME/FPC inputs
+## Guess inputs
+Examples guess input namelists (There should be additional namelists for 'nroot_max' number of guess with names of the form 'guess_n'):
+```
+&guess_1
+g_om=1.E-1
+g_gam=-1.E-1
+/
+```
+
+Guess values
+```
+g_om,g_gam
+```
+'g_om', 'g_gam' values for real and imaginary frequency guesses. Note that g_gam<0 corresponds to damped wave in the sign convention used by PLUME.<br />
+nroot_max namelist files read in (if map_true == F)<br />
+
+## JET-PLUME/FPC inputs
 Example JET-PLUME/FPC namelist:
 ```
 &fpc
@@ -365,88 +471,13 @@ delv
 ```
 'delv' is the spacing in between grid points in both routines. Spacing is equal in all directions.
 
-## PLUME/JET-PLUME OPTIONS
-The following values correspond to the value that should be passed to the 'option' input parameter to specify which routine is ran
+<br />
+<br />
+<br />
+<br />
+<br />
 
-### PLUME routines
-0: Calculate Roots for input plasma parameters.
-
-1: {Calculate Roots for input plasma parameters
-    OR
-   Read in guesses for frequency values, and refine}
-   Scan over 'nscan' parameters, with range and type specified in *.in file
-   Outputing 'nscan'x'nroot_max' files, each calculating the dispersion relation
-   for mode n along for the variation of a given parameter
-
-2: {Calculate Roots for input plasma parameters
-    OR
-   Read in guesses for frequency values, and refine}
-   Scan over two parameters, with range and type specified in *.in file
-   Produces maps of dispersion relations in (parameter 1, parameter 2) space
-   of nroot_max modes
-
-   !MAKE SURE TO SET NSCAN=2 FOR THIS OPTION
-
-3:   !Replicating 
-     !SAGA scan
-     !from Gullveig (the precursor of this code)
-     !A hardwired scan of 
-     !  (k, theta) 
-     !at a particular value of
-     !  (betap, alph_p)
-
-     !start at 
-     !(beta,alph_p,kperp, kpar)=
-     !(1.0, 1.0,   1.E-3,1.E-3)    
-
-     !scan_1, scan_2 should be over theta, k_fixed, at desired resolution
-     !scan_3, scan_4, scan_5  (beta_p, alph_p, (k1,k2))
-     !-=-=-=-=-=
-     !scan_1: theta (desired resolution) range_i:theta_final
-              !Style: -1; Type: 1
-     !scan_2: k_fixed angle (desired resolution) range_f:
-              !Style: -1; Type: 2
-     !scan_3: beta_p (1.0 -> desired beta_p)
-              !Style:  0; Type: 2
-     !scan_4: alph_p (1.0 -> desired alph_p)
-              !Style:  1; Type: 2
-     !scan_5: alph_p (1.E-3,1.E-3) -> 
-              !(1.E-3 sin(theta_initial), 1.E-3 cos(theta_initial))
-              !(range_i,range_f)
-              !Style:  0; Type: 0     
-
-!Initial Roots
-&guess_1
-g_om=9.9973E-04   
-g_gam=-2.2572E-10 
-/
-
-&guess_2
-g_om=2.0304E-03   
-g_gam=-5.4273E-05
-/
-
-&guess_3
-g_om=0.0000E+00   
-g_gam=-7.2110E-04
-/
-
-&guess_4
-g_om=1.1830E-03
-g_gam=-7.3333E-04
-/
-
-4: Calculate map of complex frequency space for a scan of plasma parameters.
-
-5: Find roots for parameters along a prescribed path.
-
-### JET-PLUME routines
-
-6: Compute FPC, fs1, in gyro coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
-
-7: Compute FPC, fs1, in cartesian coordinates ($C_{E_i} (v_{\perp},v_{par})$) for found roots if use_map is True and specified roots if False and roots are provided.
-
-## OUTPUT FORMAT 
+# OUTPUT FORMAT 
 (TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT!!!)
 
 The power of each species by each mode can be computed using two different ways by changes the value of TODO in vars.f90 and recompiling the code.
@@ -519,19 +550,13 @@ where 'param' is the name of the parameter being scanned.
 Note, the index of U_s onward will differ depending on the
 number of plasma species and if eigen and heating are turned on.
 
+<br />
+<br />
+<br />
+<br />
+<br />
 
-Guess input
-```
-&guess_1
-g_om=1.E-1
-g_gam=-1.E-1
-/
-```
-
-nroot_max namelist files read in (if map_true == F)
-(g_om, g_gam) values for real and imaginary frequency guesses
-
-## Eigenfunction Calculation:
+# Eigenfunction Calculation:
 
 The eigenfunctions $\mathbf{E}$,$\mathbf{B}$,$\mathbf{U_s}$,$\mathbf{n_s}$, and $\mathbf{P_s}$ are all calculated in the routine calc_eigen.
 
@@ -546,6 +571,7 @@ We take $E_x = (1 + 0i)$, which yields
 ```math
 E_z/E_x = -(\lambda_{21} \lambda_{32} - \lambda_{31} \lambda_{22})/(\lambda_{23} \lambda_{32} - \lambda_{33} \lambda_{22})
 ```
+and
 ```math
 E_y/E_x = -(Ez/Ex \lambda_{33} - \lambda_{31})/\lambda_{32}
 ```
@@ -555,11 +581,9 @@ We can express $B_x$,$B_y$,$B_z$ using Faraday's law,
 \nabla \times \mathbf{E} = -(1/c) \partial B/ \partial t
 ```
 
-Rearrangement and expressing in our dimensionless units yields
+Taking the eletric field fluctuations $\mathbf{E}$, we can next express the magnetic field fluctuations $\delta B$ using Faraday's Law, using our dimensionless scale
 ```math
-(1/E_x$)(B_x)    (1/(om vtp sqrt(alph_p) Ex)) (-kpar Ey
-       By  =                                kpar Ex - kperp Ez
-       Bz)                                  kperp Ey)
+\delta \mathbf{B} = \frac{\mathbf{k} \rho_r \times \delta \mathbf{E}}{\bar{\omega}\hat{w}_r \sqrt{\aleph_r}}
 ```
 
 For the velocity fluctuations, we use the expression for the first order current fluctuations
@@ -569,30 +593,38 @@ j_s = -i \omega \chi_s /(4 pi) . E = n_s q_s V_s
 
 We choose a normalization by v_Ap, yielding (TODO: we might need to update this equation)
 ```math
-V_s/v_Ap = -i om (Q_s/D_s)(v_{tp}^2 sqrt(\alpeh_p/\beta_p)) \chi_s . \mathbf{E}/E_x
+V_s/v_Ap = -i om (Q_s/D_s)(v_{tp}^2 sqrt(\aleph_p/\beta_p)) \chi_s . \mathbf{E}/E_x
 ```
 
 Density is extracted from the linearized continuity equation (TODO: check below?)
 ```math
-\partial n/\partial t + \nabla \cdot (U_s n_s)
+\partial n/\partial t + \nabla \cdot (\mathbf{U}_s n_s) = 0 
 ```
 ```math
-\omega (n_0 + n_s) - \mathbf{k} \cdot [(U_0+U_s)(n_0+n_s)] = 0
+\omega (n_0 + n_s) - \mathbf{k} \cdot [(\mathbf{U}_0+\mathbf{U}_s)(n_0+n_s)] = 0
 ```
 Taking the 1st order contribution (TODO: rewrite vv_s)
 ```math
-n_s/n_0 = (\mathbf{k} \cdot U_s/v_Ap)/(\omega - k_{||} vv_s/sqrt(\beta_p \aleph_p)) * (1/\sqrt{\beta_p \aleph_p})
+n_s/n_0 = (\mathbf{k} \cdot \mathbf{U}_s/v_Ap)/(\omega - k_{||} \mathbf{V}_s/sqrt(\beta_p \aleph_p)) * (1/\sqrt{\beta_p \aleph_p})
 ```
 
 The heating calculation for species s is described in _Stix 1992, pg 289_ and _Quatart 1998_
 
 The calculation of (PS) the energy per wave period injected into or extracted from species s per unit wave energy (W) is valid for om >> gam, and definately falls apart for om = 0 
-(which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below!! (include both forms!!)
+(which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below!! (include both forms!!))
 ```math
 P_s = (E^* \cdot \chi_s^a |_{\gamma = 0} \cdot E)/4W
 ```
-
+where
 ```math
-\chi_s^a = (Chi_s - Chi_s^*)/(2i)
+\chi_s^a = (\chi_s - \chi_s^*)/(2i)
 ```
-(TODO: add commentary  to the above two equations)
+
+<br />
+<br />
+<br />
+<br />
+<br />
+
+# License
+TODO!!!
