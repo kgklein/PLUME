@@ -110,13 +110,13 @@ The main program (plume.f90) executes different subroutines from the disprels.f9
 
 PLUME has two main procedures:
 
-1.) Find roots of the dispersion relation within a given region of complex frequency space (omega_r,gamma)/Omega_ref
+1.) Find roots of the dispersion relation within a given region of complex frequency space ($\omega_r$,$\gamma$)/$\Omega_{r}$, where $\Omega_{r} is the reference cyclotron frequency.
 (Using the map_search routine with use_map=.true.).
 
 2.) Calculate the dispersion relation as a function of varying parameters
 (Using the om_scan routine with the map_search or an input guess providing the initial values for the frequencies).
 
-The code will either find 'nroot_max' roots of the dispersion relation for the input parameters, or refine 'nroot_max' input guesses for such roots. The (4 + nspec * 6 ) parameters can be varied, with particular solutions being followed for the variations. 
+The code will either find 'nroot_max' roots of the dispersion relation for the input parameters, or refine 'nroot_max' input guesses for such roots. The (4 + _nspec_ * 6 ) parameters can be varied, with particular solutions being followed for the variations. 
 
 # JET-PLUME Routines
 
@@ -430,59 +430,13 @@ Velocity grid spacing<br />
 
 # OUTPUT FORMAT 
 (TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT!!!)
+(TODO: discuss output of JET-PLUME)
+(TODO: discuss output of roots map)
 
-The power of each species by each mode can be computed using two different ways by changes the value of TODO in vars.f90 and recompiling the code.
+In this section, we describe the output format for each routine.
 
-The format for TODO is shown below:
-
-The output format for parameter depends on the number of species in the plasma
-FOR EACH MODE:
-```
-kperp,kpar,betap,vtp, !1-4
-omega,gamma,          !5-6
-{ Bx,y,z              !7-12
-  Ex,y,z              !13-18
-  Ux,y,z|species      !19-24,25-30
-  n|species }|(if eigen==true) !31-32,33-34
-{ P|species }|(if heat ==true) !35,36
-(tau,mu,alph,q,D,vv)|species   !37-42,43-48
-```
-
-for three components:
-```
-kperp,kpar,betap,vtp, !1-4
-omega,gamma,          !5-6
-{ Bx,y,z              !7-12
-  Ex,y,z              !13-18
-  Ux,y,z|species      !19-24,25-30,31-36
-  n|species }|(if eigen==true) !37-38,39-40,41-42
-{ P|species }|(if heat ==true) !43,44,45
-(tau,mu,alph,q,D,vv)|species   !46-51,52-57,58-63
-```
-
-for four components:
-```
-kperp,kpar,betap,vtp, !1-4
-omega,gamma,          !5-6
-{ Bx,y,z              !7-12
-  Ex,y,z              !13-18
-  Ux,y,z|species      !19-24,25-30,31-36,37-42
-  n|species }|(if eigen==true) !43-44,45-46,47-48,49-50
-{ P|species }|(if heat ==true) !51,52,53,54
-(tau,mu,alph,q,D,vv)|species   !55-60,61-66,67-72,73-78
-```
-
-for five components:
-```
-kperp,kpar,betap,vtp, !1-4
-omega,gamma,          !5-6
-{ Bx,y,z              !7-12
-  Ex,y,z              !13-18
-  Ux,y,z|species      !19-24,25-30,31-36,37-42, 43-48
-  n|species }|(if eigen==true) !49-50,51-52,53-54,55-56,57-58
-{ P|species }|(if heat ==true) !59,60,61,62,63
-(tau,mu,alph,q,D,vv)|species   !64-69,70-75,76-81,82-87,88-93
-```
+## Dispersion Relation/Eigenfunction Output
+This output is created when options 1, 2, 3, or 5 is selected.
 
 The value of the dispersion relation is written to the files:
 ```
@@ -496,18 +450,199 @@ OR
           trim(param),'_s',scan(is)%style_s,'_',int(1000.*scan(is)%range_i),&
           '_',int(1000.*scan(is)%range_f)
 ```
-where 'param' is the name of the parameter being scanned. 
+where 'param' is the name of the parameter being scanned. The file consists of many rows for each sample of the dispersion relation over some specified sweep parameter and columns for each parameter. The quantity each column corresponds to is specified below. Each row is self consistent, meaning that all values in that row correspond to a specific mode.
+
+The power of each species by each mode can be computed using two different ways by changes the value of .new_low_n. in vars.f90 and _recompiling the code_. New users are recommended to keep new_low_n = .true.. This is the default format.
+
+### Default Dispersion Relation/Eigenfunction Output
+The format for .new_low_n. = .true. is shown below:
+
+The output format for parameter depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
+for two species:
+```
+
+```
+
+for three species:
+```
+
+```
+
+for four species:
+```
+
+```
+
+for five species:
+```
+
+```
+
+### Legacy Dispersion Relation/Eigenfunction Output
+The format for .new_low_n. = .false. is shown below:
+
+The output format for parameter depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
+for two species:
+```
+kperp,kpar,betap,vtp, !1-4
+omega,gamma,          !5-6
+{ Bx,y,z              !7-12
+  Ex,y,z              !13-18
+  Ux,y,z|species      !19-24,25-30
+  n|species }|(if eigen==true) !31-32,33-34
+{ P|species }|(if heat ==true) !35,36
+(tau,mu,alph,q,D,vv)|species   !37-42,43-48
+```
+
+for three species:
+```
+kperp,kpar,betap,vtp, !1-4
+omega,gamma,          !5-6
+{ Bx,y,z              !7-12
+  Ex,y,z              !13-18
+  Ux,y,z|species      !19-24,25-30,31-36
+  n|species }|(if eigen==true) !37-38,39-40,41-42
+{ P|species }|(if heat ==true) !43,44,45
+(tau,mu,alph,q,D,vv)|species   !46-51,52-57,58-63
+```
+
+for four species:
+```
+kperp,kpar,betap,vtp, !1-4
+omega,gamma,          !5-6
+{ Bx,y,z              !7-12
+  Ex,y,z              !13-18
+  Ux,y,z|species      !19-24,25-30,31-36,37-42
+  n|species }|(if eigen==true) !43-44,45-46,47-48,49-50
+{ P|species }|(if heat ==true) !51,52,53,54
+(tau,mu,alph,q,D,vv)|species   !55-60,61-66,67-72,73-78
+```
+
+for five species:
+```
+kperp,kpar,betap,vtp, !1-4
+omega,gamma,          !5-6
+{ Bx,y,z              !7-12
+  Ex,y,z              !13-18
+  Ux,y,z|species      !19-24,25-30,31-36,37-42, 43-48
+  n|species }|(if eigen==true) !49-50,51-52,53-54,55-56,57-58
+{ P|species }|(if heat ==true) !59,60,61,62,63
+(tau,mu,alph,q,D,vv)|species   !64-69,70-75,76-81,82-87,88-93
+```
+
+The above pattern holds for _n_ species.
 
 Note, the index of U_s onward will differ depending on the
 number of plasma species and if eigen and heating are turned on.
 
+## Root Map Output
+This output is created when options 4 is selected. The value of the roots map is written to the files:
+```
+          'data/',trim(dataName),'/',&
+          dispersion_*outputName*.map
+```
+AND
+```
+          'data/',trim(dataName),'/',&
+          dispersion_*outputName*.roots
+```
+
+### dispersion_*outputName*.map
+'(2i6,3es14.6,2es14.4)')&
+ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
+sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
+sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
+
+### dispersion_*outputName*.roots
+(kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec))
+
+*outputName*.roots contains the list of the found roots. Note, that roots will sometimes be found outside of the original specified domain. Here, all current estimated roots are assumed to have at least approximately converged and will be output here. 
+
+## JET-PLUME / FPC Output
+These outputs are created when options 6 or 7 is selected.
+
+Running JET-PLUME will create measurements of $C_{E_i}$, and $f_{s1}$ (the fourier coefficients of the perturbed portion of the distribution function), on the selected velocity space grid projection.
+
+### Gyro Output
+These outputs are created when option 6 is selected.
+
+The value of  $C_{E_i}$, and $f_{s1}$ on a projected cartesian velocity grid is written to the files:
+```
+'data/',trim(dataName),'/',&
+*outputName*.cpar.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.cperp.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.df1gyro.real.specie*num*.mode*num* 
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.df1gyro.imag.specie*num*.mode*num* 
+```
+for each species and each mode (i.e. selected $\mathbf{k}$ $\omega$ solution).
+(TODO: implement df1 into gyro routine)
+
+The files contain the correlation with respect to $E_{||}$, the correlation with respect to $E_{\perp}$, the real part of the perturbed distribution function fourier coefficients, and the imaginary part of the perturbed distribution function fourier coefficients respectively.
+
+Each file contains rows and columns where the ith, jth element corresponds to the value on the ith, jth position on the velocity grid. $v_{||}$ evolves along the columns and $v_{\perp}$ evolves along the rows. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{||}$ and $v_{\perp}$.
+
+Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax and vmin bounds are not integer multiples of delv, a passive warning message will be output, but the code will continue running. This may cause off by 1 errors when loading.
+
+### Cartesian Ouput
+These outputs are created when option 7 is selected.
+
+The value of  $C_{E_i}$, and $f_{s1}$ on a projected cartesian velocity grid is written to the files:
+```
+'data/',trim(dataName),'/',&
+*outputName*.cparcart.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.cperp1.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.cperp2.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.df1.real.specie*num*.mode*num*
+```
+AND
+```
+'data/',trim(dataName),'/',&
+*outputName*.df1.imag.specie*num*.mode*num*
+```
+for each species and each mode (i.e. selected $\mathbf{k}$ $\omega$ solution).
+
+The files contain the correlation with respect to $E_{||}$, the correlation with respect to $E_{\perp,1}$, the correlation with respect to $E_{\perp,2}$, the real part of the perturbed distribution function fourier coefficients, and the imaginary part of the perturbed distribution function fourier coefficients respectively.
+
+Each file contains all three projections of each quantity, starting with the $(v_{\perp,1},v_{\perp,2})$, $(v_{\perp,1},v_{||})$, $(v_{\perp,2},v_{||})$, separted by '---'.
+
+For the $(v_{\perp,1},v_{\perp,2})$ projection, $v_{\perp,1}$ evolves with rows and $v_{\perp,2}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+
+For the $(v_{\perp,1},v_{||})$ projection, $v_{\perp,1}$ evolves with rows and $v_{||}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+
+For the $(v_{\perp,2},v_{||})$ projection, $v_{||}$ evolves with rows and $v_{\perp,2}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+
+Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax and vmin bounds are not integer multiples of delv, a passive warning message will be output, but the code will continue running. This may cause off by 1 errors when loading.
 <br />
 <br />
 <br />
 <br />
 <br />
 
-# Eigenfunction Calculation:
+# Eigenfunction Calculation
 
 The eigenfunctions $\mathbf{E}$, $\mathbf{B}$, $\mathbf{U_s}$, $\mathbf{n_s}$, and $\mathbf{P_s}$ are all calculated in the routine calc_eigen. Each eigenfunction, $A(\omega,\mathbf{k})$, is the complex Fourier coeffienct containing information about the amplitude and phase of the linear response of each quantity to linear perturbation of the incident mode.
 
