@@ -481,8 +481,8 @@ for five species:
 ### Legacy Dispersion Relation/Eigenfunction Output
 The format for .new_low_n. = .false. is shown below:
 
-The output format for parameter depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
-for two species:
+The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
+For two species:
 ```
 kperp,kpar,betap,vtp, !1-4
 omega,gamma,          !5-6
@@ -494,7 +494,7 @@ omega,gamma,          !5-6
 (tau,mu,alph,q,D,vv)|species   !37-42,43-48
 ```
 
-for three species:
+For three species:
 ```
 kperp,kpar,betap,vtp, !1-4
 omega,gamma,          !5-6
@@ -506,7 +506,7 @@ omega,gamma,          !5-6
 (tau,mu,alph,q,D,vv)|species   !46-51,52-57,58-63
 ```
 
-for four species:
+For four species:
 ```
 kperp,kpar,betap,vtp, !1-4
 omega,gamma,          !5-6
@@ -518,7 +518,7 @@ omega,gamma,          !5-6
 (tau,mu,alph,q,D,vv)|species   !55-60,61-66,67-72,73-78
 ```
 
-for five species:
+For five species:
 ```
 kperp,kpar,betap,vtp, !1-4
 omega,gamma,          !5-6
@@ -548,13 +548,44 @@ AND
 ```
 
 ### dispersion_*outputName*.map
+WIP...
+
+```
+index real, index imaginary, omega, *, * !1-5
+ * !6
+ * !7
+
+```
 '(2i6,3es14.6,2es14.4)')&
 ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
 sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
 sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
 
 ### dispersion_*outputName*.roots
+The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
+For two species:
+```
+
+```
+
+For three species:
+```
+
+```
+
+For four species:
+```
+
+```
+
+For five species:
+```
+
+```
+
 (kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec))
+
+The above pattern holds for _n_ species.
 
 *outputName*.roots contains the list of the found roots. Note, that roots will sometimes be found outside of the original specified domain. Here, all current estimated roots are assumed to have at least approximately converged and will be output here. 
 
@@ -714,3 +745,7 @@ where
 
 # License
 TODO!!!
+
+# Papers
+
+TODO: link relevant papers of PLUME/JET-PLUME. Be sure to note our upcoming paper whose appendix goes into the most depth about PLUME
