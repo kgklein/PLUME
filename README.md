@@ -142,7 +142,7 @@ The following values correspond to the value that should be passed to the 'optio
 2: {Calculate Roots for input plasma parameters<br />
                    OR<br />
    Read in guesses for frequency values, and refine}<br />
-   Scan over two parameters, with range and type specified in *.in file. Produces maps of dispersion relations in (parameter 1, parameter 2) space of nroot_max modes. (**Make sure to set nscan = 2 for this option**.)
+   Scan over two parameters, with range and type specified in *.in file. Produces maps of dispersion relations in (parameter 1, parameter 2) space of nroot_max modes. (**Make sure to set nscan = 2 for this option and to define 2 scan_input namelists**.)
 
 3: Replicating SAGA scan from Gullveig (the precursor of this code). A hardwired scan of (k, theta) at a particular value of (betap, alph_p). This is used primarily for testing/ verification.
 
@@ -356,9 +356,9 @@ Style: 1-nspec (1 for reference, 'n' for nth species) -> Species Parameter Scan:
 Parameter range<br />
 'swi'/'swf' are the initial/final values of parameter range for selected paramter<br />
 EXCEPTIONS:<br />
-style_s=-1 are scans with multiple components<br />
+style_s=-1 are scans with multiple components and **changes the above definition of 'swi'/'swf'** to the below definition<br />
 type_s=0: scan from current value of (kperp,kpar) to (kperp,kpar)=(swi,swf)<br />
-type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees<br />
+type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees (note: theta = atan(kperp/kpar))<br />
 type_s=2: k scan from current value of (kperp,kpar) to (k=swf) with constant theta=atan(kperp/kpar)<br />
 (When making a map of two parameters (om_double_scan, called with option=2) do the theta scan before the k_fixed angle scan.)
 

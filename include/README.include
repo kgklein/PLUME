@@ -1,13 +1,4 @@
 The <include> directory is where the Makefile will store the FORTRAN modules after compilation.
-simply
-(base) kgklein@Urras:~/Codes/PLUME_git$ make && make tidyup
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/nrtype.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/nrutil_trim.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/vars.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/functions.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/bessel.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/disprels.f90
-gfortran -c -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  src/plume.f90
-gfortran -o plume.e -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math   nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o plume.o 
-mv *.o include/
-mv *.mod include/
+
+If files of the form *.o and *.mod are in the parent directory after compilation, navigate to the pareent directory and call:
+make tidyup
