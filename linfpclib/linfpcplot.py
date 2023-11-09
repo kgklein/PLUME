@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
+def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
     from matplotlib import ticker, cm
     import matplotlib.colors as colors
 
@@ -39,13 +39,6 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequ
         del vparplot
         del cplot
 
-    if(plotlog):
-        print('************************')
-        print("WARNING: CHANGED C NORM AS TEMP FIX FOR LOG PLOT")
-        print('************************')
-        C = np.asarray(C)*100000
-
-
     #force contour range to be centered around 0
     maxval = max(map(max, C))
     minval = min(map(min, C))
@@ -74,7 +67,6 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequ
             print("Resonant interval occurs outside of requested plot range and will not be plotted.")
 
     plt.set_cmap('bwr')
-    print(plotlog)
     if(not(plotlog)):
         print("plotting linear scale!")
         plt.pcolormesh(vpar, vperp, C, vmax=rng,vmin=-rng, cmap="seismic", shading="gouraud")
@@ -119,25 +111,58 @@ def plotlinfpcv2(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequ
         plt.text(xtext,ytext,extraText)
 
     print("Saving figure to figures folder!")
-    plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
-    # plt.show() #TODO: option to save or show
+    if(filename == ''):
+        plt.show()
+    else:
+        plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
     plt.close()
 
-def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple species
+def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,extraText=None):
     from matplotlib import ticker, cm
+    import matplotlib.colors as colors
 
-    dist = linfpcdata['dist']
+    if(plotkey == 'im_f'):
+        C = linfpcdata['im_f']
+        plttitle = r'Im{$f(v_{||},v_\perp)$}'
+    elif(plotkey == 're_f'):
+        C = linfpcdata['re_f']
+        plttitle = r'Re{$f(v_{||},v_\perp)$}'
     vpar = linfpcdata['vpar']
     vperp = linfpcdata['vperp']
+    resonant_int = linfpcdata['resonant_int']
     vperpmin = linfpcdata['vperpmin']
     vperpmax = linfpcdata['vperpmax']
     vparmin = linfpcdata['vparmin']
     vparmax = linfpcdata['vparmax']
     delv = linfpcdata['delv']
 
-    maxval = max(map(max, dist))
-    minval = min(map(min, dist))
+
+    #restrict data to zoom interval if requested
+    if(zoomin):
+        vparplot = [] #temp array used to grab requested data
+        cplot = [] #temp array used to grab requested data
+        for a in range(0,len(C)):
+            crow = []
+            for b in range(0,len(C[a])):
+                if((vpar[b] >= zoomcenter-zoomwidth and vpar[b] <= zoomcenter+zoomwidth)):
+                    crow.append(C[a][b])
+                    if(not(vpar[b] in vparplot)):
+                        vparplot.append(vpar[b])
+            cplot.append(crow)
+        vpar = vparplot
+        C = cplot
+        del vparplot
+        del cplot
+
+    #force contour range to be centered around 0
+    maxval = max(map(max, C))
+    minval = min(map(min, C))
     rng = maxval
+    if(abs(minval) > maxval):
+        rng = abs(minval)
+
+    if(clim != None):
+        rng = abs(clim)
 
     #make results directory for figures
     if not os.path.exists('figures'):
@@ -145,34 +170,55 @@ def plot_dist_func(linfpcdata,filename,plotlog=True): #TODO: stack multiple spec
         os.makedirs('figures')
 
     plt.figure()
-    clev = np.arange(minval,rng+rng/100.,rng/50.) #makes contour 'smoother' (more levels)
 
-    plt.set_cmap('plasma')
-    if(plotlog):
-        plt.contourf(vpar, vperp, dist, locator=ticker.LogLocator())
+    if(plotresonant):
+        if(not(zoomin)):
+            print("Plotting interval...")
+            plt.plot([resonant_int,resonant_int],[vperpmin,vperpmax],c="black",lw=.30)
+        elif(resonant_int > zoomcenter-zoomwidth and resonant_int < zoomcenter+zoomwidth):
+            print("Plotting interval...")
+            plt.plot([resonant_int,resonant_int],[vperpmin,vperpmax],c="black",lw=.30)
+        else:
+            print("Resonant interval occurs outside of requested plot range and will not be plotted.")
+
+    plt.set_cmap('bwr')
+    if(not(plotlog)):
+        print("plotting linear scale!")
+        plt.pcolormesh(vpar, vperp, C, vmax=rng,vmin=-rng, cmap="seismic", shading="gouraud")
     else:
-        plt.contourf(vpar, vperp, dist)
-    plt.gca().set_aspect('equal')
-    plt.gca().set_xlim(vparmin,vparmax)
-    plt.gca().set_ylim(vperpmin,vperpmax)
-    print(vparmin,vparmax,vperpmin,vperpmax)
-    # if(vlim != None):
-    #     print("Changing xlim and ylim of plot!!!")
-    #     plt.gca().set_xlim(-1.*vlim,vlim)
-    #     plt.gca().set_ylim(0,vlim)
+        print("plotting log scale!")
+        plt.pcolormesh(vpar, vperp, C, cmap="seismic", shading="gouraud",norm=colors.SymLogNorm(linthresh=1., linscale=1., vmin=-rng, vmax=rng))
 
-    # if(xlim != None):
-    #     print("Changing xlim of plot!!!")
-    #     plt.gca().set_xlim(xlim[0],xlim[1])
-    plt.title('$f(v_{||},v_\perp)$')
+    if(vlim != None):
+        print("Changing xlim and ylim of plot!!!")
+        plt.gca().set_xlim(-1.*vlim,vlim)
+        plt.gca().set_ylim(0,vlim)
+
+    if(xlim != None):
+        print("Changing xlim of plot!!!")
+        plt.gca().set_xlim(xlim[0],xlim[1])
+    if(ylim != None):
+        print("Changing ylim of plot!!!")
+        plt.gca().set_ylim(ylim[0],zlim[1])
+    plt.title(plttitle)
     plt.xlabel('$v_{||}/v_{ts}$')
     plt.ylabel('$v_{\perp}/v_{ts}$')
     plt.colorbar()
     plt.grid()
 
+    if(setequal):
+        plt.gca().set_aspect('equal')
+
+    if(extraText != None):
+        xtext = .5
+        ytext = 2.15
+        plt.text(xtext,ytext,extraText)
+
     print("Saving figure to figures folder!")
-    plt.savefig('figures/'+filename+'dist.png',format='png',dpi=1000,facecolor='white', transparent=False)
-    plt.show()
+    if(filename == ''):
+        plt.show()
+    else:
+        plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
     plt.close()
 
 def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scalevelocity=1):

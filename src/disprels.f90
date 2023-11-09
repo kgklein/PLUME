@@ -884,6 +884,7 @@ subroutine om_double_scan
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME 
 
+
   do is = 1,2
      if ((scan(is)%style_s)==-1) then
         !Scans with multiple components
@@ -926,12 +927,14 @@ subroutine om_double_scan
      endif
   enddo
   
+
   !Allocate variable for last solution and copy in initial values
   allocate(omlast(nroot_max))
   allocate(omSafe(nroot_max)); omSafe=cmplx(0.,0.)
   do ii=1,nroot_max
      omlast(ii)=cmplx(wroots(1,ii),wroots(2,ii))
   enddo 
+
 
   !Parameter 1 scan
   !Output %n_scan steps, with %n_res steps inbetween each output
@@ -1000,7 +1003,7 @@ subroutine om_double_scan
         do ii = 1,nroot_max
            omSafe(ii) = omlast(ii)
         enddo
-    
+
         !Parameter 2 scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
@@ -1053,7 +1056,7 @@ subroutine om_double_scan
                  params(6,ii) = spec(ii)%vv_s
               enddo
            endif
-           
+
            !Root Scan....
            do ii=1,nroot_max
               !Bracket values for root search
@@ -1174,6 +1177,7 @@ subroutine om_double_scan
 
            enddo
         enddo     !End Parameter 2 Scan
+
         jj=0
         !Return scanned parameter 2 value
            if ((scan(2)%style_s)==-1)then

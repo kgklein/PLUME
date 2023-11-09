@@ -1027,6 +1027,7 @@ module fpc
       close(unit_s+4)
 
       !Write Complex Eigenfunction-------------------------------------------
+      !The below output is for debugging and is not intended to be used by end users...
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
       open(unit=unit_s+5,file=trim(filename),status='replace')
 
@@ -1040,6 +1041,7 @@ module fpc
       close(unit_s+5)
 
       !Write Velocity Integrated Moments-------------------------------------------
+      !The below output is for debugging and is not intended to be used by end users...
       write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
       open(unit=unit_s+5,file=trim(filename),status='replace')
 
@@ -1483,6 +1485,14 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.cperp.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+1,file=trim(filename),status='replace')
 
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),&
+              '.df1gyro.real.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+2,file=trim(filename),status='replace')
+
+        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),&
+              '.df1gyro.imag.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+        open(unit=unit_s+3,file=trim(filename),status='replace')
+
         !TODO: write out fs1
 
         write(*,*)'Calculating fpc for species ',is
@@ -1500,6 +1510,18 @@ module fpc
         write(unit_s+1, '(5a22)')'vperpmin','vperpmax','vparmin','vparmax','delv'
         write(unit_s+1, '(5es22.7)')vperpmin,vperpmax,vparmin,vparmax,delv
         write(unit_s+1, *) '-------------'
+        write(unit_s+2,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+2,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                          real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+2, '(5a22)')'vperpmin','vperpmax','vparmin','vparmax','delv'
+        write(unit_s+2, '(5es22.7)')vperpmin,vperpmax,vparmin,vparmax,delv
+        write(unit_s+2, *) '-------------'
+        write(unit_s+3,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
+        write(unit_s+3,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
+                          real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
+        write(unit_s+3, '(5a22)')'vperpmin','vperpmax','vparmin','vparmax','delv'
+        write(unit_s+3, '(5es22.7)')vperpmin,vperpmax,vparmin,vparmax,delv
+        write(unit_s+3, *) '-------------'
 
         do ivperp=ivperpmin,ivperpmax
           do ivpar=ivparmin,ivparmax
@@ -1513,13 +1535,27 @@ module fpc
               else
                 write(unit_s+1,'(es17.5)',advance='no') coreperp_cyln(ivperp,ivpar,is)
               endif
+              if(ABS(real(fs1_cyln(ivperp,ivpar,is))) .lt. 9.999E-99) then
+                write(unit_s+2,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+2,'(es17.5)',advance='no') real(fs1_cyln(ivperp,ivpar,is))
+              endif
+              if(ABS(aimag(fs1_cyln(ivperp,ivpar,is))) .lt. 9.999E-99) then
+                write(unit_s+3,'(es17.5)',advance='no') 0.
+              else
+                write(unit_s+3,'(es17.5)',advance='no') aimag(fs1_cyln(ivperp,ivpar,is))
+              endif
            enddo
           write(unit_s,*)
           write(unit_s+1,*)
+          write(unit_s+2,*)
+          write(unit_s+3,*)
         enddo
 
         close(unit_s)
         close(unit_s+1)
+        close(unit_s+2)
+        close(unit_s+3)
 
       end do
 
@@ -1591,7 +1627,7 @@ module fpc
       complex :: omega_temp
       real :: phi_temp
 
-      phi_temp = phi
+      phi_temp = phi!+3.14159265359
       ef1 = ef(1) !Used to 'turn off' contributes due to ef1/2/3
       ef2 = ef(2)
       ef3 = ef(3)
@@ -1599,8 +1635,11 @@ module fpc
       !ef2 = 0
       !ef3 = 0
 
-      omega_temp = real(omega)+ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
-
+      if (mu_s .eq. 1.) then
+        omega_temp = -real(omega)-ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
+      else
+        omega_temp = omega
+      end if
 
       !Compute Bessel functions (if necessary)
       ! NOTE: If bs is same as last time, no need to recompute Bessels
@@ -1616,14 +1655,14 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
+      Ubar_s= -2.*vperp/aleph_s*(1.-kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
 
-      write(*,*)'denoms (vpar,mu_s)', vpar, mu_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))&
-      -mu_s/q_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)),omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))+mu_s/q_s
+      ! write(*,*)'denoms (vpar,mu_s)', vpar, mu_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))&
+      ! -mu_s/q_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)),omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))+mu_s/q_s
 
-      write(*,*)jbess(-1)*Ubar_s/b_s*ef1,jbess(0)*Ubar_s/b_s*ef1,jbess(1)*Ubar_s/b_s*ef1
-      write(*,*)ii*0.5*(jbess(-1-1)-jbess(-1+1))*Ubar_s*ef2,&
-      ii*0.5*bess0_s_prime(b_s)*Ubar_s*ef2,ii*0.5*(jbess(1-1)-jbess(1+1))*Ubar_s*ef2
+      ! write(*,*)jbess(-1)*Ubar_s/b_s*ef1,jbess(0)*Ubar_s/b_s*ef1,jbess(1)*Ubar_s/b_s*ef1
+      ! write(*,*)ii*0.5*(jbess(-1-1)-jbess(-1+1))*Ubar_s*ef2,&
+      ! ii*0.5*bess0_s_prime(b_s)*Ubar_s*ef2,ii*0.5*(jbess(1-1)-jbess(1+1))*Ubar_s*ef2
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
@@ -1732,6 +1771,7 @@ module fpc
     !------------------------------------------------------------------------------
     !                           Collin Brown, 2020
     !------------------------------------------------------------------------------
+    !#TODO: remove
     subroutine write_fs0()
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv

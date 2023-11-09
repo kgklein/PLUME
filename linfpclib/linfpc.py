@@ -68,7 +68,7 @@ class plume_input:
                        'writeOut':usewriteOut_out
         }
 
-    def set_fpc(self,vperpmin,vperpmax,vparmin,vparmax,delv,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None):
+    def set_fpc(self,vperpmin=0,vperpmax=0,vparmin=0,vparmax=0,delv=0,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None):
         self.fpc = {'vperpmin':vperpmin,
                     'vperpmax':vperpmax,
                     'vparmin':vparmin,
@@ -514,12 +514,12 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
         cdatafilenames.append(cdatafilename)
         cdatafilename = 'data/'+str(plume_input.dataname)+'/'+outputname+'.cperp.specie0'+str(_nspec)+'.mode01' #warning: assumes num of species < 10
         cdatafilenames.append(cdatafilename)
-        cdatafilenames.append('data/'+str(plume_input.dataname)+'/'+outputname+'.specie0'+str(_nspec)+'.fs0') #warning: assumes num of species < 10
-        cdatafilenames.append('data/'+str(plume_input.dataname)+'/'+outputname+'.specie0'+str(_nspec)+'.fs0') #warning: assumes num of species < 10
+        cdatafilenames.append('data/'+str(plume_input.dataname)+'/'+outputname+'.df1gyro.real.specie0'+str(_nspec)+'.mode01') #warning: assumes num of species < 10
+        cdatafilenames.append('data/'+str(plume_input.dataname)+'/'+outputname+'.df1gyro.imag.specie0'+str(_nspec)+'.mode01') #warning: assumes num of species < 10
 
     return cdatafilenames
 
-def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True,use_ps_split_new=False,swlog=True):
+def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True,use_ps_split_new=True,swlog=True):
     #makes sweeps that start at params namelist, and branches out
 
     if(verbose):
@@ -629,58 +629,7 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
         print("Probable cause of error is described below:")
         print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
         print("and thus the output file name will be rounded as well. ")
-        print("For now, it is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually but this should be fixed...")
-
-def loadlinfpcdist(filename,vparmin,vperpmin,vparmax,vperpmax,delv): #TODO: write these vel vars to file and automatically load
-
-    print("Opening " + filename)
-    try:
-        f = open(filename)
-    except:
-        print("Couldnt open: " + filename)
-        return
-
-    vpar = []
-    vperp = []
-    vparindex = vparmin
-    vperpindex = vperpmin
-    while(vparindex <= vparmax):
-        vpar.append(float(vparindex))
-        vparindex += delv
-    while(vperpindex <= vperpmax):
-        vperp.append(float(vperpindex))
-        vperpindex += delv
-
-    line = f.readline()
-    dist = []
-    line = f.readline()
-    while (line != ''):
-        line = line.split()
-        row = []
-        for k in line:
-            if(math.isnan(float(k))):
-                row.append(0.)
-            else:
-                row.append(float(k))
-        dist.append(row)
-        line = f.readline()
-
-    # dist=np.flip(dist,axis=1) #TODO: perhaps this should be done in the plotting routine #TODO: remove?
-    dist = np.asarray(dist) 
-
-        #weird index rounding bug fix
-    if(len(vpar) < len(dist[0])):
-        vpar.append(float(vparindex))
-    elif(len(vpar) > len(dist[0])):
-        vpar.pop()
-    if(len(vperp) < len(dist)):
-        vperp.append(float(vperpindex))
-    elif(len(vperp) > len(dist)):
-        vperp.pop()
-
-    linfpcdata = {'dist':dist,'vpar':vpar,'vperp':vperp,'vperpmin':vperpmin,'vperpmax':vperpmax,'vparmin':vparmin,'vparmax':vparmax,'delv':delv}
-
-    return linfpcdata
+        print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
 
 def loadlinfpccepar(filename):
 
@@ -762,6 +711,26 @@ def loadlinfpccepar(filename):
     linfpcdata = {'CEpar':C,'vpar':vpar,'vperp':vperp,'resonant_int':resonant_int,'vperpmin':vperpmin,'vperpmax':vperpmax,'vparmin':vparmin,'vparmax':vparmax,'delv':delv,'species':species,'omega':omega}
 
     return linfpcdata
+
+#TODO: rename gyro funcs everywhere else
+def loadlinfpcgyro_dist(filenamereal,filenameimag,idxoffset=0):
+    #Warning: does not check if the input parameters are the same for both files
+
+    realpartdict = loadlinfpccepar(filenamereal)
+    imagpartdict = loadlinfpccepar(filenameimag)
+
+    outdict = {}
+
+    for key in imagpartdict.keys():
+        outdict[key] = imagpartdict[key]
+    outdict['im_f'] = outdict['CEpar'] 
+
+    for key in realpartdict.keys():
+        outdict[key] = realpartdict[key]
+    outdict['re_f'] = outdict['CEpar'] 
+    del outdict['CEpar']
+
+    return outdict
 
 def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
     #Warning: does not check if the input parameters are the same for both files
@@ -972,7 +941,7 @@ def loadlinfpcceperp(filename):
 
     return linfpcdata
 
-def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check which ps split is used automatically or eliminate old one entirely
+def load_plume_sweep(flnm,verbose=True,use_ps_split_new=True):
 
     """
     Load data from plume sweep
@@ -990,6 +959,8 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
         dictionary of data related to plume
     """
     
+    #TODO: check if number of columns to see if user is trying to load more than 2 species or is using the wrong ps split!!!
+
     if(verbose):
         print("WARNING: assuming 2 species...\n TODO: write load_plume_sweep_nspec...")
         if(not(use_ps_split_new)):
@@ -1050,57 +1021,85 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
             "p2ttd": [],
             "p2n0": [],
             "p2cd": [],
+
+            "p1tau": [],
+            "p1mu": [],
+            "p1alph": [],
+            "p1q": [],
+            "p1D": [],
+            "p1vv": [],
+
+            "p2tau": [],
+            "p2mu": [],
+            "p2alph": [],
+            "p2q": [],
+            "p2D": [],
+            "p2vv": []
         }
 
         line = f.readline()
         while (line != ''):
             line = line.split()
-            plume_sweep['kperp'].append(float(line[0]))
-            plume_sweep['kpar'].append(float(line[1]))
-            plume_sweep['betap'].append(float(line[2]))
-            plume_sweep['vtp'].append(float(line[3]))
-            plume_sweep['w'].append(float(line[4]))
-            plume_sweep['g'].append(float(line[5]))
-            plume_sweep['bxr'].append(float(line[6]))
-            plume_sweep['bxi'].append(float(line[7]))
-            plume_sweep['byr'].append(float(line[8]))
-            plume_sweep['byi'].append(float(line[9]))
-            plume_sweep['bzr'].append(float(line[10]))
-            plume_sweep['bzi'].append(float(line[11]))
-            plume_sweep['exr'].append(float(line[12]))
-            plume_sweep['exi'].append(float(line[13]))
-            plume_sweep['eyr'].append(float(line[14]))
-            plume_sweep['eyi'].append(float(line[15]))
-            plume_sweep['ezr'].append(float(line[16]))
-            plume_sweep['ezi'].append(float(line[17]))
-            plume_sweep['ux1r'].append(float(line[18]))
-            plume_sweep['ux1i'].append(float(line[19]))
-            plume_sweep['uy1r'].append(float(line[20]))
-            plume_sweep['uy1i'].append(float(line[21]))
-            plume_sweep['uz1r'].append(float(line[22]))
-            plume_sweep['uz1i'].append(float(line[23]))
-            plume_sweep['ux2r'].append(float(line[24]))
-            plume_sweep['ux2i'].append(float(line[25]))
-            plume_sweep['uy2r'].append(float(line[26]))
-            plume_sweep['uy2i'].append(float(line[27]))
-            plume_sweep['uz2r'].append(float(line[28]))
-            plume_sweep['uz2i'].append(float(line[29]))
-            
-            plume_sweep['n1r'].append(float(line[30]))
-            plume_sweep['n1i'].append(float(line[31]))
-            plume_sweep['n2r'].append(float(line[32]))
-            plume_sweep['n2i'].append(float(line[33]))
-            plume_sweep['ps1'].append(float(line[34]))
-            plume_sweep['ps2'].append(float(line[35]))
-            plume_sweep['p1ld'].append(float(line[36]))
-            plume_sweep['p1ttd'].append(float(line[37]))
-            plume_sweep['p1n0'].append(float(line[38]))
-            plume_sweep['p1cd'].append(float(line[39]))
-            plume_sweep['p2ld'].append(float(line[40]))
-            plume_sweep['p2ttd'].append(float(line[41]))
-            plume_sweep['p2n0'].append(float(line[42]))
-            plume_sweep['p2cd'].append(float(line[43]))
+            if(len(line) > 0):
+                plume_sweep['kperp'].append(float(line[0]))
+                plume_sweep['kpar'].append(float(line[1]))
+                plume_sweep['betap'].append(float(line[2]))
+                plume_sweep['vtp'].append(float(line[3]))
+                plume_sweep['w'].append(float(line[4]))
+                plume_sweep['g'].append(float(line[5]))
+                plume_sweep['bxr'].append(float(line[6]))
+                plume_sweep['bxi'].append(float(line[7]))
+                plume_sweep['byr'].append(float(line[8]))
+                plume_sweep['byi'].append(float(line[9]))
+                plume_sweep['bzr'].append(float(line[10]))
+                plume_sweep['bzi'].append(float(line[11]))
+                plume_sweep['exr'].append(float(line[12]))
+                plume_sweep['exi'].append(float(line[13]))
+                plume_sweep['eyr'].append(float(line[14]))
+                plume_sweep['eyi'].append(float(line[15]))
+                plume_sweep['ezr'].append(float(line[16]))
+                plume_sweep['ezi'].append(float(line[17]))
+                plume_sweep['ux1r'].append(float(line[18]))
+                plume_sweep['ux1i'].append(float(line[19]))
+                plume_sweep['uy1r'].append(float(line[20]))
+                plume_sweep['uy1i'].append(float(line[21]))
+                plume_sweep['uz1r'].append(float(line[22]))
+                plume_sweep['uz1i'].append(float(line[23]))
+                plume_sweep['ux2r'].append(float(line[24]))
+                plume_sweep['ux2i'].append(float(line[25]))
+                plume_sweep['uy2r'].append(float(line[26]))
+                plume_sweep['uy2i'].append(float(line[27]))
+                plume_sweep['uz2r'].append(float(line[28]))
+                plume_sweep['uz2i'].append(float(line[29]))
+                
+                plume_sweep['n1r'].append(float(line[30]))
+                plume_sweep['n1i'].append(float(line[31]))
+                plume_sweep['n2r'].append(float(line[32]))
+                plume_sweep['n2i'].append(float(line[33]))
+                plume_sweep['ps1'].append(float(line[34]))
+                plume_sweep['ps2'].append(float(line[35]))
+                plume_sweep['p1ld'].append(float(line[36]))
+                plume_sweep['p1ttd'].append(float(line[37]))
+                plume_sweep['p1n0'].append(float(line[38]))
+                plume_sweep['p1cd'].append(float(line[39]))
+                plume_sweep['p2ld'].append(float(line[40]))
+                plume_sweep['p2ttd'].append(float(line[41]))
+                plume_sweep['p2n0'].append(float(line[42]))
+                plume_sweep['p2cd'].append(float(line[43]))
 
+                plume_sweep['p1tau'].append(float(line[44]))
+                plume_sweep['p1mu'].append(float(line[45]))
+                plume_sweep['p1alph'].append(float(line[46]))
+                plume_sweep['p1q'].append(float(line[47]))
+                plume_sweep['p1D'].append(float(line[48]))
+                plume_sweep['p1vv'].append(float(line[49]))
+
+                plume_sweep['p2tau'].append(float(line[50]))
+                plume_sweep['p2mu'].append(float(line[51]))
+                plume_sweep['p2alph'].append(float(line[52]))
+                plume_sweep['p2q'].append(float(line[53]))
+                plume_sweep['p2D'].append(float(line[54]))
+                plume_sweep['p2vv'].append(float(line[55]))
             line = f.readline()
 
         for key in plume_sweep.keys():
@@ -1167,61 +1166,90 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=False): #TODO: check whi
             "p2ttd2": [],
             "p2n0": [],
             "p2cd": [],
+
+            "p1tau": [],
+            "p1mu": [],
+            "p1alph": [],
+            "p1q": [],
+            "p1D": [],
+            "p1vv": [],
+
+            "p2tau": [],
+            "p2mu": [],
+            "p2alph": [],
+            "p2q": [],
+            "p2D": [],
+            "p2vv": []
         }
 
         line = f.readline()
+
         while (line != ''):
             line = line.split()
-            plume_sweep['kperp'].append(float(line[0]))
-            plume_sweep['kpar'].append(float(line[1]))
-            plume_sweep['betap'].append(float(line[2]))
-            plume_sweep['vtp'].append(float(line[3]))
-            plume_sweep['w'].append(float(line[4]))
-            plume_sweep['g'].append(float(line[5]))
-            plume_sweep['bxr'].append(float(line[6]))
-            plume_sweep['bxi'].append(float(line[7]))
-            plume_sweep['byr'].append(float(line[8]))
-            plume_sweep['byi'].append(float(line[9]))
-            plume_sweep['bzr'].append(float(line[10]))
-            plume_sweep['bzi'].append(float(line[11]))
-            plume_sweep['exr'].append(float(line[12]))
-            plume_sweep['exi'].append(float(line[13]))
-            plume_sweep['eyr'].append(float(line[14]))
-            plume_sweep['eyi'].append(float(line[15]))
-            plume_sweep['ezr'].append(float(line[16]))
-            plume_sweep['ezi'].append(float(line[17]))
-            plume_sweep['ux1r'].append(float(line[18]))
-            plume_sweep['ux1i'].append(float(line[19]))
-            plume_sweep['uy1r'].append(float(line[20]))
-            plume_sweep['uy1i'].append(float(line[21]))
-            plume_sweep['uz1r'].append(float(line[22]))
-            plume_sweep['uz1i'].append(float(line[23]))
-            plume_sweep['ux2r'].append(float(line[24]))
-            plume_sweep['ux2i'].append(float(line[25]))
-            plume_sweep['uy2r'].append(float(line[26]))
-            plume_sweep['uy2i'].append(float(line[27]))
-            plume_sweep['uz2r'].append(float(line[28]))
-            plume_sweep['uz2i'].append(float(line[29]))
-            
-            plume_sweep['n1r'].append(float(line[30]))
-            plume_sweep['n1i'].append(float(line[31]))
-            plume_sweep['n2r'].append(float(line[32]))
-            plume_sweep['n2i'].append(float(line[33]))
-            plume_sweep['ps1'].append(float(line[34]))
-            plume_sweep['ps2'].append(float(line[35]))
-            plume_sweep['p1ttd1'].append(float(line[36]))
-            plume_sweep['p1ttd2'].append(float(line[37]))
-            plume_sweep['p1ld1'].append(float(line[38]))
-            plume_sweep['p1ld2'].append(float(line[39]))
-            plume_sweep['p1n0'].append(float(line[40]))
-            plume_sweep['p1cd'].append(float(line[41]))
-            plume_sweep['p2ttd1'].append(float(line[42]))
-            plume_sweep['p2ttd2'].append(float(line[43]))
-            plume_sweep['p2ld1'].append(float(line[44]))
-            plume_sweep['p2ld2'].append(float(line[45]))
-            plume_sweep['p2n0'].append(float(line[46]))
-            plume_sweep['p2cd'].append(float(line[47]))
+            if(len(line) > 0):
+                plume_sweep['kperp'].append(float(line[0]))
+                plume_sweep['kpar'].append(float(line[1]))
+                plume_sweep['betap'].append(float(line[2]))
+                plume_sweep['vtp'].append(float(line[3]))
+                plume_sweep['w'].append(float(line[4]))
+                plume_sweep['g'].append(float(line[5]))
+                plume_sweep['bxr'].append(float(line[6]))
+                plume_sweep['bxi'].append(float(line[7]))
+                plume_sweep['byr'].append(float(line[8]))
+                plume_sweep['byi'].append(float(line[9]))
+                plume_sweep['bzr'].append(float(line[10]))
+                plume_sweep['bzi'].append(float(line[11]))
+                plume_sweep['exr'].append(float(line[12]))
+                plume_sweep['exi'].append(float(line[13]))
+                plume_sweep['eyr'].append(float(line[14]))
+                plume_sweep['eyi'].append(float(line[15]))
+                plume_sweep['ezr'].append(float(line[16]))
+                plume_sweep['ezi'].append(float(line[17]))
+                plume_sweep['ux1r'].append(float(line[18]))
+                plume_sweep['ux1i'].append(float(line[19]))
+                plume_sweep['uy1r'].append(float(line[20]))
+                plume_sweep['uy1i'].append(float(line[21]))
+                plume_sweep['uz1r'].append(float(line[22]))
+                plume_sweep['uz1i'].append(float(line[23]))
+                plume_sweep['ux2r'].append(float(line[24]))
+                plume_sweep['ux2i'].append(float(line[25]))
+                plume_sweep['uy2r'].append(float(line[26]))
+                plume_sweep['uy2i'].append(float(line[27]))
+                plume_sweep['uz2r'].append(float(line[28]))
+                plume_sweep['uz2i'].append(float(line[29]))
+                
+                plume_sweep['n1r'].append(float(line[30]))
+                plume_sweep['n1i'].append(float(line[31]))
+                plume_sweep['n2r'].append(float(line[32]))
+                plume_sweep['n2i'].append(float(line[33]))
+                plume_sweep['ps1'].append(float(line[34]))
+                plume_sweep['ps2'].append(float(line[35]))
+                plume_sweep['p1ttd1'].append(float(line[36]))
+                plume_sweep['p1ttd2'].append(float(line[37]))
+                plume_sweep['p1ld1'].append(float(line[38]))
+                plume_sweep['p1ld2'].append(float(line[39]))
+                plume_sweep['p1n0'].append(float(line[40]))
+                plume_sweep['p1cd'].append(float(line[41]))
+                plume_sweep['p2ttd1'].append(float(line[42]))
+                plume_sweep['p2ttd2'].append(float(line[43]))
+                plume_sweep['p2ld1'].append(float(line[44]))
+                plume_sweep['p2ld2'].append(float(line[45]))
+                plume_sweep['p2n0'].append(float(line[46]))
+                plume_sweep['p2cd'].append(float(line[47]))
 
+                plume_sweep['p1tau'].append(float(line[48]))
+                plume_sweep['p1mu'].append(float(line[49]))
+                plume_sweep['p1alph'].append(float(line[50]))
+                plume_sweep['p1q'].append(float(line[51]))
+                plume_sweep['p1D'].append(float(line[52]))
+                plume_sweep['p1vv'].append(float(line[53]))
+
+                plume_sweep['p2tau'].append(float(line[54]))
+                plume_sweep['p2mu'].append(float(line[55]))
+                plume_sweep['p2alph'].append(float(line[56]))
+                plume_sweep['p2q'].append(float(line[57]))
+                plume_sweep['p2D'].append(float(line[58]))
+                plume_sweep['p2vv'].append(float(line[59]))
             line = f.readline()
 
         for key in plume_sweep.keys():
@@ -1298,44 +1326,269 @@ def loadmoms(flnm):
 
     return momsdict
 
-    
-def double_k_scan_from_root(plume_input,ktotsweepmin,ktotsweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200):
-    #makes sweep over kperp and kpar from k0=np.sqrt(kperp^2+kpar^2) to k1=np.sqrt(kperp^2+kpar^2)
 
-    print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
-    plume_input.params['option'] = 1
+#TODO: check if k val is within bounds
+def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,var1max,var2key,var2min,var2max,root,inputflnm,outputname,swlog=False,outlog='outlog',nsamps=25,verbose=False,use_ps_split_new=True):
+    #Style -1 is not supported here.
+
+    if(verbose):
+        print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+    plume_input.params['option'] = 2
     plume_input.params['use_map'] = '.false.'
     plume_input.params['nroot_max'] = 1
+    plume_input.params['nscan'] = 2
+
+    sweepvar = -1
+    midsweepval = 0.
+
+    if(stylenum1 == 0):
+        if(var1key == 'kperp'):
+                sweepvar1 = '0'
+                midsweepval1 = plume_input.params['kperp']
+        elif(var1key == 'kpar'):
+                sweepvar1 = '1'
+                midsweepval1 = plume_input.params['kpar']
+        elif(var1key == 'betap'):
+                sweepvar1 = '2'
+                midsweepval1 = plume_input.params['betap']
+        elif(var1key == 'vtp'):
+                sweepvar1 = '3'
+                midsweepval1 = plume_input.params['vtp']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid var1key for this style!************************************")
+                print("********************************************************************************")
+
+    if(stylenum2 == 0):
+        if(var2key == 'kperp'):
+                sweepvar2 = '0'
+                midsweepval2 = plume_input.params['kperp']
+        elif(var2key == 'kpar'):
+                sweepvar2 = '1'
+                midsweepval2 = plume_input.params['kpar']
+        elif(var2key == 'betap'):
+                sweepvar2 = '2'
+                midsweepval2 = plume_input.params['betap']
+        elif(var2key == 'vtp'):
+                sweepvar2 = '3'
+                midsweepval2 = plume_input.params['vtp']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid var2key for this style!************************************")
+                print("********************************************************************************")
+
+    if(stylenum1 >= 1):
+        if(var2key == 'tauS'):
+                sweepvar1 = '0'
+                midsweepval1 = plume_input.species[stylenum1-1]['tauS']
+        elif(var2key == 'muS'):
+                sweepvar1 = '1'
+                midsweepval1 = plume_input.species[stylenum1-1]['muS']
+        elif(var2key == 'alphS'):
+                sweepvar1 = '2'
+                midsweepval1 = plume_input.species[stylenum1-1]['alphS']
+        elif(var2key == 'Qs'):
+                sweepvar1 = '3'
+                midsweepval1 = plume_input.species[stylenum1-1]['Qs']
+        elif(var2key == 'Ds'):
+                sweepvar1 = '4'
+                midsweepval1 = plume_input.species[stylenum1-1]['Ds']
+        elif(var2key == 'vvS'):
+                sweepvar1 = '5'
+                midsweepval1 = plume_input.species[stylenum1-1]['vvS']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid var2key for this style!************************************")
+                print("********************************************************************************")
+
+    if(stylenum2 >= 1):
+        if(var2key == 'tauS'):
+                sweepvar2 = '0'
+                midsweepval2 = plume_input.species[stylenum1-1]['tauS']
+        elif(var2key == 'muS'):
+                sweepvar2 = '1'
+                midsweepval2 = plume_input.species[stylenum1-1]['muS']
+        elif(var2key == 'alphS'):
+                sweepvar2 = '2'
+                midsweepval2 = plume_input.species[stylenum1-1]['alphS']
+        elif(var2key == 'Qs'):
+                sweepvar2 = '3'
+                midsweepval2 = plume_input.species[stylenum1-1]['Qs']
+        elif(var2key == 'Ds'):
+                sweepvar2 = '4'
+                midsweepval2 = plume_input.species[stylenum1-1]['Ds']
+        elif(var2key == 'vvS'):
+                sweepvar2 = '5'
+                midsweepval2 = plume_input.species[stylenum1-1]['vvS']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid var2key for this style!************************************")
+                print("********************************************************************************")
 
     plume_input.guesses = [{}]
     g_om = root.real
     g_gam = root.imag
     plume_input.make_guess(g_om,g_gam)
 
-    #do double sweep
-    outputnametemp1 = outputname+'doublesweep1'
-    inputflnmtemp1 = inputflnm+'doublesweep1'
-    scan_type=0
-    scan_style=-1
-    swi=ktotsweepmin
-    swf=ktotsweepmax
-    swlog=True
+    #generate quadrant 1 sweep
+    outputnametemp1 = outputname+'sweep1'
+    inputflnmtemp1 = inputflnm+'sweep1'
+    scan_type=sweepvar1
+    scan_style=stylenum1
+    swi=midsweepval1
+    swf=var1max
+    swlog=swlog
     ns=nsamps
     nres=1
     heating=True
     eigen=True
     plume_input.scan_inputs = [{}]
     plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
-    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
-    plume_input.write_input(inputflnmtemp1,outputnametemp1)
+
+    scan_type=sweepvar2
+    scan_style=stylenum2
+    swi=midsweepval2
+    swf=var2max
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    plume_input.write_input(inputflnmtemp1,outputnametemp1,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp1 + '.in'
     cmd += ' >> ' + outlog
-    print(cmd)
+    if(verbose):
+        print(cmd)
     os.system(cmd)
 
-    #load sweep
-    flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_k_'+str(int(plume_input.params['kperp']*1000))+'_'+str(int(plume_input.params['kpar']*1000))+'_'+str(int(ktotsweepmin*1000))+'_'+str(int(ktotsweepmax*1000))+'.mode1'
-    print("Loading ",flnmsweep1,"...")
-    dblsweep = load_plume_sweep(flnmsweep1)
-    
-    return dblsweep 
+    #generate quadrant 2 sweep
+    outputnametemp2 = outputname+'sweep2'
+    inputflnmtemp2 = inputflnm+'sweep2'
+    scan_type=sweepvar1
+    scan_style=stylenum1
+    swi=var1min
+    swf=midsweepval1
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.scan_inputs = [{}]
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    scan_type=sweepvar2
+    scan_style=stylenum2
+    swi=midsweepval2
+    swf=var2max
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    plume_input.write_input(inputflnmtemp2,outputnametemp2,verbose=verbose)
+    cmd = './plume.e ' + inputflnmtemp2 + '.in'
+    cmd += ' >> ' + outlog
+    if(verbose):
+        print(cmd)
+    os.system(cmd)
+
+    #generate quadrant 3 sweep
+    outputnametemp3 = outputname+'sweep3'
+    inputflnmtemp3 = inputflnm+'sweep3'
+    scan_type=sweepvar1
+    scan_style=stylenum1
+    swi=midsweepval1
+    swf=var1max
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.scan_inputs = [{}]
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    scan_type=sweepvar2
+    scan_style=stylenum2
+    swi=var2min
+    swf=midsweepval2
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    plume_input.write_input(inputflnmtemp3,outputnametemp3,verbose=verbose)
+    cmd = './plume.e ' + inputflnmtemp3 + '.in'
+    cmd += ' >> ' + outlog
+    if(verbose):
+        print(cmd)
+    os.system(cmd)
+
+    #generate quadrant 4 sweep
+    outputnametemp4 = outputname+'sweep4'
+    inputflnmtemp4 = inputflnm+'sweep4'
+    scan_type=sweepvar1
+    scan_style=stylenum1
+    swi=var1min
+    swf=midsweepval1
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.scan_inputs = [{}]
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    scan_type=sweepvar2
+    scan_style=stylenum2
+    swi=var2min
+    swf=midsweepval2
+    swlog=swlog
+    ns=nsamps
+    nres=1
+    heating=True
+    eigen=True
+    plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
+
+    plume_input.write_input(inputflnmtemp4,outputnametemp4,verbose=verbose)
+    cmd = './plume.e ' + inputflnmtemp4 + '.in'
+    cmd += ' >> ' + outlog
+    if(verbose):
+        print(cmd)
+    os.system(cmd)
+
+    #load sweeps
+    flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+var1key+'_'+var2key+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep1,"...")
+    sweep1 = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
+
+    flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+var1key+'_'+var2key+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep2,"...")
+    sweep2 = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
+
+    flnmsweep3 = 'data/'+plume_input.dataname+'/'+outputnametemp3+'_'+var1key+'_'+var2key+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep3,"...")
+    sweep3 = load_plume_sweep(flnmsweep3,verbose=verbose,use_ps_split_new=use_ps_split_new)
+
+    flnmsweep4 = 'data/'+plume_input.dataname+'/'+outputnametemp4+'_'+var1key+'_'+var2key+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep4,"...")
+    sweep4 = load_plume_sweep(flnmsweep4,verbose=verbose,use_ps_split_new=use_ps_split_new)
+
+    if(verbose):
+        print("Combining data and returning as 1 sweep...")
+        print("Data has no particular order.")
+
+    sweep = {}
+    for _key in sweep1.keys():
+        sweep[_key] = np.concatenate((sweep1[_key],sweep2[_key],sweep3[_key],sweep4[_key]))
+
+    return sweep
