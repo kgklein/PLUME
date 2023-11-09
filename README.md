@@ -356,9 +356,9 @@ Style: 1-nspec (1 for reference, 'n' for nth species) -> Species Parameter Scan:
 Parameter range<br />
 'swi'/'swf' are the initial/final values of parameter range for selected paramter<br />
 EXCEPTIONS:<br />
-style_s=-1 are scans with multiple components<br />
+style_s=-1 are scans with multiple components and **changes the above definition of 'swi'/'swf'** to the below definition<br />
 type_s=0: scan from current value of (kperp,kpar) to (kperp,kpar)=(swi,swf)<br />
-type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees<br />
+type_s=1: theta scan from current value of (k,theta) to (k,theta)=(k,swi), with swi in degrees (note: theta = atan(kperp/kpar))<br />
 type_s=2: k scan from current value of (kperp,kpar) to (k=swf) with constant theta=atan(kperp/kpar)<br />
 (When making a map of two parameters (om_double_scan, called with option=2) do the theta scan before the k_fixed angle scan.)
 
