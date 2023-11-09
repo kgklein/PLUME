@@ -142,7 +142,7 @@ The following values correspond to the value that should be passed to the 'optio
 2: {Calculate Roots for input plasma parameters<br />
                    OR<br />
    Read in guesses for frequency values, and refine}<br />
-   Scan over two parameters, with range and type specified in *.in file. Produces maps of dispersion relations in (parameter 1, parameter 2) space of nroot_max modes. (**Make sure to set nscan = 2 for this option**.)
+   Scan over two parameters, with range and type specified in *.in file. Produces maps of dispersion relations in (parameter 1, parameter 2) space of nroot_max modes. (**Make sure to set nscan = 2 for this option and to define 2 scan_input namelists**.)
 
 3: Replicating SAGA scan from Gullveig (the precursor of this code). A hardwired scan of (k, theta) at a particular value of (betap, alph_p). This is used primarily for testing/ verification.
 
