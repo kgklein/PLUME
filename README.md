@@ -543,41 +543,20 @@ AND
 WIP...
 
 ```
-index real, index imaginary, omega, *, * !1-5
- * !6
- * !7
-
-```
-'(2i6,3es14.6,2es14.4)')&
-ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
+index real, index imaginary, omega, log10(val(ir,ii)) !1-5
 sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
 sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
+```
+for all ir,ii in the grid where val is the (TODO: describe the debug vars here)
 
 ### dispersion_*outputName*.roots
 The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
-For two species:
+For _n_ species:
 ```
-
+kperp,kpar,betap,vtp, !1-4
+{omega,gamma|roots} !{5+2*i_root,6+2*i_root}
+(tau,mu,alph,q,D,vv)|species !{(7+2*n_roots+6*i_species,12+2*n_roots+6*i_species)}    
 ```
-
-For three species:
-```
-
-```
-
-For four species:
-```
-
-```
-
-For five species:
-```
-
-```
-
-(kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec))
-
-The above pattern holds for _n_ species.
 
 *outputName*.roots contains the list of the found roots. Note, that roots will sometimes be found outside of the original specified domain. Here, all current estimated roots are assumed to have at least approximately converged and will be output here. 
 
