@@ -26,7 +26,7 @@ Jason TenBarge<br />
 <br />
 
 
-#1.) PLUME/JET-PLUME Setup
+# 1.) PLUME/JET-PLUME Setup
 GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
 
 To compile and run, first open a terminal, navigate to the desired folder and clone this repo:
@@ -76,7 +76,7 @@ Then run 'examplelinfpc.ipynb'. The jupyter notebook wrapper will assist in maki
 <br />
 <br />
 
-#2.) PLUME/JET-PLUME Normalization
+# 2.) PLUME/JET-PLUME Normalization
 
 The Dispersion relation for omega/Omega_ref is dependent on four global parameters:
 ```
@@ -105,7 +105,7 @@ Time is normalized to the reference cyclotron velocity, $\Omega_{r} = q_{r} B/m_
 <br />
 <br />
 
-#3.) PLUME Routines
+# 3.) PLUME Routines
 
 The main program (plume.f90) executes different subroutines from the disprels.f90 module depending on the input value of 'option'.
 
@@ -129,7 +129,7 @@ JET-PLUME is a key subroutine of PLUME that is called by specifying the correct 
 
 2.) Same as one, except in 2D 'gyro coordinates', i.e. $f_{s,1}(v_{||},v_{\perp},\mathbf{k},\omega)$, $C_{E_i}(\mathbf{v})(v_{||},v_{\perp},\mathbf{k},\omega)$, equal to integrating out the third coorindate, $\theta$, in cylindrical coordinates in velocity space.
 
-# PLUME/JET-PLUME OPTIONS
+# 4.) PLUME/JET-PLUME OPTIONS
 The following values correspond to the value that should be passed to the 'option' input parameter to specify which routine is ran.
 
 ## PLUME routines
@@ -206,7 +206,7 @@ g_gam=-7.3333E-04
 <br />
 <br />
 
-#4.) PLUME/JET-PLUME Input parameters
+# 5.) PLUME/JET-PLUME Input parameters
 Input parameters are specified in *.in files and organized by namelist (see example_map_par.in). Here, we describe the inputs of each namelist. First, we provide the format of the namelist, and then we break down each input.
 
 ## Global Parameters:
@@ -435,7 +435,7 @@ Velocity grid spacing<br />
 <br />
 <br />
 
-# OUTPUT FORMAT 
+# 6.) OUTPUT FORMAT 
 (TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT!!!)
 
 In this section, we describe the output format for each routine.
@@ -678,7 +678,7 @@ Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax 
 <br />
 <br />
 
-#5.) Eigenfunction Calculation
+# 7.) Eigenfunction Calculation
 
 The eigenfunctions $\mathbf{E}$, $\mathbf{B}$, $\mathbf{U_s}$, $\mathbf{n_s}$, and $\mathbf{P_s}$ are all calculated in the routine calc_eigen. Each eigenfunction, $A(\omega,\mathbf{k})$, is the complex Fourier coeffienct containing information about the amplitude and phase of the linear response of each quantity to linear perturbation of the incident mode.
 
@@ -748,7 +748,7 @@ where
 <br />
 <br />
 
-#6.) License
+# 8.) License
 TODO!!!
 
 # Papers
