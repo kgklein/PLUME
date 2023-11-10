@@ -19,12 +19,7 @@ Greg Howes<br />
 Eliot Quataert<br />
 Jason TenBarge<br />
 
-<br />
-<br />
-<br />
-<br />
-<br />
-
+<img src="https://github.com/kgklein/PLUME/blob/linfpc/Jet-Plume_Logo.svg" width=50% height=50%>
 
 # 1.) PLUME/JET-PLUME Setup
 GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
