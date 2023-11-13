@@ -58,20 +58,16 @@ def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,set
 
     if(plotresonant):
         if(not(zoomin)):
-            print("Plotting interval...")
             plt.plot([resonant_int,resonant_int],[vperpmin,vperpmax],c="black",lw=.30)
         elif(resonant_int > zoomcenter-zoomwidth and resonant_int < zoomcenter+zoomwidth):
-            print("Plotting interval...")
             plt.plot([resonant_int,resonant_int],[vperpmin,vperpmax],c="black",lw=.30)
         else:
             print("Resonant interval occurs outside of requested plot range and will not be plotted.")
 
     plt.set_cmap('bwr')
     if(not(plotlog)):
-        print("plotting linear scale!")
         plt.pcolormesh(vpar, vperp, C, vmax=rng,vmin=-rng, cmap="seismic", shading="gouraud")
     else:
-        print("plotting log scale!")
         plt.pcolormesh(vpar, vperp, C, cmap="seismic", shading="gouraud",norm=colors.SymLogNorm(linthresh=1., linscale=1., vmin=-rng, vmax=rng))
 
     if(vlim != None):
@@ -111,11 +107,10 @@ def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,set
         plt.text(xtext,ytext,extraText)
 
     print("Saving figure to figures folder!")
-    if(filename == ''):
-        plt.show()
-    else:
+    if(filename != ''):
         plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
-    plt.close()
+   
+    plt.show()
 
 def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,extraText=None):
     from matplotlib import ticker, cm
@@ -215,27 +210,22 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
         plt.text(xtext,ytext,extraText)
 
     print("Saving figure to figures folder!")
-    if(filename == ''):
-        plt.show()
-    else:
+    if(filename != ''):
         plt.savefig('figures/'+filename+'cmap.png',format='png',dpi=1000,facecolor='white', transparent=False)
-    plt.close()
+    
+    plt.show()
 
-def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scalevelocity=1):
+def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False, scalevelocity=1):
     from linfpclib.linfpc import loadlinfpccart
 
-    print("Loading files...")
-    print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
-
-    #TODO: this assumes that outputname was fpc when writing output. TODO: generalize this
-    flnmread = foldername + 'fpc.cparcart.specie'+specnum+'.mode01'
+    flnmread = foldername + filenametag +'.cparcart.specie'+specnum+'.mode01'
     print('Reading: ',flnmread)
     cartpar = loadlinfpccart(flnmread)
 
-    flnmread = foldername + 'fpc.cperp1.specie'+specnum+'.mode01'
+    flnmread = foldername + filenametag +'.cperp1.specie'+specnum+'.mode01'
     cartperp1 = loadlinfpccart(flnmread)
 
-    flnmread = foldername + 'fpc.cperp2.specie'+specnum+'.mode01'
+    flnmread = foldername + filenametag +'.cperp2.specie'+specnum+'.mode01'
     cartperp2 = loadlinfpccart(flnmread)
 
 
@@ -294,20 +284,15 @@ def plot_9pan_cart(foldername,flnm='',specnum='01',computeEner=False, scaleveloc
 
     if(flnm != ''):
         plt.savefig(flnm,format='png',dpi=300)
-        plt.close()
-    else:
-        plt.show()
 
-def plot_fs1_re_im_cart(foldername,flnm='',specnum='01', scalevelocity=1):
+    plt.show()
+
+def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scalevelocity=1):
     from linfpclib.linfpc import loadlinfpccart_dist
 
-    print("Loading files...")
-    print("Warning: assuming folder does not contain FPC data in cartesian coordinates for multiple predictions.")
+    flnmreadimag = foldername + filenametag +'.dfs.imag.specie'+specnum+'.mode01'
+    flnmreadreal = foldername + filenametag +'.dfs.real.specie'+specnum+'.mode01'
 
-    #TODO: this assumes that outputname was fpc when writing output. TODO: generalize this
-    flnmreadimag = foldername + 'fpc.dfs.imag.specie'+specnum+'.mode01'
-    flnmreadreal = foldername + 'fpc.dfs.real.specie'+specnum+'.mode01'
-    print('Reading: ',flnmreadimag,flnmreadreal)
     distfunccart = loadlinfpccart_dist(flnmreadreal,flnmreadimag)
 
     fig, axs = plt.subplots(2,3,figsize=(3*5,2*5),sharex=True)
@@ -347,9 +332,166 @@ def plot_fs1_re_im_cart(foldername,flnm='',specnum='01', scalevelocity=1):
 
     if(flnm != ''):
         plt.savefig(flnm,format='png',dpi=300)
-        plt.close()
+
+    plt.show()
+
+
+def plot_roots(roots,flnm='',xlim=[],ylim=[]):
+    oms = [rt.real for rt in roots]
+    gams = [rt.imag for rt in roots]
+    lbls = [_i for _i in range(0,len(oms))]
+
+    plt.figure()
+    plt.scatter(oms,gams)
+    for _i, txt in enumerate(lbls):
+        plt.gca().annotate(txt, (oms[_i], gams[_i]))
+    plt.gca().set_aspect('equal')
+    plt.grid()
+    plt.xlabel(r"$\omega$") #normalized as in PLUME 
+    plt.ylabel(r"$\gamma / \omega$")
+    if(xlim != []):
+        plt.xlim(xlim[0],xlim[1])
+    if(ylim != []):
+        plt.ylim(ylim[0],ylim[1])
+
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+
+    plt.show()
+
+def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='', plot_root = True, xlim = [], ylim = [], semilogx = False):
+    """
+    Quick example plot routine
+
+    """
+
+    plt.figure()
+    xplot = sweep[xkey]
+    yplot = sweep[ykey]
+    if(semilogx):        
+        plt.loglog(xplot,yplot)
     else:
-        plt.show()
+        plt.semilogx(xplot,yplot)
+    if(plot_root):
+        plt.scatter(plumeinput.params[xkey],root.real)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    if(xlim != []):
+        plt.xlim(xlim[0],ylim[0])
+    if(ylim != []):
+        plt.ylim(ylim[0],ylim[1])
+
+    plt.grid()
+
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+
+    plt.show()
+
+def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
+    """
+    Quick example plot routine
+    """
+    #plot power rate due to different mechanisms/ susc tensor 'splits' 
+    #INTO the particles in units of gamma/omega
+
+    #note: here, a positive power means particles are gaining energy, 
+    #i.e. the wave is losing energy
+    #This is the opposite convention used above for the dispersion relation
+
+    #note: as values can be positive and negative, 
+    #we separate into positive and negative ararys to plot using a log scale
+    #Here, we only plot positive values of power
+
+    #p1 is species 1, ions. p2 is species 2, electrons
 
 
-#
+    ildposh = sweep['p1ld1']+sweep['p1ld2']
+    ildnegh = -1*(sweep['p1ld1']+sweep['p1ld2'])
+    eldposh = (sweep['p2ld1']+sweep['p2ld2'])
+    eldnegh = -1*(sweep['p1ld1']+sweep['p1ld2'])
+
+    ittdposh = sweep['p1ttd1']+sweep['p1ttd2']
+    ittdnegh = -1*(sweep['p1ttd1']+sweep['p1ttd2'])
+    ettdposh = (sweep['p2ttd1']+sweep['p2ttd2'])
+    ettdnegh = -1*(sweep['p2ttd1']+sweep['p2ttd2'])
+
+    itoth = sweep['ps1']
+    etoth = sweep['ps2']
+
+    gamma_over_omega = []
+    for _i in range(0,len(sweep['kperp'])):
+        gamma_over_omega.append(-sweep['g'][_i]/sweep['w'][_i])
+    gamma_over_omega = np.asarray(gamma_over_omega)
+
+    ildpose = sweep['p1ld1']+sweep['p1ld2']
+    ildnege = -1*(sweep['p1ld1']+sweep['p1ld2'])
+    eldpose = (sweep['p2ld1']+sweep['p2ld2'])
+    eldnege = -1*(sweep['p1ld1']+sweep['p1ld2'])
+
+    ittdpose = sweep['p1ttd1']+sweep['p1ttd2']
+    ittdnege = -1*(sweep['p1ttd1']+sweep['p1ttd2'])
+    ettdpose = (sweep['p2ttd1']+sweep['p2ttd2'])
+    ettdnege = -1*(sweep['p2ttd1']+sweep['p2ttd2'])
+
+    itote = sweep['ps1']
+    etote = sweep['ps2']
+
+    gamma_over_omegae = []
+    for _i in range(0,len(sweep['kperp'])):
+        gamma_over_omegae.append(-sweep['g'][_i]/sweep['w'][_i])
+    gamma_over_omegae = np.asarray(gamma_over_omegae)
+
+    fig = plt.plot(figsize=(8,8))
+    plt.loglog(sweep['kperp'],itoth,color='red',label=r'$\gamma_i/\omega$',ls='-',lw=2)
+    plt.loglog(sweep['kperp'],etoth,color='blue',label=r'$\gamma_e/\omega$',ls='-',lw=2)
+    plt.loglog(sweep['kperp'],ildposh,color='red',label=r'$\gamma_{i,ld}/\omega$',ls='-.',lw=2)
+    plt.loglog(sweep['kperp'],eldposh,color='blue',label=r'$\gamma_{e,ld}/\omega$',ls='-.',lw=2)
+    plt.loglog(sweep['kperp'],ittdposh,color='red',label=r'$\gamma_{i,ttd}/\omega$',ls='--',lw=2)
+    plt.loglog(sweep['kperp'],ettdposh,color='blue',label=r'$\gamma_{e,ttd}/\omega$',ls='--',lw=2)
+    plt.loglog(sweep['kperp'],gamma_over_omega,color='black',label=r'$\gamma/\omega$',lw=.75)
+
+    plt.legend(fontsize=12)
+
+    plt.tick_params(axis='both', which='both', direction='in',top=True, bottom=True, right=True, left=True)
+    plt.grid()
+
+    plt.ylabel(r'$-\gamma/\omega$')
+    plt.xlabel(r'$k_\perp \rho_i$')
+
+    if(ylim != []):
+        plt.ylim(ylim[0],ylim[1])
+    if(xlim != []):
+        plt.xlim(xlim[0],xlim[1])
+    #plt.ylim(0.0001,1)
+    #plt.xlim(0.1,30)
+
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+
+    plt.show()
+
+def sweep2dplot(sweep2d,xkey,ykey,zkey,xlabel,ylabel,zlabel,flnm = '', xlim=[],ylim=[],vmin=None,vmax=None):
+    from matplotlib.tri import Triangulation
+    from matplotlib.colors import LogNorm
+
+    x = sweep2d[xkey]
+    y = sweep2d[ykey]
+    z = sweep2d[zkey]
+
+    triang = Triangulation(x, y)
+    plt.tripcolor(triang, z, cmap='viridis', edgecolors='none', vmin=vmin,vmax=vmax)
+    cbar = plt.colorbar(label=zlabel, norm=LogNorm())
+
+    if(xlim != []):
+        plt.xlim(xlim[0],xlim[1])
+    if(ylim != []):
+        plt.ylim(ylim[0],ylim[1])
+
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    if(flnm != ''):
+        plt.savefig(flnm,format='png',dpi=300)
+
+    plt.show()

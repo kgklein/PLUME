@@ -165,7 +165,7 @@ class plume_input:
         else:
             self.guesses.append(tempguess)
 
-    def write_input(self,flnm,outputname,desc='',verbose=True):
+    def write_input(self,flnm,outputname,desc='',verbose=False):
         #TODO: option branches to check that all relevant info is there
         #calls write_namelist
         #TODO: write out date and time at top of file
@@ -373,7 +373,7 @@ class plume_input:
 
     dataname = 'default'
 
-def _replace_input_aux(inputflnm,verbose=True):
+def _replace_input_aux(inputflnm,verbose=False):
     from os.path import exists
 
     file_exists = exists(inputflnm+'.in')
@@ -389,7 +389,7 @@ def _replace_input_aux(inputflnm,verbose=True):
         print("Carrying on...")
 
 #TODO: write output of plume somewhere automatically when python calls plume!!!! (instead of using '>> outlog')
-def compute_roots(plume_input,inputflnm,outputname,outlog='outlog'):
+def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False):
     #use option 0
 
     print("OVERWRITING OPTION; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
@@ -410,7 +410,7 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog'):
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
-    print("Reading roots from ",rootflnm)
+    if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
     tempfile = open(rootflnm, "r")
@@ -423,7 +423,7 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog'):
 
     return np.asarray(roots)
     
-def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlog='outlog',verbose=True):
+def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlog='outlog',verbose=False):
     outputnametemp1 = outputname+'eigenatpoint'
     inputflnmtemp1 = inputflnm+'eigenatpoint'
     
@@ -480,9 +480,9 @@ def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlo
 def load_roots():
     pass
 
-def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',cart=False):
+def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',cart=False,verbose=False):
     #use guess to compute fpc
-    print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+    if(verbose): print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
     if(not(cart)):
         plume_input.params['option'] = 6
     else:
@@ -490,7 +490,7 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
     plume_input.params['use_map'] = '.false.'
     plume_input.params['nroot_max'] = 1
 
-    print("Forcing input file to use root as initial guess")
+    if(verbose): print("Forcing input file to use root as initial guess")
     plume_input.guesses = [{}]
     g_om = root.real
     g_gam = root.imag
@@ -519,7 +519,7 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
 
     return cdatafilenames
 
-def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=True,use_ps_split_new=True,swlog=True):
+def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=False,use_ps_split_new=True,swlog=True):
     #makes sweeps that start at params namelist, and branches out
 
     if(verbose):
@@ -530,22 +530,52 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
 
     sweepvar = -1
     midsweepval = 0.
-    if(sweepvarkey == 'kperp'):
-            sweepvar = '0'
-            midsweepval = plume_input.params['kperp']
-    elif(sweepvarkey == 'kpar'):
-            sweepvar = '1'
-            midsweepval = plume_input.params['kpar']
-    elif(sweepvarkey == 'betap'):
-            sweepvar = '2'
-            midsweepval = plume_input.params['betap']
-    elif(sweepvarkey == 'vtp'):
-            sweepvar = '3'
-            midsweepval = plume_input.params['vtp']
+
+    if(stylenum == 0):
+        if(sweepvarkey == 'kperp'):
+                sweepvar = '0'
+                midsweepval = plume_input.params['kperp']
+        elif(sweepvarkey == 'kpar'):
+                sweepvar = '1'
+                midsweepval = plume_input.params['kpar']
+        elif(sweepvarkey == 'betap'):
+                sweepvar = '2'
+                midsweepval = plume_input.params['betap']
+        elif(sweepvarkey == 'vtp'):
+                sweepvar = '3'
+                midsweepval = plume_input.params['vtp']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid sweepvarkey for this stylenum!*****************************")
+                print("********************************************************************************")
+
+    elif(stylenum >= 1):
+        if(sweepvarkey == 'tauS'):
+                sweepvar = '0'
+                midsweepval = plume_input.species[stylenum-1]['tauS']
+        elif(sweepvarkey == 'muS'):
+                sweepvar = '1'
+                midsweepval = plume_input.species[stylenum-1]['muS']
+        elif(sweepvarkey == 'alphS'):
+                sweepvar = '2'
+                midsweepval = plume_input.species[stylenum-1]['alphS']
+        elif(sweepvarkey == 'Qs'):
+                sweepvar = '3'
+                midsweepval = plume_input.species[stylenum-1]['Qs']
+        elif(sweepvarkey == 'Ds'):
+                sweepvar = '4'
+                midsweepval = plume_input.species[stylenum-1]['Ds']
+        elif(sweepvarkey == 'vvS'):
+                sweepvar = '5'
+                midsweepval = plume_input.species[stylenum-1]['vvS']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid sweepvarkey for this style!********************************")
+                print("********************************************************************************")
+
     else:
-            print("********************************************************************************")
-            print("Please input a valid sweepvarkey!***********************************************")
-            print("********************************************************************************")
+        print("Please enter a valid stylenum...")
+
 
     plume_input.guesses = [{}]
     g_om = root.real
@@ -556,7 +586,7 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     outputnametemp1 = outputname+'sweep1'
     inputflnmtemp1 = inputflnm+'sweep1'
     scan_type=sweepvar
-    scan_style=0
+    scan_style=stylenum
     swi=midsweepval
     swf=sweepmax
     swlog=swlog
@@ -578,7 +608,7 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
     outputnametemp2 = outputname+'sweep2'
     inputflnmtemp2 = inputflnm+'sweep2'
     scan_type=sweepvar
-    scan_style=0
+    scan_style=stylenum
     swi=midsweepval
     swf=sweepmin
     swlog=swlog
@@ -596,44 +626,49 @@ def make_sweeps_that_branch_from_params(plume_input,sweepvarkey,sweepmin,sweepma
         print(cmd)
     os.system(cmd)
 
-    try:
-        #load sweeps
+    # try:
+    #load sweeps
+    if(stylenum>=1):
+        flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
+    else:
         flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-        if(verbose):
-            print("Loading ",flnmsweep1,"...")
-        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
+    if(verbose):
+        print("Loading ",flnmsweep1,"...")
+    sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
+    if(stylenum>=1):
+        flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
+    else:
         flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-        if(verbose):
-            print("Loading ",flnmsweep2,"...")
-        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
+    if(verbose):
+        print("Loading ",flnmsweep2,"...")
+    sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
-        if(verbose):
-            print("Combining data and returning as 1 sweep...")
-        for _key in sweeplow.keys():
-            sweeplow[_key] = np.flip(sweeplow[_key])
+    if(verbose):
+        print("Combining data and returning as 1 sweep...")
+    for _key in sweeplow.keys():
+        sweeplow[_key] = np.flip(sweeplow[_key])
 
-        sweep = {}
-        for _key in sweeplow.keys():
-            sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
+    sweep = {}
+    for _key in sweeplow.keys():
+        sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
 
-        return sweep
+    return sweep
 
 
-        def __combine_out_sweeps(sweep1,sweep2):
-            pass
+    def __combine_out_sweeps(sweep1,sweep2):
+        pass
 
-    except:
-        #TODO: automatically handle this
-        print("Could not automatically load and combine sweeps.")
-        print("Probable cause of error is described below:")
-        print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
-        print("and thus the output file name will be rounded as well. ")
-        print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
+    # except:
+    #     print("Could not automatically load and combine sweeps.")
+    #     print("Probable cause of error is described below:")
+    #     print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
+    #     print("and thus the output file name will be rounded as well. ")
+    #     print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
 
-def loadlinfpccepar(filename):
+def loadlinfpccepar(filename,verbose=False):
 
-    print("Opening " + filename)
+    if(verbose):print("Opening " + filename)
     try:
         f = open(filename)
     except:
@@ -662,10 +697,10 @@ def loadlinfpccepar(filename):
     species = ''
     if(filename.find('specie02')>=0):
         resonant_int = resonant_int*tau**(.5)*mu**(-.5)
-        print("Calculated resonant interval (elec): " + str(resonant_int))
+        if(verbose):print("Calculated resonant interval (elec): " + str(resonant_int))
         species = 'elec'
     else:
-        print("Calculated resonant interval (ion): " + str(resonant_int))
+        if(verbose):print("Calculated resonant interval (ion): " + str(resonant_int))
         species = 'ion'
 
     resonant_int = resonant_int.real
@@ -760,14 +795,14 @@ def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
     return outdict
 
 #TODO: make one load function
-def loadlinfpccart(filename,idxoffset=0):
+def loadlinfpccart(filename,idxoffset=0,verbose=False):
     #idxoffset is used to handle off by 1 division errors when computing the number of points on the grid
     #assumes equal bounds in vx vy and vz direction
     if(abs(idxoffset) > 2):
         print("Error! Couldn't load  ",filename)
         return
     try:
-        print("Opening " + filename)
+        if(verbose):print("Opening " + filename)
         try:
             f = open(filename)
         except:
@@ -798,10 +833,10 @@ def loadlinfpccart(filename,idxoffset=0):
         species = ''
         if(filename.find('specie02')>=0):
             resonant_int = resonant_int*tau**(.5)*mu**(-.5)
-            print("Calculated resonant interval (elec): " + str(resonant_int))
+            if(verbose): print("Calculated resonant interval (elec): " + str(resonant_int))
             species = 'elec'
         else:
-            print("Calculated resonant interval (ion): " + str(resonant_int))
+            if(verbose): print("Calculated resonant interval (ion): " + str(resonant_int))
             species = 'ion'
 
         resonant_int = resonant_int.real
@@ -941,7 +976,7 @@ def loadlinfpcceperp(filename):
 
     return linfpcdata
 
-def load_plume_sweep(flnm,verbose=True,use_ps_split_new=True):
+def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
 
     """
     Load data from plume sweep
@@ -1154,10 +1189,10 @@ def load_plume_sweep(flnm,verbose=True,use_ps_split_new=True):
             "n2i": [],
             "ps1": [], #power into species 1
             "ps2": [],
-            "p1ld1": [], #diagnol term in tensor; main landau damping term
-            "p1ld2": [], #cross term in tensor; typically small
             "p1ttd1": [], #diagnol term in tensor; main transit time damping damping term
             "p1ttd2": [], #cross term in tensor; typically small
+            "p1ld1": [], #diagnol term in tensor; main landau damping term
+            "p1ld2": [], #cross term in tensor; typically small
             "p1n0": [],
             "p1cd": [],
             "p2ld1": [],
@@ -1358,26 +1393,7 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
                 print("********************************************************************************")
                 print("Please input a valid var1key for this style!************************************")
                 print("********************************************************************************")
-
-    if(stylenum2 == 0):
-        if(var2key == 'kperp'):
-                sweepvar2 = '0'
-                midsweepval2 = plume_input.params['kperp']
-        elif(var2key == 'kpar'):
-                sweepvar2 = '1'
-                midsweepval2 = plume_input.params['kpar']
-        elif(var2key == 'betap'):
-                sweepvar2 = '2'
-                midsweepval2 = plume_input.params['betap']
-        elif(var2key == 'vtp'):
-                sweepvar2 = '3'
-                midsweepval2 = plume_input.params['vtp']
-        else:
-                print("********************************************************************************")
-                print("Please input a valid var2key for this style!************************************")
-                print("********************************************************************************")
-
-    if(stylenum1 >= 1):
+    elif(stylenum1 >= 1):
         if(var2key == 'tauS'):
                 sweepvar1 = '0'
                 midsweepval1 = plume_input.species[stylenum1-1]['tauS']
@@ -1400,8 +1416,27 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
                 print("********************************************************************************")
                 print("Please input a valid var2key for this style!************************************")
                 print("********************************************************************************")
+    else:
+        print("Please enter a valid stylenum1...")
 
-    if(stylenum2 >= 1):
+    if(stylenum2 == 0):
+        if(var2key == 'kperp'):
+                sweepvar2 = '0'
+                midsweepval2 = plume_input.params['kperp']
+        elif(var2key == 'kpar'):
+                sweepvar2 = '1'
+                midsweepval2 = plume_input.params['kpar']
+        elif(var2key == 'betap'):
+                sweepvar2 = '2'
+                midsweepval2 = plume_input.params['betap']
+        elif(var2key == 'vtp'):
+                sweepvar2 = '3'
+                midsweepval2 = plume_input.params['vtp']
+        else:
+                print("********************************************************************************")
+                print("Please input a valid var2key for this style!************************************")
+                print("********************************************************************************")
+    elif(stylenum2 >= 1):
         if(var2key == 'tauS'):
                 sweepvar2 = '0'
                 midsweepval2 = plume_input.species[stylenum1-1]['tauS']
@@ -1424,6 +1459,9 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
                 print("********************************************************************************")
                 print("Please input a valid var2key for this style!************************************")
                 print("********************************************************************************")
+    else:
+        print("Please enter a valid stylenum1...")
+
 
     plume_input.guesses = [{}]
     g_om = root.real
@@ -1468,8 +1506,8 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
     inputflnmtemp2 = inputflnm+'sweep2'
     scan_type=sweepvar1
     scan_style=stylenum1
-    swi=var1min
-    swf=midsweepval1
+    swi=midsweepval1
+    swf=var1min
     swlog=swlog
     ns=nsamps
     nres=1
@@ -1513,8 +1551,8 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
 
     scan_type=sweepvar2
     scan_style=stylenum2
-    swi=var2min
-    swf=midsweepval2
+    swi=midsweepval2
+    swf=var2min
     swlog=swlog
     ns=nsamps
     nres=1
@@ -1534,8 +1572,8 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
     inputflnmtemp4 = inputflnm+'sweep4'
     scan_type=sweepvar1
     scan_style=stylenum1
-    swi=var1min
-    swf=midsweepval1
+    swi=midsweepval1
+    swf=var1min
     swlog=swlog
     ns=nsamps
     nres=1
@@ -1546,8 +1584,8 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
 
     scan_type=sweepvar2
     scan_style=stylenum2
-    swi=var2min
-    swf=midsweepval2
+    swi=midsweepval2
+    swf=var2min
     swlog=swlog
     ns=nsamps
     nres=1
