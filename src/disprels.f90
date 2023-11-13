@@ -1,18 +1,11 @@
-!!=============================================================================!
-!!*PLUME                                                                    *!!
-!!Plasma in a Linear Uniform Magnetized Environment                          !!
-!!                                                                           !!
-!!Kristopher Klein                                                           !!
-!!kris.klein@gmail.com                                                       !!
-!!Lunar and Planetary Laboratory, University of Arizona
-!!                                                                           !!
-!!*DISPERSION FUNCTIONS                                                     *!!
-!=============================================================================!
-!=============================================================================!
+!===========================================================================!
+!*DISPERSION FUNCTIONS                                                     *!
+!===========================================================================!
+
 module disprels
   implicit none
   private
-  integer, parameter :: nbrack=128              !# of Bessel functions to sum
+  integer, parameter :: nbrack=128              !# of Bessel functions to sum 
 
   private :: find_minima,bisect,zet_in,zetout,bessel,get_out_name
 
@@ -21,12 +14,10 @@ module disprels
   public :: rtsec, calc_eigen, disp
 
   contains
-!-=-=-=-=-
 
-!-=-=-=-=-
-!------------------------------------------------------------------------------
-!Greg Howes, 2006; Kristopher Klein, 2015
-!------------------------------------------------------------------------------
+  !------------------------------------------------------------------------------
+  !Greg Howes, 2006; Kristopher Klein, 2015
+  !------------------------------------------------------------------------------
   subroutine map_search
     use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
     use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
@@ -105,7 +96,6 @@ module disprels
               wr=omi+dr*real(ir)
            endif
            if (loggridg) then
-              !wi=-1*(10.**(gami+di*real(ii))) !NOTE: This should be negative!
               wi=1*(10.**(gami+di*real(ii))) !NOTE: This should be negative!
            else
               wi=gami+di*real(ii)
@@ -114,16 +104,13 @@ module disprels
            omega=cmplx(wr,wi)
            om(ir,ii)=omega
 
-           
            dal(ir,ii)=disp(omega)
            val(ir,ii)=abs(dal(ir,ii))
-           !disprels.f90
         enddo
      enddo
 
      !Find Local minima (roots) in map
      call find_minima(val,numroots,iroots,nroots)
-          !disprels.f90
      if (writeOut) then
         write(*,'(i2,a)')nroots,'  possible local minima found'
         do j=1,nroots
@@ -152,11 +139,8 @@ module disprels
               om2=omega*(1.+prec)
               
               omega=rtsec(disp,om1,om2,tol,iflag)
-
-              !write(*,*)'found root:',j,omega
               
-              !check to see if the found root is already
-              !an identified solution
+              !check to see if the found root is already an identified solution
               if (j.eq.1) then
                  k=k+1
                  wroots(1,k)=real(omega)
@@ -165,14 +149,9 @@ module disprels
               else
                  unique_root=.true.
                  do ig=1,j-1 !loop through previous solutions
-                    !if ( (abs(real(omega)-wroots(1,ig))/abs(wroots(1,ig)).lt.D_gap) .and. &
-                    !     (abs(aimag(omega)-wroots(2,ig))/abs(wroots(2,ig)).lt.D_gap) ) then
-                    
+ 
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
-                       !write(*,*) 'fail',ig,j,&
-                       !     omega,cmplx(wroots(1,ig),wroots(2,ig)),&
-                       !     abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))
                        unique_root=.false.
                        exit
                     endif
@@ -329,196 +308,184 @@ module disprels
 
 
   end subroutine map_search
-!-=-=-=-=-
 
-!-=-=-=-=-
-subroutine test_disp
-  use vars, only : wroots, nroot_max, writeOut
-  use vars, only : kperp, kpar, vtp
-  implicit none
-  complex :: omega                           !Complex Frequency
-  complex :: D
+  subroutine test_disp
+    use vars, only : wroots, nroot_max, writeOut
+    use vars, only : kperp, kpar, vtp
+    implicit none
+    complex :: omega                           !Complex Frequency
+    complex :: D
   
-  omega= cmplx(wroots(1,1),wroots(2,1))
+    omega= cmplx(wroots(1,1),wroots(2,1))
   
-  D = disp(omega)
+    D = disp(omega)
 
-  write(*,'(4es14.4)') omega,D*vtp**6.
-  write(*,*)kperp,kpar
+    write(*,'(4es14.4)') omega,D*vtp**6.
+    write(*,*)kperp,kpar
 
-end subroutine test_disp
+  end subroutine test_disp
 
-!-=-=-=-=-
-
-!-=-=-=-=-
-!Refine input guesses for roots of dispersion relation.
-
-
-subroutine refine_guess
-  use vars, only : wroots, nroot_max, writeOut
-  implicit none
-  complex :: omega                           !Complex Frequency
-  complex :: om1,om2                         !Bracket Values
-  integer :: iflag                           !Flag for Root search
-  real, parameter :: tol=1.0E-13             !Root Search Tolerance 
-  real, parameter :: prec=1.E-7              !Root Finding precision  
-  !looping
-  integer :: j 
+  !Refine input guesses for roots of dispersion relation.
+  subroutine refine_guess
+    use vars, only : wroots, nroot_max, writeOut
+    implicit none
+    complex :: omega                           !Complex Frequency
+    complex :: om1,om2                         !Bracket Values
+    integer :: iflag                           !Flag for Root search
+    real, parameter :: tol=1.0E-13             !Root Search Tolerance 
+    real, parameter :: prec=1.E-7              !Root Finding precision  
+   !looping
+    integer :: j 
 
 
-  do j=1,nroot_max
-     if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
-        
-        omega=cmplx(wroots(1,j),wroots(2,j))
-        
-        om1=omega*(1.-prec)
-        om2=omega*(1.+prec)
-        
-        omega=rtsec(disp,om1,om2,tol,iflag)
-        
-        wroots(1,j)=real(omega)
-        wroots(2,j)=aimag(omega)
-        
-     endif
-  enddo
+    do j=1,nroot_max
+       if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
+          
+          omega=cmplx(wroots(1,j),wroots(2,j))
+          
+          om1=omega*(1.-prec)
+          om2=omega*(1.+prec)
+          
+          omega=rtsec(disp,om1,om2,tol,iflag)
+          
+          wroots(1,j)=real(omega)
+          wroots(2,j)=aimag(omega)
+          
+       endif
+    enddo
+  
+      if (writeOut) then
+         !WRITE out roots 
+         write(*,'(a)')'Dispersion Solutions '
+         do j = 1,nroot_max
+            write(*,'(i3,2es14.4)')j,wroots(1:2,j)
+         enddo
+      endif
 
-    if (writeOut) then
-       !WRITE out roots 
-       write(*,'(a)')'Dispersion Solutions '
-       do j = 1,nroot_max
-          write(*,'(i3,2es14.4)')j,wroots(1:2,j)
-       enddo
+  end subroutine refine_guess
+
+  subroutine map_scan
+    use vars, only : scan, spec, print_Name, sw, sw2, kperp, kpar
+    use vars, only : writeOut
+    use vars, only : gami, gamf, omi, omf ,betap
+    !Local
+    integer :: jj
+    character(150) :: outName,writeName
+    real :: diff,diff2        !spacing for scan
+    real :: theta, theta_q, ki, kperpi,kpari
+    real :: pi
+
+    pi = 4.0*ATAN(1.0)
+
+    !Assign output name for scan is
+    call set_map_pointers(outName,diff,diff2)
+    !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
+
+      if ((scan(1)%style_s)==-1) then
+       !Scans with multiple components
+       if ((scan(1)%type_s)==0) then
+          !k_0 -> k_1; 
+          !k_0= current k
+          !kperp_1 = range_i, kpar_1 = range_f
+          kpari=kpar
+          kperpi=kperp
+       elseif ((scan(1)%type_s)==1) then
+          !theta_0 -> theta_1
+          !atan(kperp/kpar) -> theta_0
+          !swf ->  theta_1 in degrees
+          theta=atan(kperp/kpar)!initial theta value
+          ki=kpar/cos(theta)
+       elseif ((scan(1)%type_s)==2) then
+          !k_0-> k_1 along fixed (current) angle
+          !k_0 -> k_1; 
+          !k_0= current k
+          !|k_1|=swf
+          theta = atan(kperp/kpar)
+          ki=kpar/cos(theta)
+       endif
     endif
-
-end subroutine refine_guess
-!-=-=-=-=-
-
-!-=-=-=-=-=
-subroutine map_scan
-  use vars, only : scan, spec, print_Name, sw, sw2, kperp, kpar
-  use vars, only : writeOut
-  use vars, only : gami, gamf, omi, omf ,betap
-  !Local
-  integer :: jj
-  character(150) :: outName,writeName
-  real :: diff,diff2        !spacing for scan
-  real :: theta, theta_q, ki, kperpi,kpari
-  real :: pi
-
-  pi = 4.0*ATAN(1.0)
-
-  !Assign output name for scan is
-  call set_map_pointers(outName,diff,diff2)
-  !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
-
-    if ((scan(1)%style_s)==-1) then
-     !Scans with multiple components
-     if ((scan(1)%type_s)==0) then
-        !k_0 -> k_1; 
-        !k_0= current k
-        !kperp_1 = range_i, kpar_1 = range_f
-        kpari=kpar
-        kperpi=kperp
-     elseif ((scan(1)%type_s)==1) then
-        !theta_0 -> theta_1
-        !atan(kperp/kpar) -> theta_0
-        !swf ->  theta_1 in degrees
-        theta=atan(kperp/kpar)!initial theta value
-        ki=kpar/cos(theta)
-     elseif ((scan(1)%type_s)==2) then
-        !k_0-> k_1 along fixed (current) angle
-        !k_0 -> k_1; 
-        !k_0= current k
-        !|k_1|=swf
-        theta = atan(kperp/kpar)
-        ki=kpar/cos(theta)
-     endif
-  endif
   
-  !Scan over chosen parameter
+    !Scan over chosen parameter
+    !Output %n_scan steps, with %n_res steps inbetween each output
+    !%n_res should be set to 1 for these type of runs, as there
+    !is no information passed between each map calculation.
+    do jj = 0, (scan(1)%n_scan*scan(1)%n_res) 
+       !Advance scanned parameter values
+       if ((scan(1)%style_s)==-1)then
+          if ((scan(1)%type_s)==0) then
+             if (scan(1)%log_scan) then
+                !k0->k1
+                sw=10.**(log10(kperpi)+diff*real(jj))    
+                sw2=10.**(log10(kpari)+diff2*real(jj))    
+             else
+                sw=(kperpi)+diff*real(jj)    
+                sw2=(kpari)+diff2*real(jj)    
+             endif
+          elseif ((scan(1)%type_s)==1) then
+             !theta_0->theta_1
+             if (scan(1)%log_scan) then
+                theta_q=10.**(log10((theta))+diff*real(jj))    
+             else
+                theta_q=(((theta))+diff*real(jj))    
+             endif
+             sw=(ki*sin(theta_q))!kperp
+             sw2=(ki*cos(theta_q))!kpar
+          elseif ((scan(1)%type_s)==2) then
+             !k along contant theta
+             if (scan(1)%log_scan) then
+                sw=10.**(log10(ki*sin(theta))+diff*real(jj))    
+                sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))    
+             else
+                sw=(ki*sin(theta))+diff*real(jj)    
+                sw2=(ki*cos(theta))+diff2*real(jj)    
+             endif
+          endif
+       else
+          if (scan(1)%log_scan) then
+             sw=10.**(log10(scan(1)%range_i)+diff*real(jj))    
+          else
+             sw=(scan(1)%range_i)+diff*real(jj)    
+          endif
+       endif
 
-  !Output %n_scan steps, with %n_res steps inbetween each output
-  !%n_res should be set to 1 for these type of runs, as there
-  !is no information passed between each map calculation.
-  do jj = 0, (scan(1)%n_scan*scan(1)%n_res) 
-     !Advance scanned parameter values
-     if ((scan(1)%style_s)==-1)then
-        if ((scan(1)%type_s)==0) then
-           if (scan(1)%log_scan) then
-              !k0->k1
-              sw=10.**(log10(kperpi)+diff*real(jj))    
-              sw2=10.**(log10(kpari)+diff2*real(jj))    
-           else
-              sw=(kperpi)+diff*real(jj)    
-              sw2=(kpari)+diff2*real(jj)    
-           endif
-        elseif ((scan(1)%type_s)==1) then
-           !theta_0->theta_1
-           if (scan(1)%log_scan) then
-              theta_q=10.**(log10((theta))+diff*real(jj))    
-           else
-              theta_q=(((theta))+diff*real(jj))    
-           endif
-           sw=(ki*sin(theta_q))!kperp
-           sw2=(ki*cos(theta_q))!kpar
-        elseif ((scan(1)%type_s)==2) then
-           !k along contant theta
-           if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff*real(jj))    
-              sw2=10.**(log10(ki*cos(theta))+diff2*real(jj))    
-           else
-              sw=(ki*sin(theta))+diff*real(jj)    
-              sw2=(ki*cos(theta))+diff2*real(jj)    
-           endif
-        endif
-     else
-        if (scan(1)%log_scan) then
-           sw=10.**(log10(scan(1)%range_i)+diff*real(jj))    
-        else
-           sw=(scan(1)%range_i)+diff*real(jj)    
-        endif
-     endif
-
-     if ((scan(1)%style_s)==-1) then
-        !Scans with multiple components
-        if ((scan(1)%type_s)==0) then
-           !k_0 -> k_1; 
-           !k_0= current k
-           !kperp_1 = range_i, kpar_1 = range_f
-           kpari=kpar
-           kperpi=kperp
-           write(print_Name,'(a,i0,a,i0)')&
+       if ((scan(1)%style_s)==-1) then
+          !Scans with multiple components
+          if ((scan(1)%type_s)==0) then
+             !k_0 -> k_1; 
+             !k_0= current k
+             !kperp_1 = range_i, kpar_1 = range_f
+             kpari=kpar
+             kperpi=kperp
+             write(print_Name,'(a,i0,a,i0)')&
                 trim(outName),int(10000*sw),&
                 '_',int(10000*sw2)
-        elseif ((scan(1)%type_s)==1) then
-           !theta_0 -> theta_1
-           !atan(kperp/kpar) -> theta_0
-           !swf ->  theta_1 in degrees
-           write(print_Name,'(a,i0)')&
-                trim(outName),int(10000*atan(sw/sw2)*180./pi)
-        elseif ((scan(1)%type_s)==2) then
-           !k_0-> k_1 along fixed (current) angle
-           !k_0 -> k_1; 
-           !k_0= current k
-           !|k_1|=swf
-           write(print_Name,'(a,i0)')&
-                trim(outName),int(10000*sw/sin(theta))
-        endif
-     else
-        write(print_Name,'(a,i0)')&
-             trim(outName),int(10000*sw)
-        write(*,*)trim(print_Name)
-     endif
+          elseif ((scan(1)%type_s)==1) then
+             !theta_0 -> theta_1
+             !atan(kperp/kpar) -> theta_0
+             !swf ->  theta_1 in degrees
+             write(print_Name,'(a,i0)')&
+                  trim(outName),int(10000*atan(sw/sw2)*180./pi)
+          elseif ((scan(1)%type_s)==2) then
+             !k_0-> k_1 along fixed (current) angle
+             !k_0 -> k_1; 
+             !k_0= current k
+             !|k_1|=swf
+             write(print_Name,'(a,i0)')&
+                  trim(outName),int(10000*sw/sin(theta))
+          endif
+       else
+          write(print_Name,'(a,i0)')&
+               trim(outName),int(10000*sw)
+          write(*,*)trim(print_Name)
+       endif
 
-     !edit map parameters
-     omi=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+       !edit map parameters
+       omi=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+       omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+       gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+       gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      
-     call map_search
-     !disprels.f90
-
+       call map_search
   enddo
   
   !End Parameter Scan

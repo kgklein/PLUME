@@ -1,13 +1,8 @@
-#################################################################### OVERVIEW
-#  Makefile for PLUME:
-#  Plasma in a Linear Uniform Magnetic Environment
+######################################################################## OVERVIEW
+#  Makefile for PLUME / JET-PLUME:
+#  (Judging Energy Transfer in a) Plasma in a Linear Uniform Magnetic Environment
 #
-#   VERSION 0.0
-#
-#  Version notes:
-#
-#  LAST UPDATE:  2023/01/23
-###############################################################################
+#################################################################################
 
 
 # SYSTEM=IFORT
@@ -23,20 +18,17 @@ PACK = Makefile \
 #FLAGS=
 #NOTE: For Intel Fortran compiler ifort
 ifeq ($(SYSTEM),IFORT)
-	FLAGS=  -O3 -r8 -double-size 128 #this works!
+	FLAGS=  -O3 -r8 -double-size 128
 	COMP=   ifort
 endif
 
 ifeq ($(SYSTEM),GFORT)
 #NOTE	: For gfortran
 #gfortran orders roots a bit differently...
-	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 #this works!
+	FLAGS=  -O3 -DDOUBLE -fdefault-real-8
 	COMP= gfortran
 endif
 LIBS=
-
-#LFMOD=	nrtype.o nrutil_trim.o bessels.o funcs.o complex_root.o \
-	disprels.o
 
 LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o fpc.o
 
@@ -67,7 +59,6 @@ clean:
 
 tar:
 	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar
-#	cp pack_plume_`date +'%y%m%d'`.tar.gz ~/Dropbox/Codes/PLUME
 
 #########Rules
 %.o : %.f90
