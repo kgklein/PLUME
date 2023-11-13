@@ -1609,8 +1609,8 @@ module fpc
       real, intent(in)      :: tau_s            !T_ref/T_s|_parallel
       real, intent(in)      :: mu_s             !m_ref/m_s
       real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
-      real, intent(in)      :: fs0                 !normalized zero order distribution
-      complex, intent(out)                  :: fs1               !first order distribution
+      real, intent(in)      :: fs0              !normalized zero order distribution
+      complex, intent(out)  :: fs1              !first order distribution
 
       integer :: n !bessel sum counter
       integer :: m !bessel sum counter
@@ -1618,6 +1618,7 @@ module fpc
       real :: b_s                           !Bessel function argument
 
       !intermediate values (see calculation notes for definitions)
+      real :: kpar_temp
       complex :: denom
       complex :: emult
       complex :: Wbar_s
@@ -1628,18 +1629,22 @@ module fpc
       real :: phi_temp
 
       phi_temp = phi!+3.14159265359
-      ef1 = ef(1) !Used to 'turn off' contributes due to ef1/2/3
+      ef1 = ef(1) !Used to 'turn off' contribution due to ef1/2/3
       ef2 = ef(2)
       ef3 = ef(3)
       !ef1 = 0
       !ef2 = 0
       !ef3 = 0
 
-      if (mu_s .eq. 1.) then
-        omega_temp = -real(omega)-ii*aimag(omega) !`fix` sign as PLUME computes wr and gam such that omega=wr-i*gam but stores wr and gam in the var 'omega'
+      if (q_s .gt. 0.) then !fix sign definition difference between swanson/ stix
+        omega_temp = -real(omega)-ii*aimag(omega) 
+        kpar_temp = -kpar
       else
         omega_temp = omega
+        kpar_temp = kpar
       end if
+
+
 
       !Compute Bessel functions (if necessary)
       ! NOTE: If bs is same as last time, no need to recompute Bessels
@@ -1655,7 +1660,7 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.-kpar*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
 
       ! write(*,*)'denoms (vpar,mu_s)', vpar, mu_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))&
       ! -mu_s/q_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)),omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))+mu_s/q_s
@@ -1666,7 +1671,7 @@ module fpc
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
-       denom=omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s
+       denom=omega_temp-kpar_temp*vpar*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s
        Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/b_s*ef1
