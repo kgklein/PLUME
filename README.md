@@ -19,17 +19,12 @@ Greg Howes<br />
 Eliot Quataert<br />
 Jason TenBarge<br />
 
-<br />
-<br />
-<br />
-<br />
-<br />
-
+<img src="https://github.com/kgklein/PLUME/blob/linfpc/Jet-Plume_Logo.svg" width=50% height=50%>
 
 # 1.) PLUME/JET-PLUME Setup
 GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
 
-To compile and run, first open a terminal, navigate to the desired folder and clone this repo:
+To compile, first open a terminal, navigate to the desired folder and clone this repo:
 ```
 git clone https://github.com/kgklein/PLUME/tree/linfpc
 ```
@@ -37,7 +32,7 @@ Open the newly downloaded folder:
 ```
 cd PLUME
 ```
-Clean any old builds:
+Clean the old build:
 ```
 make clean
 ```
@@ -50,7 +45,7 @@ From here, there are two ways to use PLUME or JET-PLUME. The first way is with t
 
 ## Command Line
 
-Make output folder (folder name is found in input file)
+First, make an output folder (folder name is found in input file)
 ```
 mkdir data/*datafoldername*
 ```
@@ -459,32 +454,20 @@ where 'param' is the name of the parameter being scanned. The file consists of m
 
 The power of each species by each mode can be computed using two different ways by changes the value of .new_low_n. in vars.f90 and _recompiling the code_. New users are recommended to keep new_low_n = .true.. This is the default format.
 
-### Default Dispersion Relation/Eigenfunction Output
-The format for .new_low_n. = .true. is shown below:
+### Dispersion Relation/Eigenfunction Output
+The format for .new_low_n. = .false. and is shown below (eigen = .false. omits the Bx,y,z Ex,y,z Ux,y,z output, heating = .false. omits the P output, and (heating = .false. or (new_low_n = .false. and .low_n. = .false.)) omits P_split output (note .new_low_n. takes priority if .low_n. and .new_low_n. are both true):
 
-The output format for parameter depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
-for two species:
+Note, when low_n is selected,
 ```
-
+P_split|s = {psld,psttd,psn0,pscd}
 ```
+where psld is the power due to landua damping, psttd is the power due to transit time damping, psn0 is the power due to n=0 modes, and pscd is the power due to cylcotron damping (all terms are for each species individually).
 
-for three species:
+When new_low_n is selected,
 ```
-
+P_split|s = {psttd1,psttd2,psld1,psld2,psn0,pscd}
 ```
-
-for four species:
-```
-
-```
-
-for five species:
-```
-
-```
-
-### Legacy Dispersion Relation/Eigenfunction Output
-The format for .new_low_n. = .false. is shown below:
+where, p1ld1 is the off diagonal $\chi_zy$ term, psld2 is the on diagonal $\chi_zz$ term, pdttd1 is the off diagonal $\chi_yy$ term, psttd2 is the $\chi_yz$ term, psn0 is the power due to n=0 modes, and pscd is the power due to cylcotron damping (all terms are for each species individually).
 
 The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
 For two species:
@@ -495,8 +478,9 @@ omega,gamma,          !5-6
   Ex,y,z              !13-18
   Ux,y,z|species      !19-24,25-30
   n|species }|(if eigen==true) !31-32,33-34
-{ P|species }|(if heat ==true) !35,36
-(tau,mu,alph,q,D,vv)|species   !37-42,43-48
+{ P|species }|(if heat==true) !35,36
+{Ps_split|species}(if heat==true and low_n||new_low_n=true) !37-40,41-44 or 37-42,43-48
+(tau,mu,alph,q,D,vv)|species   !37-42,43-48 or 49-54,55-60
 ```
 
 For three species:
@@ -508,7 +492,8 @@ omega,gamma,          !5-6
   Ux,y,z|species      !19-24,25-30,31-36
   n|species }|(if eigen==true) !37-38,39-40,41-42
 { P|species }|(if heat ==true) !43,44,45
-(tau,mu,alph,q,D,vv)|species   !46-51,52-57,58-63
+{Ps_split|species}(if heat==true and low_n||new_low_n=true) !46-49,50-53,54-57 or 46-51,52-57,58-63
+(tau,mu,alph,q,D,vv)|species   !46-51,52-57,58-63 or 64-69,70-75,76-81
 ```
 
 For four species:
@@ -520,7 +505,8 @@ omega,gamma,          !5-6
   Ux,y,z|species      !19-24,25-30,31-36,37-42
   n|species }|(if eigen==true) !43-44,45-46,47-48,49-50
 { P|species }|(if heat ==true) !51,52,53,54
-(tau,mu,alph,q,D,vv)|species   !55-60,61-66,67-72,73-78
+{Ps_split|species}(if heat==true and low_n||new_low_n=true)!55-58,59-62,63-66,67-70 or 55-60,61-66,67-72,73-78,79-84
+(tau,mu,alph,q,D,vv)|species   !71-76,77-82,83-88,89-94 or 85-90,91-96,97-102,103-108
 ```
 
 For five species:
@@ -532,7 +518,8 @@ omega,gamma,          !5-6
   Ux,y,z|species      !19-24,25-30,31-36,37-42, 43-48
   n|species }|(if eigen==true) !49-50,51-52,53-54,55-56,57-58
 { P|species }|(if heat ==true) !59,60,61,62,63
-(tau,mu,alph,q,D,vv)|species   !64-69,70-75,76-81,82-87,88-93
+{Ps_split|species}(if heat==true and low_n||new_low_n=true)!64-67,68-71,72-75,76-79,80-83 or 64-69,70-75,76-81,82-87,88-93
+(tau,mu,alph,q,D,vv)|species   !84-89,90-95,96-101,102-107,108-113 or 94-99,100-105,106-111,112-117,118-123
 ```
 
 The above pattern holds for _n_ species.
@@ -556,41 +543,20 @@ AND
 WIP...
 
 ```
-index real, index imaginary, omega, *, * !1-5
- * !6
- * !7
-
-```
-'(2i6,3es14.6,2es14.4)')&
-ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
+index real, index imaginary, omega, log10(val(ir,ii)) !1-5
 sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
 sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
+```
+for all ir,ii in the grid where val is the (TODO: describe the debug vars here)
 
 ### dispersion_*outputName*.roots
 The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
-For two species:
+For _n_ species:
 ```
-
+kperp,kpar,betap,vtp, !1-4
+{omega,gamma|roots} !{5+2*i_root,6+2*i_root}
+(tau,mu,alph,q,D,vv)|species !{(7+2*n_roots+6*i_species,12+2*n_roots+6*i_species)}    
 ```
-
-For three species:
-```
-
-```
-
-For four species:
-```
-
-```
-
-For five species:
-```
-
-```
-
-(kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec))
-
-The above pattern holds for _n_ species.
 
 *outputName*.roots contains the list of the found roots. Note, that roots will sometimes be found outside of the original specified domain. Here, all current estimated roots are assumed to have at least approximately converged and will be output here. 
 
