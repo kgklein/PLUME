@@ -26,7 +26,7 @@ GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gc
 
 To compile, first open a terminal, navigate to the desired folder and clone this repo:
 ```
-git clone https://github.com/kgklein/PLUME/tree/linfpc
+git clone https://github.com/kgklein/PLUME
 ```
 Open the newly downloaded folder:
 ```
