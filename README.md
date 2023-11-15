@@ -22,7 +22,7 @@ Jason TenBarge<br />
 <img src="https://github.com/kgklein/PLUME/blob/linfpc/Jet-Plume_Logo.svg" width=50% height=50%>
 
 # 1.) PLUME/JET-PLUME Setup
-GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries). (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
+GFortran is needed to compile PLUME/JET-PLUME. To install, see [here](https://gcc.gnu.org/wiki/GFortranBinaries) or run 'xcode-select --install' in terminal if using macOS. (Alternatively, one may use IFort if appropriate changes are made to the Makefile).
 
 To compile, first open a terminal, navigate to the desired folder and clone this repo:
 ```
