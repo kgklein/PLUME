@@ -423,7 +423,7 @@ def plot_roots(roots,flnm='',xlim=[],ylim=[]):
     plt.show()
 
 def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='', plot_root = True, xlim = [], ylim = [], semilogx = False):
-   """
+    """
     Example plot of sweep to be used with 'make_sweeps_that_branch_from_params'
 
     Parameters
@@ -443,7 +443,6 @@ def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='',
     flnm : string
         name of file to save figure to
     """
-
     plt.figure()
     xplot = sweep[xkey]
     yplot = sweep[ykey]
