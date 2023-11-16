@@ -1174,8 +1174,9 @@ module fpc
       complex :: ef1,ef2,ef3
       complex :: omega_temp
       real :: phi_temp
+      real :: vpar_temp
 
-      phi_temp = phi!+3.14159265359
+      phi_temp = phi
       ef1 = ef(1) !Used to 'turn off' contribution due to ef1/2/3
       ef2 = ef(2)
       ef3 = ef(3)
@@ -1184,14 +1185,20 @@ module fpc
       !ef3 = 0
 
       if (q_s .gt. 0.) then !fix sign definition difference between swanson/ stix
-        omega_temp = -real(omega)-ii*aimag(omega) 
-        kpar_temp = -kpar
+          omega_temp = -real(omega)-ii*aimag(omega) 
+          kpar_temp = -kpar!-kpar
+          vpar_temp = vpar
+          ef3 = ef3
+          ef2 = ef2
+          ef1 = ef1
       else
-        omega_temp = omega
+        omega_temp = real(omega)-ii*aimag(omega)
         kpar_temp = kpar
+        vpar_temp = vpar
+        ef3 = ef3
+        ef2 = ef2
+        ef1 = ef1
       end if
-
-
 
       !Compute Bessel functions (if necessary)
       ! NOTE: If bs is same as last time, no need to recompute Bessels
@@ -1207,21 +1214,14 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar-aleph_s*hatV_s))
-
-      ! write(*,*)'denoms (vpar,mu_s)', vpar, mu_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))&
-      ! -mu_s/q_s,omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r)),omega_temp-kpar*vpar*sqrt(mu_s/(tau_s*aleph_r))+mu_s/q_s
-
-      ! write(*,*)jbess(-1)*Ubar_s/b_s*ef1,jbess(0)*Ubar_s/b_s*ef1,jbess(1)*Ubar_s/b_s*ef1
-      ! write(*,*)ii*0.5*(jbess(-1-1)-jbess(-1+1))*Ubar_s*ef2,&
-      ! ii*0.5*bess0_s_prime(b_s)*Ubar_s*ef2,ii*0.5*(jbess(1-1)-jbess(1+1))*Ubar_s*ef2
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
-       denom=omega_temp-kpar_temp*vpar*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s
-       Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar
+       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)
+       Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
-          emult=n*jbess(n)*Ubar_s/b_s*ef1
+          emult=n*jbess(n)*Ubar_s/(b_s)*ef1
           if(n .ne. 0) then
             emult=emult+ii*0.5*(jbess(n-1)-jbess(n+1))*Ubar_s*ef2
           else
@@ -1343,9 +1343,7 @@ module fpc
       real, intent(out)                  :: fs0              !zero order distribution
 
       
-      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))  !(GGH: Error: Fixed 13 JUL 2023)
-      
-
+      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))
       fs0 = EXP(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
     end subroutine calc_fs0
 
@@ -1362,7 +1360,6 @@ module fpc
       real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
 
       real                                  :: b_s              !argument to bessel functions (see calc_fs1)
-
 
       b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r))
 
