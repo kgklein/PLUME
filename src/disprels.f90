@@ -667,30 +667,16 @@ subroutine om_scan(is)
            
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
-              !call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(is)%eigen_s,scan(is)%heat_s)
-              !>>>GGH: 1/18/23
               call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
-              !<<<GGH: 1/18/23
               omega=omlast(ii)
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
-                 !>>>GGH: 1/18/23
                  Ps_split_new=-0.1
-                 !<<<GGH: 1/18/23
               endif
            endif
 
            if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
-
-           !1, 2, 3, 4
-
-           !5, 6
-
-           !7,8 9,10 11,12 : 13,14 15,16 17,18 : 
-           !19,20 21,22 23,24 : 25,26 27,28 29,30 :
-           !31,32 33,34
-           !35, 36
 
            select case(out_type)
            case(0)!Om, Eigen, Heating
@@ -704,16 +690,13 @@ subroutine om_scan(is)
                          Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                          params(1:6,1:nspec)
                  else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                    !<<<GGH: 1/18/23
                     write(out_unit(ii),fmt)&
                          kperp,kpar,betap,vtp,&
                          omega,&            
                          bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                          Ps(1:nspec),Ps_split(1:4,1:nspec),&
                          params(1:6,1:nspec)
-                    !>>>GGH: 1/18/23
                  endif
-                 !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -730,7 +713,6 @@ subroutine om_scan(is)
                    params(1:6,1:nspec)
            case(2) !Om, Heating
               if (low_n .or. new_low_n) then
-                 !>>>GGH: 1/18/23
               if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -738,15 +720,12 @@ subroutine om_scan(is)
                       Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                       params(1:6,1:nspec)
               else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       Ps(1:nspec),Ps_split(1:4,1:nspec),&
                       params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
               endif
-              !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -878,9 +857,7 @@ subroutine om_double_scan
      endif
   enddo
 
-
   !Open the (nroot_max) output files
-
   !May want to have a netCDF file output option.
   !Look into AGK I/O module
   do ii = 1,nroot_max
@@ -894,14 +871,12 @@ subroutine om_double_scan
      endif
   enddo
   
-
   !Allocate variable for last solution and copy in initial values
   allocate(omlast(nroot_max))
   allocate(omSafe(nroot_max)); omSafe=cmplx(0.,0.)
   do ii=1,nroot_max
      omlast(ii)=cmplx(wroots(1,ii),wroots(2,ii))
   enddo 
-
 
   !Parameter 1 scan
   !Output %n_scan steps, with %n_res steps inbetween each output
@@ -1044,16 +1019,11 @@ subroutine om_double_scan
                  
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
-                    !>>>GGH: 1/18/23
-                    !call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(2)%eigen_s,scan(2)%heat_s)
-                    !<<<GGH: 1/18/23
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
-                       !>>>GGH: 1/18/23
                        Ps_split_new=1.0
-                       !<<<GGH: 1/18/23
                     endif
 
                  endif
@@ -1061,7 +1031,6 @@ subroutine om_double_scan
                  select case(out_type)
                  case(0) !Om, Eigen, Heating
                     if (low_n .or. new_low_n) then
-                       !>>>GGH: 1/18/23
                        if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
@@ -1070,16 +1039,13 @@ subroutine om_double_scan
                                Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                                params(1:6,1:nspec)
                        else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                                Ps(1:nspec),Ps_split(1:4,1:nspec),&
                                params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
                        endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -1104,15 +1070,12 @@ subroutine om_double_scan
                                Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                                params(1:6,1:nspec)
                        else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                Ps(1:nspec),Ps_split(1:4,1:nspec),&
                                params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
                        endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -1648,9 +1611,7 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   !Heating
   real, dimension(1:nspec) :: Ps   !Power into/out of species  
   real, dimension(1:4,1:nspec) :: Ps_split   !Power into/out of species from LD, TTD
-  !>>>GGH: 1/18/23
   real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-  !<<<GGH: 1/18/23
   real :: Ew !wave energy
 
   !Root Scan....
@@ -1713,11 +1674,8 @@ end subroutine om_radial
 !     and particle heating/cooling from a given wave
 !-=-=-=-=-=-
 !-=-=-=-=-=-
-!>>>GGH: 1/18/23
-!subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_L)
 subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,eigen_L,heat_L)
   use vars, only : new_low_n
-!<<<GGH: 1/18/23
   use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
   implicit none
   !!Passed!!
@@ -1769,48 +1727,31 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
   !If (scan(is)%eigen_s) loop
   if (eigen_L) then
   !CALCULATE VELOCITY FLUCTUATIONS========================================
-  !vmean is the velocity perturbutation due to the wave for each species
-  !    normalized to the electron velocity perturbation
   ! This is the mean velocity normalized to the Alfven velocity
-  !KGK: 1-28-2015: Added the drift velocity effects
   vmean(:,:)=0.
   do j=1,3!x,y,z
      do jj = 1,nspec !Species velocity fluctuations
-! Old Version
         vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
              omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
              sum(electric(:)*susc(jj,j,:))
-!       9 AUG 2023: Fixed U calculation
-!        vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
-!             omega/sqrt(betap)*vtp* &
-!             sum(electric(:)*susc(jj,j,:))
      enddo
   enddo
 
   !CALCULATE DENSITY FLUCTUATIONS========================================
   ! This is ns/ns0
-  !KGK: 8-28-2013: switched from real(omega) to the complex valued omega.
-  !KGK: 12-19-2013: Added the sqrt(T_perp/T_par) factor
-  !KGK: 1-28-2015: Added the drift velocity Dopplar shift
   do jj=1,nspec
      ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
           ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
           *sqrt(betap*spec(1)%alph_s))
   enddo
-
-  !EndIf (scan(is)%eigen_s) loop
-  endif
+  endif   !Endif for (scan(is)%eigen_s) loop
 
   !If (scan(is)%heat_s) loop
   !Greg Howes, 2006; Kristopher Klein, 2015
   if (heat_L) then
      !CALCULATE ELECTRON AND ION HEATING======================================
      temp1 = cmplx(real(omega),0.)
-     !temp1 = omega
      temp1 = disp(temp1)
-     
-     !if (kpar.gt.0.29) write(*,*)'!/!',susc(:,1,2)
-     
      do ii = 1, 3 !tensor index
         do j = 1, 3 !tensor index
            do jj = 1, nspec !species index
@@ -1834,8 +1775,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
      do jj = 1, nspec
         Ps(jj) = sum(term(jj,:)*electric(:))
      enddo
-
-     !if (kpar.gt.0.29) write(*,*)'!!',Ps(:)
      
      temp1 = disp(cmplx(real(omega*1.000001),0.))
      
@@ -1848,21 +1787,16 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
         enddo
      enddo
 
-     
-     
      ewave = 0.
      do ii = 1, 3
         term1(ii) = sum(conjg(electric(:))*dsusch(:,ii))
      enddo
-     
      ewave = sum(term1(:)*electric(:)) + sum(magnetic(:)*conjg(magnetic(:)))
 
-     !Ps = 2.*Ps/ewave
      Ps = Ps/ewave
   
      !LD, TTD, and CD calculation
      if (low_n .or. new_low_n) then
-     !>>>GGH: 1/18/23
      if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
        !N=0
         do ii = 1, 3 !tensor index
@@ -1933,8 +1867,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
         !Normalization             
         Ps_split_new = Ps_split_new/ewave
         
-     else  !Old version of low_n using Stix/Quataert version of LD/TTD separation
-        !<<<GGH: 1/18/23        
+     else  !Old version of low_n using Stix/Quataert version of LD/TTD separation    
         !N=0
         do ii = 1, 3 !tensor index
            do j = 1, 3 !tensor index
@@ -2011,9 +1944,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
         !Normalization             
         Ps_split = Ps_split/ewave
 
-        !>>>GGH: 1/18/23
      endif
-     !<<<GGH: 1/18/23
      endif
 
      !EndIf (scan(is)%heat_s) loop
@@ -3029,10 +2960,6 @@ end subroutine get_double_out_name
      enz2=((kpar/(om*vtp))**2.)/alphp  !n_z^2
      enxnz=(kperp*kpar/(om*vtp)**2.)/alphp !n_x n_z
 
-     !enx2=((kperp/(vtp))**2.)/alphp !n_x^2
-     !enz2=((kpar/(vtp))**2.)/alphp  !n_z^2
-     !enxnz=(kperp*kpar/(vtp)**2.)/alphp !n_x n_z
-
      !Initialize eps factors
      eps_xx = cmplx(0.,0.) 
      eps_yy = cmplx(0.,0.) 
@@ -3063,7 +2990,7 @@ end subroutine get_double_out_name
         eps_yz_t = cmplx(0.,0.) 
         eps_zz_t = cmplx(0.,0.) 
 
-     !Compute all necessary plasma dispersion functions and bessel functions
+        !Compute all necessary plasma dispersion functions and bessel functions
         tsi=0. ;  zz=0. ;
         if (.not. reuse_bessel(is)) then 
            do n = -nbrack-1, nbrack+1
@@ -3079,10 +3006,6 @@ end subroutine get_double_out_name
                 ( om - Vdrifts - dble(n)* disp_mu/disp_Q)/kpar
            zz(n)=zet_in(kpar,tsi(n))
         enddo
-
-        !write(*,*)zz(1),zz(-1)
-        !write(*,*)jn(1,is),jn(-1,is)
-        !write(*,*)jpn(1,is),jpn(-1,is)
 
         !Set normalizations for susceptibilites
         !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
@@ -3339,7 +3262,7 @@ end subroutine get_double_out_name
 
      !Assign Values of matrix elements in final wave equation
      !NORM!
-     a(1,1) = 1. + eps_xx - enz2
+     a(1,1) = 1. + eps_xx - enz2 
      a(1,2) = eps_xy
      a(1,3) = eps_xz + enxnz
      a(2,1) = -a(1,2)
@@ -3375,10 +3298,10 @@ end subroutine get_double_out_name
    end function disp
 
 
-!------------------------------------------------------------------------------
-!                           Greg Howes, 2005
-!------------------------------------------------------------------------------
-   !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
+   !------------------------------------------------------------------------------
+   !                           Greg Howes, 2005
+   !------------------------------------------------------------------------------
+   !NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
      integer, parameter :: maxit=75
      complex :: func, x1, xl, x2
@@ -3387,9 +3310,6 @@ end subroutine get_double_out_name
      integer :: iflag,j
      complex :: maxr,minr
      logical :: limits=.false.
-     
-     !if (real(x1).eq.0.) &
-     !        write(*,'(4es15.6e3)')x1,x2
 
      !Set limits for solution
      if (limits) then
@@ -3399,9 +3319,6 @@ end subroutine get_double_out_name
      
      fl=func(x1)
      f=func(x2)
-     
-     !write(*,'(4es15.6e3)')fl,x1
-     !write(*,'(4es15.6e3)')f,x2
      
      if(abs(fl).lt.abs(f))then
         rtsec=x1

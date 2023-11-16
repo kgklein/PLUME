@@ -23,7 +23,7 @@ module fpc
 
   implicit none
   private :: calc_fs0, calc_fs1
-  public :: compute_fpc_gyro, compute_fpc_cart, write_fs0
+  public :: compute_fpc_gyro, compute_fpc_cart
 
   !NEW GLOBAL VARIABLES=========================================================
   real :: bs_last=0.0       !Last Bessel function argument
@@ -1184,9 +1184,10 @@ module fpc
       !ef2 = 0
       !ef3 = 0
 
-      if (q_s .gt. 0.) then !fix sign definition difference between swanson/ stix
+      !fix sign definition difference between swanson/ stix
+      if (q_s .gt. 0.) then 
           omega_temp = -real(omega)-ii*aimag(omega) 
-          kpar_temp = -kpar!-kpar
+          kpar_temp = -kpar
           vpar_temp = vpar
           ef3 = ef3
           ef2 = ef2
@@ -1201,7 +1202,6 @@ module fpc
       end if
 
       !Compute Bessel functions (if necessary)
-      ! NOTE: If bs is same as last time, no need to recompute Bessels
       b_s = (kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
       if (b_s .ne. bs_last) then
          !Populate jbess with current values
@@ -1244,87 +1244,6 @@ module fpc
       fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
       
     end subroutine calc_fs1
-
-    !------------------------------------------------------------------------------
-    !                           Collin Brown, 2020
-    !------------------------------------------------------------------------------
-    !#TODO: remove
-    subroutine write_fs0()
-      use vars, only : betap,kperp,kpar,vtp,nspec,spec
-      use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv
-      use vars, only : wroots, nroots
-      use vars, only : outputName, dataName
-
-      character(1000) :: filename                      !Output File name
-      character(1000) :: outputPath                    !Output folder
-      character(1000) :: cmd                           !Varaible to store command line commands
-      real    :: vperpi, vpari                       !normalized velocity space current value in loop
-      integer :: vperpindex, vparindex               !loop counters
-      complex :: omega                               !Complex Frequency
-      real    :: fs0                                 !normalized distribution function and first partial derivatives
-      integer :: numstepvperp, numstepvpar           !total number of steps in loop
-      logical :: ex                                  !used to check if results directory exists
-
-      integer :: unit_s                 !out file unit counter
-
-      integer :: is                     !species counter
-
-      !check if results directory exists
-      ! INQUIRE (DIRECTORY='data', EXIST=ex) !TODO: make this work for gfortran compiler
-      ex = .true.
-      if(ex) then
-        write(*,*)"Assuming data folder already exists..."
-      else
-        write(*,*)"Creating data folder for output..."
-        write(*,*)'mkdir data'
-        CALL system('mkdir data') 
-        write(*,*)"Saving output to data folder..."
-      endif
-
-      write(outputPath,*) 'data/', trim(dataName)
-      ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
-      ex = .true.
-      if(ex) then
-        write(*,*)"Assuming subfolder ", trim(dataName), " already exists"
-      else
-        write(*,*)"Creating data subfolder ", trim(dataName)
-        write(cmd,*)'mkdir ',trim(outputPath)
-        write(*,*)cmd
-        CALL system(cmd)
-        write(*,*)"Saving to data subfolder ", trim(dataName)
-      endif
-
-      !loop over each species and write to different files
-      do is = 1, nspec
-        !make file to store result
-        !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
-        unit_s = 10+is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
-        write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.specie',(is),'.fs0'
-        open(unit=unit_s,file=trim(filename),status='replace')
-
-        write(*,*)'Calculating fs0 for species ',is
-
-        !setup loop variables
-        numstepvperp = int((vperpmax-vperpmin)/delv)
-        numstepvpar = int((vparmax-vparmin)/delv)
-        vperpi = vperpmin
-        vpari = vparmin
-
-        do vperpindex = 0, numstepvperp
-          do vparindex = 0, numstepvpar
-            call calc_fs0(vperpi,vpari,spec(is)%vv_s,spec(is)%Q_s,spec(is)%alph_s,spec(is)%tau_s,spec(is)%mu_s,fs0)
-            if(ABS(real(fs0)) .lt. 9.999E-99) fs0 = (0.,0.) !file formating bug fix
-            write(unit_s,'(es17.5)',advance='no')real(fs0)
-            vpari = vpari+delv
-          end do
-          vpari = vparmin
-          vperpi = vperpi+delv
-          write(unit_s,*)
-        end do
-        vpari = vparmin !reset counter
-        vperpi = vperpmin !reset counter
-      end do
-    end subroutine write_fs0
 
     subroutine calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0) !TODO: remove q_s input as it is not used
       use vars, only : betap,vtp,pi

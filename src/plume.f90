@@ -49,7 +49,7 @@ program plume
   use functions, only: read_guess_input,read_radial_input
   use disprels, only: map_search,refine_guess,om_scan,om_double_scan,map_scan
   use disprels, only: test_disp, radial_scan
-  use fpc, only: compute_fpc_gyro, compute_fpc_cart, write_fs0
+  use fpc, only: compute_fpc_gyro, compute_fpc_cart
 
   implicit none
 
@@ -242,7 +242,7 @@ program plume
      call radial_scan
 
    case(6) !calculate field particle correlation as a function of vperp vpar
-     write(*,*)'Predicting FPC (gyro coords)...'
+     write(*,*)'Predicting FPC (gyrotropic coords)...'
 
      if (use_map) then
         !Read in root mapping bounds
@@ -266,10 +266,8 @@ program plume
          call compute_fpc_gyro(iroot)
      enddo
 
-     call write_fs0()
-
   case(7) !calculate field particle correlation as a function of vx vy vz (i.e. vperp1, vperp2, vpar)
-     write(*,*)'Predicting FPC (cart coords)...'
+     write(*,*)'Predicting FPC (cartesian coords)...'
 
      if (use_map) then
         !Read in root mapping bounds

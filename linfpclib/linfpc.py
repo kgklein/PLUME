@@ -28,6 +28,7 @@ def find_nearest(array, value): #random but very useful function
     idx : int
         index of nearest element
     """
+
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return idx
@@ -166,10 +167,6 @@ class plume_input:
             self.guesses.append(tempguess)
 
     def write_input(self,flnm,outputname,desc='',verbose=False):
-        #TODO: option branches to check that all relevant info is there
-        #calls write_namelist
-        #TODO: write out date and time at top of file
-        #TODO: write out description at top
 
         _replace_input_aux(flnm,verbose=verbose)
 
@@ -228,7 +225,7 @@ class plume_input:
 
         f.close()
 
-    def load_from_file(self,flnm): #TODO: consider moving outside of class and have it make and return class
+    def load_from_file(self,flnm):
         paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','dataName','outputName']
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
@@ -359,8 +356,6 @@ class plume_input:
 
             _i += 1
 
-        #TODO: handle dataName and outputName carefully
-
 
     #main dict
     namelists = {}
@@ -388,15 +383,34 @@ def _replace_input_aux(inputflnm,verbose=False):
         print("File, "+inputflnm+",does not already exist...")
         print("Carrying on...")
 
-#TODO: write output of plume somewhere automatically when python calls plume!!!! (instead of using '>> outlog')
 def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False):
-    #use option 0
+    """
+    Computes roots for given input. Uses newton secant method starting with points generated 
+    on grid defined by map in plume input
+
+    Paramters
+    ---------
+    plume_input : class
+        class containing input parameters
+    inputflnm : string
+        name to call input file name
+    outputname : string
+        name to call output data name
+    outlog : string
+        filename to write plume output to (print statements- not data)
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    roots : 1d array (complex)
+        found roots
+    """
 
     print("OVERWRITING OPTION; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
     plume_input.params['option'] = 0
     plume_input.params['use_map'] = '.true.'
 
-    #TODO: checks that input file is setup coorect and then call plume.e after making inputfile
     plume_input.write_input(inputflnm,outputname)
 
     cmd = 'mkdir data/' + plume_input.dataname
@@ -424,11 +438,35 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
     return np.asarray(roots)
     
 def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlog='outlog',verbose=False):
+    """
+    Takes specified solution, refines it using newton secant method, computes eigenvalues, and returns data as
+    dictionary
+
+    Paramters
+    ---------
+    plume_input : class
+        class containing input parameters
+    root : complex
+        root to refine
+    inputflnm : string
+        name to call input file name
+    outputname : string
+        name to call output data name
+    outlog : string
+        filename to write plume output to (print statements- not data)
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    onepointsweep : dict
+        dict of found root and associated eigenfunctions
+    """
     outputnametemp1 = outputname+'eigenatpoint'
     inputflnmtemp1 = inputflnm+'eigenatpoint'
     
     if(verbose):
-        print("OVERWRITING OPTION; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")   #TODO: or consider making a temporary copy
+        print("OVERWRITING OPTION...")
     plume_input.params['option'] = 1
     plume_input.params['use_map'] = '.false.'
     
@@ -453,7 +491,6 @@ def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlo
     g_gam = root.imag
     plume_input.make_guess(g_om,g_gam)
     
-    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
     plume_input.write_input(inputflnmtemp1,outputnametemp1,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp1 + '.in'
     cmd += ' >> ' + outlog
@@ -467,22 +504,38 @@ def refine_root_and_calc_eigen_guess(plume_input,root,inputflnm,outputname,outlo
     onepointsweep = load_plume_sweep(flnmsweep,verbose=verbose)
     
     #remove redundant point info
-    
     for _key in onepointsweep:
         onepointsweep[_key] = np.asarray(onepointsweep[_key][0])
     
-    
-    
     return onepointsweep
-    
-    
-
-def load_roots():
-    pass
 
 def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',cart=False,verbose=False):
+    """
+    Takes specified solution, refines it using newton secant method, and computes fpc
+
+    Paramters
+    ---------
+    plume_input : class
+        class containing input parameters
+    root : complex
+        root to refine
+    inputflnm : string
+        name to call input file name
+    outputname : string
+        name to call output data name
+    outlog : string
+        filename to write plume output to (print statements- not data)
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    cdatafilenames : 1darray (strings)
+        names of all fpc/fs1 data
+    """
+
     #use guess to compute fpc
-    if(verbose): print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+    if(verbose): print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP...")
     if(not(cart)):
         plume_input.params['option'] = 6
     else:
@@ -496,7 +549,6 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
     g_gam = root.imag
     plume_input.make_guess(g_om,g_gam)
 
-    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
     plume_input.write_input(inputflnm,outputname)
 
     cmd = 'mkdir data/' + plume_input.dataname
@@ -520,10 +572,45 @@ def compute_fpc_from_root(plume_input,root,inputflnm,outputname,outlog='outlog',
     return cdatafilenames
 
 def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmin,sweepmax,root,inputflnm,outputname,outlog='outlog',nsamps=200,verbose=False,use_ps_split_new=True,swlog=True):
-    #makes sweeps that start at params namelist, and branches out
+    """
+    Makes two sweeps that both start at point specified by params namelist and root and branches out in opposite directions.
 
+    Please make sure that your point falls within the sweepmin and sweepmax range!
+
+    Paramters
+    ---------
+    plume_input : class
+        class containing input parameters
+    sytlenum : int
+        integer of sweep style (see main PLUME readme)
+    sweepvarkey : string
+        key of variable to be swept over
+    sweepmin/sweepmax : float
+        min and max value of variable to be swept over
+    root : complex
+        root to refine
+    inputflnm : string
+        name to call input file name
+    outputname : string
+        name to call output data name
+    outlog : string
+        filename to write plume output to (print statements- not data)
+    verbose : bool
+        if true, write print statements
+    nsamps : int
+        number of samples per sweep
+    use_ps_split_new : bool
+        use new or old power split (warning- must match .new_low_n. in vars.f90 (recompile if changed))
+    swlog : bool
+        use log spacing between sweep points
+
+    Returns
+    -------
+    sweep : dict
+        dict containing parallel arrays of sweep values
+    """
     if(verbose):
-        print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
+        print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP...")
     plume_input.params['option'] = 1
     plume_input.params['use_map'] = '.false.'
     plume_input.params['nroot_max'] = 1
@@ -596,7 +683,6 @@ def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmi
     eigen=True
     plume_input.scan_inputs = [{}]
     plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
-    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
     plume_input.write_input(inputflnmtemp1,outputnametemp1,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp1 + '.in'
     cmd += ' >> ' + outlog
@@ -618,7 +704,6 @@ def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmi
     eigen=True
     plume_input.scan_inputs = [{}]
     plume_input.make_scan(scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen)
-    #TODO: checks that input file is set up correctly and then call plume.e after making inputfile
     plume_input.write_input(inputflnmtemp2,outputnametemp2,verbose=verbose)
     cmd = './plume.e ' + inputflnmtemp2 + '.in'
     cmd += ' >> ' + outlog
@@ -626,47 +711,57 @@ def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmi
         print(cmd)
     os.system(cmd)
 
-    # try:
-    #load sweeps
-    if(stylenum>=1):
-        flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-    else:
-        flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-    if(verbose):
-        print("Loading ",flnmsweep1,"...")
-    sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
+    try:
+        #load sweeps
+        if(stylenum>=1):
+            flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
+        else:
+            flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
+        if(verbose):
+            print("Loading ",flnmsweep1,"...")
+        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
-    if(stylenum>=1):
-        flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-    else:
-        flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-    if(verbose):
-        print("Loading ",flnmsweep2,"...")
-    sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
+        if(stylenum>=1):
+            flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
+        else:
+            flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
+        if(verbose):
+            print("Loading ",flnmsweep2,"...")
+        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
-    if(verbose):
-        print("Combining data and returning as 1 sweep...")
-    for _key in sweeplow.keys():
-        sweeplow[_key] = np.flip(sweeplow[_key])
+        if(verbose):
+            print("Combining data and returning as 1 sweep...")
+        for _key in sweeplow.keys():
+            sweeplow[_key] = np.flip(sweeplow[_key])
 
-    sweep = {}
-    for _key in sweeplow.keys():
-        sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
+        sweep = {}
+        for _key in sweeplow.keys():
+            sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
+        return sweep
 
-    return sweep
-
-
-    def __combine_out_sweeps(sweep1,sweep2):
-        pass
-
-    # except:
-    #     print("Could not automatically load and combine sweeps.")
-    #     print("Probable cause of error is described below:")
-    #     print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
-    #     print("and thus the output file name will be rounded as well. ")
-    #     print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
+    except:
+        print("Could not automatically load and combine sweeps.")
+        print("Probable cause of error is described below:")
+        print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
+        print("and thus the output file name will be rounded as well. ")
+        print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
 
 def loadlinfpccepar(filename,verbose=False):
+    """
+    Loads fpc data for Epar in gyrotropic coordinates
+
+    Paramters
+    ---------
+    filename : string
+        filename to be loaded
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    linfpcdata : dict
+        dict containing fpc data
+    """
 
     if(verbose):print("Opening " + filename)
     try:
@@ -730,10 +825,9 @@ def loadlinfpccepar(filename,verbose=False):
         C.append(row)
         line = f.readline()
 
-    # C = np.flip(C,axis=1) #TODO: perhaps this should be done in the plotting routine #TODO: remove?
     C = np.asarray(C)
 
-    #weird index rounding bug fix
+    #index rounding bug fix
     if(len(vpar) < len(C[0])):
         vpar.append(float(vparindex))
     elif(len(vpar) > len(C[0])):
@@ -747,9 +841,47 @@ def loadlinfpccepar(filename,verbose=False):
 
     return linfpcdata
 
-#TODO: rename gyro funcs everywhere else
-def loadlinfpcgyro_dist(filenamereal,filenameimag,idxoffset=0):
-    #Warning: does not check if the input parameters are the same for both files
+def loadlinfpcceperp(filename,verbose=False):
+    """
+    Loads fpc data for Eperp in gyrotropic coordinates
+
+    Paramters
+    ---------
+    filename : string
+        filename to be loaded
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    linfpcdata : dict
+        dict containing fpc data
+    """
+
+    import copy
+    linfpcdata = loadlinfpccepar(filename,verbose=verbose)
+
+    linfpcdata['CEperp'] = copy.deepcopy(linfpcdata['CEpar'])
+    del linfpcdata['CEpar']
+
+    return linfpcdata
+
+def loadlinfpcgyro_dist(filenamereal,filenameimag):
+    """
+    Loads fpc data for fs1 in gyrotropic coordinates
+
+    Paramters
+    ---------
+    filename : string
+        filename to be loaded
+    verbose : bool
+        if true, write print statements
+
+    Returns
+    -------
+    outdict : dict
+        dict containing fs1 data
+    """
 
     realpartdict = loadlinfpccepar(filenamereal)
     imagpartdict = loadlinfpccepar(filenameimag)
@@ -768,7 +900,23 @@ def loadlinfpcgyro_dist(filenamereal,filenameimag,idxoffset=0):
     return outdict
 
 def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
-    #Warning: does not check if the input parameters are the same for both files
+    """
+    Loads fpc data for fs1 in cartesian coordintates
+
+    Paramters
+    ---------
+    filename : string
+        filename to be loaded
+    verbose : bool
+        if true, write print statements
+    idxoffset : int
+        integer used to attempt to fix off by one errors when generating grid. Not to be used by user.
+
+    Returns
+    -------
+    outdict : dict
+        dict containing fpc data
+    """
 
     realpartdict = loadlinfpccart(filenamereal)
     imagpartdict = loadlinfpccart(filenameimag)
@@ -794,10 +942,26 @@ def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
 
     return outdict
 
-#TODO: make one load function
 def loadlinfpccart(filename,idxoffset=0,verbose=False):
-    #idxoffset is used to handle off by 1 division errors when computing the number of points on the grid
-    #assumes equal bounds in vx vy and vz direction
+    """
+    Loads fpc data for fs1 in cartesian coordintates
+    assumes equal bounds in vx vy and vz direction
+
+    Paramters
+    ---------
+    filename : string
+        filename to be loaded
+    verbose : bool
+        if true, write print statements
+    idxoffset : int
+        integer used to attempt to fix off by one errors when generating grid. Not to be used by user.
+
+    Returns
+    -------
+    linfpcdata : dict
+        dict containing fpc data
+    """
+
     if(abs(idxoffset) > 2):
         print("Error! Couldn't load  ",filename)
         return
@@ -967,26 +1131,20 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
     except:
         return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
-def loadlinfpcceperp(filename):
-    import copy
-    linfpcdata = loadlinfpccepar(filename)
-
-    linfpcdata['CEperp'] = copy.deepcopy(linfpcdata['CEpar'])
-    del linfpcdata['CEpar']
-
-    return linfpcdata
-
 def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
-
     """
     Load data from plume sweep
 
-    Assumes 2 species
+    Assumes 2 species (TODO: generalize...)
 
     Parameters
     ----------
     flnm : str
         path to sweep to be loaded
+    verbose : bool
+        if true, write print statements
+    use_ps_split_new : bool
+        use new or old power split (warning- must match .new_low_n. in vars.f90 (recompile if changed))
 
     Returns
     -------
@@ -1301,6 +1459,19 @@ def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
         return plume_sweep
 
 def loadeigen(flnm):
+    """
+    Used to load plume eigenfunction output made by FPC routine for debugging.
+
+    Parameters
+    ----------
+    flnm : string
+        filename to be loaded
+
+    Returns
+    -------
+    eigendict : dict
+        dict containing eigenfunction data.
+    """
 
     eigendict = {}
 
@@ -1332,11 +1503,22 @@ def loadeigen(flnm):
     eigendict['Pi'] = complex(float(line[34]),float(line[35]))
     eigendict['Pe'] = complex(0,0)#complex(float(line[36]),float(line[37]))
 
-    #TODO: load Ps_split_new
-
     return eigendict
 
 def loadmoms(flnm):
+    """
+    Used to load jet-plume fs1-moment output made by FPC routine for debugging.
+
+    Parameters
+    ----------
+    flnm : string
+        filename to be loaded
+
+    Returns
+    -------
+    momsdict : dict
+        dict containing fs1 moments data.
+    """
 
     momsdict = {}
 
@@ -1361,10 +1543,45 @@ def loadmoms(flnm):
 
     return momsdict
 
-
-#TODO: check if k val is within bounds
 def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,var1max,var2key,var2min,var2max,root,inputflnm,outputname,swlog=False,outlog='outlog',nsamps=25,verbose=False,use_ps_split_new=True):
-    #Style -1 is not supported here.
+    """
+    Makes four 2d sweeps that all start at point specified by params namelist and root and branches out in opposite directions.
+
+    Please make sure that your point falls within the sweepmin and sweepmax range!
+
+    Paramters
+    ---------
+    plume_input : class
+        class containing input parameters
+    sytlenum : int
+        integer of sweep style (see main PLUME readme)
+    sweepvarkey : string
+        key of variable to be swept over
+    var_n_min/var_n_max : float
+        min and max value of variable to be swept over
+    root : complex
+        root to refine
+    inputflnm : string
+        name to call input file name
+    outputname : string
+        name to call output data name
+    outlog : string
+        filename to write plume output to (print statements- not data)
+    verbose : bool
+        if true, write print statements
+    nsamps : int
+        number of samples per sweep
+    use_ps_split_new : bool
+        use new or old power split (warning- must match .new_low_n. in vars.f90 (recompile if changed))
+    swlog : bool
+        use log spacing between sweep points
+
+    Returns
+    -------
+    sweep : dict
+        dict containing parallel arrays of sweep values
+    """
+
 
     if(verbose):
         print("OVERWRITING OPTION AND NUM GUESS AND USE_MAP; TODO CHECK THAT plume_input IS CORRECT INSTEAD...")
@@ -1376,6 +1593,7 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
     sweepvar = -1
     midsweepval = 0.
 
+    #Style -1 is not supported here.
     if(stylenum1 == 0):
         if(var1key == 'kperp'):
                 sweepvar1 = '0'

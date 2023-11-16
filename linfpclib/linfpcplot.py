@@ -2,7 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
+def plotlinfpc_gyro(linfpcdata,filename='',zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,computeEner=True,extraText=None):
+    """
+    Plots FPC velocity space signatures in gyrotropic space.
+
+    Parameters
+    ----------
+    linfpcdata : dict
+        dict returned by loadlinfpccepar/loadlinfpcceperp
+    filename : string
+        filename to save figure too
+    """
+
     from matplotlib import ticker, cm
     import matplotlib.colors as colors
 
@@ -20,7 +31,6 @@ def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,set
     vparmin = linfpcdata['vparmin']
     vparmax = linfpcdata['vparmax']
     delv = linfpcdata['delv']
-
 
     #restrict data to zoom interval if requested
     if(zoomin):
@@ -113,6 +123,19 @@ def plotlinfpc_gyro(linfpcdata,filename,zoomin=False,vlim=None,plotlog=False,set
     plt.show()
 
 def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plotlog=False,setequal=False,xlim=None,ylim=None,plotresonant=False,clim=None,extraText=None):
+    """
+    Plots FPC velocity space signatures in gyrotropic space.
+
+    Parameters
+    ----------
+    linfpcdata : dict
+        dict returned by loadlinfpccepar/loadlinfpcceperp
+    filename : string
+        filename to save figure too
+    plotkey : 're_f' or 'im_f'
+        picks if real or imag part is plotted
+    """
+
     from matplotlib import ticker, cm
     import matplotlib.colors as colors
 
@@ -130,7 +153,6 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
     vparmin = linfpcdata['vparmin']
     vparmax = linfpcdata['vparmax']
     delv = linfpcdata['delv']
-
 
     #restrict data to zoom interval if requested
     if(zoomin):
@@ -179,10 +201,10 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
     plt.set_cmap('bwr')
     if(not(plotlog)):
         print("plotting linear scale!")
-        plt.pcolormesh(vpar, vperp, C, vmax=rng,vmin=-rng, cmap="seismic", shading="gouraud")
+        plt.pcolormesh(vpar, vperp, C, vmax=rng,vmin=-rng, cmap="PuOr", shading="gouraud")
     else:
         print("plotting log scale!")
-        plt.pcolormesh(vpar, vperp, C, cmap="seismic", shading="gouraud",norm=colors.SymLogNorm(linthresh=1., linscale=1., vmin=-rng, vmax=rng))
+        plt.pcolormesh(vpar, vperp, C, cmap="PuOr", shading="gouraud",norm=colors.SymLogNorm(linthresh=1., linscale=1., vmin=-rng, vmax=rng))
 
     if(vlim != None):
         print("Changing xlim and ylim of plot!!!")
@@ -216,6 +238,21 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
     plt.show()
 
 def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False, scalevelocity=1):
+    """
+    Makes 3x3 plot of projections of FPC vel signature in cartesian coordinates
+
+    Parameters
+    ----------
+    foldername : string
+        location of data
+    filenametag : string
+        name of data
+    flnm : string
+        filename to save figure as
+    specnum : '01' or '02' etc.
+        species number to be plotted
+    """
+
     from linfpclib.linfpc import loadlinfpccart
 
     flnmread = foldername + filenametag +'.cparcart.specie'+specnum+'.mode01'
@@ -288,6 +325,21 @@ def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False
     plt.show()
 
 def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scalevelocity=1):
+    """
+    Makes 2x3 plot of projections of fs1 in cartesian coordinates
+
+    Parameters
+    ----------
+    foldername : string
+        location of data
+    filenametag : string
+        name of data
+    flnm : string
+        filename to save figure as
+    specnum : '01' or '02' etc.
+        species number to be plotted
+    """
+
     from linfpclib.linfpc import loadlinfpccart_dist
 
     flnmreadimag = foldername + filenametag +'.dfs.imag.specie'+specnum+'.mode01'
@@ -337,6 +389,17 @@ def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scaleveloci
 
 
 def plot_roots(roots,flnm='',xlim=[],ylim=[]):
+    """
+    Plots roots in complex freq space
+
+    Parameters
+    ----------
+    roots : 1darray (complex)
+        list of roots to plot
+    flnm : string
+        name of file to save figure to
+    """
+
     oms = [rt.real for rt in roots]
     gams = [rt.imag for rt in roots]
     lbls = [_i for _i in range(0,len(oms))]
@@ -360,9 +423,25 @@ def plot_roots(roots,flnm='',xlim=[],ylim=[]):
     plt.show()
 
 def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='', plot_root = True, xlim = [], ylim = [], semilogx = False):
-    """
-    Quick example plot routine
+   """
+    Example plot of sweep to be used with 'make_sweeps_that_branch_from_params'
 
+    Parameters
+    ----------
+    plumeinput : class
+        plumeinput class
+    root : complex
+        start root of the sweep
+    sweep : dict
+        sweep data
+    xkey : string
+        sweep key that is to be plotted as x axis
+    ykey : string
+        sweep key that is to be plotted as y axis
+    x/ylabel : string
+        label to put on x/y axis
+    flnm : string
+        name of file to save figure to
     """
 
     plt.figure()
@@ -390,8 +469,16 @@ def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='',
 
 def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
     """
-    Quick example plot routine
+    Quick example plot routine that plots power vs kperp
+
+    Parameters
+    ----------
+    sweep : dict
+        sweep data
+    flnm : string
+        filename of figure
     """
+
     #plot power rate due to different mechanisms/ susc tensor 'splits' 
     #INTO the particles in units of gamma/omega
 
@@ -463,8 +550,6 @@ def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
         plt.ylim(ylim[0],ylim[1])
     if(xlim != []):
         plt.xlim(xlim[0],xlim[1])
-    #plt.ylim(0.0001,1)
-    #plt.xlim(0.1,30)
 
     if(flnm != ''):
         plt.savefig(flnm,format='png',dpi=300)
@@ -472,6 +557,25 @@ def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
     plt.show()
 
 def sweep2dplot(sweep2d,xkey,ykey,zkey,xlabel,ylabel,zlabel,flnm = '', xlim=[],ylim=[],vmin=None,vmax=None):
+    """
+    Plots 2d sweep
+
+    Parameters
+    ----------
+    sweep2d : dict
+        2d sweep data
+    xkey : string
+        sweep key that is to be plotted as x axis
+    ykey : string
+        sweep key that is to be plotted as y axis
+    zkey : string
+        sweep key that is to be plotted as z axis (i.e. color)
+    x/y/zlabel : string
+        label to put on x/y/z axis
+    flnm : string
+        name of file to save figure to
+    """
+
     from matplotlib.tri import Triangulation
     from matplotlib.colors import LogNorm
 
