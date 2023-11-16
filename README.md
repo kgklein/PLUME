@@ -431,7 +431,6 @@ Velocity grid spacing<br />
 <br />
 
 # 6.) OUTPUT FORMAT 
-(TODO: UPDATE TO INCLUDE NEW OUTPUT FORMAT FROM DR. HOWES' NEW POWER SPLIT!!!)
 
 In this section, we describe the output format for each routine.
 
@@ -589,7 +588,6 @@ AND
 *outputName*.df1gyro.imag.specie*num*.mode*num* 
 ```
 for each species and each mode (i.e. selected $\mathbf{k}$ $\omega$ solution).
-(TODO: implement df1 into gyro routine)
 
 The files contain the correlation with respect to $E_{||}$, the correlation with respect to $E_{\perp}$, the real part of the perturbed distribution function fourier coefficients, and the imaginary part of the perturbed distribution function fourier coefficients respectively.
 
