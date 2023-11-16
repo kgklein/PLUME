@@ -1,0 +1,9 @@
+This is the directory that the example input file generates output into.
+
+To generate example data, please navigate to the parent folder and run:
+./plume.e example_map_par.in
+
+The following files will be generated upon completion:
+dispersion_map_par.map    map_par_kpar_1_10000.mode1  map_par_kpar_1_10000.mode3  README.data
+dispersion_map_par.roots  map_par_kpar_1_10000.mode2  map_par_kpar_1_10000.mode4
+
