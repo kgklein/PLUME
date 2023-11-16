@@ -546,7 +546,7 @@ index real, index imaginary, omega, log10(val(ir,ii)) !1-5
 sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
 sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
 ```
-for all ir,ii in the grid where val is the (TODO: describe the debug vars here)
+for all ir,ii in the grid where omega is the computed complex frequency, 'dal' is the value of the dispersion relation (i.e. the determinant of the matrix), and 'val' is the absolute value of the value fo the dispersion relation.
 
 ### dispersion_*outputName*.roots
 The output format depends on the number of species in the plasma. (The output for species 1 is always first, species 2 is second, etc.)
@@ -674,10 +674,10 @@ Taking the eletric field fluctuations $\mathbf{E}$, we can next express the magn
 
 For the velocity fluctuations, we use the expression for the first order current fluctuations
 ```math
-j_s = -i \omega \chi_s /(4 pi) . E = n_s q_s V_s
+j_s = -i \omega \chi_s /(4 pi) /cdot E = n_s q_s V_s
 ```
 
-We choose a normalization by v_Ap, yielding (TODO: we might need to update this equation as we improve/fix our normalization)
+We choose to normalize by v_Ap (the ion Alfven velocity), yielding
 ```math
 V_s/v_Ap = -i om (Q_s/D_s)(v_{tp}^2 \sqrt{\aleph_p/\beta_p}) \chi_s \cdot \mathbf{E}/E_x
 ```
@@ -694,16 +694,34 @@ Taking the 1st order contribution
 n_s/n_0 = (\mathbf{k} \cdot \mathbf{U}_s/v_Ap)/(\omega - k_{||} \mathbf{V}_s/\sqrt{\beta_p \aleph_p}) * (1/\sqrt{\beta_p \aleph_p})
 ```
 
-The heating calculation for species s is described in _Stix 1992, pg 289_ and _Quatart 1998_
+The heating calculation can be done in two ways, dependent on the value of '.new_low_n.' in vars.f90 (true by default).
 
-The calculation of (PS) the energy per wave period injected into or extracted from species s per unit wave energy (W) is valid for om >> gam, and definately falls apart for om = 0 
-(which happens with some frequency for the Alfven and Entropy modes) (TODO: update this eq below!! (include both forms!!))
+if '.new_low_n.' is true, the heating calculation is as follows:
+
+For landau damping,
+```math
+\lim_{\gamma/\omega \rightarrow 0} P_{LD,s} =  \frac{i \omega}{16 \pi} \big[ (\chi_{zz,s}^{(n=0)}-\chi_{zz,s}^{(n=0)*}E_{||}E_{||}^*+\chi_{zy,s}^{(n=0)E_{\perp,2}E_{||}^*}-\chi_{zy,s}^{(n=0)*}E_{\perp,2}^*E_{||})\big]
+```
+and for transit time damping, 
+```math
+\lim_{\gamma/\omega \rightarrow 0} P_{TTD,s} =  \frac{i \omega}{16 \pi} \big[ (\chi_{yy,s}^{(n=0)}-\chi_{yy,s}^{(n=0)*}E_{\perp,2}E_{\perp,2}^*+\chi_{yz,s}^{(n=0)E_{\perp,2}E_{||}^*}-\chi_{yz,s}^{(n=0)*}E_{\perp,2}^*E_{||})\big]
+```
+and for cyclotron damping,
+```math
+P_s^{\rm CD,n'}= \frac{\omega}{8 \pi}
+\bigg[|E_{\perp,1}|^2\left(\chi_s^{xx} -\chi_s^{xx,*}\right)
++|E_{\perp,2}|^2\left(\chi_s^{yy} -\chi_s^{yy,*}\right)
++\left(E_{\perp,1}^*E_{\perp,2} - E_{\perp,2}^*E_{\perp,1}\right)\left(\chi_s^{xy} -\chi_s^{yx,*}\right)
+\bigg]_{n=n',\omega=\omega_{\rm real}}
+```
+
+If '.new_low_n.' is false, the heating calculation for species s is described in _Stix 1992, pg 289_ and _Quatart 1998_. The calculation of (PS) the energy per wave period injected into or extracted from species s per unit wave energy (W) is valid for om >> gam, and definately falls apart for om = 0 (which happens with some frequency for the Alfven and Entropy modes) and takes the form
 ```math
 P_s = (E^* \cdot \chi_s^a |_{\gamma = 0} \cdot E)/4W
 ```
 where
 ```math
-\chi_s^a = (\chi_s - \chi_s^*)/(2i)
+\chi_s^a = (\chi_s - \chi_s^*)/(2i).
 ```
 
 <br />
