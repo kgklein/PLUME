@@ -679,7 +679,7 @@ j_s = -i \omega \chi_s /(4 pi) /cdot E = n_s q_s V_s
 
 We choose to normalize by v_Ap (the ion Alfven velocity), yielding
 ```math
-V_s/v_Ap = -i om (Q_s/D_s)(v_{tp}^2 \sqrt{\aleph_p/\beta_p}) \chi_s \cdot \mathbf{E}/E_x
+V_s/v_Ap = -i \omega (Q_s/D_s)(v_{tp}^2 \sqrt{\aleph_p/\beta_p}) \chi_s \cdot \mathbf{E}/E_x
 ```
 
 Density is extracted from the linearized continuity equation.
