@@ -434,7 +434,7 @@ module fpc
         write(*,*)'Writing omega/kpar V_a normalization to file...'
 
         !Write header information to output all 4 files
-        do jj=0,5
+        do jj=0,4
            write(unit_s+jj,'(8a22)')'tau','bi','kpar','kperp','vti','mu','omega.r','omega.i'
            write(unit_s+jj,'(8es22.7)')spec(is)%tau_s,betap,kpar,kperp,vtp,spec(is)%mu_s,&
                 real(omega*sqrt(betap)/kpar),aimag(omega*sqrt(betap)/kpar)
@@ -1039,8 +1039,6 @@ module fpc
         write(filename,'(5A,I0.2,1A,I0.2)')'data/',trim(dataName),'/',trim(outputName),&
               '.df1gyro.imag.specie',(is),'.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
         open(unit=unit_s+3,file=trim(filename),status='replace')
-
-        !TODO: write out fs1
 
         write(*,*)'Calculating fpc for species ',is
         write(*,*)'Writing omega/kpar V_a normalization to file...'
