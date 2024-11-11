@@ -69,12 +69,13 @@ class plume_input:
                        'writeOut':usewriteOut_out
         }
 
-    def set_fpc(self,vperpmin=0,vperpmax=0,vparmin=0,vparmax=0,delv=0,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None):
+    def set_fpc(self,vperpmin=0,vperpmax=0,vparmin=0,vparmax=0,delv=0,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None,elecdircontribution=0.):
         self.fpc = {'vperpmin':vperpmin,
                     'vperpmax':vperpmax,
                     'vparmin':vparmin,
                     'vparmax':vparmax,
-                    'delv':delv
+                    'delv':delv,
+                    'elecdircontribution':elecdircontribution
         }
         if(vxmin!=None and vxmax!=None and vymin!=None and vymax!=None and vzmin!=None and vzmax!=None):
            self.fpc['vxmin'] = vxmin

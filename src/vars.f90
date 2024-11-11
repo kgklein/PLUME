@@ -140,7 +140,7 @@ module vars
   real    :: vperpmin,vperpmax,vparmin,vparmax   !upper and lowerbounds of normalized velocity (v/vts) space samples (gyro coords)
   real    :: vxmin,vxmax,vymin,vymax,vzmin,vzmax !upper and lowerbounds of normalized velocity (v/vts) space samples (cart coords)
   real    :: delv                                !normalized velocity (delv/vts) space grid spacing
-
+  real    :: elecdircontribution                 !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
 
 
   integer :: nroots                              !Number of roots found
@@ -156,6 +156,7 @@ module vars
   public :: low_n, susc_low
   public :: vperpmin,vperpmax,vparmin,vparmax,delv
   public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
+  public :: elecdircontribution
   public :: new_low_n
 
 end module vars

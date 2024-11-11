@@ -29,7 +29,6 @@ module functions
   public :: get_unused_unit, read_radial_input
 
 contains
-
   subroutine read_in_params
     !Read in system parameters
     !input file is argument after executable:
@@ -38,7 +37,7 @@ contains
     use vars, only : dataName,nscan,nroot_max,use_map,outputName, pi
     use vars, only : low_n, susc_low, new_low_n
     use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv
-    use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax
+    use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,elecdircontribution
     implicit none
     !For Testing Quasineutrality
     real :: sum_nq,sum_nqv
@@ -49,9 +48,14 @@ contains
          use_map,low_n, new_low_n, &
          writeOut,dataName,outputName
 
+
+    
     nameList /fpc/ &
          vperpmin,vperpmax,vparmin,vparmax,delv,&
-         vxmin,vxmax,vymin,vymax,vzmin,vzmax
+         vxmin,vxmax,vymin,vymax,vzmin,vzmax,elecdircontribution
+
+    !default values
+    elecdircontribution = 0.
 
     call get_unused_unit (input_unit_no)
     call get_runname(runname)

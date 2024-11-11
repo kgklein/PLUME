@@ -43,6 +43,7 @@ module fpc
     subroutine compute_fpc_cart(wrootindex)
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv,nbesmax
+      use vars, only : elecdircontribution
       use vars, only : wroots, nroots
       use vars, only : outputName, dataName
       
@@ -207,7 +208,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
@@ -381,7 +382,8 @@ module fpc
             us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
          enddo
 
-         !Correct Normalization to v_AR
+         !Correct Normalization to v_ARm
+         write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
          us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
       enddo
 
@@ -677,6 +679,7 @@ module fpc
     subroutine compute_fpc_gyro(wrootindex)
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv,nbesmax
+      use vars, only : elecdircontribution
       use vars, only : wroots, nroots
       use vars, only : outputName, dataName
       
@@ -851,7 +854,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
+                                    elecdircontribution,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -861,28 +864,28 @@ module fpc
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
               enddo
             enddo
           enddo
@@ -1138,7 +1141,7 @@ module fpc
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
     ! Determine species perturbed VDF fs1 at (vperp,vpar)
-    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,fs0,fs1)
+    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,fs0,fs1)
       use vars, only : betap,kperp,kpar,vtp,pi
       use vars, only : nbesmax
       use bessels, only : bessj_s, bess0_s_prime
@@ -1154,6 +1157,7 @@ module fpc
       real, intent(in)      :: tau_s            !T_ref/T_s|_parallel
       real, intent(in)      :: mu_s             !m_ref/m_s
       real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
+      real, intent(in)      :: elecdircontribution !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
       real, intent(in)      :: fs0              !normalized zero order distribution
       complex, intent(out)  :: fs1              !first order distribution
 
@@ -1175,12 +1179,25 @@ module fpc
       real :: vpar_temp
 
       phi_temp = phi
-      ef1 = ef(1) !Used to 'turn off' contribution due to ef1/2/3
-      ef2 = ef(2)
-      ef3 = ef(3)
-      !ef1 = 0
-      !ef2 = 0
-      !ef3 = 0
+
+      !Used to 'turn off' contributions by other electric fields...
+      if (elecdircontribution == 1.) then
+         ef1 = ef(1)
+         ef2 = 0.
+         ef3 = 0
+      else if (elecdircontribution == 2.) then
+         ef1 = 0.
+         ef2 = ef(2)
+         ef3 = 0.
+      else if (elecdircontribution == 3.) then
+         ef1 = 0.
+         ef2 = 0.
+         ef3 = ef(3)
+      else
+         ef1 = ef(1)
+         ef2 = ef(2)
+         ef3 = ef(3)
+      end if
 
       !fix sign definition difference between swanson/ stix
       if (q_s .gt. 0.) then 
@@ -1238,9 +1255,9 @@ module fpc
        do m = -nbesmax,nbesmax
           fs1=fs1+jbess(m)*exp(ii*(m-n)*phi_temp)*emult/denom
        enddo
-      enddo
-      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0
-      
+       enddo
+      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0 
+
     end subroutine calc_fs1
 
     subroutine calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0) !TODO: remove q_s input as it is not used
