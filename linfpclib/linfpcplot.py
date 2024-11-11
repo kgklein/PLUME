@@ -446,30 +446,27 @@ def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='',
     plt.figure()
     xplot = sweep[xkey]
     yplot = sweep[ykey]
+
+    #make positive
+    if(not(semilogx) and sum(1 for y in yplot if y < 0) > len(yplot) / 2): #check if using full log plot and if there are more negative than positive values...
+        yplot = -yplot
+        ylabel = '-'+ylabel
+
     if(not(semilogx)):        
         plt.loglog(xplot,yplot)
     else:
         plt.semilogx(xplot,yplot)
+
     if(plot_root):
         plt.scatter(plumeinput.params[xkey],root.real)
+
+
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     if(xlim != []):
         plt.xlim(xlim[0],ylim[0])
     if(ylim != []):
         plt.ylim(ylim[0],ylim[1])
-
-
-    #TEMP TODO REMOVE THIS
-
-    om2actual=0.6812023603768227
-    kparactual = 0.6860508994755615
-    kperpactual = 1.9840491490487164
-    print('test')
-    if('\perp' in xlabel):
-        plt.scatter(kperpactual,om2actual)
-    elif('||' in xlabel):
-        plt.scatter(kparactual,om2actual)
 
     plt.grid()
 

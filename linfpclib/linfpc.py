@@ -228,7 +228,7 @@ class plume_input:
 
     def load_from_file(self,flnm):
         paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','dataName','outputName']
-        fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv']
+        fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
         scaninputkeys = ['scan_type','scan_style','swi','swf','swlog','ns','nres','heating','eigen']
