@@ -78,6 +78,18 @@ module fpc
       real :: Ew !wave energy
       !loop counter/ loop parameters
       integer :: is                     !species counter
+      integer :: idir                   !debug component contribution counter
+      complex    :: tempux1val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempux2val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempux3val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuy1val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuy2val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuy3val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuz1val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuz2val          !debug temp val that holds susc tensor current contribution to renormalize
+      complex    :: tempuz3val          !debug temp val that holds susc tensor current contribution to renormalize
+      real    :: A1                     !factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
+      real    :: B1                     !factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
       integer :: unit_s                 !out file unit counter
 
       real :: start, finish !debug/test to measure runtime of function
@@ -383,7 +395,7 @@ module fpc
          enddo
 
          !Correct Normalization to v_ARm
-         write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
+         ! write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
          us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
       enddo
 
@@ -399,6 +411,105 @@ module fpc
       !int_v CEz= jzEz
          jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3
       enddo
+
+      if(1==1) then !Force renormalization
+         !Compute B1
+         do is = 1, nspec
+            tempux1val = 0.
+            tempuy1val = 0.
+            tempuz1val = 0.
+            tempux2val = 0.
+            tempuy2val = 0.
+            tempuz2val = 0.
+            tempux3val = 0.
+            tempuy3val = 0.
+            tempuz3val = 0.
+            do idir =1, 3
+               hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+               do ivx=ivxmin,ivxmax
+                  do ivy=ivymin,ivymax
+                     vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
+                     do ivz=ivzmin,ivzmax
+                        !Compute dimensionless equilibrium Distribution value, fs0
+                        fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+                        !Compute perturbed  Distribution value, fs1
+                        phi = ATAN2(vvy(ivy),vvx(ivx))
+                        call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,real(idir),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                     enddo
+                  enddo
+               enddo
+               if(idir == 1) then
+                  do ivx=ivxmin,ivxmax
+                     tempux1val=tempux1val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+                  enddo
+                  do ivy=ivymin,ivymax
+                     tempuy1val=tempuy1val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+                  enddo
+                  do ivz=ivzmin,ivzmax
+                     tempuz1val=tempuz1val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+                  enddo
+                  tempux1val = tempux1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuy1val = tempuy1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+               end if
+
+               if(idir == 2) then
+                  do ivx=ivxmin,ivxmax
+                     tempux2val=tempux2val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+                  enddo
+                  do ivy=ivymin,ivymax
+                     tempuy2val=tempuy2val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+                  enddo
+                  do ivz=ivzmin,ivzmax
+                     tempuz2val=tempuz2val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+                  enddo
+                  tempux2val = tempux2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuy2val = tempuy2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+               endif
+
+               if(idir == 3) then
+                  do ivx=ivxmin,ivxmax
+                     tempux3val=tempux3val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+                  enddo
+                  do ivy=ivymin,ivymax
+                     tempuy3val=tempuy3val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+                  enddo
+                  do ivz=ivzmin,ivzmax
+                     tempuz3val=tempuz3val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+                  enddo
+                  tempux3val = tempux3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuy3val = tempuy3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+               endif
+
+            enddo
+            
+            A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+            B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+
+
+            !A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+            !B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+
+            write(*,*)'tempuxvals',tempux1val,tempux2val,tempux3val
+            write(*,*)'tempuyvals',tempuy1val,tempuy2val,tempuy3val
+            write(*,*)'tempuzvals',tempuz1val,tempuz2val,tempuz3val
+            write(*,*)'Debug A1',is,A1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
+            write(*,*)'Debug B1',is,B1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
+
+            !renormalize values
+            !renormalize ux_spec
+            us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
+            us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
+            us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+         enddo
+
+         !TODO: renormalize correlation
+      end if
+
+ 
       !=============================================================================
       ! END Integrate Distribution and Correlations over velocity
       !=============================================================================
