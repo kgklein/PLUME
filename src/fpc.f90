@@ -595,6 +595,32 @@ module fpc
       open(unit=unit_s+5,file=trim(filename),status='replace')
 
       !Write format 
+      !If really small (less than 10^-99 in magnitude)- round down to zero for formatting
+      do is = 1, nspec
+         if(ABS(ns1(is)) .lt. 9.999E-99) then
+            ns1(is) = 0.
+         endif
+         if(ABS(us1(1,is)) .lt. 9.999E-99) then
+            us1(1,is) = 0.
+         endif
+         if(ABS(us1(2,is)) .lt. 9.999E-99) then
+            us1(2,is) = 0.
+         endif 
+         if(ABS(us1(3,is)) .lt. 9.999E-99) then
+            us1(3,is) = 0.
+         endif 
+         if(ABS(jxex(is)) .lt. 9.999E-99) then
+            jxex(is) = 0.
+         endif
+         if(ABS(jyey(is)) .lt. 9.999E-99) then
+            jyey(is) = 0.
+         endif
+         if(ABS(jzez(is)) .lt. 9.999E-99) then
+            jzez(is) = 0.
+         endif
+      enddo
+
+
       write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
       write(unit_s+5,fmt)&
            ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
