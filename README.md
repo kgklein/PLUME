@@ -1,5 +1,5 @@
 # PLUME (Plasma in a Linear Uniform Magnetized Environment)
-Kristopher Klein<br />
+[Kristopher Klein](https://www.lpl.arizona.edu/faculty/kristopher-klein)<br />
 kris.klein@gmail.com<br />
 Lunar and Planetary Laboratory, University of Arizona<br />
 
@@ -8,14 +8,14 @@ PLUME calculates the hot plasma dispersion relation for a plasma with an arbitra
 This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
 
 # JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
-Collin Brown<br />
+[Collin Brown](https://sites.google.com/view/collin-brown-cv-resume/home)<br />
 collin.crbrown@gmail.com<br />
-University of Iowa<br />
+University of Iowa; Naval Research Lab<br />
 
 JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique. 
 
 ## Other Contributing Authors
-Greg Howes<br />
+[Greg Howes](https://physics.uiowa.edu/people/gregory-g-howes)<br />
 Eliot Quataert<br />
 Jason TenBarge<br />
 
