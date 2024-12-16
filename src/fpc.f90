@@ -88,8 +88,8 @@ module fpc
       complex    :: tempuz1val          !debug temp val that holds susc tensor current contribution to renormalize
       complex    :: tempuz2val          !debug temp val that holds susc tensor current contribution to renormalize
       complex    :: tempuz3val          !debug temp val that holds susc tensor current contribution to renormalize
-      real    :: A1                     !factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
-      real    :: B1                     !factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
+      complex    :: A1                     !factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
+      complex    :: B1                     !factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
       integer :: unit_s                 !out file unit counter
 
       real :: start, finish !debug/test to measure runtime of function
@@ -120,6 +120,9 @@ module fpc
       !END NEW VARIABLES============================================================
 
       pi = 4.0*ATAN(1.0)
+
+      A1 = 1. !Temporary scalar to fix coeff
+      B1 = 1. !Temporary scalar to fix coeff
 
       !check if results directory exists
       ! INQUIRE (DIRECTORY='data', EXIST=ex)
@@ -220,7 +223,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
@@ -371,46 +374,10 @@ module fpc
       !=============================================================================
       ! Integrate Distribution and Correlations over velocity 
       !=============================================================================
-      !Integrate 0th and 1st Fluid moments of fs1
+
       delv3=delv*delv*delv
       allocate(ns1(nspec)); ns1=0.
       allocate(us1(3,nspec)); us1=0.
-      do is = 1, nspec
-      ! Density Fluctuation: Zeroth Moment of delta f
-         ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
-         !Correct Normalization to n_0R
-         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
-      ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
-         !x-component
-         do ivx=ivxmin,ivxmax
-            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-         enddo
-         !y-component
-         do ivy=ivymin,ivymax
-            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-         enddo
-         !z-component
-         do ivz=ivzmin,ivzmax
-            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-         enddo
-
-         !Correct Normalization to v_ARm
-         ! write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
-         us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
-      enddo
-
-      !Integrate Correlations
-      allocate(jxex(nspec)); jxex=0.
-      allocate(jyey(nspec)); jyey=0.
-      allocate(jzez(nspec)); jzez=0.
-      do is = 1, nspec
-      !int_v CEx= jxEx
-         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3
-      !int_v CEy= jyEy
-         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3
-      !int_v CEz= jzEz
-         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3
-      enddo
 
       if(1==1) then !Force renormalization
          !Compute B1
@@ -435,7 +402,7 @@ module fpc
                         !Compute perturbed  Distribution value, fs1
                         phi = ATAN2(vvy(ivy),vvx(ivx))
                         call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,real(idir),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                      enddo
                   enddo
                enddo
@@ -485,13 +452,26 @@ module fpc
                endif
 
             enddo
+
+            !try A+B+A
+            ! A1 = (ABS(Us(2,is))*ABS(tempuz2val)-ABS(Us(3,is))*ABS(tempuy2val)) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
+            ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy3val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz3val))) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
+
             
-            A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
-            B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+            ! A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+            ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
 
 
-            !A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
-            !B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+
+            ! A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+            ! B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+
+            ! A1 = ABS(A1)
+            ! B1 = ABS(B1)
+
+            A1 = (Us(1,is)*tempuz3val-Us(3,is)*tempux3val) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
+            B1 = (Us(3,is)*(tempux1val+(tempux2val))-(Us(1,is))*((tempuz1val)+(tempuz2val))) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
+
 
             write(*,*)'tempuxvals',tempux1val,tempux2val,tempux3val
             write(*,*)'tempuyvals',tempuy1val,tempuy2val,tempuy3val
@@ -501,14 +481,98 @@ module fpc
 
             !renormalize values
             !renormalize ux_spec
+            A1 = 1. !hacky way to turn off renormalization before I clean things up.
+            B1 = 1.
             us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
             us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
             us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+
+
+            if (elecdircontribution == 1) then
+               us1(1,is)=A1*tempux1val
+               us1(2,is)=A1*tempuy1val
+               us1(3,is)=A1*tempuz1val
+            else if (elecdircontribution == 2)then
+               us1(1,is)=A1*tempux2val
+               us1(2,is)=A1*tempuy2val
+               us1(3,is)=A1*tempuz2val
+            else if (elecdircontribution == 3)then
+               us1(1,is)=B1*tempux3val
+               us1(2,is)=B1*tempuy3val
+               us1(3,is)=B1*tempuz3val
+            else
+               us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
+               us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
+               us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+            end if
          enddo
 
          !TODO: renormalize correlation
       end if
 
+      do is = 1, nspec
+         !Create variable for parallel flow velocity normalized to
+         !       species parallel thermal speed
+         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+         do ivx=ivxmin,ivxmax
+            do ivy=ivymin,ivymax
+               vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
+               do ivz=ivzmin,ivzmax
+                  !Compute dimensionless equilibrium Distribution value, fs0
+                  fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+                  !Compute perturbed  Distribution value, fs1
+                  phi = ATAN2(vvy(ivy),vvx(ivx))
+                  call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+               enddo
+            enddo
+         enddo
+      enddo
+
+
+
+      !Integrate 0th moment
+      do is = 1, nspec
+      ! Density Fluctuation: Zeroth Moment of delta f
+         ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
+         !Correct Normalization to n_0R
+         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
+      
+
+         !HANDLED ABOVE NOW! TODO: CLEAN UP THIS SECTION 
+      ! ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
+      !    !x-component
+      !    do ivx=ivxmin,ivxmax
+      !       us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+      !    enddo
+      !    !y-component
+      !    do ivy=ivymin,ivymax
+      !       us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+      !    enddo
+      !    !z-component
+      !    do ivz=ivzmin,ivzmax
+      !       us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+      !    enddo
+
+         !Correct Normalization to v_ARm
+         ! write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
+       !  us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
+      enddo
+
+
+
+      !Integrate Correlations
+      allocate(jxex(nspec)); jxex=0.
+      allocate(jyey(nspec)); jyey=0.
+      allocate(jzez(nspec)); jzez=0.
+      do is = 1, nspec
+      !int_v CEx= jxEx
+         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3
+      !int_v CEy= jyEy
+         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3
+      !int_v CEz= jzEz
+         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3
+      enddo
  
       !=============================================================================
       ! END Integrate Distribution and Correlations over velocity
@@ -991,7 +1055,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    elecdircontribution,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
+                                    elecdircontribution,(1.,0),(1.,0),fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1001,28 +1065,28 @@ module fpc
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
               enddo
             enddo
           enddo
@@ -1278,7 +1342,7 @@ module fpc
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
     ! Determine species perturbed VDF fs1 at (vperp,vpar)
-    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,fs0,fs1)
+    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,fs0,fs1)
       use vars, only : betap,kperp,kpar,vtp,pi
       use vars, only : nbesmax
       use bessels, only : bessj_s, bess0_s_prime
@@ -1295,6 +1359,7 @@ module fpc
       real, intent(in)      :: mu_s             !m_ref/m_s
       real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
       real, intent(in)      :: elecdircontribution !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
+      complex, intent(in)      :: A1, B1           !Temporary scalars to fix coeff error!
       real, intent(in)      :: fs0              !normalized zero order distribution
       complex, intent(out)  :: fs1              !first order distribution
 
@@ -1305,6 +1370,7 @@ module fpc
 
       !intermediate values (see calculation notes for definitions)
       real :: kpar_temp
+      real :: kperp_temp
       complex :: denom
       complex :: emult
       complex :: Wbar_s
@@ -1340,6 +1406,7 @@ module fpc
       if (q_s .gt. 0.) then 
           omega_temp = -real(omega)-ii*aimag(omega) 
           kpar_temp = -kpar
+          kperp_temp = kperp
           vpar_temp = vpar
           ef3 = ef3
           ef2 = ef2
@@ -1354,7 +1421,7 @@ module fpc
       end if
 
       !Compute Bessel functions (if necessary)
-      b_s = (kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
+      b_s = (kperp_temp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)
       if (b_s .ne. bs_last) then
          !Populate jbess with current values
          do n= -nbesmax-1,nbesmax+1
@@ -1366,12 +1433,12 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
+      Ubar_s= A1*-2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
        denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)
-       Wbar_s=2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar_temp
+       Wbar_s=B1*2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
           if(n .ne. 0) then
