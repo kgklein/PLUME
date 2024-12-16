@@ -223,7 +223,8 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
+                                    A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
@@ -402,7 +403,8 @@ module fpc
                         !Compute perturbed  Distribution value, fs1
                         phi = ATAN2(vvy(ivy),vvx(ivx))
                         call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
+                                          real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                      enddo
                   enddo
                enddo
