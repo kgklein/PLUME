@@ -4,23 +4,36 @@
 !!Plasma in a Linear Uniform Magnetized Environment                          !!
 !!                                                                           !!
 !!Kristopher Klein                                                           !!
-!!kris.klein@gmail.com                                                       !!
+!!kgklein@arizona.edu                                                        !!
 !!Lunar and Planetary Laboratory, University of Arizona
 !!                                                                           !!
 !!*VARIABLES                                                                *!!
 !=============================================================================!
 !=============================================================================!
 module vars
+  !! Contains all global variables.
   implicit none
   private
 
   !INPUT PARAMETERS
-  !      The following parameters will be read in from 'scripts/*.in'
+  !The following parameters will be read in from 'scripts/*.in'
   !Global Input Parameters
-  real, target :: betap     !beta_p=8 pi n_ref T_p/B^2
-  real, target :: kperp     !k_perp rho_ref
-  real, target :: kpar      !k_parallel rho_ref
-  real, target :: vtp       !v_t,ref||/c
+
+  real, target :: betap
+  !!Reference Species Parallel Thermal-to-Magnetic Pressure Ratio.
+  !!8 pi n_ref T_ref,par/B^2
+  
+  real, target :: kperp
+  !!Wavenumber perpendicular to B0, normalized to reference gyroradius.
+  !!k_perp rho_ref = k_perp w_perp,ref/Omega_ref
+  
+  real, target :: kpar      
+  !!Wavenumber parallel to B0, normalized to reference gyroradius.
+  !!k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref
+  
+  real, target :: vtp
+  !!Parallel reference thermal velocity normalized to the speed of light.
+  !!v_t,ref,par/c
 
   !Numer of species
   integer :: nspec=3
