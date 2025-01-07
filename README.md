@@ -2,6 +2,9 @@
 
 This is the PLUME code: Plasma in a Linear Uniform Magnetized Environment.
 
+<img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
+<img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/>
+
 ## Authors
 
 Kristopher Klein   (kgklein@arizona.edu)
