@@ -292,8 +292,7 @@ module vars
   public :: nRad,modelName,rad_spec,radius, beta_rad, vtp_rad
   public :: radial_heating, radial_eigen, pi
   public :: low_n, susc_low
-  !>>>GGH: 1/18/23
-  public :: new_low_n
-  !<<<GGH: 1/18/23
+  public :: new_low_n   !GGH: 1/18/23
+
 
 end module vars
