@@ -28,7 +28,7 @@ low_n=.true. !toggle on low-n susceptibility
 new_low_n=.true. !Flag to use Revised low_n for LD/TTD separation
 !enable or suppress output to STD_OUT
 writeOut=.true.
-!Subdirectory (below PLUME/data/) where outputs will be writted
+!Subdirectory (below PLUME/data/) where outputs will be written.
 dataName='example'
 !Name to be included in output files.
 outputName='map_par'

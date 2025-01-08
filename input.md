@@ -6,8 +6,11 @@ This is a reference for the key input parameters used by PLUME (currently editin
 
 The following namelists and associated input parameters are read in by PLUME from the input file.
 
-### *&system*  
+### *&params*  
 General system parameters.
+
+**`betap`**  
+Initial reference parallel plasma beta $\beta_{ref,\parallel} = 8 \pi n_{ref} T_{ref,\parallel}/B^2$.
 
 **`kperp`**  
 Initial perpendicular wavevector $k_{\perp} \rho_{ref}$.
@@ -15,111 +18,71 @@ Initial perpendicular wavevector $k_{\perp} \rho_{ref}$.
 **`kpar`**  
 Initial parallel wavevector $k_{\parallel} \rho_{ref}$.
 
-**`nspec`**   
-Number of plasma species.
+**`vtp`**  
+Initial reference parallel thermal velocity, normalized to c $v_{t,ref,\parallel}/c$.
 
-**`nroots`**   
+**`nspec`**   
+Number of plasma species or components.
+
+**`nscan`**   
+Number parameter or wavevector scans to execute.
+
+**`option`**   
+Determines set of scans to perform. Choice of:
+
+- -1: Calculate the value of the dispersion relation
+      at a single $(\omega/\Omega_{ref}, \gamma/\Omega_{ref})$
+-  0: Calculate Roots for input plasma parameters.
+-  1: Calculate Roots for input plasma parameters or Reads in root value
+      and then scan over plasma parameters, with range and type specified in *.in file.
+-  2: Calculate Roots for input plasma parameters or Reads in root value
+      and then scan over two-dimensional plasma parameters space,
+      with range and type specified in *.in file.
+-  3: Deprecated...
+-  4: Make multiple maps of complex frequency space.
+-  5: Find roots for parameters along a prescribed path
+      Path is set by solar wind models, with values calculated and
+      output by helper function (in development, the radial scan function.).
+
+**`nroot_max`**   
 Number of dispersion solutions to find and follow.
 
 **`use_map`**   
 Choice of:  
 
 - True: Searching for roots over a map in complex frequency space (see &maps namelist).  
-- False: Input `nroots` guesses for solutions (see &guess_1 namelist).
+- False: Input `nroot_max` guesses for solutions (see &guess_1 namelist).
+
+**`low_n`**  
+Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
+characterizing heating channels. *As made redundant by `new_low_n`, slated from removal.*
+
+**`new_low_n`**  
+*New* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
+characterizing heating channels; correctly separates Landau, Transit, and Cyclotron damping.
 
 **`writeOut`**  
 Write or suppress output to screen.
 
-**`nperp`**  
-Perpendicular momentum space resolution, $N_{\perp}$.
-The input file must have $N_{\perp}+1$ values spanning parallel momentum space.
+**`dataName`**  
+Subdirectory (below PLUME/data/) where outputs will be written.
 
-**`npar`**  
-Parallel momentum space resolution, $N_{\parallel}$.
-The input file must have $N_{\parallel}+1$ values spanning parallel momentum space.
-
-**`ngamma`**  
-Relativistic momentum space resolution, $N_{\Gamma}$.
-
-**`npparbar`**  
-Relativistic parallel momentum space resolution, $N_{\bar{p}_{\parallel}}$.
-
-**`vA`**  
-Reference Alfven velocity, normalized to the speed of light, $v_{A}/c$.
-
-**`arrayName`**  
-Name of input array, located in 'distribution' folder.
-
-**`Bessel_zero`**  
-Maximum amplitude of Bessel function to determine `nmax`.
-
-**`numiter`**  
-Maximum number of iterations in secant method.
-
-**`D_threshold`**  
-Minimum threshold for secant method.
-
-**`D_prec`**  
-Size of bounding region for secant method.
-
-**`D_gap`**  
-Size of allowable difference between roots.
-
-**`positions_principal`**  
-Number of parallel momentum steps distant from the resonant momentum
-included in the numerical calculation of Eqn 3.5, $M_{I}$.
-
-**`n_resonance_interval`**  
-How many steps should be used to integrate around the resonance,
-$M_{P}$, used for integrating near poles (see section 3.1).
-
-**`Tlim`**  
-Threshold for analytical principal-value integration, $t_{\mathrm{lim}}$.
-
-**`maxsteps_fit=500`**  
-Maximum number of fitting iterations.
-
-**`lambda_initial_fit`**  
-Inital Levenberg-Marquardt damping parameter.
-
-**`lambdafac_fit`**  
-Adjustment factor for Levenberg-Marquardt damping parameter.
-
-**`epsilon_fit`**  
-Convergence for Levenberg-Marquardt fit.
-
-**`fit_check`**  
-If true, output fitted functions for each species to file in distribution directory.
-
-**`determine_minima`**  
-If true, after map search, determine minima and refine solutions.
-
-**`scan_option`**  
-Select case for wavevector scans:
-
-- 1: Consecutive scans along input paths in wavevector space,  
-- 2: Double scan over wavevector plane.
-
-**`n_scan`**  
-Number of wavevector scans.  
-0 turns off wavevector scans.  
-Must be 1 or larger for `scan_option`=1.  
-Must be set to 2 for `scan_option`=2.  
-
+**`outputName`**
+String to be included in output files to identify specific run.
 
 ### *&guess_m*  
 Initial guess of complex frequency for $m$th solution.  
 Only used when `use_map`=.false.  
-Need to have number of name lists equal to `nroots`.
+Need to have number of namelists equal to `nroot_max`.
 
 **`g_om`**  
-Guess for real solution $\omega_{r}/\Omega_{p} $.
+Guess for real solution $\omega_{r}/\Omega_{ref} $.
 
 **`g_gam`**  
-Guess for imaginary solution $\gamma/\Omega_{p} $.
+Guess for imaginary solution $\gamma/\Omega_{ref} $.
 
 
-### *&maps_1*  
+### *&maps*  
 Range of complex frequencies for map_scan subroutine.  
 Only used when `use_map`=.true.
 
@@ -143,140 +106,77 @@ Smallest $\gamma/\Omega_{p}$ value for complex map search.
 **`gamf`**  
 Largest $\gamma/\Omega_{p}$ value for complex map search.
 
-**`ni`**  
-Number of $\gamma/\Omega_{p}$ points in frequency grid.
-
 **`nr`**  
-Number of $\omega_{r}/\Omega_{p}$ points in frequency grid.
+*TO BE ADDED* Number of $\omega_{r}/\Omega_{p}$ points in frequency grid.
 
+**`ni`**  
+*TO BE ADDED* Number of $\gamma/\Omega_{p}$ points in frequency grid.
 
-### *&spec_j*  
-Species parameters list for distribution $f_{j}$.
+### *&species_j*  
+Species or component parameters list for distribution $f_{j}$.
 
-**`nn`**  
-Relative density $n_{j}/n_{p}$.
+**`tauS`**  
+Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$.
 
-**`qq`**  
-Relative charge $q_{j}/q_{p}$.
+**`muS`**  
+Relative mass $m_{ref}/m_{j}$.
 
-**`mm`**  
-Relative mass $m_{j}/m_{p}$.
+**`alphS`**  
+Temperature anisotropy $T_{j,\perp}/T_{j,\parallel}$.
 
-**`ff`**  
-Number of fitted functions for analytical continuation calculation.
+**`Qs`**  
+Relative charge $q_{ref}/q_{j}$.
 
-**`relat`**  
-Treat $f_{j}$ as non-relativistic or relativistic.
+**`Ds`**  
+Relative density $n_{j}/n_{ref}$.
 
-**`log_fit`**  
-Use linear or $\log_{10}$ fitting routine.
-
-**`use_bM`**  
-Use actual numerical integration (F) or bi-Maxwellian/cold-plasma proxy via NHDS routines,
-with parameters read in from &bM_spec_j namelist.
-
-**`AC_method`**  
-Choose the method for the evaluation of the analytic continuation:
-
-- 0: Use the function that is defined analytically in distribution/distribution_analyt.f90
-- 1: Use the fit routine as defined in the &ffit_j_k namelist.
-- 2: Use a polynomial basis representation as defined in the &poly_spec_j namelist. This method should only be used if $|\gamma|\ll |\omega_{r}|$.
-
-
-### *&ffit_j_k*
-Initial Fit Values for species $j$, function $k$.
-
-**`fit_type_in`**  
-Kind of fit function:
-
-- 1: Maxwellian,  
-
-$$F_M(\hat{p}\_{\parallel})=u_{1}\mathrm{exp}[-y{\hat{p}}^2\_{\perp}-u_{2}(\hat{p}\_{\parallel}-u_{3})^2]$$
-
-- 2: Kappa,  
-
-$$F_{\kappa}(\hat{p}\_{\parallel})=u_{1}[1+u_2({\hat{p}}\_{\parallel}-u_{3})^2+yu_{5} {\hat{p}}^2\_{\perp}]^{u_{4}}.$$
-
-- 3: Juettner with $p_{\perp},p_{\parallel}$,  
-
-$$F_{J}(\hat{p}\_{\perp},\hat{p}\_{\parallel})=
-u_{1}\mathrm{exp}\left[-u_{2}\sqrt{1+\frac{\hat{p}^2\_{\perp}+(\hat{p}^2\_{\parallel}-u_3)^2 v_A^2}{m_{j}^2 c^2}}\right].$$
-
-- 4: Juettner with variable $\Gamma$, constant $\bar{p}_{\parallel}$,  
-
-$$F_{J}(\Gamma)= u_{1} \mathrm{exp}[-y \Gamma].$$
-
-- 5: Juettner with $p_{\perp},p_{\parallel}$; variable $\bar{p}_{\parallel}$,  
-
-$$F_{\kappa}(\hat{p}\_{\perp},\hat{p}\_{\parallel})=u_{1}\mathrm{exp}[-y \hat{p}\_{\perp}]\mathrm{exp}[-u_{2}*(\hat{p}\_{\parallel}+u_{3})^2].$$
-
-- 6: Bi-Moyal distribution
-
-$$F_{bMo}(\hat{p}\_{\perp},\hat{p}\_{\parallel})= u_{1} \mathrm{exp}[0.5 (y u_4 \hat{p}^2\_{\perp} + u_{2} (\hat{p}\_{\parallel} -u_{3})^2 -\mathrm{exp}(y u_{4} \hat{p}^2\_{\perp} + u_{2} (\hat{p}\_{\parallel}-u_{3})^2) )].$$
-
-**`fit_1`-`fit_5`**  
-Fit parameters, $u_{1}$ - $u_{5}$, defined in the above equations for each of the types of fit functions.
-Not all parameters will be used for all functions.  
-Suggested values for parameters generated by generate_distribution.
-
-**`perpcorr`**  
-This parameter, $y$ in Eqn. B1, compensates for the strong
-$p_{\perp}$ dependence of $u_1$, making the fit more reliable.
-
-
-### *&bM_spec_j*
-Bi-Maxwellian/cold-plasma parameters; for species j.
-Only used if `use_bM=T`.
-
-**`bM_nmaxs`**  
-Maximum number of resonances to consider.
-
-**`bM_Bessel`**  
-Precision threshold for $I_n$.
-
-**`bM_betas`**  
-$\beta_{\parallel,j}$ of bi-Maxwellian distribution $f_{j}$. If this variable is set to 0.d0, then the code will treat the given species with the susceptibility from cold-plasma theory.
-
-**`bM_alphas`**  
-$T_{\perp,j}/T_{\parallel,j}$ of bi-Maxwellian distribution $f_{j}$.
-
-**`bM_pdrifts`**  
-Relative drift of bi-Maxwellian distribution $f_{j}$ or the cold plasma species in units of $m_{p} v_{A,p}$.
-
-
-### *&poly_spec_j*
-Input for the polynomial representation of the input distribution for the analytical continuation.
-Only used if `AC_method=2`.
-
-**`kind`**  
-Type of the basis polynomial:
-
-- 1: Chebychev
-
-**`order`**  
-Maximum order of the basis polynomial.
-
-**`log_max`**  
-When using logfit for the polynomial representation, set all output values to zero if the log(fit_function_poly) is greater than this variable.
+**`vvS`**  
+Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity  $v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
 
 
 ### *&scan_input_l*
 Inputs for scanning parameter space for $l$th scan.  
 
 **`scan_type`**  
-Type of parameter scan:
+Type of parameter scan.
 
-- 0: Current value of $\textbf{k}$ to $k\_{\perp}$=`swi` and $k\_{\parallel}$ =`swf`.   
-- 1: $\theta_0 \rightarrow \theta_1$ at fixed $|k|$ from current value of $\theta=\mathrm{atan}(k\_{\perp}/k\_{\parallel})$ to `swf`.  
-- 2: Wavevector scan at fixed angle $\theta_{k,B}$ to $|k|$ =`swf`.  
-- 3: $k\_{\perp}$ scan with constant $k\_{\parallel}$ to $k\_{\perp}$=`swf`.  
-- 4: $k\_{\parallel}$ scan with constant $k\_{\perp}$ to $k\_{\parallel}$=`swf`.  
+For `scan_style`=-1 (Global Two-Component Scan), options of:
+- 0: Scan from $\textbf{k}_0 \rho_{ref}$ to $\textbf{k}_1 \rho_{ref}$. Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=`swi` and $k_\parallel \rho_{ref}$=`swf`.
+- 1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$. Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$`swi`$)$, with `swi` in degrees.
+- 2: Scan from $|k|_1\rho_{ref}$ to $|k|_1\rho_{ref}$ with a fixed value of $\theta$. Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=`swf` with constant $\theta = \atan (k_\perp/k_\parallel)$.
+
+For `scan_style`=0 (Global Scan), options of:
+
+- 0: $k_\perp \rho_{ref}$
+- 1: $k_\parallel \rho_{ref}$
+- 2: $\beta_{ref,\parallel}$
+- 3: $v_{t,ref,\parallel}/c$
+
+`swi` and `swf` represent the initial and final scan values for `scan_style`=0.
+
+For `scan_style`=1-`nspec` (Parameter scan of component `scan_style`), options of:
+
+- 0: $T_{ref,\parallel}/T_{j,\parallel}$.
+- 1: $m_{ref}/m_{j}$.
+- 2: $T_{j,\perp}/T_{j,\parallel}$.
+- 3: $q_{ref}/q_{j}$.
+- 4: $n_{j}/n_{ref}$.
+- 5: $v_{j,drift}/v_{A,ref}$.
+
+`swi` and `swf` represent the initial and final scan values for `scan_style`=1 through `nspec`.
+
+**`scan_style`**  
+Class of parameter scan. Options of:
+
+- -1: Global Two-Component Scan
+- 0: Global Scan
+- 1-nspec: Single-Parameter Scan
 
 **`swi`**  
-Scan variable to define end of scan through wavevector space (only for `scan_type=1`).
+Scan variable to define start of scan through parameter space.
 
 **`swf`**  
-Scan variable to define end of scan through wavevector space.
+Scan variable to define end of scan through parameter space.
 
 **`swlog`**  
 Use $\log_{10}$ (T) or linear (F) spacing.
@@ -291,4 +191,7 @@ Resolution between output scan values.
 Calculates heating rates if true.
 
 **`eigen`**  
-Calculates eigenfunctions if true.     
+Calculates eigenfunctions if true.
+
+**`tensor`**  
+Outputs susceptibility tensor if true.     

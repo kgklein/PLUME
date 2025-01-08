@@ -33,7 +33,7 @@ The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global di
  1. Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$
  2. Perpendicular wavevector: $k_\perp \rho_{ref}$
  3. Parallel wavevector: $k_\parallel \rho_{ref}$
- 4. Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref})/c$
+ 4. Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
 
      and six dimensionless parameters for component $s$:
 
@@ -41,7 +41,7 @@ The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global di
  2. Mass Ratio: $m_{ref}/m_{s}$
  3. Temperature Anisotropy: $T_{\perp}/T_{\parallel}|s$
  4. Charge Ratio: $q_{ref}/q_{s}$
- 5. Density Ratio: $n_{s}/n_{ref}
+ 5. Density Ratio: $n_{s}/n_{ref}$
  6. Relative Velocity: $v_{s,drift}/v_{A,ref}$
 
 The code then varies defined parameters to construct dispersion relations as a function of wavevector $(k_\perp \rho_{ref},k_\parallel \rho_{ref})$ or plasma parameters for the identified solutions.
@@ -51,9 +51,7 @@ Supplementary calculation of the associated heating rates or eigenfunctions can 
 ## 2. Acknowledgements
 
 If you use the code for a science publication,
-1. please provide the code website [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME)
-
-in the acknowledgements,
+1. please provide the code website [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements,
 
 2. cite the DOI of the code: *TBD upon public release*
 
