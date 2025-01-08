@@ -30,7 +30,8 @@ module bessels
 !------------------------------------------------------------------------------
    FUNCTION bessim0(x)
      !! Calculates the Modified Bessel Function of order zero.
-     !! Determines I_0(x) e^(-x) instead of I_0(x) to large argument problems.
+     !! Determines I_0(x) e^(-x) instead of I_0(x)
+     !! to avoid large argument problems.
      USE nrtype; USE nrutil_trim, ONLY : poly
      IMPLICIT NONE
      
@@ -67,7 +68,8 @@ module bessels
 !------------------------------------------------------------------------------
    FUNCTION bessim1(x)
      !! Calculates the Modified Bessel Function of order one.
-     !! Determines I_1(x) e^(-x) instead of I_1(x) to large argument problems.
+     !! Determines I_1(x) e^(-x) instead of I_1(x) to
+     !! avoid large argument problems.
      USE nrtype; USE nrutil_trim, ONLY : poly
      IMPLICIT NONE
 
@@ -105,7 +107,8 @@ module bessels
 !------------------------------------------------------------------------------
    FUNCTION bessim(n,x)
      !! Calculates the Modified Bessel Function of arbitrary order.
-     !! Determines I_n(x) e^(-x) instead of I_n(x) to large argument problems.
+     !! Determines I_n(x) e^(-x) instead of I_n(x) to
+     !! avoid large argument problems.
      USE nrtype; USE nrutil_trim, ONLY : assert
      IMPLICIT NONE
      

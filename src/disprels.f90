@@ -10,11 +10,22 @@
 !=============================================================================!
 !=============================================================================!
 module disprels
+  !! Dispersion relation function and associated eigenfunction and minimization
+  !! calculations.
   implicit none
   private
-  integer, parameter :: nbrack=128              !# of Bessel functions to sum
 
-  private :: find_minima,disp,rtsec,bisect,zet_in,zetout,bessel,get_out_name
+  integer, parameter :: nbrack=128
+  !!Number of Bessel functions to sum
+
+  real, parameter :: tol=1.0E-13
+  !!Root Search Tolerance 
+
+  real, parameter :: prec=1.E-7
+  !!Root Finding precision  
+
+  
+  private :: find_minima,disp,rtsec,zet_in,zetout,bessel,get_out_name
   private :: calc_eigen
 
   public :: map_search, refine_guess, om_scan, om_double_scan, map_scan, test_disp
@@ -27,74 +38,150 @@ module disprels
 !------------------------------------------------------------------------------
 !Greg Howes, 2006; Kristopher Klein, 2015
 !------------------------------------------------------------------------------
-  subroutine map_search
-    use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
-    use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
-    use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
-    implicit none
-    real, dimension(:,:),allocatable:: wtemp
-    real :: value                              !Dispersion Relation Value
-    real :: dr,di                              !Spacing
-    real :: wr,wi                              !Real,imaginary omega
-    real, dimension(:,:), pointer :: val       !Value of Dispersion relation
-    complex, dimension(:,:), pointer :: dal       !Value of Dispersion relation
-    complex, dimension(:,:), pointer :: om     !Value of Dispersion relation
-    complex :: omega                           !Complex Frequency
-    logical, parameter :: outmap=.true.        !Output binary map file
-    character(100) :: mapName                  !Output file names   
-    integer, dimension(1:2,1:numroots) :: iroots !Indices of roots  
-    logical, parameter :: refine=.true.        !T=refine roots 
-    complex :: om1,om2                         !Bracket Values
-    integer :: iflag                           !Flag for Root search
-    real, parameter :: tol=1.0E-13             !Root Search Tolerance 
-    real, parameter :: prec=1.E-7              !Root Finding precision  
-    !species parameters:
-    real, dimension(1:6,1:nspec) :: params
-    !Ingeter for Looping
-    integer :: is,ir,ii,k,j,ig
-    character (50) :: fmt, fmt_tnsr
-    real :: D_gap=1.d-5
-    logical :: unique_root
+    subroutine map_search
+      !! Identifies minima in a prescribed region of complex frequency space.
+      use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
+      use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
+      implicit none
+      
+      real :: dr
+      !!Spacing for real frequency array.
 
-    real, dimension(:,:), allocatable :: temp_om, temp_om2
+      real :: di
+      !!Spacing for imaginary frequency array.
 
-    !Allocate array for map values
-    allocate(val(0:nr,0:ni)); val(:,:)=0.
-    allocate(dal(0:nr,0:ni)); dal(:,:)=0.
-    !Allocate array for complex frequencies
-    allocate(om(0:nr,0:ni)); om(:,:)=cmplx(0.,0.)
+      real :: wr
+      !!Real frequency value.
 
-    if (writeOut) then
-       write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
-       write(*,'(a)')'Root Search:'
-       write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
-       write(*,'(a)')      'Global Plasma Parameters:'
-       write(*,'(a,g14.6)')'k_perp rho_p   = ',kperp
-       write(*,'(a,g14.6)')'k_par  rho_p   = ',kpar
-       write(*,'(a,g14.6)')'Beta_p         = ',betap
-       write(*,'(a,g14.6)')'vtp/c          = ',vtp
-       do is = 1, nspec
-          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
-          write(*,'(a,i3)')      'Parameters for Species :',is
-          write(*,'(a,g14.6)')'T_||p/T_||s =    ',spec(is)%tau_s
-          write(*,'(a,g14.6)')'m_p/m_s =        ',spec(is)%mu_s
-          write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
-          write(*,'(a,g14.6)')'q_p/q_s =        ',spec(is)%Q_s
-          write(*,'(a,g14.6)')'n_s/n_p =        ',spec(is)%D_s
-          write(*,'(a,g14.6)')'v_drift s/c =    ',spec(is)%vv_s
-       enddo
-       write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
-       write(*,'(a)')'Searching over:'
-       write(*,'(a,es10.3,a,es10.3,a)')'om  \in [',omi,',',omf,']'
-       write(*,'(a,es10.3,a,es10.3,a)')'gam \in [',gami,',',gamf,']'
-       write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
-    endif
+      real :: wi
+      !!Imaginary frequency value.
+
+      complex, dimension(:,:), pointer :: om
+      !!Complex frequency array.
+
+      complex, dimension(:,:), pointer :: dal
+      !!(Complex) value of dispersion relation on frequency array.
+      
+      real, dimension(:,:), pointer :: val
+      !!Amplitude of dispersion relation on frequency array.
+      
+      complex :: omega
+      !!Complex Frequency
+      
+      logical, parameter :: outmap=.true.
+      !!Output ASCII map file.
+      
+      character(100) :: mapName
+      !!Output file name.
+      
+      integer, dimension(1:2,1:numroots) :: iroots
+      !!Indices of roots
+      
+      logical, parameter :: refine=.true.
+      !!T->refine solutions below frequency grid resolution.
+      
+      complex :: om1
+      !!Lower bracket value of solution refinement.
+      
+      complex :: om2
+      !!Upper bracket value of solution refinement.
+      
+      integer :: iflag
+      !!Flag for Root search.
+      
+      real, dimension(1:6,1:nspec) :: params
+      !!Species/component parameters.
+
+      integer :: is
+      !! Species/component index.
+
+      integer :: ir
+      !! Real Frequency Index.
+
+      integer :: ii
+      !! Imaginary Frequency Index.
+
+      integer :: j
+      !! Solution index.
+
+      integer :: k
+      !! Solution index; removing redundant solutions.
+
+      integer :: ig
+      !! Solution index; sorting solution.
+
+      character (50) :: fmt
+      !! Output format for solution.
+      
+      character (50) :: fmt_tnsr
+      !! Output format for susceptibility tensor.
+
+      real :: D_gap=1.d-5
+      !! Threshold for identifying redundant solutions.
+
+      logical :: unique_root
+      !! Testing for redundant solutions.
+
+      logical :: sort_solutions = .false.
+      !! Sort solutions from least to most damped.
+
+      logical :: large_solutions = .false.
+      !! Eliminate LARGE solutions.
+      
+      real, dimension(:,:), allocatable :: temp_om
+      !! Array for sorting solutions.
+      
+      real, dimension(:,:), allocatable :: temp_om2
+      !! Array for sorting solutions.
+
+      !Allocate array for map values
+      allocate(val(0:nr,0:ni)); val(:,:)=0.
+      allocate(dal(0:nr,0:ni)); dal(:,:)=cmplx(0.,0.)
+      !Allocate array for complex frequencies
+      allocate(om(0:nr,0:ni));  om(:,:) =cmplx(0.,0.)
+
+      if (writeOut) then
+         write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
+         write(*,'(a)')'Root Search:'
+         write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
+         write(*,'(a)')      'Global Plasma Parameters:'
+         write(*,'(a,g14.6)')'k_perp rho_ref   = ',kperp
+         write(*,'(a,g14.6)')'k_par  rho_ref   = ',kpar
+         write(*,'(a,g14.6)')'Beta_ref,par         = ',betap
+         write(*,'(a,g14.6)')'v_t,ref,par/c          = ',vtp
+         do is = 1, nspec
+            write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
+            write(*,'(a,i3)')      'Parameters for Species :',is
+            write(*,'(a,g14.6)')'T_||p/T_||s =    ',spec(is)%tau_s
+            write(*,'(a,g14.6)')'m_p/m_s =        ',spec(is)%mu_s
+            write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
+            write(*,'(a,g14.6)')'q_p/q_s =        ',spec(is)%Q_s
+            write(*,'(a,g14.6)')'n_s/n_p =        ',spec(is)%D_s
+            write(*,'(a,g14.6)')'v_drift s/c =    ',spec(is)%vv_s
+         enddo
+         write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
+         write(*,'(a)')'Searching over:'
+         write(*,'(a,es10.3,a,es10.3,a)')'om  \in [',omi,',',omf,']'
+         write(*,'(a,es10.3,a,es10.3,a)')'gam \in [',gami,',',gamf,']'
+         write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
+      endif
     
     write(fmt,'(a,i0,a)')'(6es14.4,',6*nspec,'es14.4)'
 
     !Determine spacing in complex omega space (Normal or log)
-    dr=(omf-omi)/real(nr)
-    di=(gamf-gami)/real(ni)
+    if (loggridw) then
+       dr=(log10(omf)-log10(omi))/real(nr)
+    else
+       dr=(omf-omi)/real(nr)
+    endif
+
+    if (loggridg) then
+       di=(log10(abs(gamf))-log10(abs(gami)))/real(ni)
+    else
+       di=(gamf-gami)/real(ni)
+    endif
+
 
      !Scan over complex omega space and calculate dispersion relation
      do ir=0,nr
@@ -105,27 +192,24 @@ module disprels
               wr=omi+dr*real(ir)
            endif
            if (loggridg) then
-              !wi=-1*(10.**(gami+di*real(ii))) !NOTE: This should be negative!
-              wi=1*(10.**(gami+di*real(ii))) !NOTE: This should be negative!
+              wi=-1*(10.**(abs(gami)+di*real(ii)))
            else
               wi=gami+di*real(ii)
            endif
 
            omega=cmplx(wr,wi)
            om(ir,ii)=omega
-
            
            dal(ir,ii)=disp(omega)
-           val(ir,ii)=abs(dal(ir,ii))
-           !disprels.f90
+           val(ir,ii)=abs(dal(ir,ii))           
         enddo
      enddo
 
      !Find Local minima (roots) in map
      call find_minima(val,numroots,iroots,nroots)
-          !disprels.f90
+     
      if (writeOut) then
-        write(*,'(i2,a)')nroots,'  possible local minima found'
+        write(*,'(i3,a)')nroots,'  possible local minima found:'
         do j=1,nroots
           write(*,'(a,i4,a,i4)')'ir = ',iroots(1,j),'    ii = ',iroots(2,j)
           write(*,'(2es14.4)')&
@@ -141,7 +225,7 @@ module disprels
 
      !Refine roots
      if (refine) then
-        if (writeOut) write(*,'(a)')'Refining roots'
+        if (writeOut) write(*,'(a)')'Refining roots:'
         k=0
         do j=1,nroots
            if ((wroots(1,j) .ne. 0.) .or. (wroots(2,j) .ne. 0.)) then
@@ -152,8 +236,6 @@ module disprels
               om2=omega*(1.+prec)
               
               omega=rtsec(disp,om1,om2,tol,iflag)
-
-              !write(*,*)'found root:',j,omega
               
               !check to see if the found root is already
               !an identified solution
@@ -161,18 +243,11 @@ module disprels
                  k=k+1
                  wroots(1,k)=real(omega)
                  wroots(2,k)=aimag(omega)
-                 !write(*,*)'success:',k,omega
               else
                  unique_root=.true.
                  do ig=1,j-1 !loop through previous solutions
-                    !if ( (abs(real(omega)-wroots(1,ig))/abs(wroots(1,ig)).lt.D_gap) .and. &
-                    !     (abs(aimag(omega)-wroots(2,ig))/abs(wroots(2,ig)).lt.D_gap) ) then
-                    
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
-                       !write(*,*) 'fail',ig,j,&
-                       !     omega,cmplx(wroots(1,ig),wroots(2,ig)),&
-                       !     abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))
                        unique_root=.false.
                        exit
                     endif
@@ -187,61 +262,59 @@ module disprels
        enddo !end nroots loop
     endif !end refine loop
 
-     !Eliminate all roots with a (LARGE) positive damping rate
-     if (.false.) then
-     k=0
-     do j=1,nroots
-        !LARGE positive Damping rate
-        if (wroots(2,j) .le. 1.) then
-        !A positive damping rate of any kind.
-        !if (wroots(2,j) .le. 0.) then
-           !Invert this when k_par < 0
-           k=k+1
-           wroots(1:2,k)=wroots(1:2,j)
-        endif
-     enddo
-     if ((k .lt. nroots).and.writeOut)&
-          write(*,'(i3,a)')nroots-k,' roots with wi>1 eliminated'
-     nroots=k
-     endif
+    !Eliminate all roots with a (LARGE) positive damping rate
+    if (large_solutions) then
+       k=0
+       do j=1,nroots
+          !LARGE positive Damping rate
+          if (wroots(2,j) .le. 1.) then
+             k=k+1
+             wroots(1:2,k)=wroots(1:2,j)
+          endif
+       enddo
+       if ((k .lt. nroots).and.writeOut)&
+            write(*,'(i3,a)')nroots-k,' roots with gamma/Omega_ref>1 eliminated'
+       nroots=k
+    endif
 
-     !OUTPUT File with values 
-     if (outmap) then       
-        
-        if (option==4) then
-           do ii = 1,nspec
-              params(1,ii) = spec(ii)%tau_s
-              params(2,ii) = spec(ii)%mu_s
-              params(3,ii) = spec(ii)%alph_s
-              params(4,ii) = spec(ii)%q_s
-              params(5,ii) = spec(ii)%D_s
-              params(6,ii) = spec(ii)%vv_s
-           enddo
-           !If constructing mulitple (om,gamma) space maps
-           !   for a variety of parameter values
-           write(mapName,'(7a)')&
-                'data/',trim(dataName),&
-                '/dispersion_',trim(outputName),'_',trim(print_Name),&
-                '.map'
-        else
-           !If only constructing a single .map file
-           !   for a given Run
-           write(mapName,'(6a)')&
-                'data/',trim(dataName),'/',&
-                'dispersion_',trim(outputName),'.map'
-        endif
-
-        open(unit=21,file=trim(mapName),status='replace')
-        do ir=0,nr
-           do ii=0,ni
-              write(21,'(2i6,3es14.6,2es14.4)')&
-                   ir,ii,om(ir,ii),log10(val(ir,ii)),&                  
-                   sign(1.,real(dal(ir,ii)))*log10(1.+abs(real(dal(ir,ii)))),&
-                   sign(1.,aimag(dal(ir,ii)))*log10(1.+abs(aimag(dal(ir,ii))))
-           enddo
-           write(21,*)
-        enddo
-        close(21)
+    !OUTPUT File with values 
+    if (outmap) then       
+       
+       if (option==4) then
+          do ii = 1,nspec
+             params(1,ii) = spec(ii)%tau_s
+             params(2,ii) = spec(ii)%mu_s
+             params(3,ii) = spec(ii)%alph_s
+             params(4,ii) = spec(ii)%q_s
+             params(5,ii) = spec(ii)%D_s
+             params(6,ii) = spec(ii)%vv_s
+          enddo
+          !If constructing mulitple (om,gamma) space maps
+          !   for a variety of parameter values
+          write(mapName,'(7a)')&
+               'data/',trim(dataName),&
+               '/dispersion_',trim(outputName),'_',trim(print_Name),&
+               '.map'
+       else
+          !If only constructing a single .map file
+          !   for a given Run
+          write(mapName,'(6a)')&
+               'data/',trim(dataName),'/',&
+               'dispersion_',trim(outputName),'.map'
+       endif
+       
+       open(unit=21,file=trim(mapName),status='replace')
+       do ir=0,nr
+          do ii=0,ni
+             !kgk 250108: change in output format: supressing indices,
+             !and outputting val and dal directly
+             write(21,'(3es14.6,2es14.4)')&
+                  om(ir,ii),log10(val(ir,ii)),&                  
+                  dal(ir,ii)
+          enddo
+          write(21,*)
+       enddo
+       close(21)
         
         if (option==4) then
            !If constructing mulitple (om,gamma) space maps
@@ -268,7 +341,7 @@ module disprels
 
     deallocate(val)
 
-    if (.false.) then
+    if (sort_solutions) then
        !Sorting from least to most damped mode
        allocate(temp_om(1:2,1:nroot_max));temp_om = -10.
        allocate(temp_om2(1:2,1:nroot_max));temp_om2 = -10.
@@ -329,42 +402,52 @@ module disprels
 
 
   end subroutine map_search
-!-=-=-=-=-
+
+  !-=-=-=-=-
+  !-=-=-=-=-
+  subroutine test_disp
+    !! Testing routine for single evaluation of dispersion relation.   
+    use vars, only : wroots, nroot_max, writeOut
+    use vars, only : kperp, kpar, vtp
+    implicit none
+    
+    complex :: omega
+    !! Complex Frequency input.
+    
+    complex :: D
+    !! Output of dispersion relation function.
+    
+    omega= cmplx(wroots(1,1),wroots(2,1))
+    
+    D = disp(omega)
+    
+    write(*,'(4es14.4)') omega,D*vtp**6.
+    write(*,'(2es14.4)')kperp,kpar
+
+  end subroutine test_disp
 
 !-=-=-=-=-
-subroutine test_disp
-  use vars, only : wroots, nroot_max, writeOut
-  use vars, only : kperp, kpar, vtp
-  implicit none
-  complex :: omega                           !Complex Frequency
-  complex :: D
-  
-  omega= cmplx(wroots(1,1),wroots(2,1))
-  
-  D = disp(omega)
-
-  write(*,'(4es14.4)') omega,D*vtp**6.
-  write(*,*)kperp,kpar
-
-end subroutine test_disp
 
 !-=-=-=-=-
-
-!-=-=-=-=-
-!Refine input guesses for roots of dispersion relation.
-
-
 subroutine refine_guess
+  !!Refine solutions for roots of dispersion relation.
   use vars, only : wroots, nroot_max, writeOut
   implicit none
-  complex :: omega                           !Complex Frequency
-  complex :: om1,om2                         !Bracket Values
-  integer :: iflag                           !Flag for Root search
-  real, parameter :: tol=1.0E-13             !Root Search Tolerance 
-  real, parameter :: prec=1.E-7              !Root Finding precision  
-  !looping
-  integer :: j 
+  
+  complex :: omega
+  !!Complex Frequency.
 
+  complex :: om1
+  !!Lower bracket value of solution refinement.
+
+  complex :: om2
+  !!Upper bracket value of solution refinement.
+  
+  integer :: iflag
+  !!Flag for Root search
+  
+  integer :: j
+  !!Solution index.
 
   do j=1,nroot_max
      if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
@@ -384,28 +467,51 @@ subroutine refine_guess
 
     if (writeOut) then
        !WRITE out roots 
-       write(*,'(a)')'Dispersion Solutions '
+       write(*,'(a)')'Dispersion Solutions: '
        do j = 1,nroot_max
           write(*,'(i3,2es14.4)')j,wroots(1:2,j)
        enddo
     endif
 
 end subroutine refine_guess
-!-=-=-=-=-
 
+!-=-=-=-=-
 !-=-=-=-=-=
 subroutine map_scan
+  !! Calculate complex frequency maps for scanned parameters.
+  !! Intervatively calls [[map_search(subroutine)]]
+  !! over a fixed range of parameters.
   use vars, only : scan, spec, print_Name, sw, sw2, kperp, kpar
-  use vars, only : writeOut
+  use vars, only : writeOut, pi
   use vars, only : gami, gamf, omi, omf ,betap
   !Local
-  integer :: jj
-  character(150) :: outName,writeName
-  real :: diff,diff2        !spacing for scan
-  real :: theta, theta_q, ki, kperpi,kpari
-  real :: pi
 
-  pi = 4.0*ATAN(1.0)
+  integer :: jj
+  !! Parameter step index.
+  
+  character(150) :: outName
+  !! String for I/O identification.
+    
+  real :: diff
+  !! Spacing for scan of primary parameter.
+
+  real :: diff2
+  !! Spacing for scan of secondary parameter.
+  
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+
+  real :: theta_q
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
 
   !Assign output name for scan is
   call set_map_pointers(outName,diff,diff2)
@@ -510,75 +616,156 @@ subroutine map_scan
         write(*,*)trim(print_Name)
      endif
 
-     !edit map parameters
+     !Edit map span. Hard code in the desired range.
+     !Will add an improved interface for the future.
+     
+     write(*,'(a)')'Modifying Span of Complex Frequency Space:'
      omi=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      
      call map_search
-     !disprels.f90
 
-  enddo
-  
+  enddo  
   !End Parameter Scan
+  
 end subroutine map_scan
-!-=-=-=-=-=
 
-!-=-=-=-=-
+!-=-=-=-=-=
+!-=-=-=-=-=
 subroutine om_scan(is)
-  use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n
-  !>>>GGH: 1/18/23
-  use vars, only : new_low_n
-  !<<<GGH: 1/18/23
+  !! Calculate solutions as a function of the variation of
+  !! a single parameter.
+  use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
+  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use vars, only : kperp,kpar,betap,vtp,spec,writeOut,susc
   use functions, only : get_unused_unit
+  
   implicit none
   !Passed
-  integer :: is !which scan pass
+  integer :: is
+  !!Scan index.
+
   !Local
-  integer :: ii,jj,kk
-  character(150) :: outName,writeName,tensorName
-  character(100)  :: fmt, fmt_tnsr !Output format for data
-  integer ,dimension(1:nroot_max) :: out_unit, out_unit_2
-  real :: diff,diff2        !spacing for scan
-  real :: theta,theta_q,pi              !Angle for Scanning, pi
-  real :: kf,ki,kperpi,kpari           !final,initial |k| value for scans
-  integer :: out_type !(0-3):advanced logic for outputing
-  ! (yes,no) (eigen, heating)
-  !Frequency
-  complex,dimension(:),allocatable :: omlast   !Arrays with freq for each root
-  complex :: om1,om2                              !Bracket Values
-  complex :: omold     !Last Omega
-  complex :: omega     !Complex Frequency
-  real    :: val                                  !Dispersion Relation Value
-  integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
-  real, parameter :: prec=1.E-7              !Root Finding precision  
+  integer :: ii
+  !! Solution index.
+  
+  integer :: jj
+  !! Parameter step index.
+
+  character(150) :: outName
+  !! String for identifying output files.
+
+  character(150) :: writeName
+  !! Full output name.
+
+  character(150) :: tensorName
+  !! Output name for susceptibility tensor.
+  
+  character(100)  :: fmt
+  !! Output format for dispersion relation.
+  
+  character(100)  :: fmt_tnsr
+  !! Output format for susceptibility tensor.
+  
+  integer ,dimension(1:nroot_max) :: out_unit
+  !! Main output unit.
+
+  integer ,dimension(1:nroot_max) :: out_unit_2
+  !! Suplementary  output unit.
+  
+  real :: diff
+  !! Spacing for parameter scan.
+
+  real :: diff2
+  !! Supplemental Spacing for two-component parameter scan.
+  
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+  
+  real :: theta_q              
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kf
+  !! Final value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
+  
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+
+  complex,dimension(:),allocatable :: omlast
+  !!Arrays with complex frequency for each solution.
+
+  complex :: om1
+  !!Lower bracket value of solution refinement.
+  
+  complex :: om2
+  !!Upper bracket value of solution refinement.
+  
+  complex :: omold
+  !!Previous frequency value.
+  
+  complex :: omega
+  !!Complex Frequency under evaluation.
+  
+  real    :: val
+  !!Dispersion Relation Value
+  
+  integer :: iflag
+  !!Flag for Root search
+
   !Eigenfunctions
-  complex, dimension(1:3)       :: ef, bf !E, B
-  complex, dimension(1:nspec)     :: ns     !density
-  complex, dimension(1:3,1:nspec) :: Us     !Velocity
+  complex, dimension(1:3)       :: ef
+  !! Electric Field eigenfluctuation.
+  
+  complex, dimension(1:3)       :: bf
+  !! Magnetic Field eigenfluctuation.
+
+  complex, dimension(1:nspec)     :: ns
+  !! Density eigenfluctuation.
+  
+  complex, dimension(1:3,1:nspec) :: Us
+  !! Velocity eigenfluctuation.
+  
   !Heating
-  real, dimension(1:nspec) :: Ps !Power into/out of species
-  real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
+  real, dimension(1:nspec) :: Ps
+  !! Power into/out of species/component in one wave period.
+  
+  real, dimension(1:4,1:nspec) :: Ps_split
+  !! Power into/out of species/components, broken into different contributions.
+  !! Deprecated.
+  
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-  !<<<GGH: 1/18/23
-  real :: Ew !wave energy
-  !complex, dimension(1:nspec,1:6) :: Tensor !Anti-Hermitian Tensor
-  !species parameters:
+  real, dimension(1:6,1:nspec) :: Ps_split_new
+  !!Power into/out of species/componets.
+  !!Corrected LD/TTD calculation (GGH).
+
+  real :: Ew
+  !!Wave energy.
+
   real, dimension(1:6,1:nspec) :: params
-
-  !Add PS Split.
-
-  pi = 4.*atan(1.)
+  !!Species parameters:
 
   !Assign output name for scan is
   call get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
 
-  write(*,'(2a)')' =>',trim(tensorName)
+  if (scan(is)%tensor_s) &
+       write(*,'(2a)')' =>',trim(tensorName)
 
   if ((scan(is)%style_s)==-1) then
      !Scans with multiple components
@@ -700,9 +887,9 @@ subroutine om_scan(is)
            
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
-!              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ew,scan(is)%eigen_s,scan(is)%heat_s)
               !>>>GGH: 1/18/23
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,&
+                   Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
               !<<<GGH: 1/18/23
               omega=omlast(ii)
               if (abs(real(omega)).lt.1.E-15) then
@@ -837,49 +1024,135 @@ end subroutine om_scan
 
 !-=-=-=-=-
 subroutine om_double_scan
-  use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4
+  !! Calculate solutions as a function of the variation of
+  !! two parameters, creating a surface in parameter space.
+  use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
-  !>>>GGH: 1/18/23
-  use vars, only : new_low_n
-  !<<<GGH: 1/18/23
+  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use functions, only : get_unused_unit
   implicit none
+  
   !Local
   real, dimension (1:2,1:2) :: diff
-  integer :: ii,jj,kk,is
-  character(150) :: outName,writeName,tensorName
-  character(100)  :: fmt,fmt_tnsr !Output format for data
-  integer, dimension(1:nroot_max) :: out_unit,out_unit_2
-  integer :: out_type !(0-3):advanced logic for outputing
-  real :: theta,theta_q,pi              !Angle for Scanning, pi
-  real :: kf,ki,kperpi,kpari           !final,initial |k| value for scans
-  real :: sw3_old,sw4_old
+  !!Parameter steps for both components.
+
+  integer :: is
+  !! Scan index.
+  
+  integer :: ii
+  !! Solution index.
+  
+  integer :: jj
+  !! First Parameter step index.
+
+  integer :: kk
+  !! Second Parameter step index.
+
+  character(150) :: outName
+  !! String for identifying output files.
+
+  character(150) :: writeName
+  !! Full output name.
+
+  character(150) :: tensorName
+  !! Output name for susceptibility tensor.
+  
+  character(100)  :: fmt
+  !! Output format for dispersion relation.
+  
+  character(100)  :: fmt_tnsr
+  !! Output format for susceptibility tensor.
+
+  integer ,dimension(1:nroot_max) :: out_unit
+  !! Main output unit.
+
+  integer ,dimension(1:nroot_max) :: out_unit_2
+  !! Suplementary  output unit.
+
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+  
+  real :: theta_q              
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kf
+  !! Final value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
+  
   !Frequency
-  complex,dimension(:),allocatable :: omlast   !Arrays with freq for each root
-  complex,dimension(:),allocatable :: omSafe   !Saved freq Arrays for each root
-  complex :: om1,om2                              !Bracket Values
-  complex :: omold     !Last Omega
-  complex :: omega     !Complex Frequency
-  real    :: val                                  !Dispersion Relation Value
-  integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
-  real, parameter :: prec=1.E-7              !Root Finding precision  
+
+  complex,dimension(:),allocatable :: omlast
+  !!Arrays with complex frequency for each solution.
+
+  complex :: om1
+  !!Lower bracket value of solution refinement.
+  
+  complex :: om2
+  !!Upper bracket value of solution refinement.
+
+  complex :: omold
+  !!Previous frequency value.
+
+  complex :: omega
+  !!Complex Frequency under evaluation.
+  
+  real    :: val
+  !!Dispersion Relation Value
+  
+  integer :: iflag
+  !!Flag for Root search
+  
+  complex,dimension(:),allocatable :: omSafe
+  !!Saved frequency Arrays for each root for second parameter scan.
+
   !Eigenfunctions
-  complex, dimension(1:3)       :: ef, bf !E, B
-  complex, dimension(1:nspec)     :: ns     !density
-  complex, dimension(1:3,1:nspec) :: Us     !Velocity
+  complex, dimension(1:3)       :: ef
+  !! Electric Field eigenfluctuation.
+  
+  complex, dimension(1:3)       :: bf
+  !! Magnetic Field eigenfluctuation.
+
+  complex, dimension(1:nspec)     :: ns
+  !! Density eigenfluctuation.
+  
+  complex, dimension(1:3,1:nspec) :: Us
+  !!Velocity eigenfluctuation.
+
   !Heating
-  real, dimension(1:nspec) :: Ps   !Power into/out of species
-  real, dimension(1:4,1:nspec) :: Ps_split   !Power into/out of species from LD, TTD
+  real, dimension(1:nspec) :: Ps
+  !!Power into/out of species/component in one wave period.
+  
+  real, dimension(1:4,1:nspec) :: Ps_split
+  !!Power into/out of species/components, broken into different contributions.
+  !! Deprecated.
+  
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-  !<<<GGH: 1/18/23
-  real :: Ew !wave energy
-  !species parameters:
+  real, dimension(1:6,1:nspec) :: Ps_split_new
+  !!Power into/out of species/componets.
+  !!Corrected LD/TTD calculation (GGH).
+
+  real :: Ew
+  !!Wave energy.
+
   real, dimension(1:6,1:nspec) :: params
-
-  pi = 4.*atan(1.)
-
+  !!Species parameters:
+  
   !Assign output name for scan is
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME 
@@ -910,10 +1183,9 @@ subroutine om_double_scan
      endif
   enddo
 
-
   !Open the (nroot_max) output files
 
-  !May want to have a netCDF file output option.
+  !May want to have a netCDF/h5 file output option.
   !Look into AGK I/O module
   do ii = 1,nroot_max
      call get_unused_unit(out_unit(ii))
@@ -1075,7 +1347,6 @@ subroutine om_double_scan
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
                     !>>>GGH: 1/18/23
-!                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(2)%eigen_s,scan(2)%heat_s)
                     !<<<GGH: 1/18/23
                     if (abs(real(omega)).lt.1.E-7) then
@@ -1225,45 +1496,79 @@ subroutine om_double_scan
      enddo  !End Parameter 1 Scan
 
 end subroutine om_double_scan
+
 !-=-=-=-=-
 !Kristopher Klein, 2015
 !----------------------
-!Calculates normal modes of the system
-!for a specified radial solar wind model
 !-=-=-=-=-
 subroutine radial_scan
+  !!Calculates normal modes of the system
+  !!for a specified radial solar wind model
+  !! (under development)
   use vars, only : nRad, radius, writeOut, nroot_max
   use vars, only : wroots, spec, rad_spec, nspec, k_scan
   use vars, only : vtp_rad, beta_rad, sw, sw2, sw3, sw4
   use vars, only : kperp, kpar, betap, vtp, radial_eigen
   use vars, only : dataName, outputName, radial_heating
-  use vars, only : rad_scan
+  use vars, only : rad_scan, pi
   use functions, only : get_unused_unit
   implicit none
-  !Local
-  integer :: ir !radial index
-  integer :: ii !mode index
-  integer :: is !species index
-  integer :: ij,ik !wavevector loops
-  character(150) :: outName,writeName
-  character(100)  :: fmt !Output format for data
-  integer ,dimension(1:nroot_max) :: out_unit
-  integer :: out_type !(0-3):advanced logic for outputing
-  ! (yes,no) (eigen, heating)
-  complex,dimension(:),allocatable :: omlast   !Arrays with freq for each root
-  complex,dimension(:,:),allocatable :: omSafe   !Arrays with freq for each root
-
-  logical :: mod_write =.FALSE.
-  !For only writing out every n_scan, not n_scan * n_res steps
-  !species parameters: useful for outputing data
-  real, dimension(1:6,1:nspec) :: params
   
-  real :: theta ! atan(kperp/kpar)
-  real :: ki    ! current value of sqrt(kperp^2 + kpar^2)
-  real :: pi
+  !Local
+  integer :: ir
+  !!Radial index.
+  
+  integer :: ii
+  !!Mode index.
 
-  pi = 4.*atan(1.0)
+  integer :: is
+  !!Species/component index.
+  
+  integer :: ij
+  !!Primary wavevector index.
 
+  integer :: ik
+  !!Secondary wavevector index.
+  
+  character(150) :: outName
+  !! String for identifying output files.
+
+  character(150) :: writeName
+  !! Full output name.
+  
+  character(100)  :: fmt
+  !! Output format for dispersion relation.
+  
+  integer ,dimension(1:nroot_max) :: out_unit
+  !! Main output unit.
+
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+  
+  complex,dimension(:),allocatable :: omlast
+  !!Arrays with complex frequency for each solution.
+
+  complex,dimension(:,:),allocatable :: omSafe
+  !!Saved frequency Arrays for each root for second parameter scan.
+  
+  logical :: mod_write =.FALSE.
+  !!For only writing out every n_scan, not n_scan * n_res steps
+  !!species parameters: useful for outputing data (INVESTIGATE THIS...)
+  
+  real, dimension(1:6,1:nspec) :: params
+  !!Species/component parameters:
+
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+
+  real :: ki
+  !! Current value of \( |k| \).
+  
   !Assign outname
   write(outName,'(4a)')&
        'data/',trim(dataName),'/',&
@@ -1276,6 +1581,8 @@ subroutine radial_scan
      open(unit=out_unit(ii),file=trim(writeName),status='replace')
   enddo
 
+  !!ADD split power calculations here... (KGK)
+  
   !Specify output formatting
   if (radial_eigen) then
      if (radial_heating) then
@@ -1358,7 +1665,11 @@ subroutine radial_scan
            endif
 
            !set kpar
-           kpar=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
+           if (rad_scan(1)%log_scan) then
+              kpar=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           else
+              kpar=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           endif
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
@@ -1394,7 +1705,11 @@ subroutine radial_scan
            endif
 
            !set kperp
-           kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
+           if (rad_scan(1)%log_scan) then
+              kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           else
+              kperp=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           endif
 
            !Root Finder in separate subroutine
            call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
@@ -1432,7 +1747,11 @@ subroutine radial_scan
            endif
 
            !set k
-           ki=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
+           if (rad_scan(1)%log_scan) then
+              ki=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           else
+              ki=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           endif          
            kperp = ki*sin(theta)
            kpar  = ki*cos(theta)
 
@@ -1473,7 +1792,11 @@ subroutine radial_scan
            endif
 
            !set k
-           theta = (rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij)    
+           if (rad_scan(1)%log_scan) then
+              theta=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           else
+              theta=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+           endif          
            kperp = ki*sin(theta*pi/180.)
            kpar  = ki*cos(theta*pi/180.)
 
@@ -1505,7 +1828,11 @@ subroutine radial_scan
         !kpar loop
         do ik = 0,rad_scan(2)%n_scan*rad_scan(2)%n_res
            !set kpar
-           kpar=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))    
+           if (rad_scan(2)%log_scan) then
+              kpar=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           else
+              kpar=((rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           endif          
 
            write(*,'(a,es14.4)')&
                 'kpar rho_p :',kpar
@@ -1520,7 +1847,11 @@ subroutine radial_scan
            !kperp loop
            do ij = 0,rad_scan(1)%n_scan*rad_scan(1)%n_res
               !set kperp
-              kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))    
+              if (rad_scan(1)%log_scan) then
+                 kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+              else
+                 kperp=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+              endif
               
               !Determine write status
               if ((mod(ij,rad_scan(1)%n_res)==0).and.&
@@ -1572,7 +1903,11 @@ subroutine radial_scan
         !k loop
         do ik = 0,rad_scan(2)%n_scan*rad_scan(2)%n_res
            !set k
-           ki=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))    
+           if (rad_scan(2)%log_scan) then
+              ki=10.**(log10(rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           else
+              ki=((rad_scan(2)%range_i)+rad_scan(2)%diff*real(ik))
+           endif
 
            write(*,'(a,es14.4)')&
                 'k rho_p :',ki
@@ -1584,10 +1919,14 @@ subroutine radial_scan
               enddo
            endif
 
-           !kperp loop
+           !theta loop
            do ij = 0,rad_scan(1)%n_scan*rad_scan(1)%n_res
               !set theta
-              theta=(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij)
+              if (rad_scan(1)%log_scan) then
+                 theta=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+              else
+                 theta=((rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
+              endif              
               kperp = ki*sin(theta*pi/180.)
               kpar  = ki*cos(theta*pi/180.)
 
@@ -1642,46 +1981,94 @@ subroutine radial_scan
 enddo
 
 end subroutine radial_scan
+
 !-=-=-=-=-
-!Scans roots at a given location in parameter space
-!Used in conjunction with radial_scan
 !-=-=-=-=-
 subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+  !!Scans roots at a given location in parameter space.
+  !!Used in conjunction with [[radial_scan(subroutine)]].
   use vars, only: nspec, nroot_max, radial_heating, radial_eigen
   use vars, only: radius, betap, vtp, kperp, kpar
   !Passed
-  complex,dimension(1:nspec) :: omlast   !Arrays with freq for each root
-  !species parameters: useful for outputing data
-  real, dimension(1:6,1:nspec) :: params
-  integer ,dimension(1:nroot_max) :: out_unit
-  character(100)  :: fmt !Output format for data
-  integer :: out_type !(0-3):advanced logic for outputing
-  ! (yes,no) (eigen, heating)
-  integer :: ir !radial index
-  logical :: mod_write 
-  !T-> write freq etc.
-  !F-> do not write
-  !Local
-  integer :: ii !root index
-  complex :: om1,om2                              !Bracket Values
-  complex :: omold     !Last Omega
-  complex :: omega     !Complex Frequency
-  real    :: val                                  !Dispersion Relation Value
-  integer :: iflag                                !Flag for Root search
-  real, parameter :: tol=1.0E-13                  !Root Search Tolerance   
-  real, parameter :: prec=1.E-7              !Root Finding precision  
-  !Eigenfunctions
-  complex, dimension(1:3)       :: ef, bf !E, B
-  complex, dimension(1:nspec)     :: ns     !density
-  complex, dimension(1:3,1:nspec) :: Us     !Velocity
-  !Heating
-  real, dimension(1:nspec) :: Ps   !Power into/out of species  
-  real, dimension(1:4,1:nspec) :: Ps_split   !Power into/out of species from LD, TTD
-  !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-  !<<<GGH: 1/18/23
-  real :: Ew !wave energy
 
+  complex,dimension(1:nspec) :: omlast
+  !!Arrays with complex frequency for each solution.
+
+  real, dimension(1:6,1:nspec) :: params
+  !!Species parameters:
+
+  integer ,dimension(1:nroot_max) :: out_unit
+  !! Main output unit.
+
+  character(100)  :: fmt
+  !! Output format for dispersion relation.
+
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+
+  integer :: ir
+  !!Radial index.
+
+  logical :: mod_write
+  !!For only writing out every n_scan, not n_scan * n_res steps
+  !!species parameters: useful for outputing data (INVESTIGATE THIS...)
+  
+  !Local
+  integer :: ii
+  !!Solution index.
+
+  complex :: om1
+  !!Lower bracket value of solution refinement.
+  
+  complex :: om2
+  !!Upper bracket value of solution refinement.
+
+  complex :: omold
+  !!Previous frequency value.
+
+  complex :: omega
+  !!Complex Frequency under evaluation.
+  
+  real    :: val
+  !!Dispersion Relation Value
+  
+  integer :: iflag
+  !!Flag for Root search
+
+  !Eigenfunctions
+  complex, dimension(1:3)       :: ef
+  !! Electric Field eigenfluctuation.
+  
+  complex, dimension(1:3)       :: bf
+  !! Magnetic Field eigenfluctuation.
+
+  complex, dimension(1:nspec)     :: ns
+  !! Density eigenfluctuation.
+  
+  complex, dimension(1:3,1:nspec) :: Us
+  !!Velocity eigenfluctuation.
+
+  !Heating
+  real, dimension(1:nspec) :: Ps
+  !!Power into/out of species/component in one wave period.
+  
+  real, dimension(1:4,1:nspec) :: Ps_split
+  !!Power into/out of species/components, broken into different contributions.
+  !! Deprecated.
+  
+  !>>>GGH: 1/18/23
+  real, dimension(1:6,1:nspec) :: Ps_split_new
+  !!Power into/out of species/componets.
+  !!Corrected LD/TTD calculation (GGH).
+
+  real :: Ew
+  !!Wave energy.
+  
   !Root Scan....
   do ii=1,nroot_max
      !Bracket values for root search
@@ -1737,44 +2124,97 @@ end subroutine om_radial
 !------------------------------------------------------------------------------
 !Greg Howes, 2010; Kristopher Klein, 2015
 !------------------------------------------------------------------------------
-!  Calculates the electric and magnetic fields as well as species
-!     velocities and density fluctuations for (omega,gamma)
-!     and particle heating/cooling from a given wave
 !-=-=-=-=-=-
-!-=-=-=-=-=-
-!>>>GGH: 1/18/23
-!subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,eigen_L,heat_L)
-subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,eigen_L,heat_L)
+subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
+     Ps_split,Ps_split_new,eigen_L,heat_L)
+  !!  Calculates the electric and magnetic fields as well as species
+  !!     velocities and density fluctuations for identified wave 
+  !!     as well as the power emission or absorption.
   use vars, only : new_low_n
 !<<<GGH: 1/18/23
   use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
   implicit none
   !!Passed!!
-  !Frequency
   complex :: omega
-  !Eigenfn
-  complex, dimension(1:3), intent(out)       :: electric, magnetic !E, B
-  complex, dimension(1:3) :: electric_xy, electric_z
-  complex, dimension(1:nspec), intent(out)     :: ns     !density
-  complex, dimension(1:3,1:nspec), intent(out) :: vmean     !Velocity
+  !!Complex Frequency of identified wave.
+  
+  !Eigenfunctions.
+  complex, dimension(1:3), intent(out)       :: electric
+  !! Complex electric field fluctuations
+  !! (Ex, Ey, Ez)
+
+  complex, dimension(1:3), intent(out)       :: magnetic
+  !! Complex magnetic field fluctuations
+  !! (Bx, By, Bz)
+
+  complex, dimension(1:3) :: electric_xy
+  !! Components of electric field:
+  !! (Ex, Ey, 0)
+  
+  complex, dimension(1:3) ::  electric_z
+  !! Components of electric field:
+  !! (0, 0, Ez)
+  
+  complex, dimension(1:nspec), intent(out)     :: ns
+  !!Complex Density fluctuations.
+  
+  complex, dimension(1:3,1:nspec), intent(out) :: vmean
+  !!Complex Velocity fluctuations:
+  !! (Uxs, Uys, Uzs)
+  
   !Heating
-  real, dimension(1:nspec), intent(out) :: Ps   !Power into/out of species
-  real, dimension(1:4,1:nspec), intent(out) :: Ps_split!Power into/out of species
-  !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec), intent(out) :: Ps_split_new !Power into/out of species (GGH)
-  !<<<GGH: 1/18/23
-  !Power into/out of species from LD, TTD, CD
-  !real, dimension(1:nspec,1:4) :: Ps_split   
-  logical :: eigen_L,heat_L !Logical for calculating eigenvalues, heating
+  real, dimension(1:nspec), intent(out) :: Ps
+  !!Power into/out of species/components.
+  
+  real, dimension(1:4,1:nspec), intent(out) :: Ps_split
+  !!Power into/out of species
+
+  real, dimension(1:6,1:nspec), intent(out) :: Ps_split_new
+  !!<<<GGH: 1/18/23
+  !!Power into/out of species/components from LD, TTD, CD.
+
+  logical :: eigen_L
+  !!Logical for calculating eigenvalues
+  
+  logical :: heat_L
+  !!Logical for calculating heating
+
   !Local
-  real :: sume                                   !Temp sum
-  integer :: ii,j,jj
+  real :: sume
+  !!Temporary sum.
+
+  integer :: ii
+  !! 1st Tensor index.
+
+  integer :: j
+  !! 2nd Tensor index.
+
+  integer :: jj
+  !! Species index.
+  
   complex :: temp1
+  !! Temp. value for complex frequency.
+  
   complex, dimension(nspec,3,3) :: susca
-  complex, dimension(3,3) :: susch,suschold,dsusch
+  !!The Anti-Hermitian Susceptibility Tensor.
+  
+  complex, dimension(3,3) :: susch
+  !!The Hermitian Susceptibility Tensor.
+
+  complex, dimension(3,3) :: suschold
+  !!The Saved Hermitian Susceptibility Tensor.
+  
+  complex, dimension(3,3) :: dsusch
+  !!The Difference in the Hermitian Susceptibility Tensors.
+  
   complex, dimension(nspec,3) :: term
+  !! Summation terms for heating calculation.
+  
   complex, dimension(3) :: term1
+  !! Further summation terms for heating calculation.
+
   real :: ewave
+  !! Wave Energy.
 
   !CALCULATE FIELDS FLUCTUATIONS==========================================
   !Calculate Electric Fields
@@ -1797,32 +2237,32 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
   
   !If (scan(is)%eigen_s) loop
   if (eigen_L) then
-  !CALCULATE VELOCITY FLUCTUATIONS========================================
-  !vmean is the velocity perturbutation due to the wave for each species
-  !    normalized to the electron velocity perturbation
-  ! This is the mean velocity normalized to the Alfven velocity
-  !KGK: 1-28-2015: Added the drift velocity effects
-  vmean(:,:)=0.
-  do j=1,3!x,y,z
-     do jj = 1,nspec !Species velocity fluctuations
-        vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
-             omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
-             sum(electric(:)*susc(jj,j,:))
+     !CALCULATE VELOCITY FLUCTUATIONS========================================
+     !vmean is the velocity perturbutation due to the wave for each species
+     !    normalized to the electron velocity perturbation
+     ! This is the mean velocity normalized to the Alfven velocity
+     !KGK: 1-28-2015: Added the drift velocity effects
+     vmean(:,:)=0.
+     do j=1,3!x,y,z
+        do jj = 1,nspec !Species velocity fluctuations
+           vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
+                omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
+                sum(electric(:)*susc(jj,j,:))
+        enddo
      enddo
-  enddo
-
-  !CALCULATE DENSITY FLUCTUATIONS========================================
-  ! This is ns/ns0
-  !KGK: 8-28-2013: switched from real(omega) to the complex valued omega.
-  !KGK: 12-19-2013: Added the sqrt(T_perp/T_par) factor
-  !KGK: 1-28-2015: Added the drift velocity Dopplar shift
-  do jj=1,nspec
-     ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
-          ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
-          *sqrt(betap*spec(1)%alph_s))
-  enddo
-
-  !EndIf (scan(is)%eigen_s) loop
+     
+     !CALCULATE DENSITY FLUCTUATIONS========================================
+     ! This is ns/ns0
+     !KGK: 8-28-2013: switched from real(omega) to the complex valued omega.
+     !KGK: 12-19-2013: Added the sqrt(T_perp/T_par) factor
+     !KGK: 1-28-2015: Added the drift velocity Dopplar shift
+     do jj=1,nspec
+        ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
+             ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
+             *sqrt(betap*spec(1)%alph_s))
+     enddo
+     
+     !EndIf (scan(is)%eigen_s) loop
   endif
 
   !If (scan(is)%heat_s) loop
@@ -1830,11 +2270,8 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
   if (heat_L) then
      !CALCULATE ELECTRON AND ION HEATING======================================
      temp1 = cmplx(real(omega),0.)
-     !temp1 = omega
      temp1 = disp(temp1)
-     
-     !if (kpar.gt.0.29) write(*,*)'!/!',susc(:,1,2)
-     
+          
      do ii = 1, 3 !tensor index
         do j = 1, 3 !tensor index
            do jj = 1, nspec !species index
@@ -1858,8 +2295,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
      do jj = 1, nspec
         Ps(jj) = sum(term(jj,:)*electric(:))
      enddo
-
-     !if (kpar.gt.0.29) write(*,*)'!!',Ps(:)
      
      temp1 = disp(cmplx(real(omega*1.000001),0.))
      
@@ -1868,12 +2303,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
            susch(ii,j) = 0.5*(sum(susc(:,ii,j)) + &
                 sum(conjg(susc(:,j,ii))))
            dsusch(ii,j)=(1.000001*susch(ii,j)-suschold(ii,j))/0.000001
-           !if (kpar.gt.0.29) write(*,'(2i2,4es12.2)')ii,j,susch(ii,j),suschold(ii,j)
         enddo
      enddo
-
-     
-     
+          
      ewave = 0.
      do ii = 1, 3
         term1(ii) = sum(conjg(electric(:))*dsusch(:,ii))
@@ -1881,12 +2313,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
      
      ewave = sum(term1(:)*electric(:)) + sum(magnetic(:)*conjg(magnetic(:)))
 
-     !write(*,*)'term:',term1(:)
-     !write(*,*)'wave energy:',ewave,sum(term1(:)*electric(:)),sum(magnetic(:)*conjg(magnetic(:)))
-     
-     !if (kpar.gt.0.29) write(*,*)'!!!',ewave,sum(term1(:)*electric(:)),term1(1:3)
-     
-     !Ps = 2.*Ps/ewave
      Ps = Ps/ewave
   
      !LD, TTD, and CD calculation
@@ -2050,35 +2476,56 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,Ps_split,Ps_split_new,
 
 end subroutine calc_eigen
 !-=-=-=-=-=-
-
+!-=-=-=-=-=-
 subroutine set_map_pointers(outName,diff,diff2)
-  use vars, only : scan,nspec,dataName,writeOut
+  !! Sets step sizes for all classes of parameter scans
+  !! called in for [[map_scan(subroutine)]].
+  use vars, only : scan,nspec,dataName,writeOut,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar
   implicit none
   !Passed
-  real :: diff,diff2     !spacing for scanned parameters
+  real :: diff
+  !!Spacing for scanned parameter.
+
+  real :: diff2
+  !!Suplemental spacing for scanned parameter.
+
   character(150) :: outName
+  !! String for I/O identification.
+
   !Local
   character(15)  :: param
-  real :: theta,theta_q,pi    !Angle for Scanning, pi
-  real :: kf,ki,kperpi,kpari  !final,initial |k| value for scans
+  !! String to identify scanned parameter.
 
-  pi=4.*atan(1.)
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
 
+  real :: theta_q
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kf
+  !! Final value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
+  
   if((scan(1)%style_s).ge.0) then
      if (scan(1)%log_scan) then
         !Log spacing
         diff=(log10(scan(1)%range_f)-log10(scan(1)%range_i))/&
              real(scan(1)%n_scan*scan(1)%n_res)
-        !par(i)=10.**(log10(scan(1)%range_i)+diff*real(i))    
      else
         !Linear spacing
         diff=((scan(1)%range_f)-(scan(1)%range_i))/&
              real(scan(1)%n_scan*scan(1)%n_res)
-        !par(i)=(scan(1)%range_i)+diff*real(i)    
      endif
   endif
-
 
   if (scan(1)%style_s.eq.-1) then
      !Global parameter scan- 2 components
@@ -2270,36 +2717,76 @@ end subroutine set_map_pointers
 
 !-=-=-=-=-=-
 subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
-  use vars, only : scan,nspec,dataName,writeOut,outputName
+  !!Sets I/O strings, step sizes, and formats for [[om_scan(subroutine)]].
+  use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n
   !>>>GGH: 1/18/23
   use vars, only : new_low_n
   !<<<GGH: 1/18/23
   implicit none
+
   !Passed
   character(150) :: outName
+  !! String for I/O identification.
+
   character(150) :: tensorName
-  character(100)  :: fmt,fmt_tnsr
-  integer :: is,out_type
-  real :: diff,diff2     !spacing for scanned parameters
+  !! String for Susceptability output.
+
+  character (100) :: fmt
+  !! Output format for solution.
+  
+  character (100) :: fmt_tnsr
+  !! Output format for susceptibility tensor.
+  
+  integer :: is
+  !!Scan index
+
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+  
+  real :: diff
+  !!Spacing for scanned parameter.
+
+  real :: diff2
+  !!Suplemental spacing for scanned parameter.
+  
   !Local
   character(15)  :: param
-  real :: theta,theta_q,pi    !Angle for Scanning, pi
-  real :: kf,ki,kperpi,kpari  !final,initial |k| value for scans
+  !! String to identify scanned parameter.
 
-  pi=4.*atan(1.)
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+  
+  real :: theta_q              
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kf
+  !! Final value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
+  
 
   if((scan(is)%style_s).ge.0) then
      if (scan(is)%log_scan) then
         !Log spacing
         diff=(log10(scan(is)%range_f)-log10(scan(is)%range_i))/&
              real(scan(is)%n_scan*scan(is)%n_res)
-        !par(i)=10.**(log10(scan(is)%range_i)+diff*real(i))    
      else
         !Linear spacing
         diff=((scan(is)%range_f)-(scan(is)%range_i))/&
              real(scan(is)%n_scan*scan(is)%n_res)
-        !par(i)=(scan(is)%range_i)+diff*real(i)    
      endif
   endif
 
@@ -2620,25 +3107,63 @@ end subroutine get_out_name
 
 !-=-=-=-
 subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
-  use vars, only : scan,nspec,dataName,writeOut,outputName
+  !!Sets I/O strings, step sizes, and formats for [[om_double_scan(subroutine)]].
+  use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,sw3,sw4,betap,vtp,kperp,kpar, low_n
   !>>>GGH: 1/18/23
   use vars, only : new_low_n
   !<<<GGH: 1/18/23
   implicit none
   !Passed
-  character(150) :: outName
-  character(150) :: tensorName
-  character(100)  :: fmt,fmt_tnsr
-  integer :: out_type
-  real,dimension(1:2,1:2) :: diff     !spacing for scanned parameters
-  !Local
-  character(15), dimension(1:2)  :: param,param2
-  real :: theta,theta_q,pi    !Angle for Scanning, pi
-  real :: kf,ki,kperpi,kpari  !final,initial |k| value for scans
-  integer :: is
 
-  pi=4.*atan(1.)
+  character(150) :: outName
+  !! String for I/O identification.
+
+  character(150) :: tensorName
+  !! String for Susceptability output.
+
+  character (100) :: fmt
+  !! Output format for solution.
+  
+  character (100) :: fmt_tnsr
+  !! Output format for susceptibility tensor.
+
+  integer :: out_type
+  !! logic for outputing supplementary eigenfunction and heating
+  !! calculations.
+  !! 0: Frequency, Eigenfuction, Heating.
+  !! 1: Frequency, Eigenfuction.
+  !! 2: Frequency, Heating.
+  !! 3: Frequency.
+  
+  real,dimension(1:2,1:2) :: diff
+  !!Spacing for scanned parameter.
+  
+  !Local
+  character(15), dimension(1:2)  :: param
+  !! String to identify scanned parameters.
+
+
+  real :: theta
+  !! \( \atan(k_{\perp}/k_{\parallel}) \)
+  
+  real :: theta_q              
+  !! Scanned values of \( \theta \).
+
+  real :: ki
+  !! Initial value of \( |k| \).
+
+  real :: kf
+  !! Final value of \( |k| \).
+
+  real :: kperpi
+  !! Initial value of \( k_{\perp} \).
+
+  real :: kpari
+  !! Initial value of \( k_{\parallel} \).
+  
+  integer :: is
+  !! Scan index.
 
   if (((scan(1)%style_s)==(scan(2)%style_s)).and.&
        ((scan(1)%type_s)==(scan(2)%type_s))) then
@@ -2646,6 +3171,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
           'Scaning the same parameters in double scan...'
      write(*,'(a)')&
           'Change input file values...'
+     stop
   endif
 
   do is=1,2!iterate over first and second scan information
@@ -2695,8 +3221,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               diff(is,2)=((scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
            endif
-           
-           
+                      
         elseif (scan(is)%type_s.eq.1) then
            write(param(is),'(a)')'theta'
            !theta_0 -> theta_1
@@ -2938,8 +3463,6 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
              trim(param(1)),'_',trim(param(2))
      endif
 
-
-
 end subroutine get_double_out_name
 !-=-=-=-
 
@@ -2957,68 +3480,167 @@ end subroutine get_double_out_name
 !             Kristopher G Klein
 !-=-=-=-=-=-=
 !  The parameters upon which this dispersion relation depends are:
-!   1) betap   = 8nT_parallel R/B^2
-!   2) kperp   = k_perp rho_R
-!   3) kpar    = k_parallel rho_R
-!   4) vtp     = v_tR_parallel/c
+!   1) betap   = 8nT_parallel ref/B^2
+!   2) kperp   = k_perp rho_ref
+!   3) kpar    = k_parallel rho_ref (allows for +/- k_parallel values)
+!   4) vtp     = v_t,ref,parallel/c
 !  As well as the species dependent ratios, compared to the selected
-!  Reference Species R:
-!   5) tau_s     = T_R/T_s(both temperatures parallel)
-!   6) mu_s      = m_R/m_s
+!  Reference Species ref:
+!   5) tau_s     = T_ref/T_s(both temperatures parallel)
+!   6) mu_s      = m_ref/m_s
 !   7) alph_s    = T_perp/T_par|_s
-!   8) Q_s       = q_R/q_s
-!   9) D_s       = n_s/n_R
-!      Sum (n_s q_s) = 0
-!   10)vv_s      = v_drift s/v_AR
-!      Sum (n_s q_s v_s) = 0
-!   and returns om=omega/Omega_R
+!   8) Q_s       = q_ref/q_s
+!   9) D_s       = n_s/n_ref
+!   10)vv_s      = v_drift s/v_Aref
+!   and returns om=omega/Omega_ref
 !!!!
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
    complex function disp(om)
-     !Plasma Dispersion Function- allows for +/- k_parallel values
+     !!Returns Plasma Dispersion Function for input complex frequency
+     !! and global values of the dimensionless plasma parameters.
      use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
-     use vars,  only: low_n, susc_low
+     use vars,  only: low_n, susc_low, pi
      !>>>GGH: 1/18/23
      use vars, only : new_low_n
      !<<<GGH: 1/18/23
      implicit none
-     complex :: om                          !Complex Frequency
-     complex :: enx2, enz2, enxnz           ! n=kc/omega
-     complex :: eps_xx,eps_xy,eps_zz        !Elements of dielectric tensor
-     complex :: eps_yy,eps_xz,eps_yz        !Elements of dielectric tensor
-     complex :: eps_xx_t,eps_xy_t,eps_zz_t  !Temp Elements of dielectric tensor
-     complex :: eps_yy_t,eps_xz_t,eps_yz_t  !Temp Elements of dielectric tensor
-     real :: lambdas,lambdap                ! lambdai=(kperp rho_R)^2/2
-     real :: alphp,Vdrifts
-     !Parameters
-     complex, parameter :: c_i =(0.0,1.0)         !Imaginary i
-     real :: pi                                   !Pi
-     integer :: n                                 !Counter for Bessel sums
-     real, allocatable, dimension(:,:), save :: jn   !Bessel functions
-     real, allocatable, dimension(:,:), save :: jpn !Bessel functions primed
-     complex, dimension(-nbrack:nbrack), save :: tsi !Argument for Plasma Disp Func
-     complex, dimension(-nbrack:nbrack), save :: zz !Plasma Disp Functions
-     complex, dimension(1:6) :: norm !normalization for chi_s
-     !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
+     complex :: om
+     !!Complex Frequency
+
+     complex :: enx2
+     !! \(n_x^2= \left(k_{x} c/\omega \right)^2 \)
+     complex :: enz2
+     !! \(n_z^2= \left(k_{z} c/\omega \right)^2 \)
+     complex :: enxnz
+     !! \(n_x n_z = k_{x} k_{z}c^2/\omega^2 \)
+
+     complex :: eps_xx
+     !!\(\epsilon_{xx} \) element of dielectric tensor
+
+     complex :: eps_yy
+     !!\(\epsilon_{yy} \) element of dielectric tensor
      
-     complex, dimension(3,3) :: a                 !Temp Matrix for readability
+     complex :: eps_zz
+     !!\(\epsilon_{zz} \) element of dielectric tensor
+
+     complex :: eps_xy
+     !!\(\epsilon_{xy} \) element of dielectric tensor
+
+     complex :: eps_xz
+     !!\(\epsilon_{xz} \) element of dielectric tensor
+
+     complex :: eps_yz
+     !!\(\epsilon_{yz} \) element of dielectric tensor
+
+     complex :: eps_xx_t
+     !!Temp. \(\epsilon_{xx} \) element of dielectric tensor
+
+     complex :: eps_yy_t
+     !!Temp. \(\epsilon_{yy} \) element of dielectric tensor
+     
+     complex :: eps_zz_t
+     !!Temp. \(\epsilon_{zz} \) element of dielectric tensor
+
+     complex :: eps_xy_t
+     !!Temp. \(\epsilon_{xy} \) element of dielectric tensor
+
+     complex :: eps_xz_t
+     !!Temp. \(\epsilon_{xz} \) element of dielectric tensor
+
+     complex :: eps_yz_t
+     !!Temp. \(\epsilon_{yz} \) element of dielectric tensor
+     
+     real :: lambdap
+     !! \( \lambda_{ref}=(k_{\perp} \rho_{ref})^2/2 \)
+
+     real :: lambdas
+     !! \( \lambda_{s}=(k_{\perp} \rho_{s})^2/2 \)
+
+     real :: alphp
+     !! \( T_{\perp}/T_{\parallel}_{ref} \)
+
+     real :: Vdrifts
+     !! \( k_\parallel \rho_{ref} \Delta v_s /
+     !! \sqrt{\beta_{parallel,ref} T_{\perp}/T_{\parallel}_{ref}} \)
+
+     !Parameters
+     complex, parameter :: c_i =(0.0,1.0)
+     !!Imaginary unit i
+
+     integer :: n
+     !!Counter for Bessel sums
+     
+     real, allocatable, dimension(:,:), save :: jn
+     !!Modified Bessel functions
+     
+     real, allocatable, dimension(:,:), save :: jpn
+     !!Derivative of Modified Bessel functions
+     
+     complex, dimension(-nbrack:nbrack), save :: tsi
+     !!Argument for Plasma Dispersion Function Z
+     
+     complex, dimension(-nbrack:nbrack), save :: zz
+     !!Value fo Plasma Dispersion Function Z
+     
+     complex, dimension(1:6) :: norm
+     !!normalization for \( \chi_s \)
+     !!1: xx, 2: yy, 3: zz, 4: xy, 5: xz, 6: yz
+     
+     complex, dimension(3,3) :: a
+     !!Temp. Matrix for readability
      
      integer :: is
+     !! Species/component index.
+     
      complex ::temp
+     !! Temp. Scalar for readability.
 
      !Species Parameters called locally
-     real :: disp_tau     !T_proton/T_s|_parallel
-     real :: disp_mu      !m_proton/m_s
-     real :: disp_alph    !T_perp/T_parallel_s
-     real :: disp_Q       !q_R/q_s
-     real :: disp_D       !n_s/n_R
-     real :: disp_v       !v_drift s/v_AR
+     real :: disp_tau     
+     !!Relative Temperature ratio.
+     !!\(T_{ref}/T_{s}|_{\parallel}\)
+     
+     real :: disp_mu
+     !!Relative Mass ratio.
+     !!\(m_{ref}/m_{s}\)
+
+     real :: disp_alph
+     !!Temperature Anisotropy.
+     !!\(T_{\perp}/T_{\parallel}_s\)
+
+     real :: disp_Q
+     !!Relative charge ratio.
+     !!\(q_{ref}/q_{s}\)
+
+     real :: disp_D
+     !!Density Ratio.
+     !!\(n_{s}/n_{ref}\)
+
+     real :: disp_v
+     !!Relative Drift, normalized to reference Alfven velocity
+     !!\(v_{drift}/v_{A,ref}\)
+     !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
      
      !For computational efficiency, save Bessel functions between calls==========
      real, save :: kperp_last
-     real, allocatable, dimension(:), save :: tau_last,alph_last, mu_last, Q_last
+     !! Previous value of \(k_{\perp} \rho_{ref} \)
+     
+     real, allocatable, dimension(:), save :: tau_last
+     !!Previous \(T_{ref}/T_{s}|_{\parallel}\) value.
+
+     real, allocatable, dimension(:), save :: alph_last
+     !!Previous
+
+     real, allocatable, dimension(:), save :: mu_last
+     !!Previous
+
+     real, allocatable, dimension(:), save :: Q_last
+     !!Previous
+     
      logical, allocatable, dimension(:) :: reuse_bessel
+     !! Either use previous Bessel array, or recalculate,
+     !! based on if argument for a particular species/component changes.
 
      if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
      if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
@@ -3042,9 +3664,6 @@ end subroutine get_double_out_name
         enddo
      endif
 
-     !Set parameters:
-     pi = 4.0*ATAN(1.0)
-
      !Arguments of Bessel functions for reference species
      lambdap = kperp**2./2.
      
@@ -3057,10 +3676,6 @@ end subroutine get_double_out_name
      enx2=((kperp/(om*vtp))**2.)/alphp !n_x^2
      enz2=((kpar/(om*vtp))**2.)/alphp  !n_z^2
      enxnz=(kperp*kpar/(om*vtp)**2.)/alphp !n_x n_z
-
-     !enx2=((kperp/(vtp))**2.)/alphp !n_x^2
-     !enz2=((kpar/(vtp))**2.)/alphp  !n_z^2
-     !enxnz=(kperp*kpar/(vtp)**2.)/alphp !n_x n_z
 
      !Initialize eps factors
      eps_xx = cmplx(0.,0.) 
@@ -3108,10 +3723,6 @@ end subroutine get_double_out_name
                 ( om - Vdrifts - dble(n)* disp_mu/disp_Q)/kpar
            zz(n)=zet_in(kpar,tsi(n))
         enddo
-
-        !write(*,*)zz(1),zz(-1)
-        !write(*,*)jn(1,is),jn(-1,is)
-        !write(*,*)jpn(1,is),jpn(-1,is)
 
         !Set normalizations for susceptibilites
         !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
@@ -3262,9 +3873,13 @@ end subroutine get_double_out_name
         enddo
 
         !Add in the n=zero term
+
         !No n=0 XX term
+
         !No n=0 XY term
+
         !No n=0 XZ term
+
         !YY term
            eps_yy_t = eps_yy_t + &
                 (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
@@ -3275,8 +3890,7 @@ end subroutine get_double_out_name
            eps_yz_t = eps_yz_t + &
                 (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+&
                 disp_alph*(om-Vdrifts)*om*(sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0))
-           !(jn(0,is)-jpn(0,is))*disp_alph*(1.-Vdrifts/om)*&
-           !     (1 + om*(sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0))
+
         !ZZ term
            eps_zz_t = eps_zz_t + &
                 jn(0,is)*om*(&
@@ -3297,9 +3911,6 @@ end subroutine get_double_out_name
                 zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar) &
                 *disp_alph*(om-Vdrifts))* norm(3)
            endif
-
-           !jn(0,is)*om*disp_alph*(1.-Vdrifts/om)*(&
-           !     1 + zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar))
            
         !Apply the correct species normalization
            !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
@@ -3329,13 +3940,7 @@ end subroutine get_double_out_name
         susc(is,2,2) = eps_yy_t
         susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
         susc(is,3,3) = eps_zz_t
-        !Add to the total susceptibility
-        if (.false.) then
-           write(*,'(a,i0)')'Species: ',is
-           write(*,'(6es17.7)')susc(is,1,1),susc(is,1,2),susc(is,1,3)
-           write(*,'(6es17.7)')susc(is,2,1),susc(is,2,2),susc(is,2,3)
-           write(*,'(6es17.7)')susc(is,3,1),susc(is,3,2),susc(is,3,3)
-        endif
+
         !-=-=-=-=-=-=-=-=-=-=
         !Add to the total susceptibility
         eps_xx = eps_xx + eps_xx_t
@@ -3344,6 +3949,7 @@ end subroutine get_double_out_name
         eps_yy = eps_yy + eps_yy_t
         eps_yz = eps_yz + eps_yz_t
         eps_zz = eps_zz + eps_zz_t
+
         !-=-=-=-=-=-=-=-=-=-=
         !Save values of lambda_s components to save on Bessel function calculations
         tau_last(is) =disp_tau
@@ -3352,17 +3958,6 @@ end subroutine get_double_out_name
         mu_last(is)=disp_mu
      enddo
      
-     if (.false.) then
-        write(*,'(a)')'Sum of Species: '
-        
-        !write(*,'(a)')'chi_xx n=1:'
-        !write(*,'(2es17.7)')testxx(is)
-        
-        write(*,'(6es17.7)')eps_xx, eps_xy, eps_xz
-        write(*,'(6es17.7)')-eps_xy, eps_yy, eps_yz
-        write(*,'(6es17.7)')eps_xz, -eps_yz, eps_zz
-     endif
-
      !------------------------------------------------------------------------------
      !------------------------------------------------------------------------------
 
@@ -3377,6 +3972,7 @@ end subroutine get_double_out_name
      a(3,1) = a(1,3)
      a(3,2) = -a(2,3)
      a(3,3) = 1. + eps_zz - enx2
+
      !Set matrix elements into public variable
      lam(:,:)=a(:,:)
 
@@ -3384,42 +3980,66 @@ end subroutine get_double_out_name
      !------------------------------------------------------------------------------
      disp= a(1,1)*( a(2,2)*a(3,3) + a(2,3)**2. ) + &
           2.*a(1,2)*a(2,3)*a(1,3) - a(1,3)**2.*a(2,2) +a(1,2)**2.*a(3,3)
+
      !------------------------------------------------------------------------------
      !Save values of lambda_s components to save on Bessel function calculations
      kperp_last=kperp
 
-     if (.false.) then
-        write(*,'(a)')'Wave Equation: '
-        
-        write(*,'(6es15.6e3)')a(1,1),a(1,2),a(1,3)    
-        write(*,'(6es15.6e3)')a(2,1),a(2,2),a(2,3)    
-        write(*,'(6es15.6e3)')a(3,1),a(3,2),a(3,3)    
-
-        write(*,'(a,2es15.6e3)')'|D| :',om
-        write(*,'(2es15.6e3)')disp
-        
-     endif
      return
 
    end function disp
 
-
-!------------------------------------------------------------------------------
-!                           Greg Howes, 2005
-!------------------------------------------------------------------------------
+   !------------------------------------------------------------------------------
+   !                           Greg Howes, 2005
+   !------------------------------------------------------------------------------
    !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
+     !!Secant routine to find minimum value of dispersion relation function.
      integer, parameter :: maxit=75
-     complex :: func, x1, xl, x2
-     complex :: fl, f, swap, dx 
-     real    :: xacc
-     integer :: iflag,j
-     complex :: maxr,minr
-     logical :: limits=.false.
+     !!Maximum number of iterations.
      
-     !if (real(x1).eq.0.) &
-     !        write(*,'(4es15.6e3)')x1,x2
+     complex :: func
+     !! Function to evaluate.
+     
+     complex :: x1
+     !!Lower bracket value of solution refinement.
 
+     complex :: x2
+     !!Upper bracket value of solution refinement.
+
+     complex :: xl
+     !!Holding parameter for refined solution.
+
+     complex :: fl
+     !!Function evaluated at x1.
+     
+     complex :: f
+     !!Function evaluated at x2.
+
+     complex :: swap
+     !!Function swap value for iteration.
+
+     complex :: dx
+     !!Step size for further iteration.
+
+     real    :: xacc
+     !! Solution tolerance.
+
+     integer :: iflag
+     !! flag for tracking iteration.
+
+     integer :: j
+     !! Iteration index.
+
+     complex :: maxr
+     !!Maximum value for refined solution.
+
+     complex :: minr
+     !!Minimum value for refined solution.
+     
+     logical :: limits=.false.
+     !!Enforce a limited range for refined solution.
+     
      !Set limits for solution
      if (limits) then
         maxr=x2*10.
@@ -3428,10 +4048,7 @@ end subroutine get_double_out_name
      
      fl=func(x1)
      f=func(x2)
-     
-     !write(*,'(4es15.6e3)')fl,x1
-     !write(*,'(4es15.6e3)')f,x2
-     
+          
      if(abs(fl).lt.abs(f))then
         rtsec=x1
         xl=x2
@@ -3444,28 +4061,15 @@ end subroutine get_double_out_name
      endif
      do  j=1,maxit
         iflag = j
-        !        write(*,'(a,i4)')'Iteration ',j
         if (abs(f-fl) .gt. 1.0E-37) then
            dx=(xl-rtsec)*f/(f-fl)
 	else
            dx = (x2-x1)/25.0
-           !dx = (xl-rtsec)/25.0
         end if
-        !if (real(rtsec).eq.0.) &
-        !     write(*,'(i3,7es15.6e3)')&
-        !     j,aimag(xl),real(fl),aimag(rtsec),&
-        !     real(f),aimag(xl-rtsec),real(f-fl),aimag(dx)
+
         xl=rtsec
         fl=f
-
-	!if (Real(rtsec + dx/2.) .gt. 0.075 .or. Real(rtsec+dx) .lt. 0) then
-        !    write(*,'(a,2es15.6e3)')'rtsec too large!',dx
-        !    rtsec = (x1 + x2)/2.0!Uncommented
-        !else
-            !NOTE: Reduce jump by 0.5 to improve convergence GH
-            !        rtsec=rtsec+dx
-            rtsec=rtsec+dx/2.
-        ! endif
+        rtsec=rtsec+dx/2.
 
         !Enforce limits
         if (limits) then
@@ -3477,78 +4081,41 @@ end subroutine get_double_out_name
               rtsec = cmplx(real(rtsec), -sqrt(aimag(minr)*aimag(maxr)))
         endif
 
-        !LIMIT: Im(rtsec) < 0.
-!	if (Aimag(rtsec) .gt. 0) then
-!           rtsec = cmplx(Real(rtsec), -Aimag(rtsec))
-!	end if
-        !LIMIT: Re(rtsec) > 0.
-!	if (Real(rtsec) .lt. 0) then
-!           rtsec = cmplx(-Real(rtsec), Aimag(rtsec))
-!	end if
-
         f=func(rtsec)
-        !if (real(rtsec).eq.0.) &
-        !     write(*,'(i3,a,6es15.6e3)')j,': ',dx,rtsec,f
+
         if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
      enddo
- !    stop
      return
-!     pause 'rtsec exceed maximum iterations'
    end function rtsec
 !------------------------------------------------------------------------------
-!------------------------------------------------------------------------------
-!                           Greg Howes, 2005
-!------------------------------------------------------------------------------
-!     NOTE: This routine was adapted from f77 routine by Eliot Quataert
-   real function bisect(func,x1,x2,xacc)
-     integer, parameter :: maxit=75
-     real :: func
-     real :: x1, x2                            !Bracket values x1 < x2
-     real :: f1, f2                            !Function values at x1 & x2
-     real :: fmid                              !Function values at bisect
-     real :: dx                                !Distance from root
-     real :: xacc                              !Acceptable tolerance
-     integer :: j                              !Counter
-
-     f1=func(x1)
-     f2=func(x2)
-     !Check if root is bracketed
-     if (f1*f2 .ge. 0.) then 
-        write(*,'(a)')'ERROR: Root for bisection must be bracketed!'
-        return
-     endif
-
-     do j=1,maxit
-        bisect=(x1+x2)/2.
-        fmid=func(bisect)
-        if (fmid*f1 .gt. 0.) then
-           x1=bisect
-           f1=fmid
-        else
-           x2=bisect
-           f2=fmid
-        endif
-        dx=x2-x1
-        if (fmid .eq. 0. .or. abs(dx) .lt. xacc) exit
-     enddo
-     
-     return
-   end function bisect
 !------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006
 !------------------------------------------------------------------------------
    subroutine find_minima(val,numroots,iroots,nroots)
+     !! Finding minimum values on complex frequency grid.
      use vars, only : ni,nr
      implicit none
      !Passed
-     real, dimension(:,:), pointer :: val       !Value of Dispersion relation
-     integer :: numroots                        !Number of roots
-     integer, dimension(1:2,1:numroots) :: iroots     !Indices of roots 
-     integer, intent(out) :: nroots             !Number of roots found
+     real, dimension(:,:), pointer :: val
+     !!Value of Dispersion relation.
+     
+     integer :: numroots
+     !!Maximum number of roots.
+     
+     integer, dimension(1:2,1:numroots) :: iroots
+     !!Indices of roots.
+     
+     integer, intent(out) :: nroots
+     !!Number of roots found.
+     
      !Local
-     integer :: ir,ii                           !Counters
+     integer :: ir
+     !! Real Frequency index.
+     
+     integer :: ii
+     !! Imaginary Frequency index.
      
      !Find local minima in map
      iroots=0
@@ -3637,25 +4204,30 @@ end subroutine get_double_out_name
    end subroutine find_minima
 
 !-------------------------------------------------------------------------------
-!Evaluate Plasma Dispersion Relation (Z) for kparallel >/< 0
-function zet_in(kpar,zin)
-  implicit none
-  !passed
-  real :: kpar
-  complex :: zin,zet_in
+   function zet_in(kpar,zin)
+     !!Evaluate Plasma Dispersion Function (Z) for kparallel >/< 0
+     !! Calls [[zetout(function)]] with appropriate argument.
+     implicit none
+     !passed
+     real :: kpar
+     !! \( k_{\parallel} \rho_{ref} \)
+     
+     complex :: zin
+     !! Argument of plasma dispersion function.
 
-  if (kpar.gt.0.) zet_in=zetout(zin)
-  if (kpar.lt.0.) zet_in=-zetout(-zin)
-  return
+     complex :: zet_in
+     !! Value of plasma dispersion function.
+     
+     if (kpar.gt.0.) zet_in=zetout(zin)
+     if (kpar.lt.0.) zet_in=-zetout(-zin)
+     return
 
-end function zet_in
+   end function zet_in
 
 !------------------------------------------------------------------------------
 !Greg Howes, 2004
    complex function zetout(zin)
-!
-! This is the subroutine used by Linsker to evaluate his Z-function.
-!
+     !! This is the subroutine used by Linsker to evaluate his Z-function.
      complex :: z,dzetaz,term,fmult,terme,an1,bn1,zsquar
      complex :: hold,temp1,temp2,ddzeta,dddzet,zin,zetaoz
      real :: imagte,imagmu,imagse,imagsu
@@ -3672,13 +4244,7 @@ end function zet_in
      if (y.gt.0.) go to 99
      if (abs(fn) < 174. .and. abs(aimag(zsquar)) < 5.e4) go to 98
      if (fn.gt.0.) go to 97
-!     write (3,11) z
-!     write (*,11) z
 11    format (' argument wp of subroutine zetvec has too large a negative imaginary part, wp = '/2e14.7)
-!     zetout=zeta_large(zin)
- 
-!     zetout=(0.,0.)
-!     stop
 ! GGH: Modification to return with a fail=.true.
      fail=.true.
      return
@@ -3763,15 +4329,19 @@ end function zet_in
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006
 !------------------------------------------------------------------------------
-!  Call the correct Numerical Recipes Bessel function
-!     bessels is a function which calls the numerical recipes
-!     routine of the appropriate order -- this is to avoid
-!     to many if - then statements in the program
    real function bessel(n,x)
+     !!  Call the correct Numerical Recipes Bessel function
+     !!     bessels is a function which calls the numerical recipes
+     !!     routine of the appropriate order -- this is to avoid
+     !!     to many if - then statements in the program.
+     !! Note that we are determining I_n(x) e^(-x) to avoid large argument errors.
      use bessels, only: bessim0,bessim1,bessim
      implicit none
-     real :: x                                    !Bessel function argument
-     integer :: n                                 !Bessel function order
+     
+     real :: x
+     !!Bessel function argument.
+     integer :: n
+     !!Bessel function order.
 
      select case(n)
      case(0) 
