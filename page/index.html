@@ -1,0 +1,246 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Readme &ndash; PLUME</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Readme</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+              <li class="breadcrumb-item active" aria-current="page">Readme</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link active disabled" href="index.html">Readme</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
+              <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link" href="output.html">PLUME Output</a>
+              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <h1>PLUME: Plasma in a Linear Uniform Magnetized Environment</h1>
+<p>This is the PLUME code: Plasma in a Linear Uniform Magnetized Environment.</p>
+<p><img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
+<img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/></p>
+<h2>Authors</h2>
+<p>Kristopher Klein   (kgklein@arizona.edu)
+Gregory Howes      (gregory-howes@uiowa.edu)</p>
+<h2>Contents</h2>
+<ol>
+<li>What is PLUME?</li>
+<li>Acknowledgements</li>
+<li>Installing the PLUME Code</li>
+<li>Running the PLUME Code</li>
+<li>License</li>
+</ol>
+<h2>1. What is PLUME?</h2>
+<p>PLUME is a numerical code that solves the Vlasov-Maxwell dispersion
+relation in hot magnetised plasma.
+PLUME allows for any number of particle species, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity, and parallel and perpendicular temperature.
+The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.</p>
+<p>This code uses an F90 adaptation (by Greg Howes) of the Hot Plasma 
+       Dispersion Relation originally by Eliot Quataert.</p>
+<p>PLUME calculates the hot plasma dispersion relation for a plasma with 
+       an arbitrary number of ion and electron species with relative drifts
+       and bi-Maxwellian velocity distributions.
+       The calculation follows Stix Chapter 10 eqn 66-73.
+ The Dispersion relation for omega/Omega_ref
+     is dependent on four global dimensionless parameters:</p>
+<div class="codehilite"><pre><span></span><code>   betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
+   kperp: Perpendicular wavelength:         kperp rho_ref
+   kpar : Parallel wavelength:              kparallel rho_ref
+   vtp  : Parallel proton thermal velocity: sqrt(2 T_||ref/m_ref)/c
+
+ and six dimensionless component parameters:
+
+   tau_s : T_ref/T_s
+   mu_s  : m_ref/m_s
+   alph_s: T_perp/T_parallel|s
+   Q_s   : q_ref/q_s
+   D_s   : n_s/n_ref
+   vv_s  : v_s,drift/v_Aref
+</code></pre></div>
+
+<p>The values for these parameters are extracted from *.in file, appended after
+    the executable program call.</p>
+<p>The code then varies defined parameters to construct dispersion relations as a function of wavevector or plasma parameter for the identified modes.
+Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.</p>
+<h2>2. Acknowledgements</h2>
+<p>If you use the code for a science publication,
+1. please provide the code website</p>
+<p>lorem ipsum</p>
+<p>in the acknowledgements,</p>
+<ol>
+<li>
+<p>cite the DOI of the code:
+lorem ipsum</p>
+</li>
+<li>
+<p>and cite the code paper:</p>
+</li>
+</ol>
+<p>lorem ipsum</p>
+<h2>3. Installing the PLUME code</h2>
+<p>For advice on the installation of the code, please check <a href="./INSTALL.html"><code>INSTALL.md</code></a></p>
+<h2>4. Running the PLUME code</h2>
+<p>PLUME works with input files that specify the plasma and numerical parameters for
+the calculation.</p>
+<h2>5. License</h2>
+<p>BSD 2-Clause License</p>
+<p>Copyright (c) 2025, Kristopher G. Klein and Gregory Howes
+All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<ol>
+<li>
+<p>Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.</p>
+</li>
+<li>
+<p>Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.</p>
+</li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

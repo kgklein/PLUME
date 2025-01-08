@@ -1,0 +1,334 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>  params &ndash; PLUME
+</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>params</h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/functions.html'>functions</a></li>
+                <li class="breadcrumb-item"><a href='../proc/read_in_params.html'>read_in_params</a></li>
+            <li class="breadcrumb-item active" aria-current="page">params</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../namelist/params.html#variable-betap">betap</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-nscan">nscan</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-option">option</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-nroot_max">nroot_max</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-use_map">use_map</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-low_n">low_n</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-new_low_n">new_low_n</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-writeout">writeOut</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-dataname">dataName</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-outputname">outputName</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+        
+  <br class="visible-xs visible-sm hidden-md">
+  <section>
+    <h2>Variables</h2>
+    <table class="table table-striped" id="namelist-params">
+      <thead><tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Default</th>
+          <th>Description</th>
+      </tr></thead>
+      <tbody>
+              <tr id="variable-betap">
+      <td><a href="#variable-betap">betap</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Reference Species Parallel Thermal-to-Magnetic Pressure Ratio.
+8 pi n_ref T_ref,par/B^2</p></td>
+    </tr>
+
+              <tr id="variable-kperp">
+      <td><a href="#variable-kperp">kperp</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Wavenumber perpendicular to B0, normalized to reference gyroradius.
+k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
+    </tr>
+
+              <tr id="variable-kpar">
+      <td><a href="#variable-kpar">kpar</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
+k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref</p></td>
+    </tr>
+
+              <tr id="variable-vtp">
+      <td><a href="#variable-vtp">vtp</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Parallel reference thermal velocity normalized to the speed of light.
+v_t,ref,par/c</p></td>
+    </tr>
+
+              <tr id="variable-nspec">
+      <td><a href="#variable-nspec">nspec</a></td>
+      <td>integer</td>
+      <td>3</td>
+      <td><p>Number of species/components to be included in calculation.</p></td>
+    </tr>
+
+              <tr id="variable-nscan">
+      <td><a href="#variable-nscan">nscan</a></td>
+      <td>integer</td>
+      <td>0</td>
+      <td><p>Number of parameter scans.</p></td>
+    </tr>
+
+              <tr id="variable-option">
+      <td><a href="#variable-option">option</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td><p>Selection for the type of dispersion calculation to be undertaken.
+-1: Calculate disp(om) at a single (omega, gamma)
+ 0: Calculate Roots for input plasma parameters.
+ 1: Calculate Roots for input plasma parameters or Reads in root value
+    and then scan over plasma parameters, with range and type specified in <em>.in file.
+ 2: Calculate Roots for input plasma parameters or Reads in root value
+    and then scan over two-dimensional plasma parameters space,
+    with range and type specified in </em>.in file.
+ 3: deprecated
+ 4: Make multiple maps of complex frequency space.
+ 5: Find roots for parameters along a prescribed path
+    Path is set by solar wind models, with values calculated and
+    output by helper function (in development, the radial scan function.).</p></td>
+    </tr>
+
+              <tr id="variable-nroot_max">
+      <td><a href="#variable-nroot_max">nroot_max</a></td>
+      <td>integer</td>
+      <td>None</td>
+      <td><p>Input specified nroots to follow.</p></td>
+    </tr>
+
+              <tr id="variable-use_map">
+      <td><a href="#variable-use_map">use_map</a></td>
+      <td>logical</td>
+      <td>None</td>
+      <td><p>Determines method for selecting initial solutions.
+T-&gt; Use map routine to determine solutions in defined regions of complex frequency space.
+    Map parameters determined by &amp;maps list in <em>.in file.
+F-&gt; Read nroot_max initial guesses for complex frequency solutions.
+    Guesses determined by &amp;guess_N lists in </em>.in file.</p></td>
+    </tr>
+
+              <tr id="variable-low_n">
+      <td><a href="#variable-low_n">low_n</a></td>
+      <td>logical</td>
+      <td>.false.</td>
+      <td><p>Toggle on low-n susceptibility suplementary calculation.</p></td>
+    </tr>
+
+              <tr id="variable-new_low_n">
+      <td><a href="#variable-new_low_n">new_low_n</a></td>
+      <td>logical</td>
+      <td>.false.</td>
+      <td><p>Flag to use Revised low_n for LD/TTD separation.</p></td>
+    </tr>
+
+              <tr id="variable-writeout">
+      <td><a href="#variable-writeout">writeOut</a></td>
+      <td>logical</td>
+      <td>None</td>
+      <td><p>Enables or suppressed output to screen.</p></td>
+    </tr>
+
+              <tr id="variable-dataname">
+      <td><a href="#variable-dataname">dataName</a></td>
+      <td>character(len=100)</td>
+      <td>None</td>
+      <td><p>Data Subdirectory where output is stored.</p></td>
+    </tr>
+
+              <tr id="variable-outputname">
+      <td><a href="#variable-outputname">outputName</a></td>
+      <td>character(len=100)</td>
+      <td>None</td>
+      <td><p>Common name string for output files.</p></td>
+    </tr>
+
+      </tbody>
+    </table>
+  </section>
+
+      <br>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

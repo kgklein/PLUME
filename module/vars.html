@@ -1,0 +1,1878 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>vars &ndash; PLUME</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>vars
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 7.8% of total for modules and submodules.">77 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">vars</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/vars.html#variable-betap">betap</a>
+            <a class="list-group-item" href="../module/vars.html#variable-kperp">kperp</a>
+            <a class="list-group-item" href="../module/vars.html#variable-kpar">kpar</a>
+            <a class="list-group-item" href="../module/vars.html#variable-vtp">vtp</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nspec">nspec</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nscan">nscan</a>
+            <a class="list-group-item" href="../module/vars.html#variable-spec">spec</a>
+            <a class="list-group-item" href="../module/vars.html#variable-rad_spec">rad_spec</a>
+            <a class="list-group-item" href="../module/vars.html#variable-scan">scan</a>
+            <a class="list-group-item" href="../module/vars.html#variable-rad_scan">rad_scan</a>
+            <a class="list-group-item" href="../module/vars.html#variable-sw">sw</a>
+            <a class="list-group-item" href="../module/vars.html#variable-sw2">sw2</a>
+            <a class="list-group-item" href="../module/vars.html#variable-sw3">sw3</a>
+            <a class="list-group-item" href="../module/vars.html#variable-sw4">sw4</a>
+            <a class="list-group-item" href="../module/vars.html#variable-susc">susc</a>
+            <a class="list-group-item" href="../module/vars.html#variable-susc_low">susc_low</a>
+            <a class="list-group-item" href="../module/vars.html#variable-low_n">low_n</a>
+            <a class="list-group-item" href="../module/vars.html#variable-new_low_n">new_low_n</a>
+            <a class="list-group-item" href="../module/vars.html#variable-lam">lam</a>
+            <a class="list-group-item" href="../module/vars.html#variable-option">option</a>
+            <a class="list-group-item" href="../module/vars.html#variable-writeout">writeOut</a>
+            <a class="list-group-item" href="../module/vars.html#variable-dataname">dataName</a>
+            <a class="list-group-item" href="../module/vars.html#variable-outputname">outputName</a>
+            <a class="list-group-item" href="../module/vars.html#variable-print_name">print_Name</a>
+            <a class="list-group-item" href="../module/vars.html#variable-use_map">use_map</a>
+            <a class="list-group-item" href="../module/vars.html#variable-loggridw">loggridw</a>
+            <a class="list-group-item" href="../module/vars.html#variable-loggridg">loggridg</a>
+            <a class="list-group-item" href="../module/vars.html#variable-omi">omi</a>
+            <a class="list-group-item" href="../module/vars.html#variable-omf">omf</a>
+            <a class="list-group-item" href="../module/vars.html#variable-gami">gami</a>
+            <a class="list-group-item" href="../module/vars.html#variable-gamf">gamf</a>
+            <a class="list-group-item" href="../module/vars.html#variable-positive_roots">positive_roots</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nr">nr</a>
+            <a class="list-group-item" href="../module/vars.html#variable-ni">ni</a>
+            <a class="list-group-item" href="../module/vars.html#variable-numroots">numroots</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nrad">nRad</a>
+            <a class="list-group-item" href="../module/vars.html#variable-modelname">modelName</a>
+            <a class="list-group-item" href="../module/vars.html#variable-radius">radius</a>
+            <a class="list-group-item" href="../module/vars.html#variable-beta_rad">beta_rad</a>
+            <a class="list-group-item" href="../module/vars.html#variable-vtp_rad">vtp_rad</a>
+            <a class="list-group-item" href="../module/vars.html#variable-radial_heating">radial_heating</a>
+            <a class="list-group-item" href="../module/vars.html#variable-radial_eigen">radial_eigen</a>
+            <a class="list-group-item" href="../module/vars.html#variable-k_scan">k_scan</a>
+            <a class="list-group-item" href="../module/vars.html#variable-pi">pi</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nroots">nroots</a>
+            <a class="list-group-item" href="../module/vars.html#variable-wroots">wroots</a>
+            <a class="list-group-item" href="../module/vars.html#variable-nroot_max">nroot_max</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/vars.html#type-specie">specie</a>
+            <a class="list-group-item" href="../module/vars.html#type-scanner">scanner</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Contains all global variables.</p>
+<br>      
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~vars~~UsedByGraph Pages: 1 -->
+<svg id="modulevarsUsedByGraph" width="203pt" height="746pt"
+ viewBox="0.00 0.00 203.00 746.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~vars~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 742)">
+<title>module~~vars~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-742 199,-742 199,4 -4,4"/>
+<!-- module~vars -->
+<g id="module~~vars~~UsedByGraph_node1" class="node">
+<title>module~vars</title>
+<polygon fill="none" stroke="black" points="54,-381 0,-381 0,-357 54,-357 54,-381"/>
+<text text-anchor="middle" x="27" y="-366.6" font-family="Helvetica,sans-Serif" font-size="10.50">vars</text>
+</g>
+<!-- proc~map_read -->
+<g id="module~~vars~~UsedByGraph_node2" class="node">
+<title>proc~map_read</title>
+<g id="a_module~~vars~~UsedByGraph_node2"><a xlink:href="../proc/map_read.html" xlink:title="map_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="175.5,-738 109.5,-738 109.5,-714 175.5,-714 175.5,-738"/>
+<text text-anchor="middle" x="142.5" y="-723.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_read</text>
+</a>
+</g>
+</g>
+<!-- proc~map_read&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge1" class="edge">
+<title>proc~map_read&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M109.39,-718.6C102.08,-715.5 95,-711.14 90,-705 50.36,-656.29 33.88,-458.28 29.36,-391.28"/>
+<polygon fill="#000000" stroke="#000000" points="32.84,-390.77 28.7,-381.02 25.85,-391.23 32.84,-390.77"/>
+</g>
+<!-- proc~om_read -->
+<g id="module~~vars~~UsedByGraph_node3" class="node">
+<title>proc~om_read</title>
+<g id="a_module~~vars~~UsedByGraph_node3"><a xlink:href="../proc/om_read.html" xlink:title="om_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="172,-696 113,-696 113,-672 172,-672 172,-696"/>
+<text text-anchor="middle" x="142.5" y="-681.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_read</text>
+</a>
+</g>
+</g>
+<!-- proc~om_read&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge2" class="edge">
+<title>proc~om_read&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M112.99,-677.88C104.49,-674.75 95.88,-670.04 90,-663 55.14,-621.25 35.93,-452.45 30.01,-391.28"/>
+<polygon fill="#000000" stroke="#000000" points="33.48,-390.79 29.06,-381.16 26.51,-391.45 33.48,-390.79"/>
+</g>
+<!-- proc~radial_read -->
+<g id="module~~vars~~UsedByGraph_node4" class="node">
+<title>proc~radial_read</title>
+<g id="a_module~~vars~~UsedByGraph_node4"><a xlink:href="../proc/radial_read.html" xlink:title="radial_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="179,-654 106,-654 106,-630 179,-630 179,-654"/>
+<text text-anchor="middle" x="142.5" y="-639.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge3" class="edge">
+<title>proc~radial_read&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M105.91,-632.7C99.94,-629.78 94.29,-625.97 90,-621 31.65,-553.45 26.48,-439.53 27.13,-391.46"/>
+<polygon fill="#000000" stroke="#000000" points="30.63,-391.31 27.37,-381.23 23.63,-391.15 30.63,-391.31"/>
+</g>
+<!-- proc~radial_read_0 -->
+<g id="module~~vars~~UsedByGraph_node5" class="node">
+<title>proc~radial_read_0</title>
+<g id="a_module~~vars~~UsedByGraph_node5"><a xlink:href="../proc/radial_read_0.html" xlink:title="radial_read_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-612 100,-612 100,-588 185,-588 185,-612"/>
+<text text-anchor="middle" x="142.5" y="-597.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_0</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_0&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge4" class="edge">
+<title>proc~radial_read_0&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M101.16,-587.9C97.02,-585.44 93.17,-582.51 90,-579 40.94,-524.77 30.6,-433.47 28.49,-391.42"/>
+<polygon fill="#000000" stroke="#000000" points="31.98,-391.03 28.1,-381.17 24.99,-391.3 31.98,-391.03"/>
+</g>
+<!-- proc~radial_read_1 -->
+<g id="module~~vars~~UsedByGraph_node6" class="node">
+<title>proc~radial_read_1</title>
+<g id="a_module~~vars~~UsedByGraph_node6"><a xlink:href="../proc/radial_read_1.html" xlink:title="radial_read_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-570 100,-570 100,-546 185,-546 185,-570"/>
+<text text-anchor="middle" x="142.5" y="-555.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_1</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_1&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge5" class="edge">
+<title>proc~radial_read_1&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M101.9,-545.98C97.53,-543.5 93.42,-540.54 90,-537 50.22,-495.86 35.59,-427.02 30.51,-391.59"/>
+<polygon fill="#000000" stroke="#000000" points="33.94,-390.8 29.18,-381.34 27,-391.7 33.94,-390.8"/>
+</g>
+<!-- proc~radial_read_2 -->
+<g id="module~~vars~~UsedByGraph_node7" class="node">
+<title>proc~radial_read_2</title>
+<g id="a_module~~vars~~UsedByGraph_node7"><a xlink:href="../proc/radial_read_2.html" xlink:title="radial_read_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-528 100,-528 100,-504 185,-504 185,-528"/>
+<text text-anchor="middle" x="142.5" y="-513.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_2</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_2&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge6" class="edge">
+<title>proc~radial_read_2&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M102.77,-503.91C98.14,-501.43 93.74,-498.49 90,-495 59.14,-466.23 41.67,-418.79 33.59,-391.06"/>
+<polygon fill="#000000" stroke="#000000" points="36.89,-389.86 30.86,-381.15 30.14,-391.72 36.89,-389.86"/>
+</g>
+<!-- proc~radial_read_3 -->
+<g id="module~~vars~~UsedByGraph_node8" class="node">
+<title>proc~radial_read_3</title>
+<g id="a_module~~vars~~UsedByGraph_node8"><a xlink:href="../proc/radial_read_3.html" xlink:title="radial_read_3">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-486 100,-486 100,-462 185,-462 185,-486"/>
+<text text-anchor="middle" x="142.5" y="-471.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_3</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_3&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge7" class="edge">
+<title>proc~radial_read_3&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M104.67,-461.92C99.48,-459.4 94.42,-456.44 90,-453 67.95,-435.85 49.98,-408.9 39.16,-390.17"/>
+<polygon fill="#000000" stroke="#000000" points="42.1,-388.25 34.18,-381.22 35.99,-391.66 42.1,-388.25"/>
+</g>
+<!-- proc~radial_read_4 -->
+<g id="module~~vars~~UsedByGraph_node9" class="node">
+<title>proc~radial_read_4</title>
+<g id="a_module~~vars~~UsedByGraph_node9"><a xlink:href="../proc/radial_read_4.html" xlink:title="radial_read_4">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-444 100,-444 100,-420 185,-420 185,-444"/>
+<text text-anchor="middle" x="142.5" y="-429.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_4</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_4&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge8" class="edge">
+<title>proc~radial_read_4&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.88,-419.9C102.51,-417.2 95.96,-414.19 90,-411 76.97,-404.03 63.3,-394.97 52.11,-387.06"/>
+<polygon fill="#000000" stroke="#000000" points="53.9,-384.03 43.74,-381.01 49.8,-389.7 53.9,-384.03"/>
+</g>
+<!-- proc~radial_read_5 -->
+<g id="module~~vars~~UsedByGraph_node10" class="node">
+<title>proc~radial_read_5</title>
+<g id="a_module~~vars~~UsedByGraph_node10"><a xlink:href="../proc/radial_read_5.html" xlink:title="radial_read_5">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-402 100,-402 100,-378 185,-378 185,-402"/>
+<text text-anchor="middle" x="142.5" y="-387.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_5</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_5&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge9" class="edge">
+<title>proc~radial_read_5&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M99.88,-382.3C88.16,-380.13 75.51,-377.79 64.13,-375.69"/>
+<polygon fill="#000000" stroke="#000000" points="64.58,-372.21 54.11,-373.83 63.31,-379.09 64.58,-372.21"/>
+</g>
+<!-- proc~radial_read_6 -->
+<g id="module~~vars~~UsedByGraph_node11" class="node">
+<title>proc~radial_read_6</title>
+<g id="a_module~~vars~~UsedByGraph_node11"><a xlink:href="../proc/radial_read_6.html" xlink:title="radial_read_6">
+<polygon fill="#d9534f" stroke="#d9534f" points="185,-360 100,-360 100,-336 185,-336 185,-360"/>
+<text text-anchor="middle" x="142.5" y="-345.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_6</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_read_6&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge10" class="edge">
+<title>proc~radial_read_6&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M99.88,-355.7C88.16,-357.87 75.51,-360.21 64.13,-362.31"/>
+<polygon fill="#000000" stroke="#000000" points="63.31,-358.91 54.11,-364.17 64.58,-365.79 63.31,-358.91"/>
+</g>
+<!-- proc~read_guess_input -->
+<g id="module~~vars~~UsedByGraph_node12" class="node">
+<title>proc~read_guess_input</title>
+<g id="a_module~~vars~~UsedByGraph_node12"><a xlink:href="../proc/read_guess_input.html" xlink:title="read_guess_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-318 90,-318 90,-294 195,-294 195,-318"/>
+<text text-anchor="middle" x="142.5" y="-303.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_guess_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_guess_input&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge11" class="edge">
+<title>proc~read_guess_input&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.88,-318.1C102.51,-320.8 95.96,-323.81 90,-327 76.97,-333.97 63.3,-343.03 52.11,-350.94"/>
+<polygon fill="#000000" stroke="#000000" points="49.8,-348.3 43.74,-356.99 53.9,-353.97 49.8,-348.3"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="module~~vars~~UsedByGraph_node13" class="node">
+<title>proc~read_in_params</title>
+<g id="a_module~~vars~~UsedByGraph_node13"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="191,-276 94,-276 94,-252 191,-252 191,-276"/>
+<text text-anchor="middle" x="142.5" y="-261.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge12" class="edge">
+<title>proc~read_in_params&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M104.67,-276.08C99.48,-278.6 94.42,-281.56 90,-285 67.95,-302.15 49.98,-329.1 39.16,-347.83"/>
+<polygon fill="#000000" stroke="#000000" points="35.99,-346.34 34.18,-356.78 42.1,-349.75 35.99,-346.34"/>
+</g>
+<!-- proc~read_map_input -->
+<g id="module~~vars~~UsedByGraph_node14" class="node">
+<title>proc~read_map_input</title>
+<g id="a_module~~vars~~UsedByGraph_node14"><a xlink:href="../proc/read_map_input.html" xlink:title="read_map_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="191.5,-234 93.5,-234 93.5,-210 191.5,-210 191.5,-234"/>
+<text text-anchor="middle" x="142.5" y="-219.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_map_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_map_input&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge13" class="edge">
+<title>proc~read_map_input&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M102.77,-234.09C98.14,-236.57 93.74,-239.51 90,-243 59.14,-271.77 41.67,-319.21 33.59,-346.94"/>
+<polygon fill="#000000" stroke="#000000" points="30.14,-346.28 30.86,-356.85 36.89,-348.14 30.14,-346.28"/>
+</g>
+<!-- proc~read_radial_input -->
+<g id="module~~vars~~UsedByGraph_node15" class="node">
+<title>proc~read_radial_input</title>
+<g id="a_module~~vars~~UsedByGraph_node15"><a xlink:href="../proc/read_radial_input.html" xlink:title="read_radial_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="195,-192 90,-192 90,-168 195,-168 195,-192"/>
+<text text-anchor="middle" x="142.5" y="-177.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_radial_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_radial_input&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge14" class="edge">
+<title>proc~read_radial_input&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M101.9,-192.02C97.53,-194.5 93.42,-197.46 90,-201 50.22,-242.14 35.59,-310.98 30.51,-346.41"/>
+<polygon fill="#000000" stroke="#000000" points="27,-346.3 29.18,-356.66 33.94,-347.2 27,-346.3"/>
+</g>
+<!-- proc~read_scan_input -->
+<g id="module~~vars~~UsedByGraph_node16" class="node">
+<title>proc~read_scan_input</title>
+<g id="a_module~~vars~~UsedByGraph_node16"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="192,-150 93,-150 93,-126 192,-126 192,-150"/>
+<text text-anchor="middle" x="142.5" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_scan_input&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge15" class="edge">
+<title>proc~read_scan_input&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M101.16,-150.1C97.02,-152.56 93.17,-155.49 90,-159 40.94,-213.23 30.6,-304.53 28.49,-346.58"/>
+<polygon fill="#000000" stroke="#000000" points="24.99,-346.7 28.1,-356.83 31.98,-346.97 24.99,-346.7"/>
+</g>
+<!-- proc~scan_read -->
+<g id="module~~vars~~UsedByGraph_node17" class="node">
+<title>proc~scan_read</title>
+<g id="a_module~~vars~~UsedByGraph_node17"><a xlink:href="../proc/scan_read.html" xlink:title="scan_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="176,-108 109,-108 109,-84 176,-84 176,-108"/>
+<text text-anchor="middle" x="142.5" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_read</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_read&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge16" class="edge">
+<title>proc~scan_read&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.84,-103.96C101.8,-107.02 94.99,-111.23 90,-117 31.65,-184.55 26.48,-298.47 27.13,-346.54"/>
+<polygon fill="#000000" stroke="#000000" points="23.63,-346.85 27.37,-356.77 30.63,-346.69 23.63,-346.85"/>
+</g>
+<!-- proc~spec_read -->
+<g id="module~~vars~~UsedByGraph_node18" class="node">
+<title>proc~spec_read</title>
+<g id="a_module~~vars~~UsedByGraph_node18"><a xlink:href="../proc/spec_read.html" xlink:title="spec_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="176,-66 109,-66 109,-42 176,-42 176,-66"/>
+<text text-anchor="middle" x="142.5" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spec_read</text>
+</a>
+</g>
+</g>
+<!-- proc~spec_read&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge17" class="edge">
+<title>proc~spec_read&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.96,-61.72C101.84,-64.8 94.95,-69.07 90,-75 55.14,-116.75 35.93,-285.55 30.01,-346.72"/>
+<polygon fill="#000000" stroke="#000000" points="26.51,-346.55 29.06,-356.84 33.48,-347.21 26.51,-346.55"/>
+</g>
+<!-- program~plume -->
+<g id="module~~vars~~UsedByGraph_node19" class="node">
+<title>program~plume</title>
+<g id="a_module~~vars~~UsedByGraph_node19"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="169.5,-24 115.5,-24 115.5,0 169.5,0 169.5,-24"/>
+<text text-anchor="middle" x="142.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;module~vars -->
+<g id="module~~vars~~UsedByGraph_edge18" class="edge">
+<title>program~plume&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M115.3,-17.18C106.03,-20.28 96.34,-25.21 90,-33 50.36,-81.71 33.88,-279.72 29.36,-346.72"/>
+<polygon fill="#000000" stroke="#000000" points="25.85,-346.77 28.7,-356.98 32.84,-347.23 25.85,-346.77"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-betap"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>betap</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Reference Species Parallel Thermal-to-Magnetic Pressure Ratio.
+8 pi n_ref T_ref,par/B^2</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kperp"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>kperp</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Wavenumber perpendicular to B0, normalized to reference gyroradius.
+k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kpar"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>kpar</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Wavenumber parallel to B0, normalized to reference gyroradius.
+k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtp"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              target
+            </td>
+            <td>::</td>
+            <td><strong>vtp</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Parallel reference thermal velocity normalized to the speed of light.
+v_t,ref,par/c</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nspec"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nspec</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                <p>Number of species/components to be included in calculation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nscan"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nscan</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                <p>Number of parameter scans.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec"></span>
+              type(<a href='../type/specie.html'>specie</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable, target
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Dimensionless Species/Component Parameters.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad_spec"></span>
+              type(<a href='../type/specie.html'>specie</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:,:), allocatable, target
+            </td>
+            <td>::</td>
+            <td><strong>rad_spec</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Array for Varying Species/Component Parameters (under development).</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-scan"></span>
+              type(<a href='../type/scanner.html'>scanner</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>scan</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Array of scan parameters for all scans to be calculated.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rad_scan"></span>
+              type(<a href='../type/scanner.html'>scanner</a>),
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>rad_scan</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Array of scan parameters for extended parameter scans (under development).</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sw"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>sw</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Parameter Sweep parameter values.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sw2"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>sw2</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Parameter Sweep parameter values.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sw3"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>sw3</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Parameter Sweep parameter values.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-sw4"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              pointer
+            </td>
+            <td>::</td>
+            <td><strong>sw4</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Parameter Sweep parameter values.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-susc"></span>
+              complex,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension(:,:,:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>susc</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Susceptibility tensor.
+(1:nspec,1:3,1:3) with the 3x3 subarray arranged as:
+(1,1) xx; (1,2) xy; (1,3) xz;
+(2,1) yx; (2,2) yy; (2,3) yz;
+(3,1) zx; (3,2) zy; (3,3) zz;</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-susc_low"></span>
+              complex,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension(:,:,:,:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>susc_low</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>low-n components of the susceptibility tensor.
+(1:nspec,1:3,1:3,0:1) with the 3x3 subarray arranged as susc.
+The final index contains the n=0 and n=\pm 1 contributions.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-low_n"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>low_n</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+                <p>Toggle on low-n susceptibility suplementary calculation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-new_low_n"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>new_low_n</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+                <p>Flag to use Revised low_n for LD/TTD separation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-lam"></span>
+              complex,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension(3,3)
+            </td>
+            <td>::</td>
+            <td><strong>lam</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Matrix in Wave equation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-option"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>option</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Selection for the type of dispersion calculation to be undertaken.
+-1: Calculate disp(om) at a single (omega, gamma)
+ 0: Calculate Roots for input plasma parameters.
+ 1: Calculate Roots for input plasma parameters or Reads in root value
+    and then scan over plasma parameters, with range and type specified in <em>.in file.
+ 2: Calculate Roots for input plasma parameters or Reads in root value
+    and then scan over two-dimensional plasma parameters space,
+    with range and type specified in </em>.in file.
+ 3: deprecated
+ 4: Make multiple maps of complex frequency space.
+ 5: Find roots for parameters along a prescribed path
+    Path is set by solar wind models, with values calculated and
+    output by helper function (in development, the radial scan function.).</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-writeout"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>writeOut</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Enables or suppressed output to screen.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-dataname"></span>
+              character(len=100),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>dataName</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Data Subdirectory where output is stored.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outputname"></span>
+              character(len=100),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outputName</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Common name string for output files.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-print_name"></span>
+              character(len=100),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>print_Name</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Additional string for output files.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-use_map"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>use_map</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Determines method for selecting initial solutions.
+T-&gt; Use map routine to determine solutions in defined regions of complex frequency space.
+    Map parameters determined by &amp;maps list in <em>.in file.
+F-&gt; Read nroot_max initial guesses for complex frequency solutions.
+    Guesses determined by &amp;guess_N lists in </em>.in file.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-loggridw"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>loggridw</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Set log or linear spacing for real frequency axis of the map search.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-loggridg"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>loggridg</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Set log or linear spacing for imaginary frequency axis of the map search.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-omi"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>omi</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Lower bound on real frequency map search axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-omf"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>omf</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Upper bound on real frequency map search axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gami"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gami</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Lower bound on imaginary frequency map search axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gamf"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gamf</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Upper bound on imaginary frequency map search axis.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-positive_roots"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>positive_roots</strong></td>
+<td> =</td>
+                <td>.false.</td>
+            <td>
+                <p>Consider all solutions (false) or only solutions with positive real frequencies (true).</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nr"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nr</strong></td>
+<td> =</td>
+                <td>128</td>
+            <td>
+                <p>Number of grid points along real frequency axis</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ni"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>ni</strong></td>
+<td> =</td>
+                <td>128</td>
+            <td>
+                <p>Number of grid points along imaginary frequency axis</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-numroots"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>numroots</strong></td>
+<td> =</td>
+                <td>500</td>
+            <td>
+                <p>Maximum number of minima to keep for a further refinement from a map search.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nrad"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nRad</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Number of points to scan in radial models.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-modelname"></span>
+              character(len=100),
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>modelName</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Input file name for radial model</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radius"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>radius</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Radial distance from the Sun, in Rs.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-beta_rad"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>beta_rad</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vtp_rad"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension (:), allocatable
+            </td>
+            <td>::</td>
+            <td><strong>vtp_rad</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radial_heating"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>radial_heating</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-radial_eigen"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>radial_eigen</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-k_scan"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>k_scan</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Determines wavevector values to include in radial scan
+0: single point in kperp, kpar space
+1: fixed kperp, scan over kpar
+2: fixed kpar,  scan over kperp
+3: fixed theta, scan over k
+4: fixed k, scan over theta
+5: plane scan over (kperp, kpar)
+6: plane scan over (k, theta)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-pi"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>pi</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>4.*atan(1)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nroots"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nroots</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Number of roots found.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-wroots"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              dimension(1:2,1:numroots)
+            </td>
+            <td>::</td>
+            <td><strong>wroots</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Real and Imaginary components of each solution.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nroot_max"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nroot_max</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Input specified nroots to follow.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-specie"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/specie.html'>specie</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>Species Input Parameters</p>
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tau_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tau_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Relative Temperature ratio.
+<script type="math/tex">T_{ref}/T_{s}|_{\parallel}</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mu_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mu_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Relative Mass ratio.
+<script type="math/tex">m_{ref}/m_{s}</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-alph_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>alph_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Temperature Anisotropy.
+<script type="math/tex">T_{\perp}/T_{\parallel}_s</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>Q_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Relative charge ratio.
+<script type="math/tex">q_{ref}/q_{s}</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-d_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>D_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Density Ratio.
+<script type="math/tex">n_{s}/n_{ref}</script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vv_s"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>vv_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Relative Drift, normalized to reference Alfven velocity
+<script type="math/tex">v_{drift}/v_{A,ref}</script>
+ with <script type="math/tex">v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}</script>.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-scanner"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/scanner.html'>scanner</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      <p>Parameters to control parameter scans.</p>
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-range_i"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>range_i</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Initial value of scanned parameter.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-range_f"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>range_f</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Final value of scanned parameter.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-log_scan"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>log_scan</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Linear or Logarithmic scan.
+T-&gt; log, F-&gt; linear scan</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_s"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>heat_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Controls supplementary heating calculation.
+T-&gt; Heating Calculation; F-&gt; No heating calculation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eigen_s"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>eigen_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Controls supplementary eigenfunction calculation.
+T-&gt; Eigenfunction calculation;   F-&gt; No eigenfunction Calculation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tensor_s"></span>
+              logical,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tensor_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Controls supplementary output of susceptibility tensor.
+T-&gt; Output tensor; F-&gt; Supress output.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-type_s"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>type_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Defines nature of parameter scans.
+ Style: -1- Global two component Scan:
+     Type: 0 k_0-&gt; k_1
+           1 theta_0 -&gt; theta_1
+           2 k_fixed angle
+Style: 0- Global Scan:
+     Type: 0 kperp
+           1 kpar
+           2 betap
+           3 vtp
+Style: 1-nspec-&gt; Species Scan:
+     Type: 0 tau_s
+           1 mu_s
+           2 alph_s
+           3 Q_s
+           4 D_s
+           5 vv_s</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-style_s"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>style_s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Defines nature of parameter scan.
+-1: Global two-component scan
+ 0: Global one-component
+ 1 to nspec: species specific parameter scan</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_scan"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_scan</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Number of output steps.
+n_scan*n_res Total steps taken.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n_res"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n_res</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Scan resolution between output steps.
+n_scan*n_res Total steps taken.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diff</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+<p>Step size for scanned parameter.
+ Either (swf-swi)/(n_scan<em>n_res)
+ or
+ (log10(swf)-log10(swi))/(n_scan</em>n_res).</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

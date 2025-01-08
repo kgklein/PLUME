@@ -1,0 +1,214 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Installing PLUME &ndash; PLUME</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Installing PLUME</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Readme</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Installing PLUME</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Readme</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link active disabled" href="INSTALL.html">Installing PLUME</a>
+              <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link" href="output.html">PLUME Output</a>
+              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <h1>PLUME: Plasma in a Linear Uniform Magnetized Environment</h1>
+<p>These are the install instructions for the PLUME code: the Plasma in a Linear Uniform Magnetized Environment.</p>
+<h2>Authors</h2>
+<p>Kristopher Klein   (kgklein@arizona.edu)
+Gregory Howes      (gregory-howes@uiowa.edu)</p>
+<h2>CONTENTS</h2>
+<ol>
+<li>Requirements and Dependencies</li>
+<li>Setting up Computer Environments</li>
+<li>Getting the PLUME Code</li>
+<li>Installing the PLUME Code</li>
+<li>Execution of Test Runs</li>
+</ol>
+<h2>REQUIREMENTS AND DEPENDENCIES</h2>
+<p>ALPS has the following requirements:</p>
+<ul>
+<li>A UNIX, Linux, or macOS operating system with a working shell</li>
+<li>GNU make, in some cases it is useful to have the autoconf/automake tools</li>
+<li>Fortran 90 compiler (e.g., gfortran) - we recommend using the latest version
+  of the compiler to avoid any surprises in the evaluation.</li>
+</ul>
+<h2>SETTING UP COMPUTER ENVIRONMENTS</h2>
+<p>For Ubuntu and macOS users, the following instructions have proven to be useful.</p>
+<h2>GETTING THE PLUME CODE</h2>
+<p>We recommend pulling the latest version of PLUME from GitHub. For this, go to
+the directory where you want to install PLUME and execute the following command:</p>
+<div class="codehilite"><pre><span></span><code>git clone https://github.com/kgklein/PLUME.git
+</code></pre></div>
+
+<p>Alternatively, you can also go to the website https://https://github.com/kgklein/PLUME</p>
+<p>directly and download the source code from there. The advantage of using the git
+command is that you can now contribute to the development of the PLUME code. If
+you make any changes to the code, GitHub will run automatic tests (via workflows)
+to ensure that the changes do not break the code.</p>
+<h2>INSTALLING THE PLUME CODE</h2>
+<p>If all requirements are available, the code can be compiled with the following
+commands:</p>
+<div class="codehilite"><pre><span></span><code>make
+</code></pre></div>
+
+<h2>EXECUTION OF TEST RUNS</h2>
+<p>PLUME comes with a selection of test runs that cycle through various test
+problems. To execute a small set of tests, execute the following shell script:</p>
+<div class="codehilite"><pre><span></span><code>./run_test.sh
+</code></pre></div>
+
+<p>This script will test the interpolation routine, the routine to generate pre-
+described distribution functions, and a simply fast dispersion relation.</p>
+<h2>Building the documentation</h2>
+<p>PLUME uses <a href="https://forddocs.readthedocs.io/en/latest/">Ford</a> to build its documentation. The documentation is automatically built and deployed to <a href="https://danielver02.github.io/ALPS/">github.io</a> by the <a href="https://github.com/danielver02/ALPS/blob/master/.github/workflows/doc.yml">doc workflow</a>. To build the documentation locally, follow the <a href="https://github.com/danielver02/ALPS/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow, summarized here:
+1. Install <code>ford</code> by e.g. <code>pip install ford</code>. See <a href="https://forddocs.readthedocs.io/en/latest/">Ford documentation</a> for details
+2. Create a <code>docs</code> directory by <code>mkdir docs</code>
+3. Add a line <code>title: Readme</code> to the top of <a href="./README.html">README.md</a> and copy it to <code>docs/index.md</code>
+4. Add a line <code>title: Install</code> to the top of <a href="./INSTALL.html">INSTALL.md</a> and copy it to <code>docs/INSTALL.md</code>
+5. Run <code>ford ford_project.md</code>
+6. Open <code>docs/index.html</code> in a browser to view the documentation</p>
+<h3>Adding static pages to documentation</h3>
+<p>The <a href="./README.html">README.md</a> and <a href="./INSTALL.html">INSTALL.md</a> files are added to the <a href="https://danielver02.github.io/ALPS/">Ford documentation</a> as static pages. You can add more static pages to the documentation by
+1. Add the content in a markdown file to the repository.
+2. Add a <code>title:</code> line to the beginning of the file and copy it to <code>docs/</code> in the <a href="https://github.com/danielver02/ALPS/blob/master/.github/workflows/doc.yml">doc workflow</a>. See steps 3-4 in the previous section, or the <a href="https://github.com/danielver02/ALPS/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow.
+3. Add the name of the markdown file as a new line under <code>ordered_subpage</code> in <a href="./ford_project.html">ford_project.md</a></p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

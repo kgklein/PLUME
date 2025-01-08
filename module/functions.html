@@ -1,0 +1,1065 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>functions &ndash; PLUME</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>functions
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="58.6% of total for modules and submodules.">578 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">functions</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-bs-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/functions.html#variable-is~2">is</a>
+            <a class="list-group-item" href="../module/functions.html#variable-unit">unit</a>
+            <a class="list-group-item" href="../module/functions.html#variable-stdout_unit">stdout_unit</a>
+            <a class="list-group-item" href="../module/functions.html#variable-input_unit_no">input_unit_no</a>
+            <a class="list-group-item" href="../module/functions.html#variable-error_unit_no">error_unit_no</a>
+            <a class="list-group-item" href="../module/functions.html#variable-runname">runname</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/functions.html#proc-input_unit_exist">input_unit_exist</a>
+            <a class="list-group-item" href="../module/functions.html#proc-input_unit">input_unit</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/functions.html#proc-read_in_params">read_in_params</a>
+            <a class="list-group-item" href="../module/functions.html#proc-spec_read">spec_read</a>
+            <a class="list-group-item" href="../module/functions.html#proc-read_map_input">read_map_input</a>
+            <a class="list-group-item" href="../module/functions.html#proc-map_read">map_read</a>
+            <a class="list-group-item" href="../module/functions.html#proc-read_scan_input">read_scan_input</a>
+            <a class="list-group-item" href="../module/functions.html#proc-scan_read">scan_read</a>
+            <a class="list-group-item" href="../module/functions.html#proc-read_guess_input">read_guess_input</a>
+            <a class="list-group-item" href="../module/functions.html#proc-om_read">om_read</a>
+            <a class="list-group-item" href="../module/functions.html#proc-read_radial_input">read_radial_input</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read">radial_read</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_0">radial_read_0</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_1">radial_read_1</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_2">radial_read_2</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_3">radial_read_3</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_4">radial_read_4</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_5">radial_read_5</a>
+            <a class="list-group-item" href="../module/functions.html#proc-radial_read_6">radial_read_6</a>
+            <a class="list-group-item" href="../module/functions.html#proc-get_runname">get_runname</a>
+            <a class="list-group-item" href="../module/functions.html#proc-get_indexed_namelist_unit">get_indexed_namelist_unit</a>
+            <a class="list-group-item" href="../module/functions.html#proc-get_unused_unit">get_unused_unit</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Calculates Misc. functions, esp. I/O operations.</p>
+<br>      
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~functions~~UsedByGraph Pages: 1 -->
+<svg id="modulefunctionsUsedByGraph" width="159pt" height="32pt"
+ viewBox="0.00 0.00 159.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~functions~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>module~~functions~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 155,-28 155,4 -4,4"/>
+<!-- module~functions -->
+<g id="module~~functions~~UsedByGraph_node1" class="node">
+<title>module~functions</title>
+<polygon fill="none" stroke="black" points="61,-24 0,-24 0,0 61,0 61,-24"/>
+<text text-anchor="middle" x="30.5" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">functions</text>
+</g>
+<!-- program~plume -->
+<g id="module~~functions~~UsedByGraph_node2" class="node">
+<title>program~plume</title>
+<g id="a_module~~functions~~UsedByGraph_node2"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="151,-24 97,-24 97,0 151,0 151,-24"/>
+<text text-anchor="middle" x="124" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;module~functions -->
+<g id="module~~functions~~UsedByGraph_edge1" class="edge">
+<title>program~plume&#45;&gt;module~functions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M96.53,-12C88.65,-12 79.84,-12 71.31,-12"/>
+<polygon fill="#000000" stroke="#000000" points="71.12,-8.5 61.12,-12 71.12,-15.5 71.12,-8.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~2"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Index for scan and species loops.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unit"></span>
+              integer,
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unit</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Custom index for I/O.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-stdout_unit"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>stdout_unit</strong></td>
+<td> =</td>
+                <td>6</td>
+            <td>
+                <p>Standard index for I/O.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-input_unit_no"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+              save
+            </td>
+            <td>::</td>
+            <td><strong>input_unit_no</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Index for reading in files.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-error_unit_no"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+              save
+            </td>
+            <td>::</td>
+            <td><strong>error_unit_no</strong></td>
+<td> =</td>
+                <td>stdout_unit</td>
+            <td>
+                <p>Index for outputing error messages.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-runname"></span>
+              character(len=50),
+            </td>
+              <td>private</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>runname</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>String for input file parameters.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-input_unit_exist"></span> <h3>private  function <a href='../proc/input_unit_exist.html'>input_unit_exist</a>(nml, exist)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Is a namelist already open?</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nml~2"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nml</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-exist~2"></span>
+              logical,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>exist</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-input_unit"></span> <h3>private  function <a href='../proc/input_unit.html'>input_unit</a>(nml)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Determine I/O unit.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nml~3"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nml</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>integer</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_in_params"></span> <h3>public  subroutine <a href='../proc/read_in_params.html'>read_in_params</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Read in system parameters.
+Input file is argument after executable:
+$ ./plume.e example.in</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-spec_read"></span> <h3>private  subroutine <a href='../proc/spec_read.html'>spec_read</a>(is)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in species/component parameters.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~4"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+            <td>
+<p>Species index.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_map_input"></span> <h3>public  subroutine <a href='../proc/read_map_input.html'>read_map_input</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Read in parameters for bounds on mapping dispersion roots.
+ Invokes <a href="../proc/map_read.html">map_read</a>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-map_read"></span> <h3>private  subroutine <a href='../proc/map_read.html'>map_read</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in frequency limits for map search of
+ complex frequency solution space.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_scan_input"></span> <h3>public  subroutine <a href='../proc/read_scan_input.html'>read_scan_input</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Read in limits for scans in plasma parameter space.
+ Invokes <a href="../proc/scan_read.html">scan_read</a>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-scan_read"></span> <h3>private  subroutine <a href='../proc/scan_read.html'>scan_read</a>(is)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in scan parameters.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~6"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+            <td>
+<p>Scan index.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_guess_input"></span> <h3>public  subroutine <a href='../proc/read_guess_input.html'>read_guess_input</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Read in initial values for solutions.
+ Invokes <a href="../proc/om_read.html">om_read</a>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-om_read"></span> <h3>private  subroutine <a href='../proc/om_read.html'>om_read</a>(is)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in initial guesses for complex frequencies of solutions.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~8"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+            <td>
+<p>Solution Index.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-read_radial_input"></span> <h3>public  subroutine <a href='../proc/read_radial_input.html'>read_radial_input</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Read in parameters for radial solar wind model scan.
+(in development).</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read"></span> <h3>private  subroutine <a href='../proc/radial_read.html'>radial_read</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan global parameters</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_0"></span> <h3>private  subroutine <a href='../proc/radial_read_0.html'>radial_read_0</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+with fixed <script type="math/tex">k_{\perp}</script> and <script type="math/tex">k_{\parallel}</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_1"></span> <h3>private  subroutine <a href='../proc/radial_read_1.html'>radial_read_1</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+with fixed <script type="math/tex">k_{\perp}</script> and varying <script type="math/tex">k_{\parallel}</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_2"></span> <h3>private  subroutine <a href='../proc/radial_read_2.html'>radial_read_2</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+with fixed <script type="math/tex">k_{\parallel}</script> and varying <script type="math/tex">k_{\perp}</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_3"></span> <h3>private  subroutine <a href='../proc/radial_read_3.html'>radial_read_3</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+with fixed <script type="math/tex">\theta</script> and varying <script type="math/tex">|k|</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_4"></span> <h3>private  subroutine <a href='../proc/radial_read_4.html'>radial_read_4</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+with fixed <script type="math/tex">|k|</script> and varying <script type="math/tex">\theta</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_5"></span> <h3>private  subroutine <a href='../proc/radial_read_5.html'>radial_read_5</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+for 2D scan over <script type="math/tex">k_{\perp}</script> and <script type="math/tex">k_{\parallel}</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_read_6"></span> <h3>private  subroutine <a href='../proc/radial_read_6.html'>radial_read_6</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Subroutine for reading in radial scan parameters
+for 2D scan over <script type="math/tex">|k|</script> and <script type="math/tex">\theta</script>.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_runname"></span> <h3>private  subroutine <a href='../proc/get_runname.html'>get_runname</a>(runname)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Get runname for output files from input argument
+by trimming '.in'.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-runname~2"></span>
+              character(len=50),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>runname</strong></td>
+            <td>
+<p>Argument trimmed of '.in' string.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_indexed_namelist_unit"></span> <h3>private  subroutine <a href='../proc/get_indexed_namelist_unit.html'>get_indexed_namelist_unit</a>(unit, nml, index_in)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Extract namelist.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unit~2"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nml"></span>
+              character(len=*),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nml</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index_in"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index_in</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_unused_unit"></span> <h3>public  subroutine <a href='../proc/get_unused_unit.html'>get_unused_unit</a>(unit)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Find a I/O unit that is not currently open.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-unit~3"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>unit</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>

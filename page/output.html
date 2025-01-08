@@ -1,0 +1,234 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>PLUME Output &ndash; PLUME</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>PLUME Output</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Readme</a></li>
+              <li class="breadcrumb-item active" aria-current="page">PLUME Output</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Readme</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
+              <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link active disabled" href="output.html">PLUME Output</a>
+              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <h1>PLUME Output</h1>
+<p>PLUME writes output solutions to the <code>/data</code> directory.<br>
+All output file names start with the name of the input file used in running PLUME, e.g. </p>
+<div class="codehilite"><pre><span></span><code>mpirun -np 4 ./src/ALPS filename.in
+</code></pre></div>
+
+<p>will produce output files all starting with the string <em>filename</em>. (editing...)</p>
+<h2><em>filename</em>.map</h2>
+<p>Value of the dispersion tensor $\mathcal{D}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.<br>
+Solutions to the dispersion relation satisfy $|\mathcal{D}|  =0$.
+This file is generated from the <em>map_search</em> subroutine in ALPS_fns.f90, and invoked when <code>use_map</code> =.true. .  </p>
+<p>The data is ordered in columns as<br>
+1. $\omega_r$<br>
+2. $\gamma$ <br>
+3. $\log_{10} |\mathcal{D}|$<br>
+4. Re $[|\mathcal{D}|]$<br>
+5. Im $[|\mathcal{D}|]$  </p>
+<p>The <em>&amp;maps_1</em> namelist in <em>filename</em>.in determines the structure of <em>filename</em>.map.<br>
+The range of $\omega_{\textrm{r}}/\Omega_p$ is from <code>omi</code> to <code>omi</code> with <code>nr</code> steps. Logorithmic or linear spacing is selected with <code>loggridw</code>.
+The range of $\gamma_{\textrm{r}}/\Omega_p$ is from <code>gami</code> to <code>gami</code> with <code>ni</code> steps. Logorithmic or linear spacing is selected with <code>loggridg</code>.</p>
+<h2><em>filename</em>.roots</h2>
+<p>Identified solutions to the dispersion relation $|\mathcal{D}|  =0$, calculated using <em>refine_guess</em> in ALPS_fns.f90 when <code>determine_minima</code> is set to true.  </p>
+<p>The data is ordered as<br>
+1. Solution number
+2. $\omega_r$<br>
+3. $\gamma$ <br>
+4. $\log_{10} |\mathcal{D}|$<br>
+5. Re $[|\mathcal{D}|]$<br>
+6. Im $[|\mathcal{D}|]$  </p>
+<p>The routine uses  either the coarse dispersion tensor map generated from the <em>map_search</em> subroutine (in the case of <code>use_map</code> = .true.)<br>
+or from the input guesses (for <code>use_map</code> = .false.).<br>
+Only the first <code>nroots</code> solutions will be identified and written to file.</p>
+<h2><em>filename</em>.scan_<em>scan_type_l</em>.root_m</h2>
+<p>The complex frequencies associated with solution <em>m</em> calculated from <code>om_scan</code><br>
+in the <em>&amp;scan_input_l</em> namelist.</p>
+<p>The data is ordered as<br>
+1. $k_\perp d_p$
+2. $k_\parallel d_p$<br>
+3. $\omega_{\textrm{r}}/\Omega_p$ <br>
+4. $\gamma/\Omega_p$   </p>
+<p>See the <em>&amp;scan_input</em> namelist description in the Quick Guide for details on determining the kind of wavevector scan.<br>
+This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
+<h2><em>filename</em>.eigen_<em>scan_type_l</em>.root_m</h2>
+<p>The eigenfunctions associated with solution <em>m</em> calculated from <code>om_scan</code> when <code>eigen</code> is set to .true.
+in the <em>&amp;scan_input_l</em> namelist.</p>
+<p>The data is ordered as<br>
+1. $k_\perp d_p$
+2. $k_\parallel d_p$<br>
+3. $\omega_{\textrm{r}}/\Omega_p$ <br>
+4. $\gamma/\Omega_p$ <br>
+5. Re $[E_x]$ 
+6. Im $[E_x]$ 
+7. Re $[E_y]$ 
+8. Im $[E_y]$ 
+9. Re $[E_z]$ 
+10. Im $[E_z]$ 
+11. Re $[B_x]$ 
+12. Im $[B_x]$ 
+13. Re $[B_y]$ 
+14. Im $[B_y]$ 
+15. Re $[B_z]$ 
+16. Im $[B_z]$<br>
+17. [+6(is-1)] Re $[\delta U_{x,is}]$ <br>
+18. [+6(is-1)] Im $[\delta U_{x,is}]$ <br>
+19. [+6(is-1)] Re $[\delta U_{y,is}]$ <br>
+20. [+6(is-1)] Im $[\delta U_{y,is}]$ <br>
+21. [+6(is-1)] Re $[\delta U_{z,is}]$ <br>
+22. [+6(is-1)] Im $[\delta U_{z,is}]$ <br>
+17. [+6(<code>nspec</code>)+2(is-1)] Re $[\delta n_{is}]$ <br>
+18. [+6(<code>nspec</code>)+2(is-1)] Im $[\delta n_{is}]$ </p>
+<p>This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
+<h2><em>filename</em>.heat_<em>scan_type_l</em>.root_m</h2>
+<p>The heating rates associated with solution <em>m</em> calculated from <code>om_scan</code> when <code>heating</code> is set to .true.
+in the <em>&amp;scan_input_l</em> namelist.</p>
+<p>The data is ordered as<br>
+1. $k_\perp d_p$
+2. $k_\parallel d_p$<br>
+3. $\omega_{\textrm{r}}/\Omega_p$ <br>
+4. $\gamma/\Omega_p$ <br>
+5. [+(is-1)] $\gamma_{is}/\omega$</p>
+<p>This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+
+    <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
