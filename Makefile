@@ -2,11 +2,11 @@
 #  Makefile for PLUME:
 #  Plasma in a Linear Uniform Magnetic Environment
 #
-#   VERSION 0.0
+#   VERSION 1.0
 #
 #  Version notes:
 #
-#  LAST UPDATE:  2023/01/18
+#  LAST UPDATE:  2024/01/08
 ###############################################################################
 
 #SYSTEM=IFORT
@@ -14,9 +14,8 @@ SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
-	*gfort*.in \
-	README* \
-	data/gfort/ \
+	*.md
+	inputs/example/*.in
 	include/
 
 #FLAGS=
@@ -27,16 +26,10 @@ ifeq ($(SYSTEM),IFORT)
 endif
 
 ifeq ($(SYSTEM),GFORT)
-#NOTE	: For gfortran
-#gfortran orders roots a bit differently...
 	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math #
-#	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 #this works!
 	COMP= gfortran
 endif
 LIBS=	
-
-#LFMOD=	nrtype.o nrutil_trim.o bessels.o funcs.o complex_root.o \
-	disprels.o 
 
 LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o
 
@@ -64,8 +57,7 @@ clean:
 	rm -f plume*.e
 
 tar: 
-	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar; \
-	cp pack_plume_`date +'%y%m%d'`.tar.gz ~/Dropbox/Codes/PLUME 
+	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar
 
 #########Rules
 %.o : %.f90

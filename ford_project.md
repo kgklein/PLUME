@@ -26,14 +26,14 @@ favicon: favicon.ico
 ---
 
 [![DOI](https://zenodo.org/badge/243310181.svg)](https://zenodo.org/badge/latestdoi/243310181)
-[![build](https://github.com/danielver02/ALPS/actions/workflows/tests.yml/badge.svg)](https://github.com/danielver02/ALPS/actions/workflows/tests.yml)
+[![build](https://github.com/kgklein/PLUME/actions/workflows/tests.yml/badge.svg)](https://github.com/kgklein/PLUME/actions/workflows/tests.yml)
 
 ## Plasma in a Linear Uniform Magnetized Environment
 
 <img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
 <img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/>
 
-ALPS is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
+PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
 relation in hot (even relativistic) magnetised plasma. 
 
 If you use the code for a science publication, please provide the code website
@@ -41,7 +41,7 @@ If you use the code for a science publication, please provide the code website
 
 lorem ipsum
 
-Publications using the PLUME code can be found in our NASA ADS Library (hyper link here)
+Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
 
 ---
 
