@@ -96,7 +96,7 @@ module vars
      !! Controls supplementary heating calculation.
      !!T-> Heating Calculation; F-> No heating calculation.
 
-     logical :: Eugene_s
+     logical :: eigen_s
      !! Controls supplementary eigenfunction calculation.
      !!T-> Eigenfunction calculation;   F-> No eigenfunction Calculation.
 
