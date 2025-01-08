@@ -112,21 +112,18 @@ Gregory Howes      (gregory-howes@uiowa.edu)</p>
 <h2>CONTENTS</h2>
 <ol>
 <li>Requirements and Dependencies</li>
-<li>Setting up Computer Environments</li>
 <li>Getting the PLUME Code</li>
 <li>Installing the PLUME Code</li>
 <li>Execution of Test Runs</li>
 </ol>
 <h2>REQUIREMENTS AND DEPENDENCIES</h2>
-<p>ALPS has the following requirements:</p>
+<p>PLUME has the following requirements:</p>
 <ul>
-<li>A UNIX, Linux, or macOS operating system with a working shell</li>
-<li>GNU make, in some cases it is useful to have the autoconf/automake tools</li>
+<li>A UNIX, Linux, or macOS operating system with a working shell.</li>
+<li>GNU make.</li>
 <li>Fortran 90 compiler (e.g., gfortran) - we recommend using the latest version
   of the compiler to avoid any surprises in the evaluation.</li>
 </ul>
-<h2>SETTING UP COMPUTER ENVIRONMENTS</h2>
-<p>For Ubuntu and macOS users, the following instructions have proven to be useful.</p>
 <h2>GETTING THE PLUME CODE</h2>
 <p>We recommend pulling the latest version of PLUME from GitHub. For this, go to
 the directory where you want to install PLUME and execute the following command:</p>
@@ -139,21 +136,33 @@ command is that you can now contribute to the development of the PLUME code. If
 you make any changes to the code, GitHub will run automatic tests (via workflows)
 to ensure that the changes do not break the code.</p>
 <h2>INSTALLING THE PLUME CODE</h2>
-<p>If all requirements are available, the code can be compiled with the following
-commands:</p>
+<p>There are no additional dependencies for compiling the code, so running</p>
 <div class="codehilite"><pre><span></span><code>make
 </code></pre></div>
 
+<p>should be sufficent if using gfortran.
+If using another FORTRAN90 compiler, simply add that compiler to the Makefile and compile.</p>
+<p>Running</p>
+<div class="codehilite"><pre><span></span><code>make tidyup
+</code></pre></div>
+
+<p>will move the extraneous <em>.o and </em>.mod files to the include directory.</p>
+<p>Running</p>
+<div class="codehilite"><pre><span></span><code>make clean
+</code></pre></div>
+
+<p>will remove all of the files from the include directory as well as the compiled executable, enabling a clean recompilation if necessary.</p>
 <h2>EXECUTION OF TEST RUNS</h2>
 <p>PLUME comes with a selection of test runs that cycle through various test
 problems. To execute a small set of tests, execute the following shell script:</p>
-<div class="codehilite"><pre><span></span><code>./run_test.sh
+<div class="codehilite"><pre><span></span><code>./run_example.sh
 </code></pre></div>
 
-<p>This script will test the interpolation routine, the routine to generate pre-
-described distribution functions, and a simply fast dispersion relation.</p>
+<p>This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.
+<em>More example cases will be added.</em></p>
 <h2>Building the documentation</h2>
-<p>PLUME uses <a href="https://forddocs.readthedocs.io/en/latest/">Ford</a> to build its documentation. The documentation is automatically built and deployed to <a href="https://danielver02.github.io/ALPS/">github.io</a> by the <a href="https://github.com/danielver02/ALPS/blob/master/.github/workflows/doc.yml">doc workflow</a>. To build the documentation locally, follow the <a href="https://github.com/danielver02/ALPS/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow, summarized here:
+<p><em>Documentation Pages Will Only De Available Once Repository is Made Public</em></p>
+<p>PLUME uses <a href="https://forddocs.readthedocs.io/en/latest/">Ford</a> to build its documentation. The documentation is automatically built and deployed to <a href="https://kgklein.github.io/PLUME/">github.io</a> by the <a href="https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml">doc workflow</a>. To build the documentation locally, follow the <a href="https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow, summarized here:
 1. Install <code>ford</code> by e.g. <code>pip install ford</code>. See <a href="https://forddocs.readthedocs.io/en/latest/">Ford documentation</a> for details
 2. Create a <code>docs</code> directory by <code>mkdir docs</code>
 3. Add a line <code>title: Readme</code> to the top of <a href="./README.html">README.md</a> and copy it to <code>docs/index.md</code>
@@ -161,9 +170,9 @@ described distribution functions, and a simply fast dispersion relation.</p>
 5. Run <code>ford ford_project.md</code>
 6. Open <code>docs/index.html</code> in a browser to view the documentation</p>
 <h3>Adding static pages to documentation</h3>
-<p>The <a href="./README.html">README.md</a> and <a href="./INSTALL.html">INSTALL.md</a> files are added to the <a href="https://danielver02.github.io/ALPS/">Ford documentation</a> as static pages. You can add more static pages to the documentation by
+<p>The <a href="./README.html">README.md</a> and <a href="./INSTALL.html">INSTALL.md</a> files are added to the <a href="https://kgklein.github.io/PLUME/">Ford documentation</a> as static pages. You can add more static pages to the documentation by
 1. Add the content in a markdown file to the repository.
-2. Add a <code>title:</code> line to the beginning of the file and copy it to <code>docs/</code> in the <a href="https://github.com/danielver02/ALPS/blob/master/.github/workflows/doc.yml">doc workflow</a>. See steps 3-4 in the previous section, or the <a href="https://github.com/danielver02/ALPS/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow.
+2. Add a <code>title:</code> line to the beginning of the file and copy it to <code>docs/</code> in the <a href="https://github.com/kgklein/PLUME/blob/master/.github/workflows/doc.yml">doc workflow</a>. See steps 3-4 in the previous section, or the <a href="https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow.
 3. Add the name of the markdown file as a new line under <code>ordered_subpage</code> in <a href="./ford_project.html">ford_project.md</a></p>
     </div>
   </div>
