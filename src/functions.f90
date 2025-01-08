@@ -4,49 +4,65 @@
 !!Plasma in a Linear Uniform Magnetized Environment                          !!
 !!                                                                           !!
 !!Kristopher Klein                                                           !!
-!!kris.klein@gmail.com                                                       !!
+!!kgklein@arizona.edu                                                        !!
 !!Lunar and Planetary Laboratory, University of Arizona
 !!                                                                           !!
 !!*MISC. FUNCTIONS                                                          *!!
 !=============================================================================!
 !=============================================================================!
 module functions
+  !!Calculates Misc. functions, esp. I/O operations.
   implicit none
   private
 
-  !Integers for code structure
   integer :: is
+  !!Index for scan and species loops.
 
-  !I/O values for namelist
   integer :: unit
+  !! Custom index for I/O.
+  
   integer, parameter :: stdout_unit=6
-  integer, save :: input_unit_no, error_unit_no=stdout_unit
+  !! Standard index for I/O.
+  
+  integer, save :: input_unit_no
+  !! Index for reading in files.
+  
+  integer, save ::error_unit_no=stdout_unit
+  !! Index for outputing error messages.
 
-  !string for parameter input file
-  character(50) :: runname 
+  character(50) :: runname
+  !! String for input file parameters.
 
   public :: read_in_params, read_map_input, read_scan_input, read_guess_input
   public :: get_unused_unit, read_radial_input
 
 contains
 
+  !-=-=-=-=-
+  !-=-=-=-=-
   subroutine read_in_params
-    !Read in system parameters
-    !input file is argument after executable:
-    !$ ./plume.e example.in
+    !!Read in system parameters.
+    !!Input file is argument after executable:
+    !!$ ./plume.e example.in
     use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc,option,writeOut
     use vars, only : dataName,nscan,nroot_max,use_map,outputName, pi
     use vars, only : low_n, susc_low, new_low_n
     implicit none
-    !For Testing Quasineutrality
-    real :: sum_nq,sum_nqv
-    integer :: is
+    
+    real :: sum_nq
+    !!For Testing Quasineutrality.
 
+    real :: sum_nqv
+    !!For zero net current.
+
+    integer :: is
+    !!Index for scan and species loops.
+
+    !Read in the basic parameter list.
     nameList /params/ &
          betap,kperp,kpar,vtp,nspec,nscan,option,nroot_max,&
          use_map,low_n, new_low_n, &
-         writeOut,dataName,outputName
-    
+         writeOut,dataName,outputName    
     call get_unused_unit (input_unit_no)
     call get_runname(runname)
     runname=trim(runname)//".in"
@@ -57,21 +73,23 @@ contains
     !Allocate the species variable to have nspec indicies
     allocate (spec(1:nspec))
 
-    !Allocate the suscetibility tensor to have nspec indicies 
+    !Allocate the susceptibility tensor to have nspec indicies 
     allocate(susc(1:nspec,3,3))
     if (low_n) &
          allocate(susc_low(1:nspec,3,3,0:1))
 
-    !quasineutrality, momentum, current conservation:
+    !initialized quasineutrality and current conservation check.
     sum_nq = 0.; sum_nqv = 0.
 
     !Read in species parameters
     !This is a bit of FORTRAN black magic borrowed from AGK.
-    !     which allows us to loop over iterative nml/groupnames
+    !     which allows us to loop over iterative nml/groupnames.
     do is = 1,nspec 
        call get_indexed_namelist_unit (unit, "species", is)
-       call spec_read(is)       
+       call spec_read(is)
+       !quasineutrality check.
        sum_nq = sum_nq + spec(is)%D_s/spec(is)%Q_s
+       !net current check.
        sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
        close (unit)
     enddo
@@ -89,28 +107,55 @@ contains
     !Note if:
     if (spec(1)%vv_s.ne.0.) &
          write(*,'(a,es11.4)')&
-         'ERROR: Not in proton rest frame:    v_par drift p =',sum_nqv
-    
-  pi = 4.*atan(1.)
+         'ERROR?: Not in refernece species rest frame:    v_par drift ref =',spec(1)%vv_s
+
+    !You always need pi. Always.
+    pi = 4.*atan(1.)
 
   end subroutine read_in_params
 
 !-=-=-=-=-
-!Subroutine for reading in species parameters
 !-=-=-=-=-
-subroutine spec_read(is)
-  use vars, only : spec
-  implicit none
-  !Passed
-  integer :: is !species index
-  !Local
-  !Dummy values for reading in species parameters
-  real :: tauS,muS,alphS,Qs,Ds,vvS
+  subroutine spec_read(is)
+    !!Subroutine for reading in species/component parameters.
+    use vars, only : spec
+    implicit none
+    !Passed
+    integer :: is
+    !!Species index.
+
+    !Local
+    !Dummy values for reading in species parameters
+    real :: tauS
+    !!Parallel Temperature Ratio.
+    !!\(T_{ref}/T_{s}|_{\parallel}\)
+    
+    real :: muS
+    !!Mass Ratio.
+    !!\(m_{ref}/m_{s}\)
+    
+    real :: alphS
+    !!Temperature Anisotropy.
+    !!\(T_{\perp}/T_{\parallel}_s\)
+    
+    real :: Qs
+    !!Relative charge ratio.
+    !!\(q_{ref}/q_{s}\)
+    
+    real :: Ds
+    !!Density Ratio.
+    !!\(n_{s}/n_{ref}\)
+    
+    real :: vvS
+    !!Relative Drift, normalized to reference Alfven velocity
+    !!\(v_{drift}/v_{A,ref}\)
+    !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
 
   nameList /species/ &
        tauS,muS,alphS,Qs,Ds,vvS
   read (unit=unit,nml=species)
-  
+
+  !Assign dummy values to global component array.
   spec(is)%tau_s=tauS
   spec(is)%mu_s=muS
   spec(is)%alph_s=alphS
@@ -121,24 +166,52 @@ subroutine spec_read(is)
 end subroutine spec_read
 
 !-=-=-=-=-
-!Subroutine for reading in scan parameters
 !-=-=-=-=-
 subroutine scan_read(is)
+  !!Subroutine for reading in scan parameters.
   use vars, only : scan
   implicit none
-  !Passed
-  integer :: is !species index
+  !Passed  
+  integer :: is
+  !!Scan index.
+  
   !Local
-  !Dummy values for reading in scan parameters
-  integer :: scan_type,scan_style,ns,nres
-  real    :: swi,swf
-  logical :: swlog,heating,eigen,tensor
+  integer :: scan_type
+  !!Defines kind of parameter scans.
+  
+  integer :: scan_style
+  !!Defines number of components of scan.
+  
+  integer :: ns
+  !!Number of output steps.
+  
+  integer :: nres
+  !!Scan resolution between output steps.
+  
+  real    :: swi
+  !!Initial value of scanned parameter.
+  
+  real    :: swf
+  !!Final value of scanned parameter.
+  
+  logical :: swlog
+  !! Linear or Logarithmic scan.
+  
+  logical :: heating  
+  !! Controls supplementary heating calculation.
+  
+  logical :: eigen
+  !! Controls supplementary eigenfunction calculation.
+  
+  logical :: tensor
+  !! Controls supplementary output of susceptibility tensor.
 
   nameList /scan_input/ &
        scan_type,swi,swf,swlog,scan_style,ns,nres,&
        heating,eigen,tensor
   read (unit=unit,nml=scan_input)
-  
+
+  !Assign dummy values to scan array.
   scan(is)%range_i =swi
   scan(is)%range_f =swf
   scan(is)%log_scan=swlog
@@ -153,9 +226,37 @@ subroutine scan_read(is)
 end subroutine scan_read
 
 !-=-=-=-=-
-!Subroutine for reading in frequency
 !-=-=-=-=-
 subroutine om_read(is)
+  !!Subroutine for reading in initial guesses for complex frequencies of solutions.
+  use vars, only : wroots
+  implicit none
+  !Passed
+  integer :: is
+  !!Solution Index.
+  
+  !Local
+  real    :: g_om
+  !!Dummy values for real frequency component of solution.
+  
+  real    :: g_gam
+  !!Dummy values for imaginary frequency component of solution.
+
+  nameList /guess/ &
+       g_om,g_gam
+  read (unit=unit,nml=guess)
+
+  !Assign dummy values to frequency of solution.
+  wroots(1,is)=g_om
+  wroots(2,is)=g_gam
+  
+end subroutine om_read
+
+!-=-=-=-=-
+!Subroutine for reading in frequency
+!-=-=-=-=-
+subroutine radial_read
+  use vars, only: nRad, modelName, radial_heating, radial_eigen, k_scan
   use vars, only : wroots
   implicit none
   !Passed
@@ -164,15 +265,12 @@ subroutine om_read(is)
   !Dummy values for reading in scan parameters
   real    :: g_om,g_gam
 
-  nameList /guess/ &
-       g_om,g_gam
-  read (unit=unit,nml=guess)
-  
-  wroots(1,is)=g_om
-  wroots(2,is)=g_gam
+  nameList /radial_input/ nRad, modelName, &
+       radial_heating, radial_eigen, k_scan
+  read (unit=4,nml=radial_input)
 !!!
   
-end subroutine om_read
+end subroutine radial_read
 
 !-=-=-=-=-
 subroutine radial_read_0
@@ -372,25 +470,6 @@ subroutine radial_read_6
 
 
 end subroutine radial_read_6
-!-=-=-=-=-
-!Subroutine for reading in frequency
-!-=-=-=-=-
-subroutine radial_read
-  use vars, only: nRad, modelName, radial_heating, radial_eigen, k_scan
-  use vars, only : wroots
-  implicit none
-  !Passed
-  integer :: is !species index
-  !Local
-  !Dummy values for reading in scan parameters
-  real    :: g_om,g_gam
-
-  nameList /radial_input/ nRad, modelName, &
-       radial_heating, radial_eigen, k_scan
-  read (unit=4,nml=radial_input)
-!!!
-  
-end subroutine radial_read
 
 !-=-=-=-=-
 !Subroutine for reading in frequency

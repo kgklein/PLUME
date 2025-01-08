@@ -1,4 +1,5 @@
 MODULE nrutil_trim
+  !!Numerical Recipes Types Utilized in PLUME.
 	USE nrtype
 	IMPLICIT NONE
 	INTEGER(I4B), PARAMETER :: NPAR_ARTH=16,NPAR2_ARTH=8
