@@ -3,8 +3,8 @@ import json
 import requests
 
 BASE_URL = "https://api.adsabs.harvard.edu/v1"
-ALPS_ADS_BIB_CODE = "2018JPlPh..84d9003V"
-ADS_LIBRARY_ID = "vPWlMyiDRq-YfZ2bGDWS7Q"
+ALPS_ADS_BIB_CODE = "2015PhPl...22c2903K"
+ADS_LIBRARY_ID = "RWGonkVgRpOaTizvWwsjKg"
 
 
 def query_response() -> requests.Response:
