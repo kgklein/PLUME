@@ -28,58 +28,55 @@ The solver is able to identify supported waves with any direction of propagation
 This code uses an F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.
 
 The calculation follows Stix Chapter 10 eqn 66-73.
-The dispersion relation for \(\omega/\Omega_{ref}\) is dependent on four global dimensionless parameters:
+The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:
 
-       betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
-       kperp: Perpendicular wavelength:         kperp rho_ref
-       kpar : Parallel wavelength:              kparallel rho_ref
-       vtp  : Parallel proton thermal velocity: sqrt(2 T_||ref/m_ref)/c
+ 1. Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$
+ 2. Perpendicular wavevector: $k_\perp \rho_{ref}$
+ 3. Parallel wavevector: $k_\parallel \rho_{ref}$
+ 4. Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref})/c$
 
-     and six dimensionless component parameters:
+     and six dimensionless parameters for component $s$:
 
-       tau_s : T_ref/T_s
-       mu_s  : m_ref/m_s
-       alph_s: T_perp/T_parallel|s
-       Q_s   : q_ref/q_s
-       D_s   : n_s/n_ref
-       vv_s  : v_s,drift/v_Aref
+ 1. Parallel Temperature Ratio: $T_{\parallel,ref}/T_{\parallel,s}$
+ 2. Mass Ratio: $m_{ref}/m_{s}$
+ 3. Temperature Anisotropy: $T_{\perp}/T_{\parallel}|s$
+ 4. Charge Ratio: $q_{ref}/q_{s}$
+ 5. Density Ratio: $n_{s}/n_{ref}
+ 6. Relative Velocity: $v_{s,drift}/v_{A,ref}$
 
-The values for these parameters are extracted from *.in file, appended after
-    the executable program call.
+The code then varies defined parameters to construct dispersion relations as a function of wavevector $(k_\perp \rho_{ref},k_\parallel \rho_{ref})$ or plasma parameters for the identified solutions.
 
-The code then varies defined parameters to construct dispersion relations as a function of wavevector or plasma parameter for the identified modes.
 Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.
 
 ## 2. Acknowledgements
 
 If you use the code for a science publication,
-1. please provide the code website
-
-lorem ipsum
+1. please provide the code website [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME)
 
 in the acknowledgements,
 
-2. cite the DOI of the code:
-lorem ipsum
+2. cite the DOI of the code: *TBD upon public release*
 
-3. and cite the code paper:
+3. and cite the code paper: *write up a research note on PLUME similar to Verscharen and Chandran 2018 RNAAS*
    
-lorem ipsum
-
 ##  3. Installing the PLUME code
 
 For advice on the installation of the code, please check [`INSTALL.md`](./INSTALL.md)
 
 ##  4. Running the PLUME code
 
-PLUME works with input files that specify the plasma and numerical parameters for
-the calculation.
+PLUME works with input files that specify the plasma and numerical parameters for the calculation.
+
+The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
+```
+./plume.e inputs/example/example_map_par.in
+```
 
 ## 5. License
 
 BSD 2-Clause License
 
-Copyright (c) 2025, Kristopher G. Klein and Gregory Howes
+Copyright (c) 2025, Kristopher G. Klein and Gregory G. Howes
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
