@@ -253,22 +253,16 @@ subroutine om_read(is)
 end subroutine om_read
 
 !-=-=-=-=-
-!Subroutine for reading in frequency
 !-=-=-=-=-
 subroutine radial_read
+  !!Subroutine for reading in radial scan global parameters
   use vars, only: nRad, modelName, radial_heating, radial_eigen, k_scan
-  use vars, only : wroots
   implicit none
-  !Passed
-  integer :: is !species index
-  !Local
-  !Dummy values for reading in scan parameters
-  real    :: g_om,g_gam
 
   nameList /radial_input/ nRad, modelName, &
        radial_heating, radial_eigen, k_scan
   read (unit=4,nml=radial_input)
-!!!
+
   
 end subroutine radial_read
 
@@ -557,7 +551,7 @@ end subroutine read_guess_input
 !-=-=-=-=
 !Read in parameters for radial solar wind model scan
 subroutine read_radial_input
-  use vars, only: nRad, modelName, nspec, rad_spec, radius
+  use vars, only: nRad, modelName, nspec, rad_spec, radius, pi
   use vars, only: beta_rad, vtp_rad, radial_heating, radial_eigen
   use vars, only: betap, vtp, spec, kperp, kpar, k_scan, rad_scan
   implicit none
@@ -568,9 +562,6 @@ subroutine read_radial_input
   real :: tau_in, mu_in, alph_in, Q_in, D_in, vv_in
   real :: kperp_1,kperp_2, kpar_1,kpar_2, k_1, k_2, theta_1, theta_2
   real :: nk,nk2,kres,kres2
-  real :: pi
-
-  pi = 4.*atan(1.)
 
   !Append the .in file as first argument in executable
   call get_runname(runname)
@@ -582,7 +573,7 @@ subroutine read_radial_input
   call radial_read
   close (4)
 
-  write(*,*)'read in radial parameters'
+  write(*,*)'Read in Radial Parameters'
   !Allocate the radial parameter scan for each species 
   allocate (rad_spec(1:nspec,0:nRad))
   !Allocate Radial Distance from Sun
