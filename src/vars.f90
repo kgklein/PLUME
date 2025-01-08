@@ -47,28 +47,28 @@ module vars
      
      real :: tau_s
      !!Relative Temperature ratio.
-     !!T_ref/T_s|_parallel
+     !!\(T_{ref}/T_{s}|_{\parallel}\)
 
      real :: mu_s
      !!Relative Mass ratio.
-     !!m_ref/m_s
+     !!\(m_{ref}/m_{s}\)
 
      real :: alph_s
      !!Temperature Anisotropy.
-     !!T_perp/T_parallel_s
+     !!\(T_{\perp}/T_{\parallel}_s\)
 
      real :: Q_s
      !!Relative charge ratio.
-     !!q_ref/q_s
+     !!\(q_{ref}/q_{s}\)
 
      real :: D_s
      !!Density Ratio.
-     !!n_s/n_ref
+     !!\(n_{s}/n_{ref}\)
 
      real :: vv_s
      !!Relative Drift, normalized to reference Alfven velocity
-     !!v_drift/v_A,ref
-     !! with v_A,ref = B/sqrt(4 pi n_ref m_ref)
+     !!\(v_{drift}/v_{A,ref}\)
+     !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
 
   end type specie
 
@@ -93,15 +93,15 @@ module vars
      !!T-> log, F-> linear scan
 
      logical :: heat_s
-     !! Controls suplementary heating calculation.
+     !! Controls supplementary heating calculation.
      !!T-> Heating Calculation; F-> No heating calculation.
 
-     logical :: eigen_s
-     !! Controls suplementary eigenfunction calculation.
+     logical :: Eugene_s
+     !! Controls supplementary eigenfunction calculation.
      !!T-> Eigenfunction calculation;   F-> No eigenfunction Calculation.
 
      logical :: tensor_s
-     !! Controls suplementary output of susceptability tensor.
+     !! Controls supplementary output of susceptibility tensor.
      !!T-> Output tensor; F-> Supress output.
 
      integer :: type_s
@@ -135,7 +135,7 @@ module vars
      !!n_scan*n_res Total steps taken.
      
      integer :: n_res
-     !!Scan resolution between output steps.
+     !!Scan resolution between output steps.    
      !!n_scan*n_res Total steps taken.
      
      real :: diff
@@ -189,8 +189,7 @@ module vars
   !! 2: Calculate Roots for input plasma parameters or Reads in root value
   !!    and then scan over two-dimensional plasma parameters space,
   !!    with range and type specified in *.in file.
-  !! 3: Replicating SAGA scan from Gullveig (the precursor of this code)
-  !!    A hardwired scan of (k, theta) at a particular value of (betap, alph_p).
+  !! 3: deprecated
   !! 4: Make multiple maps of complex frequency space.
   !! 5: Find roots for parameters along a prescribed path
   !!    Path is set by solar wind models, with values calculated and

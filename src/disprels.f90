@@ -3,7 +3,7 @@
 !!Plasma in a Linear Uniform Magnetized Environment                          !!
 !!                                                                           !!
 !!Kristopher Klein                                                           !!
-!!kris.klein@gmail.com                                                       !!
+!!kgklein@arizona.edu                                                        !!
 !!Lunar and Planetary Laboratory, University of Arizona
 !!                                                                           !!
 !!*DISPERSION FUNCTIONS                                                     *!!

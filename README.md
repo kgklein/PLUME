@@ -25,6 +25,36 @@ relation in hot magnetised plasma.
 PLUME allows for any number of particle species, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity, and parallel and perpendicular temperature.
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.
 
+This code uses an F90 adaptation (by Greg Howes) of the Hot Plasma 
+       Dispersion Relation originally by Eliot Quataert.
+
+ PLUME calculates the hot plasma dispersion relation for a plasma with 
+       an arbitrary number of ion and electron species with relative drifts
+       and bi-Maxwellian velocity distributions.
+       The calculation follows Stix Chapter 10 eqn 66-73.
+ The Dispersion relation for omega/Omega_ref
+     is dependent on four global dimensionless parameters:
+
+       betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
+       kperp: Perpendicular wavelength:         kperp rho_ref
+       kpar : Parallel wavelength:              kparallel rho_ref
+       vtp  : Parallel proton thermal velocity: sqrt(2 T_||ref/m_ref)/c
+
+     and six dimensionless component parameters:
+
+       tau_s : T_ref/T_s
+       mu_s  : m_ref/m_s
+       alph_s: T_perp/T_parallel|s
+       Q_s   : q_ref/q_s
+       D_s   : n_s/n_ref
+       vv_s  : v_s,drift/v_Aref
+
+The values for these parameters are extracted from *.in file, appended after
+    the executable program call.
+
+The code then varies defined parameters to construct dispersion relations as a function of wavevector or plasma parameter for the identified modes.
+Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.
+
 ## 2. Acknowledgements
 
 If you use the code for a science publication,
