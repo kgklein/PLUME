@@ -125,49 +125,49 @@ PLUME allows for any number of particle species or components, assuming each can
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.</p>
 <p>This code uses an F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.</p>
 <p>The calculation follows Stix Chapter 10 eqn 66-73.
-The dispersion relation for <script type="math/tex">\omega/\Omega_{ref}</script> is dependent on four global dimensionless parameters:</p>
-<div class="codehilite"><pre><span></span><code>   betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
-   kperp: Perpendicular wavelength:         kperp rho_ref
-   kpar : Parallel wavelength:              kparallel rho_ref
-   vtp  : Parallel proton thermal velocity: sqrt(2 T_||ref/m_ref)/c
-
- and six dimensionless component parameters:
-
-   tau_s : T_ref/T_s
-   mu_s  : m_ref/m_s
-   alph_s: T_perp/T_parallel|s
-   Q_s   : q_ref/q_s
-   D_s   : n_s/n_ref
-   vv_s  : v_s,drift/v_Aref
-</code></pre></div>
-
-<p>The values for these parameters are extracted from *.in file, appended after
-    the executable program call.</p>
-<p>The code then varies defined parameters to construct dispersion relations as a function of wavevector or plasma parameter for the identified modes.
-Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.</p>
+The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:</p>
+<ol>
+<li>Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$</li>
+<li>Perpendicular wavevector: $k_\perp \rho_{ref}$</li>
+<li>Parallel wavevector: $k_\parallel \rho_{ref}$</li>
+<li>
+<p>Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref})/c$</p>
+<p>and six dimensionless parameters for component $s$:</p>
+</li>
+<li>
+<p>Parallel Temperature Ratio: $T_{\parallel,ref}/T_{\parallel,s}$</p>
+</li>
+<li>Mass Ratio: $m_{ref}/m_{s}$</li>
+<li>Temperature Anisotropy: $T_{\perp}/T_{\parallel}|s$</li>
+<li>Charge Ratio: $q_{ref}/q_{s}$</li>
+<li>Density Ratio: $n_{s}/n_{ref}</li>
+<li>Relative Velocity: $v_{s,drift}/v_{A,ref}$</li>
+</ol>
+<p>The code then varies defined parameters to construct dispersion relations as a function of wavevector $(k_\perp \rho_{ref},k_\parallel \rho_{ref})$ or plasma parameters for the identified solutions.</p>
+<p>Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.</p>
 <h2>2. Acknowledgements</h2>
 <p>If you use the code for a science publication,
-1. please provide the code website</p>
-<p>lorem ipsum</p>
+1. please provide the code website <a href="https://github.com/kgklein/PLUME">github.com/kgklein/PLUME</a></p>
 <p>in the acknowledgements,</p>
 <ol>
 <li>
-<p>cite the DOI of the code:
-lorem ipsum</p>
+<p>cite the DOI of the code: <em>TBD upon public release</em></p>
 </li>
 <li>
-<p>and cite the code paper:</p>
+<p>and cite the code paper: <em>write up a research note on PLUME similar to Verscharen and Chandran 2018 RNAAS</em></p>
 </li>
 </ol>
-<p>lorem ipsum</p>
 <h2>3. Installing the PLUME code</h2>
 <p>For advice on the installation of the code, please check <a href="./INSTALL.html"><code>INSTALL.md</code></a></p>
 <h2>4. Running the PLUME code</h2>
-<p>PLUME works with input files that specify the plasma and numerical parameters for
-the calculation.</p>
+<p>PLUME works with input files that specify the plasma and numerical parameters for the calculation.</p>
+<p>The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.</p>
+<div class="codehilite"><pre><span></span><code>./plume.e inputs/example/example_map_par.in
+</code></pre></div>
+
 <h2>5. License</h2>
 <p>BSD 2-Clause License</p>
-<p>Copyright (c) 2025, Kristopher G. Klein and Gregory Howes
+<p>Copyright (c) 2025, Kristopher G. Klein and Gregory G. Howes
 All rights reserved.</p>
 <p>Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:</p>
