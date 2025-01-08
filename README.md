@@ -22,18 +22,13 @@ Gregory Howes      (gregory-howes@uiowa.edu)
 
 PLUME is a numerical code that solves the Vlasov-Maxwell dispersion
 relation in hot magnetised plasma.
-PLUME allows for any number of particle species, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity, and parallel and perpendicular temperature.
+PLUME allows for any number of particle species or components, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity parallel to the mean magnetic fiedl, and parallel and perpendicular temperatures.
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.
 
-This code uses an F90 adaptation (by Greg Howes) of the Hot Plasma 
-       Dispersion Relation originally by Eliot Quataert.
+This code uses an F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.
 
- PLUME calculates the hot plasma dispersion relation for a plasma with 
-       an arbitrary number of ion and electron species with relative drifts
-       and bi-Maxwellian velocity distributions.
-       The calculation follows Stix Chapter 10 eqn 66-73.
- The Dispersion relation for omega/Omega_ref
-     is dependent on four global dimensionless parameters:
+The calculation follows Stix Chapter 10 eqn 66-73.
+The dispersion relation for \(\omega/\Omega_{ref}\) is dependent on four global dimensionless parameters:
 
        betap: Plasma Reference Beta:               8 pi n_ref T_ref /B^2
        kperp: Perpendicular wavelength:         kperp rho_ref

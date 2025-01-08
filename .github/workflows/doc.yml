@@ -54,6 +54,12 @@ jobs:
         cp qrcode_plume_github.png docs
         ford ford_project.md
 
+    - name: Debug documentation files
+      run: ls -R docs
+
+    - name: Debug FORD output
+      run: ls -R docs_out
+
     - name: Deploy to GH pages
       if: ${{github.event_name == 'push'}}
       uses: JamesIves/github-pages-deploy-action@v4.4.2
