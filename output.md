@@ -110,13 +110,14 @@ where `j` ranges from 1 to `nspec`.
 If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `new_low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 `nspec`+1st column.
 
 If `new_low_n` is true, we have
-18+8`nspec`+j. $P_j$
-18+9`nspec`+j. $P_j^{yy}$ (Transit Time Damping term 1).
-18+10`nspec`+j. $P_j^{yz}$ (Transit Time Damping term 2).
-18+11`nspec`+j. $P_j^{zy}$ (Landau Damping term 1).
-18+12`nspec`+j. $P_j^{zz}$ (Landau Damping term 2).
-18+13`nspec`+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
-18+14`nspec`+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).
+
+- 18+8`nspec`+j. $P_j$
+- 18+9`nspec`+j. $P_j^{yy}$ (Transit Time Damping term 1).
+- 18+10`nspec`+j. $P_j^{yz}$ (Transit Time Damping term 2).
+- 18+11`nspec`+j. $P_j^{zy}$ (Landau Damping term 1).
+- 18+12`nspec`+j. $P_j^{zz}$ (Landau Damping term 2).
+- 18+13`nspec`+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
+- 18+14`nspec`+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).
 
 This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component.
 - $T_{ref,\parallel}/T_{j,\parallel}$.
