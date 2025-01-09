@@ -25,24 +25,24 @@ relation in hot magnetised plasma.
 PLUME allows for any number of particle species or components, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity parallel to the mean magnetic fiedl, and parallel and perpendicular temperatures.
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.
 
-This code uses an F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.
+This code is based upon a F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.
 
 The calculation follows Stix Chapter 10 eqn 66-73.
 The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:
 
- 1. Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$
- 2. Perpendicular wavevector: $k_\perp \rho_{ref}$
- 3. Parallel wavevector: $k_\parallel \rho_{ref}$
- 4. Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
+- Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$
+- Perpendicular wavevector: $k_\perp \rho_{ref}$
+- Parallel wavevector: $k_\parallel \rho_{ref}$
+- Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
 
      and six dimensionless parameters for component $s$:
 
- 1. Parallel Temperature Ratio: $T_{\parallel,ref}/T_{\parallel,s}$
- 2. Mass Ratio: $m_{ref}/m_{s}$
- 3. Temperature Anisotropy: $T_{\perp}/T_{\parallel}|s$
- 4. Charge Ratio: $q_{ref}/q_{s}$
- 5. Density Ratio: $n_{s}/n_{ref}$
- 6. Relative Velocity: $v_{s,drift}/v_{A,ref}$
+- Parallel Temperature Ratio: $T_{\parallel,ref}/T_{\parallel,s}$
+- Mass Ratio: $m_{ref}/m_{s}$
+- Temperature Anisotropy: $T_{\perp}/T_{\parallel}|s$
+- Charge Ratio: $q_{ref}/q_{s}$
+- Density Ratio: $n_{s}/n_{ref}$
+- Relative Velocity: $v_{s,drift}/v_{A,ref}$
 
 The code then varies defined parameters to construct dispersion relations as a function of wavevector $(k_\perp \rho_{ref},k_\parallel \rho_{ref})$ or plasma parameters for the identified solutions.
 
@@ -59,16 +59,20 @@ If you use the code for a science publication,
    
 ##  3. Installing the PLUME code
 
-For advice on the installation of the code, please check [`INSTALL.md`](./INSTALL.md)
+For advice on the installation of the code, please check [`INSTALL.md`](./INSTALL.md).
 
 ##  4. Running the PLUME code
 
 PLUME works with input files that specify the plasma and numerical parameters for the calculation.
+Details on the input parameters can be found in [`input.md`](./input.md).
 
 The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
 ```
 ./plume.e inputs/example/example_map_par.in
 ```
+
+A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
+Details on the outputs of the code can be found in [`output.md`](./output.md).
 
 ## 5. License
 
