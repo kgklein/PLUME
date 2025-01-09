@@ -195,14 +195,16 @@ They are ordered as
 20. [+6(<code>nspec</code>)+2(j-1)] Im $[\delta n_{j}]$ </p>
 <p>where <code>j</code> ranges from 1 to <code>nspec</code>.</p>
 <p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>new_low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
-<p>If <code>new_low_n</code> is true, we have
-18+8<code>nspec</code>+j. $P_j$
-18+9<code>nspec</code>+j. $P_j^{yy}$ (Transit Time Damping term 1).
-18+10<code>nspec</code>+j. $P_j^{yz}$ (Transit Time Damping term 2).
-18+11<code>nspec</code>+j. $P_j^{zy}$ (Landau Damping term 1).
-18+12<code>nspec</code>+j. $P_j^{zz}$ (Landau Damping term 2).
-18+13<code>nspec</code>+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
-18+14<code>nspec</code>+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).</p>
+<p>If <code>new_low_n</code> is true, we have</p>
+<ul>
+<li>18+8<code>nspec</code>+j. $P_j$</li>
+<li>18+9<code>nspec</code>+j. $P_j^{yy}$ (Transit Time Damping term 1).</li>
+<li>18+10<code>nspec</code>+j. $P_j^{yz}$ (Transit Time Damping term 2).</li>
+<li>18+11<code>nspec</code>+j. $P_j^{zy}$ (Landau Damping term 1).</li>
+<li>18+12<code>nspec</code>+j. $P_j^{zz}$ (Landau Damping term 2).</li>
+<li>18+13<code>nspec</code>+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).</li>
+<li>18+14<code>nspec</code>+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).</li>
+</ul>
 <p>This will be followed by 6<code>nspec</code> columns containing the parameter lists $\mathcal{P}<em ref_parallel="ref,\parallel">j$ for each species or component.
 - $T</em>/T_{j,\parallel}$.
 - $m_{ref}/m_{j}$.
