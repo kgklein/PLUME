@@ -123,10 +123,10 @@ Gregory Howes      (gregory-howes@uiowa.edu)</p>
 relation in hot magnetised plasma.
 PLUME allows for any number of particle species or components, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity parallel to the mean magnetic fiedl, and parallel and perpendicular temperatures.
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.</p>
-<p>This code uses an F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.</p>
+<p>This code is based upon a F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.</p>
 <p>The calculation follows Stix Chapter 10 eqn 66-73.
 The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:</p>
-<ol>
+<ul>
 <li>Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$</li>
 <li>Perpendicular wavevector: $k_\perp \rho_{ref}$</li>
 <li>Parallel wavevector: $k_\parallel \rho_{ref}$</li>
@@ -142,7 +142,7 @@ The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global di
 <li>Charge Ratio: $q_{ref}/q_{s}$</li>
 <li>Density Ratio: $n_{s}/n_{ref}$</li>
 <li>Relative Velocity: $v_{s,drift}/v_{A,ref}$</li>
-</ol>
+</ul>
 <p>The code then varies defined parameters to construct dispersion relations as a function of wavevector $(k_\perp \rho_{ref},k_\parallel \rho_{ref})$ or plasma parameters for the identified solutions.</p>
 <p>Supplementary calculation of the associated heating rates or eigenfunctions can also be calculated.</p>
 <h2>2. Acknowledgements</h2>
@@ -157,13 +157,16 @@ The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global di
 </li>
 </ol>
 <h2>3. Installing the PLUME code</h2>
-<p>For advice on the installation of the code, please check <a href="./INSTALL.html"><code>INSTALL.md</code></a></p>
+<p>For advice on the installation of the code, please check <a href="./INSTALL.html"><code>INSTALL.md</code></a>.</p>
 <h2>4. Running the PLUME code</h2>
-<p>PLUME works with input files that specify the plasma and numerical parameters for the calculation.</p>
+<p>PLUME works with input files that specify the plasma and numerical parameters for the calculation.
+Details on the input parameters can be found in <a href="./input.html"><code>input.md</code></a>.</p>
 <p>The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.</p>
 <div class="codehilite"><pre><span></span><code>./plume.e inputs/example/example_map_par.in
 </code></pre></div>
 
+<p>A tutorial on running PLUME can be found in <a href="./tutorial.html"><code>tutorial.md</code></a>.
+Details on the outputs of the code can be found in <a href="./output.html"><code>output.md</code></a>.</p>
 <h2>5. License</h2>
 <p>BSD 2-Clause License</p>
 <p>Copyright (c) 2025, Kristopher G. Klein and Gregory G. Howes

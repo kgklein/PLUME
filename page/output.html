@@ -137,55 +137,81 @@ The range of $\gamma_{\textrm{r}}/\Omega_p$ is from <code>gami</code> to <code>g
 - $n_{j}/n_{ref}$.
 - $v_{j,drift}/v_{A,ref}$.</p>
 <p>Only the first <code>nroot_max</code> solutions will be identified and written to file.</p>
-<h2><em>filename</em>.scan_<em>scan_type_l</em>.root_m</h2>
-<p>The complex frequencies associated with solution <em>m</em> calculated from <code>om_scan</code><br>
-in the <em>&amp;scan_input_l</em> namelist.</p>
-<p>The data is ordered as<br>
-1. $k_\perp d_p$
-2. $k_\parallel d_p$<br>
-3. $\omega_{\textrm{r}}/\Omega_p$ <br>
-4. $\gamma/\Omega_p$   </p>
-<p>See the <em>&amp;scan_input</em> namelist description in the Quick Guide for details on determining the kind of wavevector scan.<br>
-This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
-<h2><em>filename</em>.eigen_<em>scan_type_l</em>.root_m</h2>
-<p>The eigenfunctions associated with solution <em>m</em> calculated from <code>om_scan</code> when <code>eigen</code> is set to .true.
-in the <em>&amp;scan_input_l</em> namelist.</p>
-<p>The data is ordered as<br>
-1. $k_\perp d_p$
-2. $k_\parallel d_p$<br>
-3. $\omega_{\textrm{r}}/\Omega_p$ <br>
-4. $\gamma/\Omega_p$ <br>
-5. Re $[E_x]$ 
-6. Im $[E_x]$ 
-7. Re $[E_y]$ 
-8. Im $[E_y]$ 
-9. Re $[E_z]$ 
-10. Im $[E_z]$ 
-11. Re $[B_x]$ 
-12. Im $[B_x]$ 
-13. Re $[B_y]$ 
-14. Im $[B_y]$ 
-15. Re $[B_z]$ 
-16. Im $[B_z]$<br>
-17. [+6(is-1)] Re $[\delta U_{x,is}]$ <br>
-18. [+6(is-1)] Im $[\delta U_{x,is}]$ <br>
-19. [+6(is-1)] Re $[\delta U_{y,is}]$ <br>
-20. [+6(is-1)] Im $[\delta U_{y,is}]$ <br>
-21. [+6(is-1)] Re $[\delta U_{z,is}]$ <br>
-22. [+6(is-1)] Im $[\delta U_{z,is}]$ <br>
-17. [+6(<code>nspec</code>)+2(is-1)] Re $[\delta n_{is}]$ <br>
-18. [+6(<code>nspec</code>)+2(is-1)] Im $[\delta n_{is}]$ </p>
-<p>This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
-<h2><em>filename</em>.heat_<em>scan_type_l</em>.root_m</h2>
-<p>The heating rates associated with solution <em>m</em> calculated from <code>om_scan</code> when <code>heating</code> is set to .true.
-in the <em>&amp;scan_input_l</em> namelist.</p>
-<p>The data is ordered as<br>
-1. $k_\perp d_p$
-2. $k_\parallel d_p$<br>
-3. $\omega_{\textrm{r}}/\Omega_p$ <br>
-4. $\gamma/\Omega_p$ <br>
-5. [+(is-1)] $\gamma_{is}/\omega$</p>
-<p>This same data structure is preserved for the output from <code>om_double_scan</code>.</p>
+<h2><em>outputName</em><em><em>param</em></em><em>range</em>.modeN</h2>
+<p>The dispersion relation calculated from <code>om_scan</code> will have different formats based upon the number of species as well as the suplementary calculations invoked.</p>
+<p>The <em>param</em> name will be assigned based on the kind of parameter scan performed, specifically:</p>
+<p><em><code>scan_style</code>=-1:</em></p>
+<ul>
+<li><code>k</code> for scan from $\textbf{k}<em ref>0 \rho</em>$ to $\textbf{k}<em ref>1 \rho</em>$ (<code>scan_type</code>=0).</li>
+<li><code>theta</code> for scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$ (<code>scan_type</code>=1).</li>
+<li><code>k_fixed_theta</code> for scan from $|k|<em ref>1\rho</em>$ to $|k|<em ref>1\rho</em>$ with a fixed value of $\theta$ (<code>scan_type</code>=2).</li>
+</ul>
+<p><em><code>scan_style</code>=0:</em></p>
+<ul>
+<li><code>kperp</code> for scan of $k_\perp \rho_{ref}$ (<code>scan_type</code>=0).</li>
+<li><code>kpar</code> for scan of $k_\parallel \rho_{ref}$ (<code>scan_type</code>=1).</li>
+<li><code>beta</code> for scan of $\beta_{ref,\parallel}$ (<code>scan_type</code>=2).</li>
+<li><code>vtp</code> for scan of $v_{t,ref,\parallel}/c$ (<code>scan_type</code>=3).</li>
+</ul>
+<p><em><code>scan_style</code>=1-<code>nspec</code>:</em></p>
+<ul>
+<li><code>tauS</code> for scan of $T_{ref,\parallel}/T_{j,\parallel}$ (<code>scan_type</code>=0).</li>
+<li><code>muS</code> for scan of $m_{ref}/m_{j}$ (<code>scan_type</code>=1).</li>
+<li><code>alphS</code> for scan of $T_{j,\perp}/T_{j,\parallel}$ (<code>scan_type</code>=2).</li>
+<li><code>qs</code> for scan of $q_{ref}/q_{j}$ (<code>scan_type</code>=3).</li>
+<li><code>Ds</code> for scan of $n_{j}/n_{ref}$ (<code>scan_type</code>=4).</li>
+<li><code>Vs</code> for scan of $v_{j,drift}/v_{A,ref}$ (<code>scan_type</code>=5).</li>
+</ul>
+<p>The initial and final values of the parameter scanned over will be reflected in the <em>range</em> portion of the file name.</p>
+<p>One file for each mode followed will be produced.</p>
+<p>The first six columns are the same regardless of supplemental calculations.
+They are ordered as
+1. $k_\perp \rho_{ref}$
+2. $k_\parallel \rho_{ref}$
+3. $\beta_{ref,\parallel}$
+4. $v_{t,ref,\parallel}/c$
+5. $\omega_{\textrm{r}}/\Omega_{ref}$ <br>
+6. $\gamma/\Omega_{ref}$</p>
+<p>If <code>eigen</code> is set to true, the next set of columns will be the eigenfluctuations
+7. Re $[B_x]$ 
+8. Im $[B_x]$ 
+9. Re $[B_y]$ 
+10. Im $[B_y]$ 
+11. Re $[B_z]$ 
+12. Im $[B_z]$<br>
+13. Re $[E_x]$ 
+14. Im $[E_x]$ 
+15. Re $[E_y]$ 
+16. Im $[E_y]$ 
+17. Re $[E_z]$ 
+18. Im $[E_z]$
+19. [+6(j-1)] Re $[\delta U_{x,j}]$ <br>
+20. [+6(j-1)] Im $[\delta U_{x,j}]$ <br>
+21. [+6(j-1)] Re $[\delta U_{y,j}]$ <br>
+22. [+6(j-1)] Im $[\delta U_{y,j}]$ <br>
+23. [+6(j-1)] Re $[\delta U_{z,j}]$ <br>
+24. [+6(j-1)] Im $[\delta U_{z,j}]$ <br>
+19. [+6(<code>nspec</code>)+2(j-1)] Re $[\delta n_{j}]$ <br>
+20. [+6(<code>nspec</code>)+2(j-1)] Im $[\delta n_{j}]$ </p>
+<p>where <code>j</code> ranges from 1 to <code>nspec</code>.</p>
+<p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>new_low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
+<p>If <code>new_low_n</code> is true, we have
+18+8<code>nspec</code>+j. $P_j$
+18+9<code>nspec</code>+j. $P_j^{yy}$ (Transit Time Damping term 1).
+18+10<code>nspec</code>+j. $P_j^{yz}$ (Transit Time Damping term 2).
+18+11<code>nspec</code>+j. $P_j^{zy}$ (Landau Damping term 1).
+18+12<code>nspec</code>+j. $P_j^{zz}$ (Landau Damping term 2).
+18+13<code>nspec</code>+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
+18+14<code>nspec</code>+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).</p>
+<p>This will be followed by 6<code>nspec</code> columns containing the parameter lists $\mathcal{P}<em ref_parallel="ref,\parallel">j$ for each species or component.
+- $T</em>/T_{j,\parallel}$.
+- $m_{ref}/m_{j}$.
+- $T_{j,\perp}/T_{j,\parallel}$.
+- $q_{ref}/q_{j}$.
+- $n_{j}/n_{ref}$.
+- $v_{j,drift}/v_{A,ref}$.</p>
+<p>This same data structure is preserved for the output from <code>om_double_scan</code>.
+The file naming convention will include a value of <em>param</em> from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.</p>
     </div>
   </div>
       <hr>
