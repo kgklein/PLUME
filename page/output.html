@@ -105,37 +105,38 @@
 
     <div class="col-9" id='text'>
       <h1>PLUME Output</h1>
-<p>PLUME writes output solutions to the <code>/data</code> directory.<br>
-All output file names start with the name of the input file used in running PLUME, e.g. </p>
-<div class="codehilite"><pre><span></span><code>mpirun -np 4 ./src/ALPS filename.in
-</code></pre></div>
-
-<p>will produce output files all starting with the string <em>filename</em>. (editing...)</p>
-<h2><em>filename</em>.map</h2>
+<p>PLUME writes output solutions to the <code>/data</code> directory, to the subdirectory specified by <code>dataName</code>.
+All output file names will have the <code>outputName</code> string included in the name to distinguish between distinct calculations. </p>
+<h2>dispersion_<em>outputName</em>.map</h2>
 <p>Value of the dispersion tensor $\mathcal{D}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.<br>
 Solutions to the dispersion relation satisfy $|\mathcal{D}|  =0$.
-This file is generated from the <em>map_search</em> subroutine in ALPS_fns.f90, and invoked when <code>use_map</code> =.true. .  </p>
+This file is generated from the <em>map_search</em> subroutine in <em>disprels.f90</em>, and invoked when <code>use_map</code> =.true. </p>
 <p>The data is ordered in columns as<br>
 1. $\omega_r$<br>
 2. $\gamma$ <br>
 3. $\log_{10} |\mathcal{D}|$<br>
 4. Re $[|\mathcal{D}|]$<br>
 5. Im $[|\mathcal{D}|]$  </p>
-<p>The <em>&amp;maps_1</em> namelist in <em>filename</em>.in determines the structure of <em>filename</em>.map.<br>
-The range of $\omega_{\textrm{r}}/\Omega_p$ is from <code>omi</code> to <code>omi</code> with <code>nr</code> steps. Logorithmic or linear spacing is selected with <code>loggridw</code>.
+<p>The <em>&amp;maps</em> namelist in <em>filename</em>.in determines the structure of <em>filename</em>.map.<br>
+The range of $\omega_{\textrm{r}}/\Omega_p$ is from <code>omi</code> to <code>omi</code> with <code>nr</code> steps. Logorithmic or linear spacing is selected with <code>loggridw</code>. <em><code>nr</code> and <code>ni</code> are currently hardcoded. Will add as user options.</em>
 The range of $\gamma_{\textrm{r}}/\Omega_p$ is from <code>gami</code> to <code>gami</code> with <code>ni</code> steps. Logorithmic or linear spacing is selected with <code>loggridg</code>.</p>
-<h2><em>filename</em>.roots</h2>
-<p>Identified solutions to the dispersion relation $|\mathcal{D}|  =0$, calculated using <em>refine_guess</em> in ALPS_fns.f90 when <code>determine_minima</code> is set to true.  </p>
-<p>The data is ordered as<br>
-1. Solution number
-2. $\omega_r$<br>
-3. $\gamma$ <br>
-4. $\log_{10} |\mathcal{D}|$<br>
-5. Re $[|\mathcal{D}|]$<br>
-6. Im $[|\mathcal{D}|]$  </p>
-<p>The routine uses  either the coarse dispersion tensor map generated from the <em>map_search</em> subroutine (in the case of <code>use_map</code> = .true.)<br>
-or from the input guesses (for <code>use_map</code> = .false.).<br>
-Only the first <code>nroots</code> solutions will be identified and written to file.</p>
+<h2>dispersion_<em>outputName</em>.roots</h2>
+<p>Identified solutions to the dispersion relation $|\mathcal{D}|  =0$, calculated using <em>refine_guess</em> in <em>disprels.f90</em>.</p>
+<p>The data is ordered in columns as:
+1. $k_\perp \rho_{ref}$
+2. $k_\parallel \rho_{ref}$
+3. $\beta_{ref,\parallel}$
+4. $v_{t,ref,\parallel}/c$
+5. $\omega_{r}/\Omega_{ref}$
+6. $\gamma/\Omega_{ref}$</p>
+<p>This will be followed by 6<code>nspec</code> columns containing the parameter lists $\mathcal{P}<em ref_parallel="ref,\parallel">j$ for each species or component.
+- $T</em>/T_{j,\parallel}$.
+- $m_{ref}/m_{j}$.
+- $T_{j,\perp}/T_{j,\parallel}$.
+- $q_{ref}/q_{j}$.
+- $n_{j}/n_{ref}$.
+- $v_{j,drift}/v_{A,ref}$.</p>
+<p>Only the first <code>nroot_max</code> solutions will be identified and written to file.</p>
 <h2><em>filename</em>.scan_<em>scan_type_l</em>.root_m</h2>
 <p>The complex frequencies associated with solution <em>m</em> calculated from <code>om_scan</code><br>
 in the <em>&amp;scan_input_l</em> namelist.</p>
