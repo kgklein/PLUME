@@ -14,8 +14,8 @@ SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
-	*.md
-	inputs/example/*.in
+	*.md \
+	inputs/example/*.in \
 	include/
 
 #FLAGS=
