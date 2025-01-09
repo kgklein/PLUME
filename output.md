@@ -1,17 +1,13 @@
 # PLUME Output
 
-PLUME writes output solutions to the `/data` directory.  
-All output file names start with the name of the input file used in running PLUME, e.g. 
-```
-mpirun -np 4 ./src/ALPS filename.in
-```
-will produce output files all starting with the string *filename*. (editing...)
+PLUME writes output solutions to the `/data` directory, to the subdirectory specified by `dataName`.
+All output file names will have the `outputName` string included in the name to distinguish between distinct calculations. 
 
-## *filename*.map
+## dispersion_*outputName*.map
 
 Value of the dispersion tensor $\mathcal{D}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.  
 Solutions to the dispersion relation satisfy $|\mathcal{D}|  =0$.
-This file is generated from the *map_search* subroutine in ALPS_fns.f90, and invoked when `use_map` =.true. .  
+This file is generated from the *map_search* subroutine in *disprels.f90*, and invoked when `use_map` =.true. 
 
 The data is ordered in columns as  
 1. $\omega_r$  
@@ -20,25 +16,31 @@ The data is ordered in columns as
 4. Re $[|\mathcal{D}|]$  
 5. Im $[|\mathcal{D}|]$  
 
-The *&maps_1* namelist in *filename*.in determines the structure of *filename*.map.  
-The range of $\omega_{\textrm{r}}/\Omega_p$ is from `omi` to `omi` with `nr` steps. Logorithmic or linear spacing is selected with `loggridw`.
+The *&maps* namelist in *filename*.in determines the structure of *filename*.map.  
+The range of $\omega_{\textrm{r}}/\Omega_p$ is from `omi` to `omi` with `nr` steps. Logorithmic or linear spacing is selected with `loggridw`. *`nr` and `ni` are currently hardcoded. Will add as user options.*
 The range of $\gamma_{\textrm{r}}/\Omega_p$ is from `gami` to `gami` with `ni` steps. Logorithmic or linear spacing is selected with `loggridg`.
 
-## *filename*.roots
+## dispersion_*outputName*.roots
 
-Identified solutions to the dispersion relation $|\mathcal{D}|  =0$, calculated using *refine_guess* in ALPS_fns.f90 when `determine_minima` is set to true.  
+Identified solutions to the dispersion relation $|\mathcal{D}|  =0$, calculated using *refine_guess* in *disprels.f90*.
 
-The data is ordered as  
-1. Solution number
-2. $\omega_r$  
-3. $\gamma$   
-4. $\log_{10} |\mathcal{D}|$  
-5. Re $[|\mathcal{D}|]$  
-6. Im $[|\mathcal{D}|]$  
+The data is ordered in columns as:
+1. $k_\perp \rho_{ref}$
+2. $k_\parallel \rho_{ref}$
+3. $\beta_{ref,\parallel}$
+4. $v_{t,ref,\parallel}/c$
+5. $\omega_{r}/\Omega_{ref}$
+6. $\gamma/\Omega_{ref}$
 
-The routine uses  either the coarse dispersion tensor map generated from the *map_search* subroutine (in the case of `use_map` = .true.)  
-or from the input guesses (for `use_map` = .false.).  
-Only the first `nroots` solutions will be identified and written to file.
+This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component.
+- $T_{ref,\parallel}/T_{j,\parallel}$.
+- $m_{ref}/m_{j}$.
+- $T_{j,\perp}/T_{j,\parallel}$.
+- $q_{ref}/q_{j}$.
+- $n_{j}/n_{ref}$.
+- $v_{j,drift}/v_{A,ref}$.
+
+Only the first `nroot_max` solutions will be identified and written to file.
 
 ## *filename*.scan_*scan_type_l*.root_m
 
