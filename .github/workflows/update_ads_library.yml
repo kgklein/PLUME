@@ -1,5 +1,5 @@
 ---
-name: Update ADS library with papers citing ALPS
+name: Update ADS library with papers citing PLUME
 
 on:
   schedule:
@@ -28,4 +28,4 @@ jobs:
         env:
           ADS_API_TOKEN: ${{ secrets.ADS_API_TOKEN }}
         run: |
-          python .github/scripts/add_alps_papers_to_ads_library.py
+          python .github/scripts/add_plume_papers_to_ads_library.py
