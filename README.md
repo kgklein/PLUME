@@ -20,17 +20,15 @@ Gregory Howes      (gregory-howes@uiowa.edu)
 
 ## 1. What is PLUME?
 
-PLUME is a numerical code that solves the Vlasov-Maxwell dispersion
-relation in hot magnetised plasma.
+Plasma in a Linear Uniform Magnetized Environment (PLUME) is a numerical code that solves the Vlasov-Maxwell dispersion relation in a hot magnetised plasma.
 PLUME allows for any number of particle species or components, assuming each can be described by a bi-Maxwellian distribution with a defined density, velocity parallel to the mean magnetic fiedl, and parallel and perpendicular temperatures.
 The solver is able to identify supported waves with any direction of propagation with respect to the background magnetic field.
-
 This code is based upon a F90 adaptation by Greg Howes of a solver originally by Eliot Quataert.
 
-The calculation follows Stix Chapter 10 eqn 66-73.
+The calculation follows Stix 'Waves in Plasmas' Chapter 10, Eqns. 66-73.
 The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:
 
-- Reference plasma beta: $8 \pi n_{ref} T_{\parallel,ref} /B^2$
+- Reference plasma beta: $\beta_{\parallel,ref} = \frac{8 \pi n_{ref} T_{\parallel,ref}}{B^2}$
 - Perpendicular wavevector: $k_\perp \rho_{ref}$
 - Parallel wavevector: $k_\parallel \rho_{ref}$
 - Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
