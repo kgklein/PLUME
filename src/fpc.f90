@@ -380,137 +380,137 @@ module fpc
       allocate(ns1(nspec)); ns1=0.
       allocate(us1(3,nspec)); us1=0.
 
-      if(1==1) then !Force renormalization
-         !Compute B1
-         do is = 1, nspec
-            tempux1val = 0.
-            tempuy1val = 0.
-            tempuz1val = 0.
-            tempux2val = 0.
-            tempuy2val = 0.
-            tempuz2val = 0.
-            tempux3val = 0.
-            tempuy3val = 0.
-            tempuz3val = 0.
-            do idir =1, 3
-               hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-               do ivx=ivxmin,ivxmax
-                  do ivy=ivymin,ivymax
-                     vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
-                     do ivz=ivzmin,ivzmax
-                        !Compute dimensionless equilibrium Distribution value, fs0
-                        fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
-                        !Compute perturbed  Distribution value, fs1
-                        phi = ATAN2(vvy(ivy),vvx(ivx))
-                        call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                          spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                          real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
-                     enddo
-                  enddo
-               enddo
-               if(idir == 1) then
-                  do ivx=ivxmin,ivxmax
-                     tempux1val=tempux1val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-                  enddo
-                  do ivy=ivymin,ivymax
-                     tempuy1val=tempuy1val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-                  enddo
-                  do ivz=ivzmin,ivzmax
-                     tempuz1val=tempuz1val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-                  enddo
-                  tempux1val = tempux1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuy1val = tempuy1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-               end if
+      ! if(1==0) then !Force renormalization
+      !    !Compute B1
+      !    do is = 1, nspec
+      !       tempux1val = 0.
+      !       tempuy1val = 0.
+      !       tempuz1val = 0.
+      !       tempux2val = 0.
+      !       tempuy2val = 0.
+      !       tempuz2val = 0.
+      !       tempux3val = 0.
+      !       tempuy3val = 0.
+      !       tempuz3val = 0.
+      !       do idir =1, 3
+      !          hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+      !          do ivx=ivxmin,ivxmax
+      !             do ivy=ivymin,ivymax
+      !                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
+      !                do ivz=ivzmin,ivzmax
+      !                   !Compute dimensionless equilibrium Distribution value, fs0
+      !                   fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+      !                   !Compute perturbed  Distribution value, fs1
+      !                   phi = ATAN2(vvy(ivy),vvx(ivx))
+      !                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+      !                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
+      !                                     real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+      !                enddo
+      !             enddo
+      !          enddo
+      !          if(idir == 1) then
+      !             do ivx=ivxmin,ivxmax
+      !                tempux1val=tempux1val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+      !             enddo
+      !             do ivy=ivymin,ivymax
+      !                tempuy1val=tempuy1val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+      !             enddo
+      !             do ivz=ivzmin,ivzmax
+      !                tempuz1val=tempuz1val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+      !             enddo
+      !             tempux1val = tempux1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuy1val = tempuy1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !          end if
 
-               if(idir == 2) then
-                  do ivx=ivxmin,ivxmax
-                     tempux2val=tempux2val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-                  enddo
-                  do ivy=ivymin,ivymax
-                     tempuy2val=tempuy2val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-                  enddo
-                  do ivz=ivzmin,ivzmax
-                     tempuz2val=tempuz2val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-                  enddo
-                  tempux2val = tempux2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuy2val = tempuy2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-               endif
+      !          if(idir == 2) then
+      !             do ivx=ivxmin,ivxmax
+      !                tempux2val=tempux2val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+      !             enddo
+      !             do ivy=ivymin,ivymax
+      !                tempuy2val=tempuy2val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+      !             enddo
+      !             do ivz=ivzmin,ivzmax
+      !                tempuz2val=tempuz2val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+      !             enddo
+      !             tempux2val = tempux2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuy2val = tempuy2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !          endif
 
-               if(idir == 3) then
-                  do ivx=ivxmin,ivxmax
-                     tempux3val=tempux3val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-                  enddo
-                  do ivy=ivymin,ivymax
-                     tempuy3val=tempuy3val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-                  enddo
-                  do ivz=ivzmin,ivzmax
-                     tempuz3val=tempuz3val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-                  enddo
-                  tempux3val = tempux3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuy3val = tempuy3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-                  tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-               endif
+      !          if(idir == 3) then
+      !             do ivx=ivxmin,ivxmax
+      !                tempux3val=tempux3val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+      !             enddo
+      !             do ivy=ivymin,ivymax
+      !                tempuy3val=tempuy3val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+      !             enddo
+      !             do ivz=ivzmin,ivzmax
+      !                tempuz3val=tempuz3val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+      !             enddo
+      !             tempux3val = tempux3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuy3val = tempuy3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
+      !          endif
 
-            enddo
+      !       enddo
 
-            !try A+B+A
-            ! A1 = (ABS(Us(2,is))*ABS(tempuz2val)-ABS(Us(3,is))*ABS(tempuy2val)) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
-            ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy3val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz3val))) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
+      !       !try A+B+A
+      !       ! A1 = (ABS(Us(2,is))*ABS(tempuz2val)-ABS(Us(3,is))*ABS(tempuy2val)) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
+      !       ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy3val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz3val))) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
 
             
-            ! A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
-            ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+      !       ! A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
+      !       ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
 
 
 
-            ! A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
-            ! B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+      !       ! A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
+      !       ! B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
 
-            ! A1 = ABS(A1)
-            ! B1 = ABS(B1)
+      !       ! A1 = ABS(A1)
+      !       ! B1 = ABS(B1)
 
-            A1 = (Us(1,is)*tempuz3val-Us(3,is)*tempux3val) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
-            B1 = (Us(3,is)*(tempux1val+(tempux2val))-(Us(1,is))*((tempuz1val)+(tempuz2val))) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
-
-
-            write(*,*)'tempuxvals',tempux1val,tempux2val,tempux3val
-            write(*,*)'tempuyvals',tempuy1val,tempuy2val,tempuy3val
-            write(*,*)'tempuzvals',tempuz1val,tempuz2val,tempuz3val
-            write(*,*)'Debug A1',is,A1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
-            write(*,*)'Debug B1',is,B1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
-
-            !renormalize values
-            !renormalize ux_spec
-            A1 = 1. !hacky way to turn off renormalization before I clean things up.
-            B1 = 1.
-            us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
-            us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
-            us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+      !       A1 = (Us(1,is)*tempuz3val-Us(3,is)*tempux3val) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
+      !       B1 = (Us(3,is)*(tempux1val+(tempux2val))-(Us(1,is))*((tempuz1val)+(tempuz2val))) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
 
 
-            if (elecdircontribution == 1) then
-               us1(1,is)=A1*tempux1val
-               us1(2,is)=A1*tempuy1val
-               us1(3,is)=A1*tempuz1val
-            else if (elecdircontribution == 2)then
-               us1(1,is)=A1*tempux2val
-               us1(2,is)=A1*tempuy2val
-               us1(3,is)=A1*tempuz2val
-            else if (elecdircontribution == 3)then
-               us1(1,is)=B1*tempux3val
-               us1(2,is)=B1*tempuy3val
-               us1(3,is)=B1*tempuz3val
-            else
-               us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
-               us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
-               us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
-            end if
-         enddo
+      !       write(*,*)'tempuxvals',tempux1val,tempux2val,tempux3val
+      !       write(*,*)'tempuyvals',tempuy1val,tempuy2val,tempuy3val
+      !       write(*,*)'tempuzvals',tempuz1val,tempuz2val,tempuz3val
+      !       write(*,*)'Debug A1',is,A1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
+      !       write(*,*)'Debug B1',is,B1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
 
-         !TODO: renormalize correlation
-      end if
+      !       !renormalize values
+      !       !renormalize ux_spec
+      !       A1 = 1. !hacky way to turn off renormalization before I clean things up.
+      !       B1 = 1.
+      !       us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
+      !       us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
+      !       us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+
+
+      !       if (elecdircontribution == 1) then
+      !          us1(1,is)=A1*tempux1val
+      !          us1(2,is)=A1*tempuy1val
+      !          us1(3,is)=A1*tempuz1val
+      !       else if (elecdircontribution == 2)then
+      !          us1(1,is)=A1*tempux2val
+      !          us1(2,is)=A1*tempuy2val
+      !          us1(3,is)=A1*tempuz2val
+      !       else if (elecdircontribution == 3)then
+      !          us1(1,is)=B1*tempux3val
+      !          us1(2,is)=B1*tempuy3val
+      !          us1(3,is)=B1*tempuz3val
+      !       else
+      !          us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
+      !          us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
+      !          us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
+      !       end if
+      !    enddo
+
+      !    !TODO: renormalize correlation
+      ! end if
 
       do is = 1, nspec
          !Create variable for parallel flow velocity normalized to
@@ -541,20 +541,19 @@ module fpc
          ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
       
 
-         !HANDLED ABOVE NOW! TODO: CLEAN UP THIS SECTION 
-      ! ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
-      !    !x-component
-      !    do ivx=ivxmin,ivxmax
-      !       us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-      !    enddo
-      !    !y-component
-      !    do ivy=ivymin,ivymax
-      !       us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-      !    enddo
-      !    !z-component
-      !    do ivz=ivzmin,ivzmax
-      !       us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-      !    enddo
+      ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
+         !x-component
+         do ivx=ivxmin,ivxmax
+            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+         enddo
+         !y-component
+         do ivy=ivymin,ivymax
+            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+         enddo
+         !z-component
+         do ivz=ivzmin,ivzmax
+            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+         enddo
 
          !Correct Normalization to v_ARm
          ! write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
@@ -1405,10 +1404,11 @@ module fpc
       end if
 
       !fix sign definition difference between swanson/ stix
+      !Note, this sign difference causes for a strange mixture of signs in the terms (namely in Ubar_s and Wbar_s) but this has been tested!
       if (q_s .gt. 0.) then 
           omega_temp = -real(omega)-ii*aimag(omega) 
-          kpar_temp = -kpar
-          kperp_temp = kperp
+          kpar_temp = -kpar !want to keep the same direction
+          kperp_temp = kperp 
           vpar_temp = vpar
           ef3 = ef3
           ef2 = ef2
@@ -1435,12 +1435,12 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= A1*-2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/omega_temp*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/(real(omega)-ii*aimag(omega))*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))!*A1
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that don't depend on m
        denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)
-       Wbar_s=B1*2.*(n*mu_s/(q_s*omega_temp)-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*omega_temp*aleph_s))*vpar_temp
+       Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp!*B1
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
           if(n .ne. 0) then
