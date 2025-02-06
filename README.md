@@ -8,7 +8,7 @@ PLUME calculates the hot plasma dispersion relation for a plasma with an arbitra
 This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
 
 # JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
-[Collin Brown](https://sites.google.com/view/collin-brown-cv-resume/home)<br />
+[Collin Brown](https://www.collinrbrown.com)<br />
 collin.crbrown@gmail.com<br />
 University of Iowa; Naval Research Lab<br />
 
