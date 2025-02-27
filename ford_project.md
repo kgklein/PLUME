@@ -13,6 +13,7 @@ ordered_subpage: INSTALL.md
                  input.md
                  output.md
                  citingpapers.md
+                 READ
 display: public
          protected
          private
@@ -51,7 +52,7 @@ The output format of PLUME is described on the [PLUME Output](./page/output.md) 
 
 ## Judging Energy Transfer in a - Plasma in a Linear Uniform Magnetized Environment
 
-JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. 
+JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md).
 
 Details
 

@@ -9,6 +9,7 @@ This is the PLUME code: Plasma in a Linear Uniform Magnetized Environment.
 
 Kristopher Klein   (kgklein@arizona.edu)
 Gregory Howes      (gregory-howes@uiowa.edu)
+Collin Brown       (collin.crbrown@gmail.com)
 
 ## Contents
 
@@ -16,7 +17,8 @@ Gregory Howes      (gregory-howes@uiowa.edu)
 2. Acknowledgements
 3. Installing the PLUME Code
 4. Running the PLUME Code
-5. License
+5. JET-PLUME
+6. License
 
 ## 1. What is PLUME?
 
@@ -72,7 +74,16 @@ The values for the plasma parameters are extracted from *.in file, appended afte
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
 Details on the outputs of the code can be found in [`output.md`](./output.md).
 
-## 5. License
+## 5. JET-PLUME
+
+JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md).
+
+If you use this code for a science publication, please provide the same code website as plume
+[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper for JET-PLUME: ...
+
+With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional.
+
+## 6. License
 
 BSD 2-Clause License
 
