@@ -2,17 +2,22 @@
 #  Makefile for PLUME / JET-PLUME:
 #  (Judging Energy Transfer in a) Plasma in a Linear Uniform Magnetic Environment
 #
-#################################################################################
+#   VERSION 1.1
+#
+#  Version notes:
+#
+#  LAST UPDATE:  2025/02/27
+###############################################################################
 
 
 # SYSTEM=IFORT
+#IFORT licenses are hard to obtain, let's default to GFORT
 SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
-	*.in \
-	README* \
-	data/gfort/ \
+	*.md \
+	inputs/example/*.in \
 	include/
 
 #FLAGS=
@@ -25,7 +30,7 @@ endif
 ifeq ($(SYSTEM),GFORT)
 #NOTE	: For gfortran
 #gfortran orders roots a bit differently...
-	FLAGS=  -O3 -DDOUBLE -fdefault-real-8
+	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math #
 	COMP= gfortran
 endif
 LIBS=
@@ -57,7 +62,7 @@ clean:
 	rm -f include/*.mod
 	rm -f plume*.e
 
-tar:
+tar: 
 	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar
 
 #########Rules

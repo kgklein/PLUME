@@ -1,0 +1,68 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install ford
+      run: pip install ford requests==2.31
+
+    - name: Install graphviz
+      run: sudo apt install graphviz
+
+    - name: Build documentation
+      env:
+        ADS_API_TOKEN: ${{ secrets.ADS_API_TOKEN }}
+      run: |
+        # Ford converts the markdown files to html files, we need to change
+        # the file extension before building to make links work.
+        for fn in $(ls *.md); do sed -i 's/.md)/.html)/g' $fn; done
+        # Ford will grab files from docs to build into the documentation
+        mkdir docs
+        # Ford expects a title: line on top of each file, add it before building
+        echo 'title: Readme' > docs/index.md
+        cat README.md >> docs/index.md
+        echo 'title: Installing PLUME' > docs/INSTALL.md
+        cat INSTALL.md >> docs/INSTALL.md
+        echo 'title: PLUME Tutorial' > docs/tutorial.md
+        cat tutorial.md >> docs/tutorial.md
+        echo 'title: PLUME Input' > docs/input.md
+        cat input.md >> docs/input.md
+        echo 'title: PLUME Output' > docs/output.md
+        cat output.md >> docs/output.md
+        if [ "$ADS_API_TOKEN" != "" ]; then
+            python .github/scripts/print_bib_markdown.py > docs/citingpapers.md
+        else
+            echo "⚠️ Had no API token. Skipping adding citing papers to docs"
+        fi
+        cp PLUME_logo.png docs
+        cp qrcode_plume_github.png docs
+        ford ford_project.md
+
+    - name: Debug documentation files
+      run: ls -R docs
+
+    - name: Debug FORD output
+      run: ls -R docs_out
+
+    - name: Deploy to GH pages
+      if: ${{github.event_name == 'push'}}
+      uses: JamesIves/github-pages-deploy-action@v4.4.2
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: docs_out # The folder the action should deploy.
