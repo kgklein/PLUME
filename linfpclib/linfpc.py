@@ -1165,7 +1165,7 @@ def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
             print("If both are true, new_low_n is used")
         else:
             print("WARNING: assuming new_low_n is true (rather than low_n)")
-            print("If unsure, please check vars.f90 (change requires recompile)")
+            print("If unsure, please check vars.f90 (change requires recompile by calling 'make clean' then 'make' in main dir')")
             print("If both are true, new_low_n is used")
 
     f = open(flnm)

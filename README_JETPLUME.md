@@ -1,12 +1,3 @@
-# PLUME (Plasma in a Linear Uniform Magnetized Environment)
-[Kristopher Klein](https://www.lpl.arizona.edu/faculty/kristopher-klein)<br />
-kris.klein@gmail.com<br />
-Lunar and Planetary Laboratory, University of Arizona<br />
-
-PLUME calculates the hot plasma dispersion relation for a plasma with an arbitrary number of ion and electron species with relative drifts and bi-Maxwellian velocity distributions. The calculation follows Waves in Plasma by Stix, Chapter 10 equations 66-73.
-
-This code uses an F90 adaptation (waves.f90 by Greg Howes) of the Hot Plasma Dispersion Relation originally by Eliot Quataert, extending thesolver from a proton-electron plasma with Maxwellian velocity distributions to the generalized case of n components with biMaxwellian velocity distributions and arbitrary parallel drift velocities.
-
 # JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
 [Collin Brown](https://www.collinrbrown.com)<br />
 collin.crbrown@gmail.com<br />
