@@ -1435,12 +1435,12 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/(real(omega)-ii*aimag(omega))*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))!*A1
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/(real(omega)-ii*aimag(omega))*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
 
       do n = -nbesmax,nbesmax
-       !Calculate all parts of solution that don't depend on m
+       !Calculate all parts of solution that dosn't depend on m
        denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)
-       Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp!*B1
+       Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
           if(n .ne. 0) then
@@ -1485,6 +1485,7 @@ module fpc
       
       hatV_s = V_s*sqrt(tau_s/(mu_s*betap))
       fs0 = EXP(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
+
     end subroutine calc_fs0
 
    subroutine check_nbesmax(vperpmax,tau_s,mu_s,aleph_r)

@@ -109,8 +109,6 @@ contains
     if (spec(1)%vv_s.ne.0.) &
          write(*,'(a,es11.4)')&
          'ERROR: Not in proton rest frame:    v_par drift p =',sum_nqv
-    
-  pi = 4.*atan(1.)
   
   end subroutine read_in_params
 

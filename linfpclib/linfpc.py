@@ -1132,6 +1132,8 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
     except:
         return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
+
+#TODO: make this (and other relevant functions) work for N species!!!
 def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
     """
     Load data from plume sweep

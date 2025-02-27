@@ -104,7 +104,7 @@ program plume
         call om_scan(is)
      enddo
 
-     write(*,*)'Done...'
+     write(*,*)'Done!'
 
   case(2)
      !Calculate Roots for input plasma parameters
