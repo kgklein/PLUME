@@ -22,7 +22,7 @@ module fpc
   !      but since we are correlating quantities in two diffferent frames, we must account for it somewhere...
 
   implicit none
-  private :: calc_fs0, calc_fs1
+  private :: calc_fs0, calc_fs1, calc_exbar
   public :: compute_fpc_gyro, compute_fpc_cart
 
   !NEW GLOBAL VARIABLES=========================================================
@@ -90,6 +90,7 @@ module fpc
       complex    :: tempuz3val          !debug temp val that holds susc tensor current contribution to renormalize
       complex    :: A1                     !factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
       complex    :: B1                     !factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
+      complex    :: exbar               !amplitude factor of fs1
       integer :: unit_s                 !out file unit counter
 
       real :: start, finish !debug/test to measure runtime of function
@@ -210,6 +211,7 @@ module fpc
       !=============================================================================
       allocate(hatV_s(nspec))
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
+      call calc_exbar(omega,ef,bf,exbar)
       do is = 1, nspec
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
@@ -224,7 +226,7 @@ module fpc
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    A1,B1,exbar,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
@@ -512,6 +514,7 @@ module fpc
       !    !TODO: renormalize correlation
       ! end if
 
+      call calc_exbar(omega,ef,bf,exbar)
       do is = 1, nspec
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
@@ -525,7 +528,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,exbar,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
@@ -940,6 +943,7 @@ module fpc
       integer :: jj                                   !Index
       real :: delv3                                  !delv^3
       real :: pi
+      complex    :: exbar               !amplitude factor of fs1
       character(100)  :: fmt_dbg1,fmt_dbg2           !Eigenfunction Output Format
 
       pi = 4.0*ATAN(1.0)
@@ -1042,6 +1046,7 @@ module fpc
       allocate(hatV_s(nspec))
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
+      call calc_exbar(omega,ef,bf,exbar)
       do is = 1, nspec
         call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
 
@@ -1056,7 +1061,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    elecdircontribution,(1.,0),(1.,0),fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
+                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1066,28 +1071,28 @@ module fpc
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
               enddo
             enddo
           enddo
@@ -1339,11 +1344,52 @@ module fpc
 
     end function fs0hat_new
 
+    subroutine calc_exbar(omega,ef,bf,exbar)
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec
+
+      complex, intent(in)   :: omega            !Complex Frequency
+      complex, dimension(1:3), intent(in)   :: ef, bf           !E, B
+      complex, intent(out) :: exbar
+
+      real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
+      complex                           :: numerator  !numerator term of amp term relate to exbar
+      complex                           :: sumterm    !term that holds running sum of summation
+      complex                           :: runningterm!term that holds numerator term in summation so we can break it up into many lines for readability
+      integer                           :: is                     !species counter
+
+      allocate(hatV_s(nspec))
+
+      numerator = -kpar*bf(2)-vtp*sqrt(spec(1)%alph_s)*omega !Warning: assumes first species is reference species
+
+      !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
+      sumterm = (0.,0.)
+      runningterm = (0.,0.)
+      do is = 1, nspec
+        !Create variable for parallel flow velocity normalized to
+        !       species parallel thermal speed
+        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+
+        runningterm = -(0,1.)*omega*spec(is)%q_s/spec(is)%mu_s
+        runningterm = runningterm + (0.,1.)*omega*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
+        runningterm = runningterm+ef(2)
+        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega**2*spec(is)%q_s**2/spec(is)%mu_s**2)
+
+        sumterm = sumterm + runningterm
+        runningterm = (0.,0.)
+      enddo
+
+      exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
+
+      exbar = exbar !TODO: finish this term...
+      
+    end subroutine calc_exbar
+
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
     ! Determine species perturbed VDF fs1 at (vperp,vpar)
-    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,fs0,fs1)
+    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1)
       use vars, only : betap,kperp,kpar,vtp,pi
       use vars, only : nbesmax
       use bessels, only : bessj_s, bess0_s_prime
@@ -1361,6 +1407,7 @@ module fpc
       real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
       real, intent(in)      :: elecdircontribution !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
       complex, intent(in)      :: A1, B1           !Temporary scalars to fix coeff error!
+      complex, intent(out) :: exbar             !normalizaiton factor
       real, intent(in)      :: fs0              !normalized zero order distribution
       complex, intent(out)  :: fs1              !first order distribution
 
@@ -1462,7 +1509,7 @@ module fpc
           fs1=fs1+jbess(m)*exp(ii*(m-n)*phi_temp)*emult/denom
        enddo
        enddo
-      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0 
+      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0*exbar
 
     end subroutine calc_fs1
 
