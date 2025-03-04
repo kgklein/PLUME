@@ -1352,6 +1352,7 @@ module fpc
       complex, intent(out) :: exbar
 
       real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
+      complex                           :: omega_temp !holds the fixed omege with sign of gamma term flipped as PLUME returns it with a minus sign 
       complex                           :: numerator  !numerator term of amp term relate to exbar
       complex                           :: sumterm    !term that holds running sum of summation
       complex                           :: runningterm!term that holds numerator term in summation so we can break it up into many lines for readability
@@ -1359,6 +1360,8 @@ module fpc
 
       allocate(hatV_s(nspec))
 
+      omega_temp = real(omega)-ii*aimag(omega)
+      
       numerator = -kpar*bf(2)-vtp*sqrt(spec(1)%alph_s)*omega !Warning: assumes first species is reference species
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
@@ -1405,8 +1408,8 @@ module fpc
       real, intent(in)      :: mu_s             !m_ref/m_s
       real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
       real, intent(in)      :: elecdircontribution !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
-      complex, intent(in)      :: A1, B1           !Temporary scalars to fix coeff error!
-      complex, intent(out) :: exbar             !normalizaiton factor
+      complex, intent(in)   :: A1, B1           !Temporary scalars to fix coeff error!
+      complex, intent(out)  :: exbar            !normalizaiton factor
       real, intent(in)      :: fs0              !normalized zero order distribution
       complex, intent(out)  :: fs1              !first order distribution
 
