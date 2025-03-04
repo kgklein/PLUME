@@ -1380,8 +1380,7 @@ module fpc
       enddo
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
-
-      exbar = exbar !TODO: finish this term...
+      exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
       
     end subroutine calc_exbar
 
