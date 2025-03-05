@@ -28,7 +28,6 @@ module fpc
   !NEW GLOBAL VARIABLES=========================================================
   real :: bs_last=0.0       !Last Bessel function argument
   real, allocatable :: jbess(:)  !Regular Bessel function values
-  real :: eperp1_bar=1.0    !Overall amplitude of the linear mode TODO: move to calc_fs1 and make it local
   !END NEW GLOBAL VARIABLES=====================================================
 
   contains
@@ -1356,13 +1355,16 @@ module fpc
       complex                           :: numerator  !numerator term of amp term relate to exbar
       complex                           :: sumterm    !term that holds running sum of summation
       complex                           :: runningterm!term that holds numerator term in summation so we can break it up into many lines for readability
-      integer                           :: is                     !species counter
+      integer                           :: is         !species counter
+      complex                           :: ii= (0,1.) !Imaginary unit: 0+1i
 
       allocate(hatV_s(nspec))
 
-      omega_temp = real(omega)-ii*aimag(omega)
       
-      numerator = -kpar*bf(2)-vtp*sqrt(spec(1)%alph_s)*omega !Warning: assumes first species is reference species
+
+      omega_temp = real(omega)!-ii*aimag(omega)
+
+      numerator = -(0,1.)*kpar*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
       sumterm = (0.,0.)
@@ -1372,11 +1374,11 @@ module fpc
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
 
-        runningterm = -(0,1.)*omega*spec(is)%q_s/spec(is)%mu_s
-        runningterm = runningterm + (0.,1.)*omega*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
+        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
+        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
         runningterm = runningterm+ef(2)
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
-        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega**2*spec(is)%q_s**2/spec(is)%mu_s**2)
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*spec(is)%q_s**2/spec(is)%mu_s**2)
 
         sumterm = sumterm + runningterm
         runningterm = (0.,0.)
@@ -1384,7 +1386,40 @@ module fpc
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
       exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
+
+      write(*,*)'debug exbar without imag', exbar
+      !exbar = (1.,0.)
+
+      omega_temp = real(omega)-ii*aimag(omega)
+
+      numerator = -(0,1.)*kpar*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
+
+      !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
+      sumterm = (0.,0.)
+      runningterm = (0.,0.)
+      do is = 1, nspec
+        !Create variable for parallel flow velocity normalized to
+        !       species parallel thermal speed
+        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+
+        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
+        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
+        runningterm = runningterm+ef(2)
+        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*spec(is)%q_s**2/spec(is)%mu_s**2)
+
+        sumterm = sumterm + runningterm
+        runningterm = (0.,0.)
+      enddo
+
+      exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
+      exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
+
+      write(*,*)'debug exbar with imag', exbar
+      !exbar = (1.,0.)
       
+
+
     end subroutine calc_exbar
 
     !------------------------------------------------------------------------------
@@ -1511,7 +1546,7 @@ module fpc
           fs1=fs1+jbess(m)*exp(ii*(m-n)*phi_temp)*emult/denom
        enddo
        enddo
-      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)/q_s*eperp1_bar*fs1*fs0*exbar
+      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)*(exbar/q_s)*fs1*fs0
 
     end subroutine calc_fs1
 
