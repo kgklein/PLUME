@@ -13,33 +13,35 @@
 !=============================================================================!
 !=============================================================================!
 module fpc
+  !! Perturbed distribution function calculation from eigenfunctions and
+  !! associated routines to calculate the FPC from it
 
   !CB Note: due to an effective sign difference between the textbooks by Stix/Swanson (used to compute eigen functions and fs1 respectively),
   !      we drop the minus sign in the correlation C_{E_i} = -q/2 v_i^2 d fs1/d v_i, so it is "q/2 v_i^2 d fs1/d v_i" when implemented...
   !      This minus sign difference is a result in Swanson 'suppressing the exp[i(k dot r - om t)]' (above 4.180) rather than taking the fourier transform of the product
   !      Note that the fourier transform of this term is F{exp[i(k dot r - om t)]} \proportional_to delta(kx`+kx) delta(ky`+ky) delta(kz`+kz) delta(om`-om)
   !      Effectively swaping the sign in kx ky kz (equivalently changing the frame). Typically, this does not matter as one can still get the same eigen functions, 
-  !      but since we are correlating quantities in two diffferent frames, we must account for it somewhere...
+  !      but since we are correlating quantities in two diffferent frames, we must account for it somewhere... 
+  !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs0, calc_fs1, calc_exbar
+  private :: calc_fs1, calc_exbar
   public :: compute_fpc_gyro, compute_fpc_cart
 
-  !NEW GLOBAL VARIABLES=========================================================
-  real :: bs_last=0.0       !Last Bessel function argument
-  real, allocatable :: jbess(:)  !Regular Bessel function values
-  !END NEW GLOBAL VARIABLES=====================================================
+  real :: bs_last=0.0       
+  !! Last Bessel function argument, used to store repeated calculations for efficiency
+  real, allocatable :: jbess(:)  
+  !! Regular (i.e. not the modified used elsewhere) Bessel functions, stored for efficiency 
+
 
   contains
-    
-
-
 
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
-    !TODO: add write/load fs1 to gyro
     subroutine compute_fpc_cart(wrootindex)
+      !! Computes the FPC associated with the linear fs1 and eigenfunction 
+      !! response on a square cartesian grid and writes FPC to file
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv,nbesmax
       use vars, only : elecdircontribution
@@ -48,80 +50,196 @@ module fpc
       
       use disprels, only : calc_eigen, rtsec, disp
 
-      integer, intent(in) :: wrootindex              !index of selected root
+      integer, intent(in) :: wrootindex              
+      !! Index of the root to compute fs1 and FPC for
 
-      character(1000) :: filename                      !Output File name
-      character(1000) :: outputPath                    !Output folder
-      character(1000) :: cmd                           !Varaible to store command line commands
-      real    :: vxi, vyi, vzi                       !normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
-      integer :: vxindex, vyindex, vzindex           !loop counters
-      real    :: vmax3rdval                          !sampled range when computing projection
-      complex :: omega                               !Complex Frequency
-      real    :: Cor_par_s, Cor_perp1_s, Cor_perp2_s !normalized correlation value TODO: remove these and other unused variables...
-!      complex :: fs1                                 !normalized distribution function
-      real    :: wi,gi                               !Freq and Damping of initial guess
-      complex :: ominit                              !Complex Frequency initial guess
-      complex :: om1,om2                             !Bracket Values
-      integer :: iflag                               !Flag for Root search
-      real, parameter :: tol=1.0E-13                 !Root Search Tolerance
-      real, parameter :: prec=1.E-7                  !Root Finding precision
-      integer :: numstepvx, numstepvy, numstepvz     !total number of steps in loop
-      logical :: ex                                  !used to check if results directory exists
-      complex, dimension(1:3)       :: ef, bf !E, B
-      complex, dimension(1:nspec)     :: ns     !density
-      complex, dimension(1:3,1:nspec) :: Us     !Velocity
+      character(1000) :: filename                      
+      !! Output File name
+      
+      character(1000) :: outputPath                    
+      !! Output folder
+
+      character(1000) :: cmd
+      !! Varaible to store command line commands
+      
+      real    :: vxi, vyi, vzi                       
+      !! normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
+      
+      integer :: vxindex, vyindex, vzindex
+      !! loop counters
+      
+      real    :: vmax3rdval
+      !! sampled range when computing projection
+      
+      complex :: omega
+      !!Complex Frequency
+
+      real    :: Cor_par_s, Cor_perp1_s, Cor_perp2_s 
+      !! normalized correlation value TODO: remove these and other unused variables...
+     
+      real    :: wi,gi                               
+      !! Freq and Damping of initial guess
+
+      complex :: ominit                              
+      !! Complex Frequency initial guess
+
+      complex :: om1,om2                             
+      !! Bracket Values
+      
+      integer :: iflag                               
+      !! Flag for Root search
+
+      real, parameter :: tol=1.0E-13                 
+      !! Root Search Tolerance
+
+      real, parameter :: prec=1.E-7                  
+      !! Root Finding precision
+
+      integer :: numstepvx, numstepvy, numstepvz     
+      !! total number of steps in loop
+
+      logical :: ex
+      !! used to check if results directory exists
+      
+      complex, dimension(1:3)       :: ef, bf 
+      !! E, B eigenfunction values (all 3 components)
+
+      complex, dimension(1:nspec)     :: ns     
+      !! density eigenfunction (all species)
+      complex, dimension(1:3,1:nspec) :: Us     
+      !! velocity eigenfunction (all species; all 3 componets per specie)
+
       !Heating (Required parameters of calc eigen)
-      real, dimension(1:nspec) :: Ps !Power into/out of species
-      real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
-      real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-      real :: Ew !wave energy
+      real, dimension(1:nspec) :: Ps 
+      !! Power into/out of species
+      
+      real, dimension(1:4,1:nspec) :: Ps_split 
+      !! Power into/out of species (Tensor that holds different channels (TTD, LD, CD))
+
+      real, dimension(1:6,1:nspec) :: Ps_split_new 
+      !! Power into/out of species updated by Greg G Howes to include off diagnal components
+      
+      real :: Ew 
+      !! wave energy
+
       !loop counter/ loop parameters
-      integer :: is                     !species counter
-      integer :: idir                   !debug component contribution counter
-      complex    :: tempux1val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempux2val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempux3val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuy1val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuy2val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuy3val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuz1val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuz2val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: tempuz3val          !debug temp val that holds susc tensor current contribution to renormalize
-      complex    :: A1                     !factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
-      complex    :: B1                     !factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
-      complex    :: exbar               !amplitude factor of fs1
-      integer :: unit_s                 !out file unit counter
+      integer :: is                     
+      !! species counter
 
-      real :: start, finish !debug/test to measure runtime of function
-      !NEW VARIABLES================================================================
-      real, allocatable, dimension(:) :: vvx,vvy,vvz  !Velocity grid values (norm: w_par_s)
-      integer :: ivx,ivy,ivz                    !Index for each velocity dimension
-      integer :: ivxmin,ivxmax,ivymin,ivymax,ivzmin,ivzmax  !Index limits 
-      real,  allocatable, dimension(:,:,:,:) :: fs0   !Dimensionless equilibrium fs0
-      complex, allocatable, dimension(:,:,:,:) :: fs1 !Perturbed Dist for all species
-      real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
-      real :: vperp                                   !Perpendicular velocity
-      real :: phi                                     !Gyrophase angle (azimuthal)
-      complex, allocatable, dimension(:,:,:,:) :: dfs1dvx,dfs1dvy,dfs1dvz !Derivatives
-      real, allocatable, dimension(:,:,:,:) :: corex,corey,corez !3V Correlations
-      real, allocatable, dimension(:,:,:) :: corex_xy,corex_xz,corex_zy !2V Corrs
-      real, allocatable, dimension(:,:,:) :: corey_xy,corey_xz,corey_zy !2V Corrs
-      real, allocatable, dimension(:,:,:) :: corez_xy,corez_xz,corez_zy !2V Corrs
-      complex, allocatable, dimension(:,:,:) :: fs1_xy,fs1_xz,fs1_zy !2V fs1 
-      complex, allocatable, dimension(:) :: ns1 !Density Fluctuation
-      complex, allocatable, dimension(:,:) :: us1 !Fluid Velocity Fluctuation
-      real, allocatable, dimension(:) :: jxex,jyey,jzez !int_v 3V Correlations
-      integer :: jj                                   !Index
-      character(100)  :: fmt                          !Eigenfunction Output Format
-      real :: delv3                                  !delv^3
-      real :: pi                                     !3.1415....
-      character(100)  :: fmt_dbg1,fmt_dbg2           !Eigenfunction Output Format
+      integer :: idir                   
+      !! debug component contribution counter
 
-      !END NEW VARIABLES============================================================
+      complex    :: tempux1val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempux2val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempux3val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuy1val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuy2val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuy3val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuz1val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuz2val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: tempuz3val          
+      !! debug temp val that holds susc tensor current contribution to renormalize
+
+      complex    :: A1                     
+      !! debug factor missing for fs1 "U" term (see Brown thesis appendx) that we compute via 'brute force'
+
+      complex    :: B1                     
+      !! debug factor missing for fs1 "W" term (see Brown thesis appendx) that we compute via 'brute force'
+
+      integer :: unit_s                 
+      !! out file unit counter
+
+      real :: start, finish 
+      !! debug/test to measure runtime of function
+
+      !arrays that hold values on grid for efficiency
+      real, allocatable, dimension(:) :: vvx,vvy,vvz  
+      !! Velocity grid values (norm: w_par_s)
+
+      integer :: ivx,ivy,ivz                    
+      !! Index for each velocity dimension
+
+      integer :: ivxmin,ivxmax,ivymin,ivymax,ivzmin,ivzmax  
+      !! Index limits
+
+      real,  allocatable, dimension(:,:,:,:) :: fs0   
+      !! Dimensionless equilibrium fs0
+
+      complex, allocatable, dimension(:,:,:,:) :: fs1 
+      !! Perturbed Dist for all species
+
+      real,  allocatable, dimension(:)  :: hatV_s
+      !!Flow normalized to wpar_s
+
+      real :: vperp                                   
+      !! Perpendicular velocity
+      
+      real :: phi                                     
+      !! Gyrophase angle (azimuthal)
+      
+      complex, allocatable, dimension(:,:,:,:) :: dfs1dvx,dfs1dvy,dfs1dvz 
+      !! Derivatives
+      
+      real, allocatable, dimension(:,:,:,:) :: corex,corey,corez 
+      !! 3V Correlations
+      
+      real, allocatable, dimension(:,:,:) :: corex_xy,corex_xz,corex_zy 
+      !! 2V Corrs
+      
+      real, allocatable, dimension(:,:,:) :: corey_xy,corey_xz,corey_zy 
+      !! 2V Corrs
+      
+      real, allocatable, dimension(:,:,:) :: corez_xy,corez_xz,corez_zy 
+      !! 2V Corrs
+      
+      complex, allocatable, dimension(:,:,:) :: fs1_xy,fs1_xz,fs1_zy 
+      !! 2V fs1 
+      
+      complex, allocatable, dimension(:) :: ns1 
+      !! Density Fluctuation
+      
+      complex, allocatable, dimension(:,:) :: us1 
+      !! Fluid Velocity Fluctuation
+      
+      real, allocatable, dimension(:) :: jxex,jyey,jzez 
+      !! int_v 3V Correlations
+      
+      integer :: jj                                   
+      !! Index
+      
+      character(100)  :: fmt                          
+      !! Eigenfunction Output Format
+      
+      real :: delv3                                  
+      !! delv^3
+      
+      real :: pi                                     
+      !! 3.1415....
+      
+      character(100)  :: fmt_dbg1,fmt_dbg2           
+      !! Eigenfunction Output Format
+
+      complex    :: exbar               
+      !! amplitude factor of fs1
 
       pi = 4.0*ATAN(1.0)
-
-      A1 = 1. !Temporary scalar to fix coeff
+      A1 = 1. !Temporary scalar to fix coeff 
       B1 = 1. !Temporary scalar to fix coeff
 
       !check if results directory exists
@@ -220,7 +338,7 @@ module fpc
                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
                do ivz=ivzmin,ivzmax
                   !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
@@ -400,7 +518,7 @@ module fpc
       !                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
       !                do ivz=ivzmin,ivzmax
       !                   !Compute dimensionless equilibrium Distribution value, fs0
-      !                   fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+      !                   fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
       !                   !Compute perturbed  Distribution value, fs1
       !                   phi = ATAN2(vvy(ivy),vvx(ivx))
       !                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
@@ -510,7 +628,7 @@ module fpc
       !       end if
       !    enddo
 
-      !    !TODO: renormalize correlation
+      !    !******TODO: renormalize correlation*****
       ! end if
 
       call calc_exbar(omega,ef,bf,exbar)
@@ -523,7 +641,7 @@ module fpc
                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
                do ivz=ivzmin,ivzmax
                   !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivx,ivy,ivz,is)=fs0hat_new(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
+                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
@@ -539,42 +657,34 @@ module fpc
       do is = 1, nspec
       ! Density Fluctuation: Zeroth Moment of delta f
          ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
+
          !Correct Normalization to n_0R
-         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
+         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
       
 
       ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
          !x-component
          do ivx=ivxmin,ivxmax
-            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
          enddo
          !y-component
          do ivy=ivymin,ivymax
-            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
+            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
          enddo
          !z-component
          do ivz=ivzmin,ivzmax
-            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
+            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
          enddo
-
-         !Correct Normalization to v_ARm
-         ! write(*,*)'val debug',omega,kpar,kperp,spec(is)%alph_s
-       !  us1(:,is)=us1(:,is)*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s
       enddo
-
-
 
       !Integrate Correlations
       allocate(jxex(nspec)); jxex=0.
       allocate(jyey(nspec)); jyey=0.
       allocate(jzez(nspec)); jzez=0.
       do is = 1, nspec
-      !int_v CEx= jxEx
-         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3
-      !int_v CEy= jyEy
-         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3
-      !int_v CEz= jzEz
-         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3
+         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3 !int_v CEx= jxEx
+         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3 !int_v CEy= jyEy    
+         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3 !int_v CEz= jzEz
       enddo
  
       !=============================================================================
@@ -798,7 +908,6 @@ module fpc
          endif
       enddo
 
-
       write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
       write(unit_s+5,fmt)&
            ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
@@ -870,10 +979,7 @@ module fpc
       deallocate(fs0,fs1)
       deallocate(hatV_s)
       deallocate(vvx,vvy,vvz)
-      
-      !==========================================================================
-      !==========================================================================
-      !==========================================================================
+
     end subroutine compute_fpc_cart
 
 
@@ -881,6 +987,9 @@ module fpc
     !                           Collin Brown, 2020
     !------------------------------------------------------------------------------
     subroutine compute_fpc_gyro(wrootindex)
+      !! Computes the FPC associated with the linear fs1 and eigenfunction 
+      !! response on a square cartesian grid and writes fs1 and FPC to file
+
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
       use vars, only : vperpmin,vperpmax,vparmin,vparmax,delv,nbesmax
       use vars, only : elecdircontribution
@@ -889,61 +998,158 @@ module fpc
       
       use disprels, only : calc_eigen, rtsec, disp
 
-      integer, intent(in) :: wrootindex              !index of selected root
+      integer, intent(in) :: wrootindex              
+      !! index of selected root
 
-      character(1000) :: filename                      !Output File name
-      character(1000) :: outputPath                    !Output folder
-      character(1000) :: cmd                           !Varaible to store command line commands
-      real    :: vperpi, vpari                       !normalized velocity space current value in loop
-      integer :: vperpindex, vparindex               !loop counters
-      complex :: omega                               !Complex Frequency
-      real    :: Cor_par_s, Cor_perp_s                !normalized correlation value
-      real    :: wi,gi                               !Freq and Damping of initial guess
-      complex :: ominit                              !Complex Frequency initial guess
-      complex :: om1,om2                             !Bracket Values
-      integer :: iflag                               !Flag for Root search
-      real, parameter :: tol=1.0E-13                 !Root Search Tolerance
-      real, parameter :: prec=1.E-7                  !Root Finding precision
-      integer :: numstepvperp, numstepvpar           !total number of steps in loop
-      logical :: ex                                  !used to check if results directory exists
-      complex, dimension(1:3)       :: ef, bf !E, B
-      complex, dimension(1:nspec)     :: ns     !density
-      complex, dimension(1:3,1:nspec) :: Us     !Velocity
-      !Heating (Required parameters of calc eigen)
-      real, dimension(1:nspec) :: Ps !Power into/out of species
-      real, dimension(1:4,1:nspec) :: Ps_split !Power into/out of species
-      real, dimension(1:6,1:nspec) :: Ps_split_new !Power into/out of species (GGH)
-      real :: Ew !wave energy
-      !loop counter/ loop parameters
-      integer :: is                     !species counter
-      integer :: unit_s                 !out file unit counter
-      character(100)  :: fmt                          !Eigenfunction Output Format
+      character(1000) :: filename                      
+      !! Output File name
+      
+      character(1000) :: outputPath                    
+      !! Output folder
+      
+      character(1000) :: cmd                           
+      !! Varaible to store command line commands
+      
+      real    :: vperpi, vpari                       
+      !! normalized velocity space current value in loop
+      
+      integer :: vperpindex, vparindex               
+      !! loop counters
+      
+      complex :: omega                               
+      !! Complex Frequency
+      
+      real    :: Cor_par_s, Cor_perp_s                
+      !! normalized correlation value
+      
+      real    :: wi,gi                               
+      !! Freq and Damping of initial guess
+      
+      complex :: ominit                              
+      !! Complex Frequency initial guess
+      
+      complex :: om1,om2                             
+      !! Bracket Values
+      
+      integer :: iflag                               
+      !! Flag for Root search
+      
+      real, parameter :: tol=1.0E-13                 
+      !! Root Search Tolerance
+      
+      real, parameter :: prec=1.E-7                  
+      !! Root Finding precision
+      
+      integer :: numstepvperp, numstepvpar           
+      !! total number of steps in loop
+      
+      logical :: ex                                  
+      !! used to check if results directory exists
+      
+      complex, dimension(1:3)       :: ef, bf
+      !! E, B
+      
+      complex, dimension(1:nspec)     :: ns     
+      !! density
+      
+      complex, dimension(1:3,1:nspec) :: Us     
+      !! Velocity
+      
+      !Heating (Required parameters of calc eigen) ----------
+      real, dimension(1:nspec) :: Ps 
+      !! Power into/out of species
+      
+      real, dimension(1:4,1:nspec) :: Ps_split 
+      !! Power into/out of species
 
-      real :: start, finish !debug/test to measure runtime of function
+      real, dimension(1:6,1:nspec) :: Ps_split_new 
+      !! Power into/out of species (includes all diagonal terms added by GGH in 2023)
 
-      real, allocatable, dimension(:) :: vvperp,vvpar,vvphi  !Velocity grid values (norm: w_par_s)
-      integer :: ivperp,ivpar,ivphi                    !Index for each velocity dimension
-      integer :: ivperpmin,ivperpmax,ivparmin,ivparmax,ivphimin,ivphimax  !Index limits
-      real :: vvperp1temp, vvperp2temp !Temporary velocity space coordinate variable
-      real,  allocatable, dimension(:,:,:,:) :: fs0   !Dimensionless equilibrium fs0
-      complex, allocatable, dimension(:,:,:,:) :: fs1 !Perturbed Dist for all species
-      real :: fs0_temp   !Temporary Dimensionless equilibrium fs0 at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives)
-      complex, allocatable, dimension(:,:,:,:) :: fs1_plus_delvperp1,fs1_plus_delvperp2,fs1_minus_delvperp1,fs1_minus_delvperp2   !perturbed dist at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives) !Perturbed Dist for all species
-      real :: phi_adjacent !var used to compute fs0/fs1 at adjacent location in vperp1/vperp2 direction
-      real :: vperp_adjacent,vperp1_adjacent,vperp2_adjacent !vars used to compute fs0/fs1 at adjacent location in vperp1/vperp2 direction
-      real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
+      real :: Ew 
+      !! wave energy
+
+      !loop counter/ loop parameters -------
+      
+      integer :: is                     
+      !! species counter
+      
+      integer :: unit_s                 
+      !! out file unit counter
+      
+      character(100)  :: fmt                          
+      !! Eigenfunction Output Format
+
+      real :: start, finish 
+      !! debug/test to measure runtime of function
+
+      real, allocatable, dimension(:) :: vvperp,vvpar,vvphi  
+      !! Velocity grid values (norm: w_par_s)
+      
+      integer :: ivperp,ivpar,ivphi                    
+      !! Index for each velocity dimension
+      
+      integer :: ivperpmin,ivperpmax,ivparmin,ivparmax,ivphimin,ivphimax  
+      !! Index limits
+      
+      real :: vvperp1temp, vvperp2temp 
+      !! Temporary velocity space coordinate variable
+      
+      real,  allocatable, dimension(:,:,:,:) :: fs0   
+      !! Dimensionless equilibrium fs0
+      
+      complex, allocatable, dimension(:,:,:,:) :: fs1 
+      !! Perturbed Dist for all species
+      
+      real :: fs0_temp   
+      !! Temporary Dimensionless equilibrium fs0 at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives)
+      
+      complex, allocatable, dimension(:,:,:,:) :: fs1_plus_delvperp1,fs1_plus_delvperp2,fs1_minus_delvperp1,fs1_minus_delvperp2   
+      !! perturbed dist at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives) !Perturbed Dist for all species
+      
+      real :: phi_adjacent 
+      !! var used to compute fs0/fs1 at adjacent location in vperp1/vperp2 direction
+      
+      real :: vperp_adjacent,vperp1_adjacent,vperp2_adjacent 
+      !! vars used to compute fs0/fs1 at adjacent location in vperp1/vperp2 direction
+      
+      real,  allocatable, dimension(:)  :: hatV_s     
+      !! Flow normalized to wpar_s
+      
       complex, allocatable, dimension(:,:,:,:) :: dfs1dvpar,dfs1dvperp1,dfs1dvperp2
-      real, allocatable, dimension(:,:,:,:) :: corepar,coreperp !3V Correlations (in cylindrical coords)
-      real, allocatable, dimension(:,:,:) :: corepar_cyln,coreperp_cyln !2V Corrs
-      complex, allocatable, dimension(:,:,:) :: fs1_cyln     !2V fs1 
-      complex, allocatable, dimension(:) :: ns1 !Density Fluctuation
-      complex, allocatable, dimension(:,:) :: us1 !Fluid Velocity Fluctuation
-      real, allocatable, dimension(:) :: jparepar,jperpeperp !int_v 3V Correlations (j_i times E_i) TODO: implement...
-      integer :: jj                                   !Index
-      real :: delv3                                  !delv^3
+      !! derivative of fs1 on the 3d grid for each species
+
+      real, allocatable, dimension(:,:,:,:) :: corepar,coreperp 
+      !! 3V Correlations (in cylindrical coords)
+
+      real, allocatable, dimension(:,:,:) :: corepar_cyln,coreperp_cyln 
+      !! 2V Corrs
+      
+      complex, allocatable, dimension(:,:,:) :: fs1_cyln     
+      !! 2V fs1 
+      
+      complex, allocatable, dimension(:) :: ns1 
+      !! Density Fluctuation
+      
+      complex, allocatable, dimension(:,:) :: us1 
+      !! Fluid Velocity Fluctuation
+      
+      real, allocatable, dimension(:) :: jparepar,jperpeperp 
+      !! int_v 3V Correlations (j_i times E_i) - currently not used TODO: implement or remove
+      
+      integer :: jj                                   
+      !! Index
+      
+      real :: delv3                                  
+      !! delv^3
+      
       real :: pi
-      complex    :: exbar               !amplitude factor of fs1
-      character(100)  :: fmt_dbg1,fmt_dbg2           !Eigenfunction Output Format
+      !! 3.14159...
+
+      complex    :: exbar               
+      !! amplitude factor of fs1 which is \propto Ex/B0 (B0 is external B)
+
+      character(100)  :: fmt_dbg1,fmt_dbg2           
+      !! Eigenfunction Output Format used for debug
 
       pi = 4.0*ATAN(1.0)
 
@@ -1056,7 +1262,7 @@ module fpc
           do ivpar=ivparmin,ivparmax
             do ivphi=ivphimin,ivphimax
                   !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivperp,ivpar,ivphi,is)=fs0hat_new(vvperp(ivperp),vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
+                  fs0(ivperp,ivpar,ivphi,is)=fs0hat(vvperp(ivperp),vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
@@ -1068,28 +1274,28 @@ module fpc
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat_new(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
               enddo
@@ -1329,129 +1535,189 @@ module fpc
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
-    ! Determine dimensionless species equilibrium VDF \hat{fs0} at (vperp,vpar)
-    real function fs0hat_new(vperp,vpar,hatV_s,aleph_s) 
+    real function fs0hat(vperp,vpar,hatV_s,aleph_s) 
+      !! Determines dimensionless species equilibrium VDF \hat{fs0} at (vperp,vpar)
+      
       !input
-      real         :: vperp, vpar      !normalized velocity space
-      real         :: hatV_s           !normalized species drift velocity by wpar_s
-      real         :: q_s              !normalized species charge
-      real         :: aleph_s          !T_perp/T_parallel_s
-      real         :: tau_s            !T_ref/T_s_parallel
-      real         :: mu_s             !m_ref/m_s
+      real         :: vperp, vpar      
+      !! normalized velocity space
+      
+      real         :: hatV_s           
+      !! normalized species drift velocity by wpar_s
+      
+      real         :: q_s              
+      !! normalized species charge
+      
+      real         :: aleph_s          
+      !! T_perp/T_parallel_s
+      
+      real         :: tau_s            
+      !! T_ref/T_s_parallel
+      
+      real         :: mu_s             
+      !! m_ref/m_s
 
-      fs0hat_new = exp(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
+      fs0hat = exp(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
 
-    end function fs0hat_new
+    end function fs0hat
 
     subroutine calc_exbar(omega,ef,bf,exbar)
+      !! Computes the amplitdue factor of the peturb distribution
+      !! which is propto Ex/B0, a value which is an input but can be related to 
+      !! solved and input dimensionless quantities using the linearized lorentz force and amperes law
+      !! and a lot of algebra
+
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
 
-      complex, intent(in)   :: omega            !Complex Frequency
-      complex, dimension(1:3), intent(in)   :: ef, bf           !E, B
+      complex, intent(in)   :: omega            
+      !! Complex Frequency
+      
+      complex, dimension(1:3), intent(in)   :: ef, bf           
+      !! E, B
+      
       complex, intent(out) :: exbar
+      !! Amplitude factor of fs1
 
-      real,  allocatable, dimension(:)  :: hatV_s     !Flow normalized to wpar_s
-      complex                           :: omega_temp !holds the fixed omege with sign of gamma term flipped as PLUME returns it with a minus sign 
-      complex                           :: numerator  !numerator term of amp term relate to exbar
-      complex                           :: sumterm    !term that holds running sum of summation
-      complex                           :: runningterm!term that holds numerator term in summation so we can break it up into many lines for readability
-      integer                           :: is         !species counter
-      complex                           :: ii= (0,1.) !Imaginary unit: 0+1i
+      real,  allocatable, dimension(:)  :: hatV_s     
+      !! Flow normalized to wpar_s
+
+      complex                           :: omega_temp 
+      !! holds the fixed omege with sign of gamma term flipped as PLUME returns it with a minus sign 
+      
+      complex                           :: numerator  
+      !! numerator term of amp term relate to exbar
+      
+      complex                           :: sumterm    
+      !! term that holds running sum of summation
+      
+      complex                           :: runningterm
+      !! term that holds numerator term in summation so we can break it up into many lines for readability
+      
+      integer                           :: is         
+      !! species counter
+      
+      complex                           :: ii= (0,1.) 
+      !! Imaginary unit: 0+1i
+      
+      real :: kpar_temp 
+      !! Debug value that 'fixes' sign due to differences in sign of definitions between the textbooks by stix and swanson
+      
+      integer :: unit_number
+      !! Holds unit number of file used for debug writing to file
 
       allocate(hatV_s(nspec))
 
-      
-
-      omega_temp = real(omega)!-ii*aimag(omega)
-
-      numerator = -(0,1.)*kpar*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
-
-      !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
-      sumterm = (0.,0.)
-      runningterm = (0.,0.)
-      do is = 1, nspec
-        !Create variable for parallel flow velocity normalized to
-        !       species parallel thermal speed
-        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-
-        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
-        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
-        runningterm = runningterm+ef(2)
-        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
-        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*spec(is)%q_s**2/spec(is)%mu_s**2)
-
-        sumterm = sumterm + runningterm
-        runningterm = (0.,0.)
-      enddo
-
-      exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
-      exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
-
-      write(*,*)'debug exbar without imag', exbar
-      !exbar = (1.,0.)
-
       omega_temp = real(omega)-ii*aimag(omega)
+      kpar_temp = kpar
 
-      numerator = -(0,1.)*kpar*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
+      numerator = -(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
 
-      !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
       sumterm = (0.,0.)
       runningterm = (0.,0.)
       do is = 1, nspec
-        !Create variable for parallel flow velocity normalized to
+        !Create variable for parallel flow velmocity normmalized to
         !       species parallel thermal speed
-        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
 
         runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
         runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
         runningterm = runningterm+ef(2)
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
-        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*spec(is)%q_s**2/spec(is)%mu_s**2)
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
 
         sumterm = sumterm + runningterm
+        write(*,*)'debug spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        write(*,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
+        write(*,*)'spec debug',is,spec(is)%mu_s,spec(is)%q_s
+        write(*,*)'omega_temp and sqrd',omega_temp,omega_temp**2,'omega and sqrd',omega,omega**2
+        write(*,*)''
         runningterm = (0.,0.)
       enddo
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
       exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
 
-      write(*,*)'debug exbar with imag', exbar
-      !exbar = (1.,0.)
-      
+      write(*,*)'--------'
+      write(*,*)''
 
+      ! Write to file
+      open(newunit=unit_number, file="exbar_output.dat", status="replace", action="write")
+      write(unit_number,*) exbar
+      close(unit_number)
+      
+      exbar = (1.,0.)
 
     end subroutine calc_exbar
+
 
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
-    ! Determine species perturbed VDF fs1 at (vperp,vpar)
+    
     subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1)
+      !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
+
       use vars, only : betap,kperp,kpar,vtp,pi
       use vars, only : nbesmax
       use bessels, only : bessj_s, bess0_s_prime
       USE nrtype, only: SP, I4B
 
-      complex, intent(in)   :: omega            !Complex Frequency
-      real, intent(in)      :: vperp, vpar      !normalized velocity space
-      real, intent(in)      :: phi              !azimuthal angle in velocity space
-      complex, dimension(1:3), intent(in)   :: ef, bf           !E, B
-      real, intent(in)      :: hatV_s           !Drift velocity norm to wpar_s
-      real, intent(in)      :: q_s              !normalized species charge
-      real, intent(in)      :: aleph_s          !T_perp/T_parallel_s
-      real, intent(in)      :: tau_s            !T_ref/T_s|_parallel
-      real, intent(in)      :: mu_s             !m_ref/m_s
-      real, intent(in)      :: aleph_r          !T_perp/T_parallel_R
-      real, intent(in)      :: elecdircontribution !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
-      complex, intent(in)   :: A1, B1           !Temporary scalars to fix coeff error!
-      complex, intent(out)  :: exbar            !normalizaiton factor
-      real, intent(in)      :: fs0              !normalized zero order distribution
-      complex, intent(out)  :: fs1              !first order distribution
+      complex, intent(in)   :: omega            
+      !! Complex Frequency
+      
+      real, intent(in)      :: vperp, vpar      
+      !! normalized velocity space
+      
+      real, intent(in)      :: phi              
+      !! azimuthal angle in velocity space
+      
+      complex, dimension(1:3), intent(in)   :: ef, bf           
+      !! E, B eigenfunctions in all 3 directions
 
-      integer :: n !bessel sum counter
-      integer :: m !bessel sum counter
-      complex :: ii= (0,1.) !Imaginary unit: 0+1i
-      real :: b_s                           !Bessel function argument
+      real, intent(in)      :: hatV_s           
+      !! Drift velocity norm to wpar_s
+      
+      real, intent(in)      :: q_s              
+      !! normalized species charge
+      
+      real, intent(in)      :: aleph_s          
+      !! T_perp/T_parallel_s
+      
+      real, intent(in)      :: tau_s            
+      !! T_ref/T_s|_parallel
+      
+      real, intent(in)      :: mu_s             
+      !! m_ref/m_s
+      
+      real, intent(in)      :: aleph_r          
+      !! T_perp/T_parallel_R
+      
+      real, intent(in)      :: elecdircontribution 
+      !! Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
+      
+      complex, intent(in)   :: A1, B1           
+      !! Temporary scalars to fix coeff error!
+      
+      complex, intent(out)  :: exbar            
+      !! normalizaiton factor
+      
+      real, intent(in)      :: fs0              
+      !! normalized zero order distribution
+      
+      complex, intent(out)  :: fs1              
+      !! first order distribution
+
+      integer :: n 
+      !! bessel sum counter
+      
+      integer :: m 
+      !! bessel sum counter
+      
+      complex :: ii= (0,1.) 
+      !! Imaginary unit: 0+1i
+      
+      real :: b_s                           
+      !! Bessel function argument
 
       !intermediate values (see calculation notes for definitions)
       real :: kpar_temp
@@ -1550,41 +1816,31 @@ module fpc
 
     end subroutine calc_fs1
 
-    subroutine calc_fs0(vperp,vpar,V_s,q_s,aleph_s,tau_s,mu_s,fs0) !TODO: remove q_s input as it is not used
-      use vars, only : betap,vtp,pi
-      !input
-      real, intent(in)                      :: vperp, vpar      !normalized velocity space
-      real, intent(in)                      :: V_s              !normalized species drift velocity by v_alfven
-      real, intent(in)                      :: q_s              !normalized species charge
-      real, intent(in)                      :: aleph_s          !T_perp/T_parallel_s
-      real, intent(in)                      :: tau_s            !T_ref/T_s_parallel
-      real, intent(in)                      :: mu_s             !m_ref/m_s
-
-      !locals
-      real                                  :: hatV_s           !normalized drift velocity by parallel thermal velocity
-
-      !output
-      real, intent(out)                  :: fs0              !zero order distribution
-
-      
-      hatV_s = V_s*sqrt(tau_s/(mu_s*betap))
-      fs0 = EXP(-1.*(vpar-hatV_s)**2.-vperp**2./aleph_s)
-
-    end subroutine calc_fs0
 
    subroutine check_nbesmax(vperpmax,tau_s,mu_s,aleph_r)
+      !! We approximate the infitine sums, which include terms like j_n(b), as finite sums from n=-Nlarge to Nlarge.
+      !! Since j_n(b) is pretty small when b = n/2, we just make sure that n is large enough for all b (which is related to vperp) values
+
       !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
       !TODO: if using wrapper, the user will not see this error- find a way to warn user if using wrapper (or atleast leave note to check output!)
       !TODO: alternatively, automatically set nbesmax to be some multiple of the minimum value calculated using this formula...
       use vars, only : kperp
       use vars, only : nbesmax
 
-      real, intent(in)                      :: vperpmax         !max value to be computed in normalized velocity space
-      real, intent(in)                      :: tau_s            !T_ref/T_s|_parallel
-      real, intent(in)                      :: mu_s             !m_ref/m_s
-      real, intent(in)                      :: aleph_r          !T_perp/T_parallel_R
+      real, intent(in)                      :: vperpmax         
+      !! max value to be computed in normalized velocity space
+      
+      real, intent(in)                      :: tau_s            
+      !! T_ref/T_s|_parallel
+      
+      real, intent(in)                      :: mu_s             
+      !! m_ref/m_s
+      
+      real, intent(in)                      :: aleph_r          
+      !! T_perp/T_parallel_R
 
-      real                                  :: b_s              !argument to bessel functions (see calc_fs1)
+      real                                  :: b_s              
+      !! argument to bessel functions (see calc_fs1)
 
       b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r))
 

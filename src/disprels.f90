@@ -1004,7 +1004,7 @@ subroutine om_double_scan
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
-  use vars, only : new_low_n   !>>>GGH: 1/18/23
+  use vars, only : new_low_n
   use functions, only : get_unused_unit
   implicit none
   
@@ -2127,7 +2127,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   !!Complex Velocity fluctuations:
   !! (Uxs, Uys, Uzs)
   
-  !Heating
+  !Heating------------------------------------
   real, dimension(1:nspec), intent(out) :: Ps
   !!Power into/out of species/components.
   
@@ -2135,7 +2135,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   !!Power into/out of species
 
   real, dimension(1:6,1:nspec), intent(out) :: Ps_split_new
-  !!<<<GGH: 1/18/23
   !!Power into/out of species/components from LD, TTD, CD.
 
   logical :: eigen_L
