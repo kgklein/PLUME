@@ -205,8 +205,12 @@ module disprels
         enddo
      enddo
 
+     write(*,*)'finding minima'
+     
      !Find Local minima (roots) in map
      call find_minima(val,numroots,iroots,nroots)
+
+     write(*,*)'minima found'
      
      if (writeOut) then
         write(*,'(i3,a)')nroots,'  possible local minima found:'
