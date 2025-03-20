@@ -169,13 +169,12 @@ module vars
   !! low-n components of the susceptibility tensor.
   !! (1:nspec,1:3,1:3,0:1) with the 3x3 subarray arranged as susc.
   !! The final index contains the n=0 and n=\pm 1 contributions.
-  
-  logical :: low_n=.false.
+
+  logical :: low_n=.true.
   !!Toggle on low-n susceptibility suplementary calculation.
-  
-  logical :: new_low_n=.false. 
-  !!GGH: 1/18/23
-  !!Flag to use Revised low_n for LD/TTD separation.
+
+  logical :: new_low_n=.true. 
+  !!Flag to use Revised low_n for LD/TTD separation. This modifies the Collisionless Power Absorption Calculation! IF TRUE THEN low_n MUST BE TRUE TOO! (GGH: 1/18/23)
   
   complex, dimension(3,3) :: lam
   !!Matrix in Wave equation.
