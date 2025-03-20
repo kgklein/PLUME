@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_exbar
+  private :: calc_fs1, calc_exbar, calc_fs0_mom_vthpar_cart, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -1648,6 +1648,150 @@ module fpc
       exbar = (1.,0.)
 
     end subroutine calc_exbar
+
+
+ subroutine check_f_gridsize_cart(nspecidx,aleph_s)
+
+      use vars, only : vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
+
+      integer, intent(in)                   :: nspecidx  
+      !! Index of the species to be processed
+
+      real, intent(in)                      :: aleph_s
+    !! Tperp,s/Tpar,s (measurement of temperature anisotropy for)
+
+      logical  :: isbadrangeflag
+
+      isbadrangeflag = .false.
+
+      !make sure we go out to 3 times the std deviation (basically because we assume a normal fs0 and normalize things based on parallal vth)
+      if(ABS(vzmin) < 3 .or. ABS(vzmax) < 3) then
+         isbadrangeflag = .true.
+      end if
+
+      if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
+         isbadrangeflag = .true.
+      end if
+
+      if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
+         isbadrangeflag = .true.
+      end if
+
+      if(delv > 1./5.) then
+         write(*,*) 'Warning delv is too large for the parallel direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s/vth = 1.) for fs0'
+         write(*,*) 'This will only directly impact the numerical moments calculation...'
+      end if
+
+      if(delv > aleph_s/5.) then
+         write(*,*) 'Warning delv is too large for the perp direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s*aleph_s/vth = 1.) for fs0'
+         write(*,*) 'This will only directly impact the numerical moments calculation...'
+      end if 
+
+      if (isbadrangeflag) then
+         write(*,*) 'your gridsize is too small for species',nspecidx,'. Want at least 3 times vthpar in the par direction and 3*aleph_s in the perp direction (to capture ~99.7% of the normal distribution).'
+         write(*,*) 'This will only impact the numerical moments calculation but beware there *may* be features outside the computed domain... Changing things is not strictly necessary.'
+      end if
+ end subroutine check_f_gridsize_cart
+
+! !TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
+! subroutine calc_fs0_mom_cart(fs0, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx)
+  
+
+ 
+
+
+!  end subroutine
+
+
+
+
+
+!TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
+subroutine calc_fs0_mom_vthpar_cart(fs0, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, aleph_s, hatV_s, vvx, vvy, vvz, vthpar)
+
+    use vars, only : vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
+
+    real, dimension(:,:,:,:), intent(in)  :: fs0       
+    !! Phase space distribution function
+
+    integer, intent(in)                   :: ivxmin    
+    !! Minimum velocity index in x-direction
+
+    integer, intent(in)                   :: ivxmax    
+    !! Maximum velocity index in x-direction
+
+    integer, intent(in)                   :: ivymin    
+    !! Minimum velocity index in y-direction
+
+    integer, intent(in)                   :: ivymax    
+    !! Maximum velocity index in y-direction
+
+    integer, intent(in)                   :: ivzmin    
+    !! Minimum velocity index in z-direction
+
+    integer, intent(in)                   :: ivzmax    
+    !! Maximum velocity index in z-direction
+
+    integer, intent(in)                   :: nspec     
+    !! Total number of species
+
+    integer, intent(in)                   :: nspecidx  
+    !! Index of the species to be processed
+
+    real, intent(in)                      :: aleph_s
+    !! Tperp,s/Tpar,s (measurement of temperature anisotropy for)
+
+    real, intent(in)                      :: hatV_s
+    !! parallel species drift velocity
+
+    real, dimension(:), intent(in)        :: vvx       
+    !! Velocity grid in the x-direction
+
+    real, dimension(:), intent(in)        :: vvy       
+    !! Velocity grid in the y-direction
+
+    real, dimension(:), intent(in)        :: vvz       
+    !! Velocity grid in the z-direction
+
+    complex, intent(out)                  :: vthpar      
+    !! Normalized phase space density
+
+    ! Local variables
+    integer                                :: ivx        
+    !! Loop index for x-direction
+
+    integer                                :: ivy        
+    !! Loop index for y-direction
+
+    integer                                :: ivz        
+    !! Loop index for z-direction
+
+    real                                   :: temp_sum  
+    !! Temporary sum accumulator (kept as real then cast as complex for efficiency later)
+
+    real                                   :: speedpar      
+    !! magnitude of velocity component
+
+    call check_f_gridsize(nspecidx,aleph_s)
+
+    ! Initialize temp_sum
+    temp_sum = 0.0
+
+    ! Loop through the array and sum values at the specified species index
+    do ivx = ivxmin, ivxmax
+        do ivy = ivymin, ivymax
+            do ivz = ivzmin, ivzmax
+               speedpar = (vvz(ivx) - hatV_s)**2
+               temp_sum = temp_sum + speedpar**2+fs0(ivx, ivy, ivz, nspecidx) !Note, we want parallal thermal velocity as we have 
+            end do
+        end do
+    end do
+    temp_sum = temp_sum * delv**3
+    
+    vthpar = sqrt(temp_sum)
+
+end subroutine calc_fs0_mom_vthpar_cart
+
 
 
     !------------------------------------------------------------------------------
