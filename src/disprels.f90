@@ -2241,30 +2241,56 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   
   !If (scan(is)%eigen_s) loop
   if (eigen_L) then
+     
      !CALCULATE VELOCITY FLUCTUATIONS========================================
      !vmean is the velocity perturbutation due to the wave for each species
-     !    normalized to the electron velocity perturbation
-     ! This is the mean velocity normalized to the Alfven velocity
+     !    normalized to (c Eperp1/B0)
      !KGK: 1-28-2015: Added the drift velocity effects
      vmean(:,:)=0.
-     do j=1,3!x,y,z
-        do jj = 1,nspec !Species velocity fluctuations
-           vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
-                omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
-                sum(electric(:)*susc(jj,j,:))
-        enddo
+     do jj = 1,nspec !Species velocity fluctuations
+        if (spec(jj)%vv_s.eq.0.) then
+           do j=1,3!x,y,z
+              !vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
+              !     omega/sqrt(betap)*vtp**2. *sqrt(spec(1)%alph_s)* &
+              !     sum(electric(:)*susc(jj,j,:))
+              !  9 AUG 2023: GGH/KGK Fixed U calculation
+              !        vmean(j,jj) = -(spec(jj)%Q_s/spec(jj)%D_s)*cmplx(0.,1.)*&
+              !             omega/sqrt(betap)*vtp* &
+              !             sum(electric(:)*susc(jj,j,:))
+              ! 28 AUG 2023: Corrected Version:  Normalize Us1 to (c Eperp1/B0)
+              vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
+                   *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap 
+           enddo
+        else
+           !In the non-zero drift velocity case, the density and velocity fluctuations are coupled.
+           !This requires solving U_x, which is then used in the solution of U_z.
+           !U_x and U_z are then subsequently used in the determination of n1/n0).
+           do j=1,2!x,y
+              vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
+                   *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap
+           enddo
+           j=3!z
+           vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
+                *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
+                -vmean(1,jj)*(kperp*spec(jj)%vv_s/ sqrt(betap*spec(1)%alph_s))/&
+                (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))
+           vmean(j,jj) = vmean(j,jj)/&
+                (1+kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))/&
+                (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))
+        endif
      enddo
-     
+
      !CALCULATE DENSITY FLUCTUATIONS========================================
      ! This is ns/ns0
      !KGK: 8-28-2013: switched from real(omega) to the complex valued omega.
      !KGK: 12-19-2013: Added the sqrt(T_perp/T_par) factor
-     !KGK: 1-28-2015: Added the drift velocity Dopplar shift
+     !KGK: 1-28-2015: Added the drift velocity Doppler shift
      do jj=1,nspec
         ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
              ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
              *sqrt(betap*spec(1)%alph_s))
      enddo
+
      
      !EndIf (scan(is)%eigen_s) loop
   endif
