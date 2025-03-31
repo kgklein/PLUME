@@ -1133,8 +1133,556 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
         return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
 
+def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False):
+
+    #Attempts to figure out what is output based on the number of values in a line-> Technically not possible
+    # for all values of nspec given there exists a least common multiple where nspec*(num_additional_elements_if_eigen_is_true_and_new_low_n_is_false) = nspec^prime(num_additional_elements_if_both_are_true)
+    # where nspec != nspec^prime
+
+    nspec = int(round(nspec)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+
+    if(nspec == 0):
+        f = open(flnm)
+        line = f.readline()
+        nline = len(line.split())
+
+        if(nline > 12):
+            eigen = True
+
+        skipforedgecase = False
+        if(nline == 60): #Given that having nspec = 2 heating=True and Eigen = True is so common, I manually check \mu_r (mass_ref/mass_ref) in the conflicting case of Eigen = true, heating = False, nspec = 3 (in nspec = 2 case, element 44 (at index 43) is the power absoprtion by p2ld_zz (which is super unlikely to be exactly +1, and in the nspec=3 case, element 44 (at index 43) is mu_r=1 (unless the user creates a bad PLUME input....))
+                         #in summary, unless the user has a bad input, it will either correctly load, or ask the user for more input, which is fine.
+                         #      if the user has bad input (which we check for!)
+            #Add elements where relevant power output should be if nspec=2 heating=True and Eigen=True (very very improbable this equation returns true if this setup is not used and nline=60) <- (fun note: computers assume statistically impossible but technically possible things all the time- for example checksums cryptographic hash collisiones, pseudo random number generators, hardware failure, quantum tunneling....)
+            _tol = .000000001
+            if(abs(float(line.split()[43])-1) > _tol): #_tol is for small potential floating point rounding error
+                nspec = 2
+                eigen = True
+                heating = True
+                skipforedgecase = True #If the above is true, we know what it is and should keep going
+                noutperspec = 15
+
+        if(not(skipforedgecase)):
+            #first check if two of these are true, then we can't determine what the output is given just the number of elements per line (except by checking specific values like if the sum of species power subelements equals total species power (approximately since it's technically missing terms) TODO: see above example and write for more? <- lot of work to not be used often, just the one common edge case is fine for now.)
+            if(int((nline - 18) % (8+6) == 0)+int((nline - 6) % (7+6) == 0)+int((nline - 18) % (15+6) == 0)+int((nline - 6) % (6)==0) > 1):
+                print("Could not automatically determine nspec, heating=T/F, and eigen=T/F (as number line elements, which we use to determine these values, could be produced by more than one combination of nspec heating and eigen)")
+                print("Please call this function again and pass as optional paramters nspec=*val*, heating=True/False, eigen=True/False")
+                print('Number of elements in first line: ',nline)
+                print("Possible if Eigen is true and heat is false (bool->1 or 0) | Possible if Eigen is false and heat is true (bool->1 or 0) | Possible if Eigen is true and heat is true (bool->1 or 0)")
+                print("int((nline - 18) % (8+6) == 0):",int((nline - 18) % (8+6) == 0), "    |int((nline - 6) % (7+6) == 0)",int((nline - 6) % (7+6) == 0),"   |int((nline - 6) % (6)==0)",int((nline - 6) % (6)==0))
+                f.close()
+
+                return
+
+            if((nline - 18) % (8+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
+                eigen = True
+                heating = False
+                nspec = int(round((nline - 18)/(8+6))) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                
+                noutperspec = 8 #note this is the *additional* number of output per spec accounting for the 6 that is always there
+
+            elif((nline - 6) % (7+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
+                eigen = False
+                heating = True
+                nspec = int(round(nline - 6)/(7+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                noutperspec = 7
+
+            elif((nline - 18) % (15+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
+                eigen = True
+                heating = True
+                nspec = int(round(nline - 18)/(15+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                noutperspec = 15
+
+            elif((nline - 6) % (6) == 0):
+                eigen = False
+                heating = False
+                nspec = int(round(nline - 6)/(6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                noutperspec = 0
+
+            else:
+                print("Error, could not determine input format from output! It seems there are not the correct number of elements in a line for any setup...")
+
+                return
+
+        f.close()
+
+    else:
+
+        f = open(flnm)
+        line = f.readline()
+        nline = len(line.split())
+        f.close()
+
+        if(heating == False and eigen == True):
+            noutperspec = 8
+        elif(heating == True and eigen == False):
+            noutperspec = 7
+        elif(heating == True and eigen == True):
+            noutperspec = 15
+        elif(heating == False and eigen == False):
+            noutperspec = 0
+
+    #make python dictionary
+    plume_sweep = {
+            "kperp": [],
+            "kpar": [],
+            "betap": [],
+            "vtp": [],
+            "w": [],
+            "g": []
+        }
+    if(eigen):
+        plume_sweep["bxr"] = []
+        plume_sweep["bxi"] = []
+        plume_sweep["byr"] = []
+        plume_sweep["byi"] = []
+        plume_sweep["bzr"] = []
+        plume_sweep["bzi"] = []
+        plume_sweep["exr"] = []
+        plume_sweep["exi"] = []
+        plume_sweep["eyr"] = []
+        plume_sweep["eyi"] = []
+        plume_sweep["ezr"] = []
+        plume_sweep["ezi"] = []
+        for _i in range(0,nspec):
+            plume_sweep["ux"+str(_i+1)+"r"] = []
+            plume_sweep["ux"+str(_i+1)+"i"] = []
+            plume_sweep["uy"+str(_i+1)+"r"] = []
+            plume_sweep["uy"+str(_i+1)+"i"] = []
+            plume_sweep["uz"+str(_i+1)+"r"] = []
+            plume_sweep["uz"+str(_i+1)+"i"] = []
+
+        for _i in range(0,nspec):
+            plume_sweep["n"+str(_i+1)+"r"] = []
+            plume_sweep["n"+str(_i+1)+"i"] = []
+
+    if(heating):
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)] = []
+        for _i in range(0,nspec):
+            plume_sweep["ps"+str(_i+1)+"ttd_yy"] = []
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)+"ttd_yz"] = []
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)+"ld_zy"] = []
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)+"ld_zz"] = []
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)+"n_eq_0"] = []
+        for _i in range(0,nspec):
+            plume_sweep["p"+str(_i+1)+"cd_n_pm"] = []
+
+    for _i in range(0,nspec):
+        plume_sweep["p"+str(_i+1)+"tau"] = []
+        plume_sweep["p"+str(_i+1)+"mu"] = []
+        plume_sweep["p"+str(_i+1)+"alph"] = []
+        plume_sweep["p"+str(_i+1)+"q"] = []
+        plume_sweep["p"+str(_i+1)+"D"] = []
+        plume_sweep["p"+str(_i+1)+"vv"] = []
+
+    f = open(flnm)
+
+    line = f.readline()
+    while (line != ''):
+        line = line.split()
+        if(len(line) > 0):
+            #NOTE THIS README INDEXING STARTS AT 1 BUT PYTHON INDEX STARTS AT ZERO so the leftmost number in each equation is one less here than in the PLUME output readme!
+            plume_sweep["kperp"].append(float(line[0]))
+            plume_sweep["kpar"].append(float(line[1]))
+            plume_sweep["betap"].append(float(line[2]))
+            plume_sweep["vtp"].append(float(line[3]))
+            plume_sweep["w"].append(float(line[4]))
+            plume_sweep["g"].append(float(line[5]))
+
+            if(eigen):
+                plume_sweep["bxr"].append(float(line[6]))
+                plume_sweep["bxi"].append(float(line[7]))
+                plume_sweep["byr"].append(float(line[8]))
+                plume_sweep["byi"].append(float(line[9]))
+                plume_sweep["bzr"].append(float(line[10]))
+                plume_sweep["bzi"].append(float(line[11]))
+                plume_sweep["exr"].append(float(line[12]))
+                plume_sweep["exi"].append(float(line[13]))
+                plume_sweep["eyr"].append(float(line[14]))
+                plume_sweep["eyi"].append(float(line[15]))
+                plume_sweep["ezr"].append(float(line[16]))
+                plume_sweep["ezi"].append(float(line[17]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["ux"+str(_i)+"r"].append(float(line[18+6*(_i-1)]))
+                    plume_sweep["ux"+str(_i)+"i"].append(float(line[19+6*(_i-1)]))
+                    plume_sweep["uy"+str(_i)+"r"].append(float(line[20+6*(_i-1)]))
+                    plume_sweep["uy"+str(_i)+"i"].append(float(line[21+6*(_i-1)]))
+                    plume_sweep["uz"+str(_i)+"r"].append(float(line[22+6*(_i-1)]))
+                    plume_sweep["uz"+str(_i)+"i"].append(float(line[23+6*(_i-1)]))
+
+                for _i in range(1,nspec+1):
+                    plume_sweep["n"+str(_i)+"r"].append(float(line[18+6*(nspec)+2*(_i-1)]))
+                    plume_sweep["n"+str(_i)+"i"].append(float(line[19+6*(nspec)+2*(_i-1)]))
+
+            if(heating):
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)].append(float(line[17+(8-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["ps"+str(_i)+"ttd_yy"].append(float(line[17+(9-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)+"ttd_yz"].append(float(line[17+(10-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)+"ld_zy"].append(float(line[17+(11-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)+"ld_zz"].append(float(line[17+(12-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)+"n_eq_0"].append(float(line[17+(13-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                for _i in range(1,nspec+1):
+                    plume_sweep["p"+str(_i)+"cd_n_pm"].append(float(line[17+(14-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+
+            for _i in range(1,nspec+1):
+                plume_sweep["p"+str(_i)+"tau"].append(float(line[18+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+                plume_sweep["p"+str(_i)+"mu"].append(float(line[19+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+                plume_sweep["p"+str(_i)+"alph"].append(float(line[20+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+                plume_sweep["p"+str(_i)+"q"].append(float(line[21+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+                plume_sweep["p"+str(_i)+"D"].append(float(line[22+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+                plume_sweep["p"+str(_i)+"vv"].append(float(line[23+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
+
+        line = f.readline()
+
+    for key in plume_sweep.keys():
+            plume_sweep[key] = np.asarray(plume_sweep[key])
+
+
+    return plume_sweep
+
+
+
+#TODO: REMOVE after making sure it is obsolete! 
+def load_plume_sweep_orig(flnm,verbose=False,use_ps_split_new=True):
+    """
+    Load data from plume sweep
+
+    Assumes 2 species (TODO: generalize...)
+
+    Parameters
+    ----------
+    flnm : str
+        path to sweep to be loaded
+    verbose : bool
+        if true, write print statements
+    use_ps_split_new : bool
+        use new or old power split (warning- must match .new_low_n. in vars.f90 (recompile if changed))
+
+    Returns
+    -------
+    plume_sweep : dict
+        dictionary of data related to plume
+    """
+    
+    #TODO: check if number of columns to see if user is trying to load more than 2 species or is using the wrong ps split!!!
+
+    if(verbose):
+        print("WARNING: assuming 2 species...\n TODO: write load_plume_sweep_nspec...")
+        if(not(use_ps_split_new)):
+            print("WARNING: assuming low_n is true (rather than new_low_n) (pass use_ps_split_new=True to change this)")
+            print("If unsure, please check vars.f90 (change requires recompile)")
+            print("If both are true, new_low_n is used")
+        else:
+            print("WARNING: assuming new_low_n is true (rather than low_n)")
+            print("If unsure, please check vars.f90 (change requires recompile by calling 'make clean' then 'make' in main dir')")
+            print("If both are true, new_low_n is used")
+
+    f = open(flnm)
+
+    if(not(use_ps_split_new)):
+        plume_sweep = {
+            "kperp": [],
+            "kpar": [],
+            "betap": [],
+            "vtp": [],
+            "w": [],
+            "g": [],
+            "bxr": [],
+            "bxi": [],
+            "byr": [],
+            "byi": [],
+            "bzr": [],
+            "bzi": [],
+            "exr": [],
+            "exi": [],
+            "eyr": [],
+            "eyi": [],
+            "ezr": [],
+            "ezi": [],
+            "ux1r": [],
+            "ux1i": [],
+            "uy1r": [],
+            "uy1i": [],
+            "uz1r": [],
+            "uz1i": [],
+            "ux2r": [],
+            "ux2i": [],
+            "uy2r": [],
+            "uy2i": [],
+            "uz2r": [],
+            "uz2i": [],
+            
+            "n1r": [],
+            "n1i": [],
+            "n2r": [],
+            "n2i": [],
+            "ps1": [],
+            "ps2": [],
+            "p1ld": [],
+            "p1ttd": [],
+            "p1n0": [],
+            "p1cd": [],
+            "p2ld": [],
+            "p2ttd": [],
+            "p2n0": [],
+            "p2cd": [],
+
+            "p1tau": [],
+            "p1mu": [],
+            "p1alph": [],
+            "p1q": [],
+            "p1D": [],
+            "p1vv": [],
+
+            "p2tau": [],
+            "p2mu": [],
+            "p2alph": [],
+            "p2q": [],
+            "p2D": [],
+            "p2vv": []
+        }
+
+        line = f.readline()
+        while (line != ''):
+            line = line.split()
+            if(len(line) > 0):
+                plume_sweep['kperp'].append(float(line[0]))
+                plume_sweep['kpar'].append(float(line[1]))
+                plume_sweep['betap'].append(float(line[2]))
+                plume_sweep['vtp'].append(float(line[3]))
+                plume_sweep['w'].append(float(line[4]))
+                plume_sweep['g'].append(float(line[5]))
+                plume_sweep['bxr'].append(float(line[6]))
+                plume_sweep['bxi'].append(float(line[7]))
+                plume_sweep['byr'].append(float(line[8]))
+                plume_sweep['byi'].append(float(line[9]))
+                plume_sweep['bzr'].append(float(line[10]))
+                plume_sweep['bzi'].append(float(line[11]))
+                plume_sweep['exr'].append(float(line[12]))
+                plume_sweep['exi'].append(float(line[13]))
+                plume_sweep['eyr'].append(float(line[14]))
+                plume_sweep['eyi'].append(float(line[15]))
+                plume_sweep['ezr'].append(float(line[16]))
+                plume_sweep['ezi'].append(float(line[17]))
+                plume_sweep['ux1r'].append(float(line[18]))
+                plume_sweep['ux1i'].append(float(line[19]))
+                plume_sweep['uy1r'].append(float(line[20]))
+                plume_sweep['uy1i'].append(float(line[21]))
+                plume_sweep['uz1r'].append(float(line[22]))
+                plume_sweep['uz1i'].append(float(line[23]))
+                plume_sweep['ux2r'].append(float(line[24]))
+                plume_sweep['ux2i'].append(float(line[25]))
+                plume_sweep['uy2r'].append(float(line[26]))
+                plume_sweep['uy2i'].append(float(line[27]))
+                plume_sweep['uz2r'].append(float(line[28]))
+                plume_sweep['uz2i'].append(float(line[29]))
+                
+                plume_sweep['n1r'].append(float(line[30]))
+                plume_sweep['n1i'].append(float(line[31]))
+                plume_sweep['n2r'].append(float(line[32]))
+                plume_sweep['n2i'].append(float(line[33]))
+                plume_sweep['ps1'].append(float(line[34]))
+                plume_sweep['ps2'].append(float(line[35]))
+                plume_sweep['p1ld'].append(float(line[36]))
+                plume_sweep['p1ttd'].append(float(line[37]))
+                plume_sweep['p1n0'].append(float(line[38]))
+                plume_sweep['p1cd'].append(float(line[39]))
+                plume_sweep['p2ld'].append(float(line[40]))
+                plume_sweep['p2ttd'].append(float(line[41]))
+                plume_sweep['p2n0'].append(float(line[42]))
+                plume_sweep['p2cd'].append(float(line[43]))
+
+                plume_sweep['p1tau'].append(float(line[44]))
+                plume_sweep['p1mu'].append(float(line[45]))
+                plume_sweep['p1alph'].append(float(line[46]))
+                plume_sweep['p1q'].append(float(line[47]))
+                plume_sweep['p1D'].append(float(line[48]))
+                plume_sweep['p1vv'].append(float(line[49]))
+
+                plume_sweep['p2tau'].append(float(line[50]))
+                plume_sweep['p2mu'].append(float(line[51]))
+                plume_sweep['p2alph'].append(float(line[52]))
+                plume_sweep['p2q'].append(float(line[53]))
+                plume_sweep['p2D'].append(float(line[54]))
+                plume_sweep['p2vv'].append(float(line[55]))
+            line = f.readline()
+
+        for key in plume_sweep.keys():
+            plume_sweep[key] = np.asarray(plume_sweep[key])
+
+        #normalize B
+        plume_sweep['bxr'] = plume_sweep['bxr']*plume_sweep['vtp']
+        plume_sweep['byr'] = plume_sweep['byr']*plume_sweep['vtp']
+        plume_sweep['bzr'] = plume_sweep['bzr']*plume_sweep['vtp']
+        plume_sweep['bxi'] = plume_sweep['bxi']*plume_sweep['vtp']
+        plume_sweep['byi'] = plume_sweep['byi']*plume_sweep['vtp']
+        plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
+        
+        return plume_sweep
+        
+    else:
+        plume_sweep = {
+            "kperp": [],
+            "kpar": [],
+            "betap": [],
+            "vtp": [],
+            "w": [],
+            "g": [],
+            "bxr": [],
+            "bxi": [],
+            "byr": [],
+            "byi": [],
+            "bzr": [],
+            "bzi": [],
+            "exr": [],
+            "exi": [],
+            "eyr": [],
+            "eyi": [],
+            "ezr": [],
+            "ezi": [],
+            "ux1r": [],
+            "ux1i": [],
+            "uy1r": [],
+            "uy1i": [],
+            "uz1r": [],
+            "uz1i": [],
+            "ux2r": [],
+            "ux2i": [],
+            "uy2r": [],
+            "uy2i": [],
+            "uz2r": [],
+            "uz2i": [],
+            
+            "n1r": [],
+            "n1i": [],
+            "n2r": [],
+            "n2i": [],
+            "ps1": [], #power into species 1
+            "ps2": [],
+            "p1ttd1": [], #diagnol term in tensor; main transit time damping damping term
+            "p1ttd2": [], #cross term in tensor; typically small
+            "p1ld1": [], #diagnol term in tensor; main landau damping term
+            "p1ld2": [], #cross term in tensor; typically small
+            "p1n0": [],
+            "p1cd": [],
+            "p2ld1": [],
+            "p2ld2": [],
+            "p2ttd1": [],
+            "p2ttd2": [],
+            "p2n0": [],
+            "p2cd": [],
+
+            "p1tau": [],
+            "p1mu": [],
+            "p1alph": [],
+            "p1q": [],
+            "p1D": [],
+            "p1vv": [],
+
+            "p2tau": [],
+            "p2mu": [],
+            "p2alph": [],
+            "p2q": [],
+            "p2D": [],
+            "p2vv": []
+        }
+
+        line = f.readline()
+
+        while (line != ''):
+            line = line.split()
+            if(len(line) > 0):
+                plume_sweep['kperp'].append(float(line[0]))
+                plume_sweep['kpar'].append(float(line[1]))
+                plume_sweep['betap'].append(float(line[2]))
+                plume_sweep['vtp'].append(float(line[3]))
+                plume_sweep['w'].append(float(line[4]))
+                plume_sweep['g'].append(float(line[5]))
+                plume_sweep['bxr'].append(float(line[6]))
+                plume_sweep['bxi'].append(float(line[7]))
+                plume_sweep['byr'].append(float(line[8]))
+                plume_sweep['byi'].append(float(line[9]))
+                plume_sweep['bzr'].append(float(line[10]))
+                plume_sweep['bzi'].append(float(line[11]))
+                plume_sweep['exr'].append(float(line[12]))
+                plume_sweep['exi'].append(float(line[13]))
+                plume_sweep['eyr'].append(float(line[14]))
+                plume_sweep['eyi'].append(float(line[15]))
+                plume_sweep['ezr'].append(float(line[16]))
+                plume_sweep['ezi'].append(float(line[17]))
+                plume_sweep['ux1r'].append(float(line[18]))
+                plume_sweep['ux1i'].append(float(line[19]))
+                plume_sweep['uy1r'].append(float(line[20]))
+                plume_sweep['uy1i'].append(float(line[21]))
+                plume_sweep['uz1r'].append(float(line[22]))
+                plume_sweep['uz1i'].append(float(line[23]))
+                plume_sweep['ux2r'].append(float(line[24]))
+                plume_sweep['ux2i'].append(float(line[25]))
+                plume_sweep['uy2r'].append(float(line[26]))
+                plume_sweep['uy2i'].append(float(line[27]))
+                plume_sweep['uz2r'].append(float(line[28]))
+                plume_sweep['uz2i'].append(float(line[29]))
+                
+                plume_sweep['n1r'].append(float(line[30]))
+                plume_sweep['n1i'].append(float(line[31]))
+                plume_sweep['n2r'].append(float(line[32]))
+                plume_sweep['n2i'].append(float(line[33]))
+                plume_sweep['ps1'].append(float(line[34]))
+                plume_sweep['ps2'].append(float(line[35]))
+                plume_sweep['p1ttd1'].append(float(line[36]))
+                plume_sweep['p1ttd2'].append(float(line[37]))
+                plume_sweep['p1ld1'].append(float(line[38]))
+                plume_sweep['p1ld2'].append(float(line[39]))
+                plume_sweep['p1n0'].append(float(line[40]))
+                plume_sweep['p1cd'].append(float(line[41]))
+                plume_sweep['p2ttd1'].append(float(line[42]))
+                plume_sweep['p2ttd2'].append(float(line[43]))
+                plume_sweep['p2ld1'].append(float(line[44]))
+                plume_sweep['p2ld2'].append(float(line[45]))
+                plume_sweep['p2n0'].append(float(line[46]))
+                plume_sweep['p2cd'].append(float(line[47]))
+
+                plume_sweep['p1tau'].append(float(line[48]))
+                plume_sweep['p1mu'].append(float(line[49]))
+                plume_sweep['p1alph'].append(float(line[50]))
+                plume_sweep['p1q'].append(float(line[51]))
+                plume_sweep['p1D'].append(float(line[52]))
+                plume_sweep['p1vv'].append(float(line[53]))
+
+                plume_sweep['p2tau'].append(float(line[54]))
+                plume_sweep['p2mu'].append(float(line[55]))
+                plume_sweep['p2alph'].append(float(line[56]))
+                plume_sweep['p2q'].append(float(line[57]))
+                plume_sweep['p2D'].append(float(line[58]))
+                plume_sweep['p2vv'].append(float(line[59]))
+            line = f.readline()
+
+        for key in plume_sweep.keys():
+            plume_sweep[key] = np.asarray(plume_sweep[key])
+
+        #normalize B
+        plume_sweep['bxr'] = plume_sweep['bxr']*plume_sweep['vtp']
+        plume_sweep['byr'] = plume_sweep['byr']*plume_sweep['vtp']
+        plume_sweep['bzr'] = plume_sweep['bzr']*plume_sweep['vtp']
+        plume_sweep['bxi'] = plume_sweep['bxi']*plume_sweep['vtp']
+        plume_sweep['byi'] = plume_sweep['byi']*plume_sweep['vtp']
+        plume_sweep['bzi'] = plume_sweep['bzi']*plume_sweep['vtp']
+
+        return plume_sweep
+
 #TODO: make this (and other relevant functions) work for N species!!!
-def load_plume_sweep(flnm,verbose=False,use_ps_split_new=True):
+def load_plume_sweep_orig(flnm,verbose=False,use_ps_split_new=True):
     """
     Load data from plume sweep
 

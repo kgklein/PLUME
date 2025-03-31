@@ -35,7 +35,7 @@ module vars
   !!Parallel reference thermal velocity normalized to the speed of light.
   !!v_t,ref,par/c
 
-  integer :: nspec=3
+  integer :: nspec
   !!Number of species/components to be included in calculation.
   
   integer :: nscan = 0
