@@ -712,40 +712,40 @@ def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmi
         print(cmd)
     os.system(cmd)
 
-    try:
-        #load sweeps
-        if(stylenum>=1):
-            flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-        else:
-            flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
-        if(verbose):
-            print("Loading ",flnmsweep1,"...")
-        sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
+    #try:
+    #load sweeps
+    if(stylenum>=1):
+        flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
+    else:
+        flnmsweep1 = 'data/'+plume_input.dataname+'/'+outputnametemp1+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmax*1000))+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep1,"...")
+    sweephigh = load_plume_sweep(flnmsweep1,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
-        if(stylenum>=1):
-            flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-        else:
-            flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
-        if(verbose):
-            print("Loading ",flnmsweep2,"...")
-        sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
+    if(stylenum>=1):
+        flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+'s'+str(stylenum)+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
+    else:
+        flnmsweep2 = 'data/'+plume_input.dataname+'/'+outputnametemp2+'_'+sweepvarkey+'_'+str(int(midsweepval*1000))+'_'+str(int(sweepmin*1000))+'.mode1'
+    if(verbose):
+        print("Loading ",flnmsweep2,"...")
+    sweeplow = load_plume_sweep(flnmsweep2,verbose=verbose,use_ps_split_new=use_ps_split_new)
 
-        if(verbose):
-            print("Combining data and returning as 1 sweep...")
-        for _key in sweeplow.keys():
-            sweeplow[_key] = np.flip(sweeplow[_key])
+    if(verbose):
+        print("Combining data and returning as 1 sweep...")
+    for _key in sweeplow.keys():
+        sweeplow[_key] = np.flip(sweeplow[_key])
 
-        sweep = {}
-        for _key in sweeplow.keys():
-            sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
-        return sweep
+    sweep = {}
+    for _key in sweeplow.keys():
+        sweep[_key] = np.concatenate((sweeplow[_key],sweephigh[_key]))
+    return sweep
 
-    except:
-        print("Could not automatically load and combine sweeps.")
-        print("Probable cause of error is described below:")
-        print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
-        print("and thus the output file name will be rounded as well. ")
-        print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
+    # except:
+    #     print("Could not automatically load and combine sweeps.")
+    #     print("Probable cause of error is described below:")
+    #     print("If sweepmax and sweepmin and `middle of sweep' val (variable `midsweepval' in function) are not multiples of .001, PLUME will round these numbers")
+    #     print("and thus the output file name will be rounded as well. ")
+    #     print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
 
 def loadlinfpccepar(filename,verbose=False):
     """
@@ -1133,11 +1133,17 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
         return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
 
-def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False):
+def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = False, use_ps_split_new=True):
 
     #Attempts to figure out what is output based on the number of values in a line-> Technically not possible
     # for all values of nspec given there exists a least common multiple where nspec*(num_additional_elements_if_eigen_is_true_and_new_low_n_is_false) = nspec^prime(num_additional_elements_if_both_are_true)
     # where nspec != nspec^prime
+
+    #verbose is currently not used....
+
+    if(use_ps_split_new == False):
+        print("Warning- the most current version of PLUME forces use_ps_split_new=True now!")
+        return
 
     nspec = int(round(nspec)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
 
