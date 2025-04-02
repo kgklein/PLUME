@@ -25,14 +25,15 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_exbar, calc_fs0_mom_vthpar_cart, check_f_gridsize_cart
+  private :: calc_fs1, calc_exbar, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
   !! Last Bessel function argument, used to store repeated calculations for efficiency
   real, allocatable :: jbess(:)  
   !! Regular (i.e. not the modified used elsewhere) Bessel functions, stored for efficiency 
-
+  real :: EpsilonSokhotski_Plemelj = 0.0
+  !! Epsilon in the Sokhotski–Plemelj theorem, which states int f(x)/(x-a) dx can be approximated using eps->0 int f(x)/(x-a+i eps) dx to 'better' handle the singularity  numerically. This value should be left as zero, only be used by advanced users, and only when the user is computing moments for comparison to the analytic form (because it requires a *very* small delta v to 'work') (Remember to recompile!)
 
   contains
 
@@ -105,9 +106,10 @@ module fpc
       !! E, B eigenfunction values (all 3 components)
 
       complex, dimension(1:nspec)     :: ns     
-      !! density eigenfunction (all species)
+      !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
+
       complex, dimension(1:3,1:nspec) :: Us     
-      !! velocity eigenfunction (all species; all 3 componets per specie)
+      !! analytic (i.e. from PLUME not JET-PLUME) velocity eigenfunction (all species; all 3 componets per specie)
 
       !Heating (Required parameters of calc eigen)
       real, dimension(1:nspec) :: Ps 
@@ -212,10 +214,16 @@ module fpc
       !! 2V fs1 
       
       complex, allocatable, dimension(:) :: ns1 
-      !! Density Fluctuation
+      !! Density Fluctuation from numerical moment of fs1
       
       complex, allocatable, dimension(:,:) :: us1 
-      !! Fluid Velocity Fluctuation
+      !! Fluid Velocity Fluctuation from numerical moment of fs1
+
+      complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
+      !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
+
+      complex                              :: Pi1ij_over_f00s_temp_element
+      !! temp value to pass to function to compute Pressure tensor fluctation element to then put into array
       
       real, allocatable, dimension(:) :: jxex,jyey,jzez 
       !! int_v 3V Correlations
@@ -241,6 +249,8 @@ module fpc
       pi = 4.0*ATAN(1.0)
       A1 = 1. !Temporary scalar to fix coeff 
       B1 = 1. !Temporary scalar to fix coeff
+
+      delv3=delv*delv*delv
 
       !check if results directory exists
       ! INQUIRE (DIRECTORY='data', EXIST=ex)
@@ -328,7 +338,6 @@ module fpc
       !=============================================================================
       allocate(hatV_s(nspec))
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
-      call calc_exbar(omega,ef,bf,exbar)
       do is = 1, nspec
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
@@ -343,11 +352,36 @@ module fpc
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,exbar,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
                enddo
             enddo
          enddo
       enddo
+
+      !normalize fs1
+      !ideally we wouldnt need to compute this numerically, but that would require a lot of work to compute, normalize, and implement this calculation, just to sometimes be more accurate in a second way to compute ns1 and us1, but it is possible to do this analytically!
+      !TODO: calc_fs_mom_pres_ten has unneeded inputs!
+      allocate(Pi1ij_over_f00s(3,3,nspec))
+      do is = 1, nspec
+         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+         call calc_fs_mom_pres_ten(fs1, 1, 1, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(1,1,is) = Pi1ij_over_f00s_temp_element
+         call calc_fs_mom_pres_ten(fs1, 2, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(2,2,is) = Pi1ij_over_f00s_temp_element
+         call calc_fs_mom_pres_ten(fs1, 3, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(3,3,is) = Pi1ij_over_f00s_temp_element
+         call calc_fs_mom_pres_ten(fs1, 1, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(1,2,is) = Pi1ij_over_f00s_temp_element
+         Pi1ij_over_f00s(2,1,is) = Pi1ij_over_f00s_temp_element
+         call calc_fs_mom_pres_ten(fs1, 1, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(1,3,is) = Pi1ij_over_f00s_temp_element
+         Pi1ij_over_f00s(3,1,is) = Pi1ij_over_f00s_temp_element
+         call calc_fs_mom_pres_ten(fs1, 2, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+         Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
+         Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
+      end do
+      call calc_exbar(omega,ef,bf,ns,Pi1ij_over_f00s,exbar)
+      fs1 = exbar*fs1
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
       !=============================================================================
@@ -495,163 +529,8 @@ module fpc
       ! Integrate Distribution and Correlations over velocity 
       !=============================================================================
 
-      delv3=delv*delv*delv
       allocate(ns1(nspec)); ns1=0.
       allocate(us1(3,nspec)); us1=0.
-
-      ! if(1==0) then !Force renormalization
-      !    !Compute B1
-      !    do is = 1, nspec
-      !       tempux1val = 0.
-      !       tempuy1val = 0.
-      !       tempuz1val = 0.
-      !       tempux2val = 0.
-      !       tempuy2val = 0.
-      !       tempuz2val = 0.
-      !       tempux3val = 0.
-      !       tempuy3val = 0.
-      !       tempuz3val = 0.
-      !       do idir =1, 3
-      !          hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-      !          do ivx=ivxmin,ivxmax
-      !             do ivy=ivymin,ivymax
-      !                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
-      !                do ivz=ivzmin,ivzmax
-      !                   !Compute dimensionless equilibrium Distribution value, fs0
-      !                   fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
-      !                   !Compute perturbed  Distribution value, fs1
-      !                   phi = ATAN2(vvy(ivy),vvx(ivx))
-      !                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-      !                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-      !                                     real(idir),A1,B1,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
-      !                enddo
-      !             enddo
-      !          enddo
-      !          if(idir == 1) then
-      !             do ivx=ivxmin,ivxmax
-      !                tempux1val=tempux1val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-      !             enddo
-      !             do ivy=ivymin,ivymax
-      !                tempuy1val=tempuy1val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-      !             enddo
-      !             do ivz=ivzmin,ivzmax
-      !                tempuz1val=tempuz1val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-      !             enddo
-      !             tempux1val = tempux1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuy1val = tempuy1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !          end if
-
-      !          if(idir == 2) then
-      !             do ivx=ivxmin,ivxmax
-      !                tempux2val=tempux2val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-      !             enddo
-      !             do ivy=ivymin,ivymax
-      !                tempuy2val=tempuy2val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-      !             enddo
-      !             do ivz=ivzmin,ivzmax
-      !                tempuz2val=tempuz2val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-      !             enddo
-      !             tempux2val = tempux2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuy2val = tempuy2val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !          endif
-
-      !          if(idir == 3) then
-      !             do ivx=ivxmin,ivxmax
-      !                tempux3val=tempux3val+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
-      !             enddo
-      !             do ivy=ivymin,ivymax
-      !                tempuy3val=tempuy3val+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-      !             enddo
-      !             do ivz=ivzmin,ivzmax
-      !                tempuz3val=tempuz3val+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3
-      !             enddo
-      !             tempux3val = tempux3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuy3val = tempuy3val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !             tempuz1val = tempuz1val*sqrt(betap*spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))/spec(is)%alph_s !norm to alfven speed
-      !          endif
-
-      !       enddo
-
-      !       !try A+B+A
-      !       ! A1 = (ABS(Us(2,is))*ABS(tempuz2val)-ABS(Us(3,is))*ABS(tempuy2val)) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
-      !       ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy3val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz3val))) / ((ABS(tempuy1val)+ABS(tempuy3val))*ABS(tempuz2val)-(ABS(tempuz1val)+ABS(tempuz3val))*ABS(tempuy2val))
-
-            
-      !       ! A1 = (ABS(Us(2,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempuy3val)) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
-      !       ! B1 = (ABS(Us(3,is))*(ABS(tempuy1val)+ABS(tempuy2val))-ABS(Us(2,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempuy1val)+ABS(tempuy2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempuy3val))
-
-
-
-      !       ! A1 = (ABS(Us(1,is))*ABS(tempuz3val)-ABS(Us(3,is))*ABS(tempux3val)) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
-      !       ! B1 = (ABS(Us(3,is))*(ABS(tempux1val)+ABS(tempux2val))-ABS(Us(1,is))*(ABS(tempuz1val)+ABS(tempuz2val))) / ((ABS(tempux1val)+ABS(tempux2val))*ABS(tempuz3val)-(ABS(tempuz1val)+ABS(tempuz2val))*ABS(tempux3val))
-
-      !       ! A1 = ABS(A1)
-      !       ! B1 = ABS(B1)
-
-      !       A1 = (Us(1,is)*tempuz3val-Us(3,is)*tempux3val) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
-      !       B1 = (Us(3,is)*(tempux1val+(tempux2val))-(Us(1,is))*((tempuz1val)+(tempuz2val))) / (((tempux1val)+(tempux2val))*(tempuz3val)-((tempuz1val)+(tempuz2val))*(tempux3val))
-
-
-      !       write(*,*)'tempuxvals',tempux1val,tempux2val,tempux3val
-      !       write(*,*)'tempuyvals',tempuy1val,tempuy2val,tempuy3val
-      !       write(*,*)'tempuzvals',tempuz1val,tempuz2val,tempuz3val
-      !       write(*,*)'Debug A1',is,A1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
-      !       write(*,*)'Debug B1',is,B1, ((tempux1val+tempux2val)*tempuz3val-(tempuz1val+tempuz2val)*tempux3val)
-
-      !       !renormalize values
-      !       !renormalize ux_spec
-      !       A1 = 1. !hacky way to turn off renormalization before I clean things up.
-      !       B1 = 1.
-      !       us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
-      !       us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
-      !       us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
-
-
-      !       if (elecdircontribution == 1) then
-      !          us1(1,is)=A1*tempux1val
-      !          us1(2,is)=A1*tempuy1val
-      !          us1(3,is)=A1*tempuz1val
-      !       else if (elecdircontribution == 2)then
-      !          us1(1,is)=A1*tempux2val
-      !          us1(2,is)=A1*tempuy2val
-      !          us1(3,is)=A1*tempuz2val
-      !       else if (elecdircontribution == 3)then
-      !          us1(1,is)=B1*tempux3val
-      !          us1(2,is)=B1*tempuy3val
-      !          us1(3,is)=B1*tempuz3val
-      !       else
-      !          us1(1,is)=A1*tempux1val+A1*tempux2val+B1*tempux3val
-      !          us1(2,is)=A1*tempuy1val+A1*tempuy2val+B1*tempuy3val
-      !          us1(3,is)=A1*tempuz1val+A1*tempuz2val+B1*tempuz3val
-      !       end if
-      !    enddo
-
-      !    !******TODO: renormalize correlation*****
-      ! end if
-
-      call calc_exbar(omega,ef,bf,exbar)
-      do is = 1, nspec
-         !Create variable for parallel flow velocity normalized to
-         !       species parallel thermal speed
-         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-         do ivx=ivxmin,ivxmax
-            do ivy=ivymin,ivymax
-               vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
-               do ivz=ivzmin,ivzmax
-                  !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s)
-                  !Compute perturbed  Distribution value, fs1
-                  phi = ATAN2(vvy(ivy),vvx(ivx))
-                  call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,A1,B1,exbar,fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
-               enddo
-            enddo
-         enddo
-      enddo
-
-
 
       !Integrate 0th moment
       do is = 1, nspec
@@ -661,7 +540,6 @@ module fpc
          !Correct Normalization to n_0R
          ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
       
-
       ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
          !x-component
          do ivx=ivxmin,ivxmax
@@ -1251,7 +1129,6 @@ module fpc
       allocate(hatV_s(nspec))
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
-      call calc_exbar(omega,ef,bf,exbar)
       do is = 1, nspec
         call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
 
@@ -1302,6 +1179,10 @@ module fpc
             enddo
           enddo
       enddo
+
+      !call calc_exbar(omega,ef,bf,exbar)
+      !TODO: finish this!!!!
+      write(*,*)'TODO: fix calc_exbar for gyrotropic case!'
 
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
@@ -1561,7 +1442,7 @@ module fpc
 
     end function fs0hat
 
-    subroutine calc_exbar(omega,ef,bf,exbar)
+    subroutine calc_exbar(omega,ef,bf,ns,Pi1ij_over_f00s,exbar)
       !! Computes the amplitdue factor of the peturb distribution
       !! which is propto Ex/B0, a value which is an input but can be related to 
       !! solved and input dimensionless quantities using the linearized lorentz force and amperes law
@@ -1574,6 +1455,12 @@ module fpc
       
       complex, dimension(1:3), intent(in)   :: ef, bf           
       !! E, B
+
+      complex, dimension(1:nspec)     :: ns     
+      !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
+
+      complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
+      !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
       
       complex, intent(out) :: exbar
       !! Amplitude factor of fs1
@@ -1605,7 +1492,12 @@ module fpc
       integer :: unit_number
       !! Holds unit number of file used for debug writing to file
 
+      real :: pival 
+      !! 3.14159
+
       allocate(hatV_s(nspec))
+
+      pival = 4.0*ATAN(1.0)
 
       omega_temp = real(omega)-ii*aimag(omega)
       kpar_temp = kpar
@@ -1615,32 +1507,152 @@ module fpc
       sumterm = (0.,0.)
       runningterm = (0.,0.)
       do is = 1, nspec
+         !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
+         if (spec(is)%q_s .ge. 0.) then
+           omega_temp = real(omega)-ii*aimag(omega)
+           kpar_temp = kpar
+         end if
+         if (spec(is)%q_s .lt. 0.) then
+           omega_temp = real(omega)-ii*aimag(omega)
+           kpar_temp = kpar
+         end if
         !Create variable for parallel flow velmocity normmalized to
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
 
+        runningterm = (0.,0.)
+        !Lorentz force terms
         runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
         runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
         runningterm = runningterm+ef(2)
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
+
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        write(*,*)'rt final', runningterm
 
         sumterm = sumterm + runningterm
-        write(*,*)'debug spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+
+
+        unit_number = 11
+        if(is == 1) then
+         open(unit=unit_number, file="debug_data_ion.txt", status="replace", action="write")
+
+           write(unit_number,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+           write(unit_number,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
+           write(unit_number,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
+           write(unit_number,*)'omega_temp',omega_temp,'omegatempsq',omega_temp**2,'omega',omega,'omegasqrd',omega**2
+           write(unit_number,*)'hatV_s',hatV_s(is)
+          close(unit_number)
+         else if (is == 2) then
+            open(unit=unit_number, file="debug_data_elec.txt", status="replace", action="write")
+
+           write(unit_number,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+           write(unit_number,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
+           write(unit_number,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
+           write(unit_number,*)'omega_temp',omega_temp,'omegatempsq',omega_temp**2,'omega',omega,'omegasqrd',omega**2
+           write(unit_number,*)'hatV_s',hatV_s(is)
+          close(unit_number)
+       end if
+
+        write(*,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
         write(*,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
-        write(*,*)'spec debug',is,spec(is)%mu_s,spec(is)%q_s
-        write(*,*)'omega_temp and sqrd',omega_temp,omega_temp**2,'omega and sqrd',omega,omega**2
+        write(*,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
+        write(*,*)'omega_temp and sq',omega_temp,omega_temp**2,'omega and sqrd',omega,omega**2
         write(*,*)''
-        runningterm = (0.,0.)
+
       enddo
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
       exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
 
+
+
+      !make correction for pressure---- Junk test ----v
+      !START SUPER HACK- THIS IS SUPER HACKY!!!! an absolute fudge test- just compute rt for ions************************************************************
+
+      !First using running term to get B
+      do is = 1, nspec
+         !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
+         if (spec(is)%q_s .ge. 0.) then
+           omega_temp = real(omega)-ii*aimag(omega)
+           kpar_temp = kpar
+         end if
+         if (spec(is)%q_s .lt. 0.) then
+           omega_temp = real(omega)-ii*aimag(omega)
+           kpar_temp = kpar
+         end if
+        !Create variable for parallel flow velmocity normmalized to
+        !       species parallel thermal speed
+        hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
+
+        !Lorentz force terms
+        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
+        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp&
+           /(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
+        runningterm = runningterm+ef(2)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
+        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
+
+        write(*,*)'rt temp',runningterm
+        sumterm = sumterm + runningterm
+     end do
+     sumterm = sumterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*vtp*2 !WARNING vtp * 2 is added to make C/B match exbar!
+     write(*,*)'sumterm',sumterm
+     !Then use runnign term to get A (again just doing )
+     !TODO: remove when done
+        ! write(*,*)'nmo grad rt', runningterm, 'vtp', vtp, 'Pimjs', Pi1ij_over_f00s(1,1,is), Pi1ij_over_f00s(1,3,is), Pi1ij_over_f00s(2,1,is), Pi1ij_over_f00s(2,3,is)
+        ! !Pressure Gradient Terms
+        ! runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
+        ! *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
+        ! write(*,*)'rt grad 1', runningterm
+        ! runningterm = runningterm-(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
+        ! *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
+        ! write(*,*)'rt grad 2', runningterm
+
+        ! runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+        ! *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
+        ! write(*,*)'rt grad 3', runningterm
+        ! runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+        ! *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
+        ! write(*,*)'rt grad 4', runningterm
+      runningterm = (0.,0.)
+      do is = 1, nspec
+        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
+        *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        write(*,*)'rt grad 1', runningterm
+        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
+        *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        write(*,*)'rt grad 2', runningterm
+
+        runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+        *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        write(*,*)'rt grad 3', runningterm
+        runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+        *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        
+
+        write(*,*)'rt grad 4 final', runningterm
+      enddo
+      runningterm = runningterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))
+
+     
+
+     !END SUPER HACK***********************************************************************************************
+      write(*,*)'exbar orig',exbar,'C/B', (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)/sumterm
+      exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
+         4.*runningterm*sumterm)/(2.*sumterm)
+
+      !exbar = sqrt(-4.*runningterm*sumterm)/(sumterm) !No C term and 1/2 term!
+
+      write(*,*)'C',  (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp), ' B', sumterm,'A',runningterm
+      write(*,*)'sqrt(4 A B)/B',sqrt(4*sumterm*runningterm)/sumterm
+
       write(*,*)'--------'
       write(*,*)''
 
+
+
       ! Write to file
+      unit_number = unit_number - 1
       open(newunit=unit_number, file="exbar_output.dat", status="replace", action="write")
       write(unit_number,*) exbar
       close(unit_number)
@@ -1706,91 +1718,119 @@ module fpc
 
 
 
-!TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
-subroutine calc_fs0_mom_vthpar_cart(fs0, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, aleph_s, hatV_s, vvx, vvy, vvz, vthpar)
+   !TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
+   !TODO: rename
+   subroutine calc_fs_mom_pres_ten(fs, dir1, dir2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, aleph_s, hatV_s, vvx, vvy, vvz, Pidir1dir2out)
 
-    use vars, only : vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
+       use vars, only : delv
 
-    real, dimension(:,:,:,:), intent(in)  :: fs0       
-    !! Phase space distribution function
+       complex, dimension(:,:,:,:), intent(in)  :: fs       
+       !! Phase space distribution function for each species
 
-    integer, intent(in)                   :: ivxmin    
-    !! Minimum velocity index in x-direction
+       integer, intent(in)                   :: dir1, dir2
+       !! Dir1, dir2 correspond to the i,j element in the matrix
 
-    integer, intent(in)                   :: ivxmax    
-    !! Maximum velocity index in x-direction
+       integer, intent(in)                   :: ivxmin    
+       !! Minimum velocity index in x-direction
 
-    integer, intent(in)                   :: ivymin    
-    !! Minimum velocity index in y-direction
+       integer, intent(in)                   :: ivxmax    
+       !! Maximum velocity index in x-direction
 
-    integer, intent(in)                   :: ivymax    
-    !! Maximum velocity index in y-direction
+       integer, intent(in)                   :: ivymin    
+       !! Minimum velocity index in y-direction
 
-    integer, intent(in)                   :: ivzmin    
-    !! Minimum velocity index in z-direction
+       integer, intent(in)                   :: ivymax    
+       !! Maximum velocity index in y-direction
 
-    integer, intent(in)                   :: ivzmax    
-    !! Maximum velocity index in z-direction
+       integer, intent(in)                   :: ivzmin    
+       !! Minimum velocity index in z-direction
 
-    integer, intent(in)                   :: nspec     
-    !! Total number of species
+       integer, intent(in)                   :: ivzmax    
+       !! Maximum velocity index in z-direction
 
-    integer, intent(in)                   :: nspecidx  
-    !! Index of the species to be processed
+       integer, intent(in)                   :: nspec     
+       !! Total number of species
 
-    real, intent(in)                      :: aleph_s
-    !! Tperp,s/Tpar,s (measurement of temperature anisotropy for)
+       integer, intent(in)                   :: nspecidx  
+       !! Index of the species to be processed
 
-    real, intent(in)                      :: hatV_s
-    !! parallel species drift velocity
+       real, intent(in)                      :: aleph_s
+       !! Tperp,s/Tpar,s (measurement of temperature anisotropy)
 
-    real, dimension(:), intent(in)        :: vvx       
-    !! Velocity grid in the x-direction
+       real, intent(in)                      :: hatV_s
+       !! Parallel species drift velocity
 
-    real, dimension(:), intent(in)        :: vvy       
-    !! Velocity grid in the y-direction
+       real, dimension(:), intent(in)        :: vvx       
+       !! Velocity grid in the x-direction
 
-    real, dimension(:), intent(in)        :: vvz       
-    !! Velocity grid in the z-direction
+       real, dimension(:), intent(in)        :: vvy       
+       !! Velocity grid in the y-direction
 
-    complex, intent(out)                  :: vthpar      
-    !! Normalized phase space density
+       real, dimension(:), intent(in)        :: vvz       
+       !! Velocity grid in the z-direction
 
-    ! Local variables
-    integer                                :: ivx        
-    !! Loop index for x-direction
+       complex, intent(out)                  :: Pidir1dir2out      
+       !! Matrix element of the pressure tensor
 
-    integer                                :: ivy        
-    !! Loop index for y-direction
+       ! Local variables
+       integer                                :: ivx        
+       !! Loop index for x-direction
 
-    integer                                :: ivz        
-    !! Loop index for z-direction
+       integer                                :: ivy        
+       !! Loop index for y-direction
 
-    real                                   :: temp_sum  
-    !! Temporary sum accumulator (kept as real then cast as complex for efficiency later)
+       integer                                :: ivz        
+       !! Loop index for z-direction
 
-    real                                   :: speedpar      
-    !! magnitude of velocity component
+       complex                                   :: temp_sum  
+       !! Temporary sum accumulator
 
-    call check_f_gridsize(nspecidx,aleph_s)
+       real                                   :: v1, v2    
+       !! Velocity components for the pressure tensor element
 
-    ! Initialize temp_sum
-    temp_sum = 0.0
+       !call check_f_gridsize_cart(nspecidx,aleph_s) !TODO: add back!
 
-    ! Loop through the array and sum values at the specified species index
-    do ivx = ivxmin, ivxmax
-        do ivy = ivymin, ivymax
-            do ivz = ivzmin, ivzmax
-               speedpar = (vvz(ivx) - hatV_s)**2
-               temp_sum = temp_sum + speedpar**2+fs0(ivx, ivy, ivz, nspecidx) !Note, we want parallal thermal velocity as we have 
-            end do
-        end do
-    end do
-    temp_sum = temp_sum * delv**3
-    
-    vthpar = sqrt(temp_sum)
+       ! Initialize temp_sum
+       temp_sum = 0.0
 
-end subroutine calc_fs0_mom_vthpar_cart
+       ! Loop through the array and sum values at the specified species index
+       do ivx = ivxmin, ivxmax
+           do ivy = ivymin, ivymax
+               do ivz = ivzmin, ivzmax
+
+                   ! Select the appropriate velocity components based on dir1 and dir2
+                   if (dir1 == 1) then
+                       v1 = vvx(ivx)
+                   elseif (dir1 == 2) then
+                       v1 = vvy(ivy)
+                   else
+                       v1 = vvz(ivz) - hatV_s
+                   end if
+
+                   if (dir2 == 1) then
+                       v2 = vvx(ivx)
+                   elseif (dir2 == 2) then
+                       v2 = vvy(ivy)
+                   else
+                       v2 = vvz(ivz) - hatV_s
+                   end if
+
+                   ! Compute the contribution to the pressure tensor
+                   temp_sum = temp_sum + v1 * v2 * fs(ivx, ivy, ivz, nspecidx)
+
+               end do
+           end do
+       end do
+
+       ! Normalize by velocity volume element
+       temp_sum = temp_sum * delv**3
+
+       ! Assign output
+       Pidir1dir2out = temp_sum
+
+   end subroutine calc_fs_mom_pres_ten
+
+
 
 
 
@@ -1842,7 +1882,7 @@ end subroutine calc_fs0_mom_vthpar_cart
       complex, intent(in)   :: A1, B1           
       !! Temporary scalars to fix coeff error!
       
-      complex, intent(out)  :: exbar            
+      complex, intent(in)  :: exbar            
       !! normalizaiton factor
       
       real, intent(in)      :: fs0              
@@ -1900,8 +1940,8 @@ end subroutine calc_fs0_mom_vthpar_cart
       !fix sign definition difference between swanson/ stix
       !Note, this sign difference causes for a strange mixture of signs in the terms (namely in Ubar_s and Wbar_s) but this has been tested!
       if (q_s .gt. 0.) then 
-          omega_temp = -real(omega)-ii*aimag(omega) 
-          kpar_temp = -kpar !want to keep the same direction
+          omega_temp = real(omega)-ii*aimag(omega) 
+          kpar_temp = kpar !want to keep the same direction
           kperp_temp = kperp 
           vpar_temp = vpar
           ef3 = ef3
@@ -1933,7 +1973,7 @@ end subroutine calc_fs0_mom_vthpar_cart
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that dosn't depend on m
-       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)
+       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)!+(0,1)*EpsilonSokhotski_Plemelj !EpsilonSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
        Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
