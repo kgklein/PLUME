@@ -104,6 +104,12 @@ contains
        close (unit)
     enddo
 
+    !Check that ref mass ratio is 1 (in the python wrapper, this is used to help determine the output format to load in sweeps, which is why we check it)
+    if(spec(1)%mu_s-1 > 0.0000001) then 
+        write(*,'(a,es11.4)')&
+         'ERROR: reference mass ratio is not 1:     spec(1)%mu_s =',spec(1)%mu_s
+    end if
+
     !read in fpc params
     if(option == 6 .or. option == 7) then
 
