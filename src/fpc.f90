@@ -1528,48 +1528,16 @@ module fpc
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
 
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        write(*,*)'rt final', runningterm
 
         sumterm = sumterm + runningterm
-
-
-        unit_number = 11
-        if(is == 1) then
-         open(unit=unit_number, file="debug_data_ion.txt", status="replace", action="write")
-
-           write(unit_number,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-           write(unit_number,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
-           write(unit_number,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
-           write(unit_number,*)'omega_temp',omega_temp,'omegatempsq',omega_temp**2,'omega',omega,'omegasqrd',omega**2
-           write(unit_number,*)'hatV_s',hatV_s(is)
-          close(unit_number)
-         else if (is == 2) then
-            open(unit=unit_number, file="debug_data_elec.txt", status="replace", action="write")
-
-           write(unit_number,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-           write(unit_number,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
-           write(unit_number,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
-           write(unit_number,*)'omega_temp',omega_temp,'omegatempsq',omega_temp**2,'omega',omega,'omegasqrd',omega**2
-           write(unit_number,*)'hatV_s',hatV_s(is)
-          close(unit_number)
-       end if
-
-        write(*,*)'debug_spec',is,'rt',runningterm,'1-om2',(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        write(*,*)'ef(2)',ef(2),'Ds/Qs',(spec(is)%D_s/spec(is)%q_s),'4thom',omega_temp*spec(is)%q_s/spec(is)%mu_s
-        write(*,*)'spec_debug',is,spec(is)%mu_s,spec(is)%q_s
-        write(*,*)'omega_temp and sq',omega_temp,omega_temp**2,'omega and sqrd',omega,omega**2
-        write(*,*)''
 
       enddo
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
       exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
-
-
-
-      !make correction for pressure---- Junk test ----v
+      
       !START SUPER HACK- THIS IS SUPER HACKY!!!! an absolute fudge test- just compute rt for ions************************************************************
-
+      !make correction for pressure---- Junk test ----v
       !First using running term to get B
       do is = 1, nspec
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
@@ -1592,51 +1560,32 @@ module fpc
         runningterm = runningterm+ef(2)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
 
-        write(*,*)'rt temp',runningterm
         sumterm = sumterm + runningterm
      end do
      sumterm = sumterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*vtp*2 !WARNING vtp * 2 is added to make C/B match exbar!
-     write(*,*)'sumterm',sumterm
-     !Then use runnign term to get A (again just doing )
-     !TODO: remove when done
-        ! write(*,*)'nmo grad rt', runningterm, 'vtp', vtp, 'Pimjs', Pi1ij_over_f00s(1,1,is), Pi1ij_over_f00s(1,3,is), Pi1ij_over_f00s(2,1,is), Pi1ij_over_f00s(2,3,is)
-        ! !Pressure Gradient Terms
-        ! runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
-        ! *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
-        ! write(*,*)'rt grad 1', runningterm
-        ! runningterm = runningterm-(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
-        ! *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
-        ! write(*,*)'rt grad 2', runningterm
+     runningterm = (0.,0.)
+     do is = 1, nspec
+       runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
+       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       write(*,*)'rt grad 1', runningterm
+       runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
+       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       write(*,*)'rt grad 2', runningterm
 
-        ! runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-        ! *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
-        ! write(*,*)'rt grad 3', runningterm
-        ! runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-        ! *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(-1.)
-        ! write(*,*)'rt grad 4', runningterm
-      runningterm = (0.,0.)
-      do is = 1, nspec
-        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
-        *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        write(*,*)'rt grad 1', runningterm
-        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
-        *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        write(*,*)'rt grad 2', runningterm
+       runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       write(*,*)'rt grad 3', runningterm
+       runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
+       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+     
 
-        runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-        *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        write(*,*)'rt grad 3', runningterm
-        runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-        *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-        
-
-        write(*,*)'rt grad 4 final', runningterm
+     write(*,*)'rt grad 4 final', runningterm
       enddo
       runningterm = runningterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))
 
      
 
-     !END SUPER HACK***********************************************************************************************
+     
       write(*,*)'exbar orig',exbar,'C/B', (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)/sumterm
       exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
          4.*runningterm*sumterm)/(2.*sumterm)
@@ -1649,15 +1598,15 @@ module fpc
       write(*,*)'--------'
       write(*,*)''
 
+      !END SUPER HACK***********************************************************************************************
 
-
-      ! Write to file
+      ! Write to file (TODO: this is temporary- debug and remove!)
       unit_number = unit_number - 1
       open(newunit=unit_number, file="exbar_output.dat", status="replace", action="write")
       write(unit_number,*) exbar
       close(unit_number)
       
-      exbar = (1.,0.)
+      exbar = (1.,0.) !Don't multiply by exbar for debug purposes- TODO debug and remove this line!
 
     end subroutine calc_exbar
 
