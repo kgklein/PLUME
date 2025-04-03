@@ -167,7 +167,19 @@ class plume_input:
         else:
             self.guesses.append(tempguess)
 
+    def check_input_for_errors(self):
+        #will not halt things,  but will print warnings
+
+        spec1keysthatshouldbe1 = ['tauS','muS','Qs','Ds']
+        _tolerance = 0.0001
+        for _k in spec1keysthatshouldbe1:
+            if(abs(self.species[0][_k]-1.) < _tolerance):
+                print("Warning, reference species should have",_k," = 1")
+                print("Results are most certianly incorrect!")
+
     def write_input(self,flnm,outputname,desc='',verbose=False):
+
+        self.check_input_for_errors()
 
         _replace_input_aux(flnm,verbose=verbose)
 
