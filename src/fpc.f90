@@ -1507,6 +1507,7 @@ module fpc
       sumterm = (0.,0.)
       runningterm = (0.,0.)
       do is = 1, nspec
+         !TODO: remove this? seems like signs are okay here?
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
          if (spec(is)%q_s .ge. 0.) then
            omega_temp = real(omega)-ii*aimag(omega)
@@ -1535,6 +1536,9 @@ module fpc
 
       exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
       exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
+
+
+
       
       !START SUPER HACK- THIS IS SUPER HACKY!!!! an absolute fudge test- just compute rt for ions************************************************************
       !make correction for pressure---- Junk test ----v
@@ -1562,31 +1566,39 @@ module fpc
 
         sumterm = sumterm + runningterm
      end do
-     sumterm = sumterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*vtp*2 !WARNING vtp * 2 is added to make C/B match exbar!
+     sumterm = sumterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*(vtp*sqrt(spec(1)%alph_s))*2 !WARNING (vtp*sqrt(spec(1)%alph_s)) * 2 is added to make C/B 'match orig exbar'!
      runningterm = (0.,0.)
      do is = 1, nspec
        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
-       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       write(*,*)'rt grad 1', runningterm
+       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       !write(*,*)'rt grad 1', runningterm
        runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
-       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       write(*,*)'rt grad 2', runningterm
+       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       !write(*,*)'rt grad 2', runningterm
 
        runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       write(*,*)'rt grad 3', runningterm
+       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+       !write(*,*)'rt grad 3', runningterm
        runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))**(1.)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-     
-
-     write(*,*)'rt grad 4 final', runningterm
+       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
       enddo
-      runningterm = runningterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))
+      runningterm = runningterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sqrt(spec(1)%alph_s) !WARNING need to double check this sqrt(spec(1)%alph_s) (for our test case this term is equal to one, so its hard to tell if this is right or not)
 
-     
-
-     
+      !DEBUG!
       write(*,*)'exbar orig',exbar,'C/B', (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)/sumterm
+
+
+      !pos solution
+      exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
+         4.*runningterm*sumterm)/(2.*sumterm)
+      write(*,*)'pos',exbar
+
+      !neg solution
+      exbar = 1./2.*exbar-sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
+         4.*runningterm*sumterm)/(2.*sumterm)
+      write(*,*)'neg',exbar
+
+      !take positive (TODO remove above debug)
       exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
          4.*runningterm*sumterm)/(2.*sumterm)
 
@@ -1607,6 +1619,8 @@ module fpc
       close(unit_number)
       
       exbar = (1.,0.) !Don't multiply by exbar for debug purposes- TODO debug and remove this line!
+
+      !TODO: dont forget 1/w||R√ℵR term with exbar with pressure term (or more specifically final exbar value (see c17- very last equation in paper)).... check that we actually use it somewhere <-  we do for the original exbar!
 
     end subroutine calc_exbar
 
