@@ -2269,7 +2269,25 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
                    *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap
            enddo
-           j=3!z
+           !  j=3!z
+
+           !Wrong?
+           !vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
+           !     *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
+           !     -(vtp/betap)*vmean(1,jj)*(kperp*spec(jj)%vv_s/ sqrt(betap*spec(1)%alph_s))/&
+           !     (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))
+           !vmean(j,jj) = vmean(j,jj)/&
+           !     (1+kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))/&
+           !     (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))
+
+           !vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
+           !     *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
+           !     -vmean(1,jj)*(kperp*spec(jj)%vv_s/ sqrt(betap*spec(1)%alph_s))/&
+           !     (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))
+           !vmean(j,jj) = vmean(j,jj)/&
+           !     (1+(kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))/&
+           !     (omega-kpar*spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s)) )
+
            vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
                 *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
                 -vmean(1,jj)*(kperp*spec(jj)%vv_s)/&
@@ -2277,6 +2295,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
            vmean(j,jj) = vmean(j,jj)/&
                 (1+(kpar*spec(jj)%vv_s)/&
                 (omega*sqrt(betap*spec(1)%alph_s)-kpar*spec(jj)%vv_s))
+
         endif
         enddo
 
@@ -2286,9 +2305,13 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
      !KGK: 12-19-2013: Added the sqrt(T_perp/T_par) factor
      !KGK: 1-28-2015: Added the drift velocity Doppler shift
      do jj=1,nspec
+        !ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
+        !     ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
+        !     *sqrt(betap*spec(1)%alph_s))
+        !This is (n1s/n0s)/(Ex/B0)
         ns(jj) = (vmean(1,jj)*kperp+vmean(3,jj)*kpar)/&
              ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
-             *sqrt(betap*spec(1)%alph_s))
+             *sqrt(spec(1)%alph_s)*vtp)
      enddo
 
      
