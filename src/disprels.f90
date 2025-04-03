@@ -2290,13 +2290,14 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
 
            vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
                 *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
-                -vmean(1,jj)*(kperp*spec(jj)%vv_s )/&
-                (omega*sqrt(betap*spec(1)%alph_s)-kpar*spec(jj)%vv_s)
+                -vmean(1,jj)*(kperp*spec(jj)%vv_s)/&
+                (sqrt(betap*spec(1)%alph_s)*omega-kpar*spec(jj)%vv_s)
            vmean(j,jj) = vmean(j,jj)/&
                 (1+(kpar*spec(jj)%vv_s)/&
-                (omega*sqrt(betap*spec(1)%alph_s)-kpar*spec(jj)%vv_s) )
+                (omega*sqrt(betap*spec(1)%alph_s)-kpar*spec(jj)%vv_s))
+
         endif
-     enddo
+        enddo
 
      !CALCULATE DENSITY FLUCTUATIONS========================================
      ! This is ns/ns0
