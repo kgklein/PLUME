@@ -123,15 +123,15 @@
 <p>PLUME writes output solutions to the <code>/data</code> directory, to the subdirectory specified by <code>dataName</code>.
 All output file names will have the <code>outputName</code> string included in the name to distinguish between distinct calculations. </p>
 <h2>dispersion_<em>outputName</em>.map</h2>
-<p>Value of the dispersion tensor $\mathcal{D}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.<br>
-Solutions to the dispersion relation satisfy $|\mathcal{D}|  =0$.
+<p>Value of the dispersion tensor $\mathcal{\Lambda}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.<br>
+Solutions to the dispersion relation satisfy $|\mathcal{\Lambda}|  =0$.
 This file is generated from the <em>map_search</em> subroutine in <em>disprels.f90</em>, and invoked when <code>use_map</code> =.true. </p>
 <p>The data is ordered in columns as<br>
 1. $\omega_r$<br>
 2. $\gamma$ <br>
-3. $\log_{10} |\mathcal{D}|$<br>
-4. Re $[|\mathcal{D}|]$<br>
-5. Im $[|\mathcal{D}|]$  </p>
+3. $\log_{10} |\mathcal{\Lambda}|$<br>
+4. Re $[|\mathcal{\Lambda}|]$<br>
+5. Im $[|\mathcal{\Lambda}|]$  </p>
 <p>The <em>&amp;maps</em> namelist in <em>filename</em>.in determines the structure of <em>filename</em>.map.<br>
 The range of $\omega_{\textrm{r}}/\Omega_p$ is from <code>omi</code> to <code>omi</code> with <code>nr</code> steps. Logorithmic or linear spacing is selected with <code>loggridw</code>. <em><code>nr</code> and <code>ni</code> are currently hardcoded. Will add as user options.</em>
 The range of $\gamma_{\textrm{r}}/\Omega_p$ is from <code>gami</code> to <code>gami</code> with <code>ni</code> steps. Logorithmic or linear spacing is selected with <code>loggridg</code>.</p>
@@ -208,7 +208,8 @@ They are ordered as
 24. [+6(j-1)] Im $[\delta U_{z,j}]$ <br>
 19. [+6(<code>nspec</code>)+2(j-1)] Re $[\delta n_{j}]$ <br>
 20. [+6(<code>nspec</code>)+2(j-1)] Im $[\delta n_{j}]$ </p>
-<p>where <code>j</code> ranges from 1 to <code>nspec</code>.</p>
+<p>where <code>j</code> ranges from 1 to <code>nspec</code>.
+The normalization follows Eqns. X-Y in Klein et al RNAAS 2025 [doi here]</p>
 <p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>new_low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
 <p>If <code>new_low_n</code> is true, we have</p>
 <ul>
