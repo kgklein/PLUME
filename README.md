@@ -65,7 +65,9 @@ For advice on the installation of the code, please check [`INSTALL.md`](./INSTAL
 
 There are two ways to run PLUME
 
-PLUME works with input files that specify the plasma and numerical parameters for the calculation.
+###  Command line:
+
+The first way is to use the command line. PLUME works with input files that specify the plasma and numerical parameters for the calculation.
 Details on the input parameters can be found in [`input.md`](./input.md).
 
 The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
@@ -75,6 +77,17 @@ The values for the plasma parameters are extracted from *.in file, appended afte
 
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
 Details on the outputs of the code can be found in [`output.md`](./output.md).
+
+###  Python wrapper:
+
+The second way is to use the python wrapper, which simply helps one write inputs, call the code using the command line, and load the data into python variables. One way to use the python wrapper is with jupyter notebook (to install, see [here](https://jupyter.org/install)).
+
+To do so, call jupyter notebook,
+```
+jupyter notebook
+```
+and navigate to and open the [`examplelinfpc.ipynb`](./examplelinfpc.ipynb) notebook. This notebook shows how to use the main functions of both PLUME and JET-PLUME. 
+
 
 ## 5. JET-PLUME
 
