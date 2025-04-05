@@ -173,7 +173,7 @@ class plume_input:
         spec1keysthatshouldbe1 = ['tauS','muS','Qs','Ds']
         _tolerance = 0.0001
         for _k in spec1keysthatshouldbe1:
-            if(abs(self.species[0][_k]-1.) < _tolerance):
+            if(abs(self.species[0][_k]-1.) > _tolerance):
                 print("Warning, reference species should have",_k," = 1")
                 print("Results are most certianly incorrect!")
 
