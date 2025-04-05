@@ -76,10 +76,11 @@ Details on the outputs of the code can be found in [`output.md`](./output.md).
 
 ## 5. JET-PLUME
 
+<img src="./Jet-Plume_Logo.svg" alt="JetPlumeLogdrawing" width="200"/>
+
 JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md).
 
-If you use this code for a science publication, please provide the same code website as plume
-[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper for JET-PLUME: ...
+If you use this addition to the code for a science publication, please follow the directions in the Acknowledgements section above AND in the Acknowledgements of your publication and cite the paper for JET-PLUME: [... Work in Progress]
 
 With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional.
 
@@ -87,7 +88,7 @@ With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyte
 
 BSD 2-Clause License
 
-Copyright (c) 2025, Kristopher G. Klein and Gregory G. Howes
+Copyright (c) 2025, Kristopher G. Klein and Gregory G. Howes and Collin R. Brown
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
