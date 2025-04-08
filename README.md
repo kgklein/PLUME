@@ -63,7 +63,11 @@ For advice on the installation of the code, please check [`INSTALL.md`](./INSTAL
 
 ##  4. Running the PLUME code
 
-PLUME works with input files that specify the plasma and numerical parameters for the calculation.
+There are two ways to run PLUME
+
+###  Command line:
+
+The first way is to use the command line. PLUME works with input files that specify the plasma and numerical parameters for the calculation.
 Details on the input parameters can be found in [`input.md`](./input.md).
 
 The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
@@ -74,15 +78,28 @@ The values for the plasma parameters are extracted from *.in file, appended afte
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
 Details on the outputs of the code can be found in [`output.md`](./output.md).
 
+###  Python wrapper:
+
+The second way is to use the python wrapper, which simply helps one write inputs, call the code using the command line, and load the data into python variables. One way to use the python wrapper is with jupyter notebook (to install, see [here](https://jupyter.org/install)).
+
+To do so, call jupyter notebook,
+```
+jupyter notebook
+```
+and navigate to and open the [`examplelinfpc.ipynb`](./examplelinfpc.ipynb) notebook. This notebook shows how to use the main functions of both PLUME and JET-PLUME. 
+
+
 ## 5. JET-PLUME
 
 <img src="./Jet-Plume_Logo.svg" alt="JetPlumeLogdrawing" width="200"/>
 
-JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md).
+JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md). JET-PLUME is automatically installed with PLUME. It's inclusion has no impact on the use of PLUME.
 
-If you use this addition to the code for a science publication, please follow the directions in the Acknowledgements section above AND in the Acknowledgements of your publication and cite the paper for JET-PLUME: [... Work in Progress]
+If you use JET-PLUME (i.e. not just PLUME) for a science publication, please follow the directions in the Acknowledgements section above AND in the Acknowledgements of your publication and cite the paper for JET-PLUME: [... Work in Progress]
 
 With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional.
+
+JET-PLUME is operated in a similar manner to PLUME, either using command line or the python wrapper. See Section 4 above on how to operate and [README for JET-PLUME](./page/README-JETPLUME.md) for the additional inputs.
 
 ## 6. License
 
