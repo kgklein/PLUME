@@ -38,7 +38,7 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - $T_{j,\perp}/T_{j,\parallel}$.
 - $q_{ref}/q_{j}$.
 - $n_{j}/n_{ref}$.
-- $v_{j,drift}/(c E_x/B_0)$.
+- $v_{j,drift}/v_{A,ref}$.
 
 Only the first `nroot_max` solutions will be identified and written to file.
 
@@ -127,7 +127,7 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 21+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $T_{j,\perp}/T_{j,\parallel}$.
 - 22+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $q_{ref}/q_{j}$.
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
-- 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/(c E_x/B_0)$.
+- 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
 This same data structure is preserved for the output from `om_double_scan`.
