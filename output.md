@@ -28,7 +28,7 @@ The data is ordered in columns as:
 1. $k_\perp \rho_{ref}$
 2. $k_\parallel \rho_{ref}$
 3. $\beta_{ref,\parallel}$
-4. $v_{t,ref,\parallel}/c$
+4. $v_{t,ref,\parallel}/(c E_x/B_0)$, choosing $E_x/B_0 = 1$ by default
 5. $\omega_{r}/\Omega_{ref}$
 6. $\gamma/\Omega_{ref}$
 
