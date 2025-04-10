@@ -185,12 +185,17 @@ class plume_input:
 
         f = open(str(flnm)+'.in', "w")
 
+        self.params['outputName'] = outputname
+
         f.write('&params\n')
         for key in self.params.keys():
-            line = str(key)+'='+str(self.params[key])+'\n'
+            if(key == 'dataName'):
+                line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
+            elif(key == 'outputName'):
+                line = str(key)+'='+"'"+str(outputname)+"'"+'\n'
+            else:
+                line = str(key)+'='+str(self.params[key])+'\n'
             f.write(line)
-        f.write('dataname=\''+str(self.dataname)+'\'\n')
-        f.write('outputname=\''+str(outputname)+'\'\n')
         f.write('/\n\n')
 
         if(len(self.fpc) != 0):
