@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_exbar, calc_fs_mom_pres_ten, check_f_gridsize_cart
+  private :: calc_fs1, calc_wparr, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -246,6 +246,13 @@ module fpc
       complex    :: exbar               
       !! amplitude factor of fs1
 
+      real :: wparr
+      !! dimensional reference thermal velocity (only used to normalize moments with same normalization as plume)
+
+      real :: n0s
+      !! dimensional reference equil density (only used to normalize moments with same normalization as plume)
+
+
       pi = 4.0*ATAN(1.0)
       A1 = 1. !Temporary scalar to fix coeff 
       B1 = 1. !Temporary scalar to fix coeff
@@ -380,7 +387,7 @@ module fpc
          Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
          Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
       end do
-      call calc_exbar(omega,ef,bf,ns,Pi1ij_over_f00s,exbar)
+      call calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
       fs1 = exbar*fs1
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
@@ -538,20 +545,20 @@ module fpc
          ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
 
          !Correct Normalization to n_0R
-         ns1(is)=ns1(is)*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
+         ns1(is)=ns1(is)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
       
       ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
          !x-component
          do ivx=ivxmin,ivxmax
-            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
+            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
          enddo
          !y-component
          do ivy=ivymin,ivymax
-            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
+            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
          enddo
          !z-component
          do ivz=ivzmin,ivzmax
-            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3 !TODO: this is not correct and should have an additional factor of Ex/B0 in it (compute with calc exbar rountine)
+            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3 
          enddo
       enddo
 
@@ -1180,10 +1187,6 @@ module fpc
           enddo
       enddo
 
-      !call calc_exbar(omega,ef,bf,exbar)
-      !TODO: finish this!!!!
-      write(*,*)'TODO: fix calc_exbar for gyrotropic case!'
-
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
       !=============================================================================
@@ -1442,11 +1445,8 @@ module fpc
 
     end function fs0hat
 
-    subroutine calc_exbar(omega,ef,bf,ns,Pi1ij_over_f00s,exbar)
-      !! Computes the amplitdue factor of the peturb distribution
-      !! which is propto Ex/B0, a value which is an input but can be related to 
-      !! solved and input dimensionless quantities using the linearized lorentz force and amperes law
-      !! and a lot of algebra
+    subroutine calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
+      !! Computes factors needed to take moments of the pert dist function in same units as PLUME
 
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
 
@@ -1462,8 +1462,11 @@ module fpc
       complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
       !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
       
-      complex, intent(out) :: exbar
+      complex, intent(in) :: exbar
       !! Amplitude factor of fs1
+
+      real, intent(out) :: wparr
+      !! dimensional reference thermal velocity (only used to normalize moments with same normalization as plume)
 
       real,  allocatable, dimension(:)  :: hatV_s     
       !! Flow normalized to wpar_s
@@ -1471,14 +1474,11 @@ module fpc
       complex                           :: omega_temp 
       !! holds the fixed omege with sign of gamma term flipped as PLUME returns it with a minus sign 
       
-      complex                           :: numerator  
-      !! numerator term of amp term relate to exbar
-      
       complex                           :: sumterm    
-      !! term that holds running sum of summation
+      !! te,[ term that holds running sum of summation
       
       complex                           :: runningterm
-      !! term that holds numerator term in summation so we can break it up into many lines for readability
+      !! term that holds parts of term in summation so we can break it up into many lines for readability
       
       integer                           :: is         
       !! species counter
@@ -1495,17 +1495,21 @@ module fpc
       real :: pival 
       !! 3.14159
 
+      complex :: LHS, sumlor, sumpres
+      !! intermediate values of expression that comes from normalized momentum equation
+
       allocate(hatV_s(nspec))
 
       pival = 4.0*ATAN(1.0)
 
+      exbar = (1.0,0.) !TODO: this is the default value, we should load it!
+
       omega_temp = real(omega)-ii*aimag(omega)
       kpar_temp = kpar
+      
+      LHS = -(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp/sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
 
-      numerator = -(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
-
-      sumterm = (0.,0.)
-      runningterm = (0.,0.)
+      sumlor = (0.,0.)
       do is = 1, nspec
          !TODO: remove this? seems like signs are okay here?
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
@@ -1521,29 +1525,20 @@ module fpc
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
 
-        runningterm = (0.,0.)
         !Lorentz force terms
         runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
         runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
         runningterm = runningterm+ef(2)
         runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
 
-        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2./(spec(is)%mu_s)**2.)
 
-        sumterm = sumterm + runningterm
-
+        sumlor = sumlor + runningterm
       enddo
 
-      exbar = numerator/((sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sumterm) !compute exbar/B0 (wperp/vAR) !Warning: assumes first species is reference species
-      exbar = exbar/(vtp*sqrt(spec(1)%alph_s))
-
-
-
-      
-      !START SUPER HACK- THIS IS SUPER HACKY!!!! an absolute fudge test- just compute rt for ions************************************************************
-      !make correction for pressure---- Junk test ----v
-      !First using running term to get B
+      sumpres = (0.,0.)
       do is = 1, nspec
+         !TODO: remove this? seems like signs are okay here?
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
          if (spec(is)%q_s .ge. 0.) then
            omega_temp = real(omega)-ii*aimag(omega)
@@ -1557,72 +1552,25 @@ module fpc
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
 
-        !Lorentz force terms
-        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
-        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp&
-           /(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
-        runningterm = runningterm+ef(2)/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
-        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)*(spec(is)%D_s/spec(is)%q_s)
 
-        sumterm = sumterm + runningterm
-     end do
-     sumterm = sumterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*(vtp*sqrt(spec(1)%alph_s))*2 !WARNING (vtp*sqrt(spec(1)%alph_s)) * 2 is added to make C/B 'match orig exbar'!
-     runningterm = (0.,0.)
-     do is = 1, nspec
-       runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kperp*Pi1ij_over_f00s(1,1,is)*omega_temp/ns(is)&
-       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       !write(*,*)'rt grad 1', runningterm
-       runningterm = runningterm+(spec(is)%q_s/spec(is)%mu_s)**2*kpar_temp*Pi1ij_over_f00s(1,3,is)*omega_temp/ns(is)&
-       *vtp*(sqrt(spec(is)%alph_s)*pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       !write(*,*)'rt grad 2', runningterm
+        !Pressure terms
+        runningterm = (spec(is)%q_s/spec(is)%mu_s*(kperp*Pi1ij_over_f00s(2,1,is)+kpar*Pi1ij_over_f00s(2,3,is)))*(spec(is)%alph_s**(3./2.)/(spec(is)%tau_s**3.*pival**(3./2.)))
+        runningterm = runningterm + ((spec(is)%q_s/spec(is)%mu_s)**2.*omega*(kperp*Pi1ij_over_f00s(1,1,is)+kpar*Pi1ij_over_f00s(1,3,is)))*(spec(is)%alph_s**(3/2)/(spec(is)%tau_s**3.*pival**(3./2.)))
 
-       runningterm = runningterm+kperp*Pi1ij_over_f00s(2,1,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
-       !write(*,*)'rt grad 3', runningterm
-       runningterm = runningterm+kpar_temp*Pi1ij_over_f00s(2,3,is)*spec(is)%q_s/spec(is)%mu_s*sqrt(spec(is)%alph_s)/ns(is)&
-       *vtp*(pival**(1.5)*1./2.*(1.+2.*spec(is)%vv_s**2.)*sqrt(spec(is)%alph_s))/(1-omega_temp**2*(spec(is)%q_s)**2/(spec(is)%mu_s)**2)
+        runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2/(spec(is)%mu_s)**2.)
+
+        sumpres = sumpres + runningterm
       enddo
-      runningterm = runningterm*(sqrt(betap)*spec(1)%D_s/(vtp**2*sqrt(spec(1)%alph_s)))*sqrt(spec(1)%alph_s) !WARNING need to double check this sqrt(spec(1)%alph_s) (for our test case this term is equal to one, so its hard to tell if this is right or not)
 
-      !DEBUG!
-      write(*,*)'exbar orig',exbar,'C/B', (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)/sumterm
-
-
-      !pos solution
-      exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
-         4.*runningterm*sumterm)/(2.*sumterm)
-      write(*,*)'pos',exbar
-
-      !neg solution
-      exbar = 1./2.*exbar-sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
-         4.*runningterm*sumterm)/(2.*sumterm)
-      write(*,*)'neg',exbar
-
-      !take positive (TODO remove above debug)
-      exbar = 1./2.*exbar+sqrt( (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp)**2-&
-         4.*runningterm*sumterm)/(2.*sumterm)
-
-      !exbar = sqrt(-4.*runningterm*sumterm)/(sumterm) !No C term and 1/2 term!
-
-      write(*,*)'C',  (-(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp*sqrt(spec(1)%alph_s)*omega_temp), ' B', sumterm,'A',runningterm
-      write(*,*)'sqrt(4 A B)/B',sqrt(4*sumterm*runningterm)/sumterm
-
-      write(*,*)'--------'
-      write(*,*)''
-
-      !END SUPER HACK***********************************************************************************************
+      wparr = ((sumpres)*vtp**2/((vtp**2*sqrt(spec(1)%alph_s)/betap)*LHS-sumlor))**(1./5.)
 
       ! Write to file (TODO: this is temporary- debug and remove!)
       unit_number = unit_number - 1
-      open(newunit=unit_number, file="exbar_output.dat", status="replace", action="write")
-      write(unit_number,*) exbar
+      open(newunit=unit_number, file="wparr_output.dat", status="replace", action="write")
+      write(unit_number,*) ((sumpres)*vtp**2/((vtp**2*spec(1)%alph_s/betap)*LHS-sumlor))**(1./5.)
       close(unit_number)
-      
-      exbar = (1.,0.) !Don't multiply by exbar for debug purposes- TODO debug and remove this line!
 
-      !TODO: dont forget 1/w||R√ℵR term with exbar with pressure term (or more specifically final exbar value (see c17- very last equation in paper)).... check that we actually use it somewhere <-  we do for the original exbar!
-
-    end subroutine calc_exbar
+    end subroutine calc_wparr
 
 
  subroutine check_f_gridsize_cart(nspecidx,aleph_s)
