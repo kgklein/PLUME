@@ -32,9 +32,7 @@ module fpc
   !! Last Bessel function argument, used to store repeated calculations for efficiency
   real, allocatable :: jbess(:)  
   !! Regular (i.e. not the modified used elsewhere) Bessel functions, stored for efficiency 
-  real :: EpsilonSokhotski_Plemelj = 0.0
-  !! Epsilon in the Sokhotski–Plemelj theorem, which states int f(x)/(x-a) dx can be approximated using eps->0 int f(x)/(x-a+i eps) dx to 'better' handle the singularity  numerically. This value should be left as zero, only be used by advanced users, and only when the user is computing moments for comparison to the analytic form (because it requires a *very* small delta v to 'work') (Remember to recompile!)
-
+  
   contains
 
     !------------------------------------------------------------------------------
@@ -48,6 +46,7 @@ module fpc
       use vars, only : elecdircontribution
       use vars, only : wroots, nroots
       use vars, only : outputName, dataName
+      use vars, only : computemoment, EpsilonSokhotski_Plemelj
       
       use disprels, only : calc_eigen, rtsec, disp
 
@@ -186,6 +185,9 @@ module fpc
       complex, allocatable, dimension(:,:,:,:) :: fs1 
       !! Perturbed Dist for all species
 
+      complex, allocatable, dimension(:,:,:,:) :: fs1_SP
+      !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj theorem to compute moments. Only used is computemoments is true
+
       real,  allocatable, dimension(:)  :: hatV_s
       !!Flow normalized to wpar_s
 
@@ -252,6 +254,7 @@ module fpc
       real :: n0s
       !! dimensional reference equil density (only used to normalize moments with same normalization as plume)
 
+      exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
 
       pi = 4.0*ATAN(1.0)
       A1 = 1. !Temporary scalar to fix coeff 
@@ -333,6 +336,11 @@ module fpc
       allocate(fs1(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
       fs1(:,:,:,:)=0.
 
+      if(computemoment) then
+         allocate(fs1_SP(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+         fs1_SP = 0.
+      endif
+
       !Allocate Bessel function values
       allocate(jbess(-nbesmax-1:nbesmax+1)); jbess(:)=0.
       
@@ -359,7 +367,12 @@ module fpc
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is))
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is),0.)
+                  if(computemoment)then
+                     call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj)
+                  endif
                enddo
             enddo
          enddo
@@ -368,27 +381,28 @@ module fpc
       !normalize fs1
       !ideally we wouldnt need to compute this numerically, but that would require a lot of work to compute, normalize, and implement this calculation, just to sometimes be more accurate in a second way to compute ns1 and us1, but it is possible to do this analytically!
       !TODO: calc_fs_mom_pres_ten has unneeded inputs!
-      allocate(Pi1ij_over_f00s(3,3,nspec))
-      do is = 1, nspec
-         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-         call calc_fs_mom_pres_ten(fs1, 1, 1, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(1,1,is) = Pi1ij_over_f00s_temp_element
-         call calc_fs_mom_pres_ten(fs1, 2, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(2,2,is) = Pi1ij_over_f00s_temp_element
-         call calc_fs_mom_pres_ten(fs1, 3, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(3,3,is) = Pi1ij_over_f00s_temp_element
-         call calc_fs_mom_pres_ten(fs1, 1, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(1,2,is) = Pi1ij_over_f00s_temp_element
-         Pi1ij_over_f00s(2,1,is) = Pi1ij_over_f00s_temp_element
-         call calc_fs_mom_pres_ten(fs1, 1, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(1,3,is) = Pi1ij_over_f00s_temp_element
-         Pi1ij_over_f00s(3,1,is) = Pi1ij_over_f00s_temp_element
-         call calc_fs_mom_pres_ten(fs1, 2, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-         Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
-         Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
-      end do
-      call calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
-      fs1 = exbar*fs1
+      if(computemoment)then
+         allocate(Pi1ij_over_f00s(3,3,nspec))
+         do is = 1, nspec
+            hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+            call calc_fs_mom_pres_ten(fs1_SP, 1, 1, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(1,1,is) = Pi1ij_over_f00s_temp_element
+            call calc_fs_mom_pres_ten(fs1_SP, 2, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(2,2,is) = Pi1ij_over_f00s_temp_element
+            call calc_fs_mom_pres_ten(fs1_SP, 3, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(3,3,is) = Pi1ij_over_f00s_temp_element
+            call calc_fs_mom_pres_ten(fs1_SP, 1, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(1,2,is) = Pi1ij_over_f00s_temp_element
+            Pi1ij_over_f00s(2,1,is) = Pi1ij_over_f00s_temp_element
+            call calc_fs_mom_pres_ten(fs1_SP, 1, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(1,3,is) = Pi1ij_over_f00s_temp_element
+            Pi1ij_over_f00s(3,1,is) = Pi1ij_over_f00s_temp_element
+            call calc_fs_mom_pres_ten(fs1_SP, 2, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+            Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
+            Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
+         end do
+         call calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
+      endif
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
       !=============================================================================
@@ -535,47 +549,59 @@ module fpc
       !=============================================================================
       ! Integrate Distribution and Correlations over velocity 
       !=============================================================================
+      if(computemoment) then
+         allocate(ns1(nspec)); ns1=0.
+         allocate(us1(3,nspec)); us1=0.
 
-      allocate(ns1(nspec)); ns1=0.
-      allocate(us1(3,nspec)); us1=0.
+         !Integrate 0th moment
+         !Note: one *MUST* have eps != 0 in the denominator of from 1/(A-B v+i eps) OR add the residual of this PV integral. We choose the first as it was easier to implement
+         !In general, ep
 
-      !Integrate 0th moment
-      do is = 1, nspec
-      ! Density Fluctuation: Zeroth Moment of delta f
-         ns1(is)=sum(sum(sum(fs1(:,:,:,is),3),2),1)*delv3
+         if(abs(EpsilonSokhotski_Plemelj)<0.000001) then
+            write(*,*)'WARNING: either epsilon is zero or too small! EpsilonSokhotski_Plemelj = ',EpsilonSokhotski_Plemelj
+            write(*,*)'It is strongly suggested you change the value of EpsilonSokhotski_Plemelj in the vars.f90 file!'
+            write(*,*)'Otherwise you will be effectively missing the residual in the integration, which will often produce incorrect results for the moments of fs1....'
+         endif
 
-         !Correct Normalization to n_0R
-         ns1(is)=ns1(is)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
-      
-      ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
-         !x-component
-         do ivx=ivxmin,ivxmax
-            us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1(ivx,:,:,is),2),1)*delv3
+
+         do is = 1, nspec
+         ! Density Fluctuation: Zeroth Moment of delta f
+            ns1(is)=sum(sum(sum(fs1_SP(:,:,:,is),3),2),1)*delv3
+
+            !Correct Normalization to n_0R
+            ns1(is)=ns1(is)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
+         
+         ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
+            !x-component
+            do ivx=ivxmin,ivxmax
+               us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1_SP(ivx,:,:,is),2),1)*delv3
+            enddo
+            !y-component
+            do ivy=ivymin,ivymax
+               us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1_SP(:,ivy,:,is),2),1)*delv3
+            enddo
+            !z-component
+            do ivz=ivzmin,ivzmax
+               us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1_SP(:,:,ivz,is),2),1)*delv3 
+            enddo
          enddo
-         !y-component
-         do ivy=ivymin,ivymax
-            us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1(:,ivy,:,is),2),1)*delv3
-         enddo
-         !z-component
-         do ivz=ivzmin,ivzmax
-            us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1(:,:,ivz,is),2),1)*delv3 
-         enddo
-      enddo
 
-      !Integrate Correlations
-      allocate(jxex(nspec)); jxex=0.
-      allocate(jyey(nspec)); jyey=0.
-      allocate(jzez(nspec)); jzez=0.
-      do is = 1, nspec
-         jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3 !int_v CEx= jxEx
-         jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3 !int_v CEy= jyEy    
-         jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3 !int_v CEz= jzEz
-      enddo
- 
+         !Integrate Correlations
+         !TODO: remove or consider computing properly with fs1_SP
+         write(*,*)'WARNING: it would be pretty computationally expensive to compute jiEi from fs1 using moments, as we would need to get the derivative of fs1_SP term'
+         write(*,*)'As debugging us1 effectively debugs this term, we dont worry about jiEi being correct'
+         allocate(jxex(nspec)); jxex=0.
+         allocate(jyey(nspec)); jyey=0.
+         allocate(jzez(nspec)); jzez=0.
+         do is = 1, nspec
+            jxex(is)=sum(sum(sum(corex(:,:,:,is),3),2),1)*delv3 !int_v CEx= jxEx
+            jyey(is)=sum(sum(sum(corey(:,:,:,is),3),2),1)*delv3 !int_v CEy= jyEy    
+            jzez(is)=sum(sum(sum(corez(:,:,:,is),3),2),1)*delv3 !int_v CEz= jzEz
+         enddo
       !=============================================================================
       ! END Integrate Distribution and Correlations over velocity
       !=============================================================================
-
+      end if
       !=============================================================================
       ! Output Distributions and Correlations to Files
       !=============================================================================
@@ -748,120 +774,73 @@ module fpc
       close(unit_s+3)
       close(unit_s+4)
 
-      !Write Complex Eigenfunction-------------------------------------------
-      !The below output is for debugging and is not intended to be used by end users...
-      write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
-      open(unit=unit_s+5,file=trim(filename),status='replace')
+      if(computemoment)then
+         !Write Complex Eigenfunction-------------------------------------------
+         !The below output is for debugging and is not intended to be used by end users...
+         write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.eigen.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+         open(unit=unit_s+5,file=trim(filename),status='replace')
 
-      !Write format (consistent with usual PLUME output)
-      write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
-      write(unit_s+5,fmt)&
-           kperp,kpar,betap,vtp,&
-           omega,&            
-           bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-           Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
-      close(unit_s+5)
+         !Write format (consistent with usual PLUME output)
+         write(fmt,'(a,i0,a)')'(6es15.6,12es15.6,',15*nspec,'es15.6)'
+         write(unit_s+5,fmt)&
+              kperp,kpar,betap,vtp,&
+              omega,&            
+              bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
+              Ps(1:nspec),Ps_split_new(1:6,1:nspec) !,params(1:6,1:nspec)
+         close(unit_s+5)
 
-      !Write Velocity Integrated Moments-------------------------------------------
-      !The below output is for debugging and is not intended to be used by end users...
-      write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
-      open(unit=unit_s+5,file=trim(filename),status='replace')
+         !Write Velocity Integrated Moments-------------------------------------------
+         !The below output is for debugging and is not intended to be used by end users...
+         write(filename,'(5A,I0.2)')'data/',trim(dataName),'/',trim(outputName),'.mom.mode',wrootindex !Assumes nspec,nroots < 100 for filename formating
+         open(unit=unit_s+5,file=trim(filename),status='replace')
 
-      !Write format 
-      !If really small (less than 10^-99 in magnitude)- round down to zero for formatting
-      do is = 1, nspec
-         if(ABS(ns1(is)) .lt. 9.999E-99) then
-            ns1(is) = 0.
-         endif
-         if(ABS(us1(1,is)) .lt. 9.999E-99) then
-            us1(1,is) = 0.
-         endif
-         if(ABS(us1(2,is)) .lt. 9.999E-99) then
-            us1(2,is) = 0.
-         endif 
-         if(ABS(us1(3,is)) .lt. 9.999E-99) then
-            us1(3,is) = 0.
-         endif 
-         if(ABS(jxex(is)) .lt. 9.999E-99) then
-            jxex(is) = 0.
-         endif
-         if(ABS(jyey(is)) .lt. 9.999E-99) then
-            jyey(is) = 0.
-         endif
-         if(ABS(jzez(is)) .lt. 9.999E-99) then
-            jzez(is) = 0.
-         endif
-      enddo
+         !Write format 
+         !If really small (less than 10^-99 in magnitude)- round down to zero for formatting
+         do is = 1, nspec
+            if(ABS(ns1(is)) .lt. 9.999E-99) then
+               ns1(is) = 0.
+            endif
+            if(ABS(us1(1,is)) .lt. 9.999E-99) then
+               us1(1,is) = 0.
+            endif
+            if(ABS(us1(2,is)) .lt. 9.999E-99) then
+               us1(2,is) = 0.
+            endif 
+            if(ABS(us1(3,is)) .lt. 9.999E-99) then
+               us1(3,is) = 0.
+            endif 
+            if(ABS(jxex(is)) .lt. 9.999E-99) then
+               jxex(is) = 0.
+            endif
+            if(ABS(jyey(is)) .lt. 9.999E-99) then
+               jyey(is) = 0.
+            endif
+            if(ABS(jzez(is)) .lt. 9.999E-99) then
+               jzez(is) = 0.
+            endif
+         enddo
 
-      write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
-      write(unit_s+5,fmt)&
-           ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
-      close(unit_s+5)
-     
+         write(fmt,'(a,i0,a)')'(',11*nspec,'es15.6)'
+         write(unit_s+5,fmt)&
+              ns1(1:nspec),us1(:,1:nspec),jxex(1:nspec),jyey(1:nspec),jzez(1:nspec)
+         close(unit_s+5)
+      endif
       !=============================================================================
       ! END Output Distributions and Correlations to Files
       !=============================================================================
 
-      !=============================================================================
-      ! DEBUG: Moment comparisons
-      !=============================================================================
-      if (1 == 1) then !DEBUG
-         !Density
-         write(*,'(a,2es12.2,5X,f6.3)')'nir=  ',real(ns(1)),real(ns1(1)), &
-              real(ns(1))/real(ns1(1))
-         write(*,'(a,2es12.2,5X,f6.3)')'nii=  ',aimag(ns(1)),aimag(ns1(1)), &
-              aimag(ns(1))/aimag(ns1(1))
-         write(*,'(a,2es12.2,5X,f6.3)')'ner=  ',real(ns(2)),real(ns1(2)), &
-              real(ns(2))/real(ns1(2))
-         write(*,'(a,2es12.2,5X,f6.3)')'nei=  ',aimag(ns(2)),aimag(ns1(2)), &
-              aimag(ns(2))/aimag(ns1(2))
-         write(*,*)
-         
-         !Fluid Moment
-         fmt_dbg1='(a,2es12.2,5X,es12.2,5X,2es12.2)'
-         fmt_dbg2='(a,2es12.2,5X,es12.2,5X,2f12.3)'
-         write(*,fmt_dbg1)'uxir= ',real(Us(1,1)),real(us1(1,1)), &
-              real(Us(1,1))/real(us1(1,1)), abs(Us(1,1)), abs(us1(1,1))
-         write(*,fmt_dbg2)'uxii= ',aimag(Us(1,1)),aimag(us1(1,1)), &
-              aimag(Us(1,1))/aimag(us1(1,1)),atan2(aimag(Us(1,1)),real(Us(1,1)))/pi, &
-              atan2(aimag(us1(1,1)),real(us1(1,1)))/pi
-         write(*,fmt_dbg1)'uyir= ',real(Us(2,1)),real(us1(2,1)), &
-              real(Us(2,1))/real(us1(2,1)), abs(Us(2,1)), abs(us1(2,1))
-         write(*,fmt_dbg2)'uyii= ',aimag(Us(2,1)),aimag(us1(2,1)), &
-              aimag(Us(2,1))/aimag(us1(2,1)),atan2(aimag(Us(2,1)),real(Us(2,1)))/pi, &
-              atan2(aimag(us1(2,1)),real(us1(2,1)))/pi
-         write(*,fmt_dbg1)'uzir= ',real(Us(3,1)),real(us1(3,1)), &
-              real(Us(3,1))/real(us1(3,1)), abs(Us(3,1)), abs(us1(3,1))
-         write(*,fmt_dbg2)'uzii= ',aimag(Us(3,1)),aimag(us1(3,1)), &
-              aimag(Us(3,1))/aimag(us1(3,1)),atan2(aimag(Us(3,1)),real(Us(3,1)))/pi, &
-              atan2(aimag(us1(3,1)),real(us1(3,1)))/pi
-         write(*,*)
-         write(*,fmt_dbg1)'uxer= ',real(Us(1,2)),real(us1(1,2)), &
-              real(Us(1,2))/real(us1(1,2)), abs(Us(1,2)), abs(us1(1,2))
-         write(*,fmt_dbg2)'uxei= ',aimag(Us(1,2)),aimag(us1(1,2)), &
-              aimag(Us(1,2))/aimag(us1(1,2)),atan2(aimag(Us(1,2)),real(Us(1,2)))/pi, &
-              atan2(aimag(us1(1,2)),real(us1(1,2)))/pi
-         write(*,fmt_dbg2)'uyei= ',aimag(Us(2,2)),aimag(us1(2,2)), &
-              aimag(Us(2,2))/aimag(us1(2,2)),atan2(aimag(Us(2,2)),real(Us(2,2)))/pi, &
-              atan2(aimag(us1(2,2)),real(us1(2,2)))/pi
-         write(*,fmt_dbg1)'uzer= ',real(Us(3,2)),real(us1(3,2)), &
-              real(Us(3,2))/real(us1(3,2)), abs(Us(3,2)), abs(us1(3,2))
-         write(*,fmt_dbg2)'uzei= ',aimag(Us(3,2)),aimag(us1(3,2)), &
-              aimag(Us(3,2))/aimag(us1(3,2)),atan2(aimag(Us(3,2)),real(Us(3,2)))/pi, &
-              atan2(aimag(us1(3,2)),real(us1(3,2)))/pi
-      endif
-      !=============================================================================
-      ! END DEBUG: Moment comparisons
-      !=============================================================================
-
       !Deallocate variables
-      deallocate(ns1,us1,jxex,jyey,jzez)
+     
       deallocate(corex_xy,corex_xz,corex_zy)
       deallocate(corey_xy,corey_xz,corey_zy)
       deallocate(corez_xy,corez_xz,corez_zy)
       deallocate(corex,corey,corez)
       deallocate(dfs1dvx,dfs1dvy,dfs1dvz)
       deallocate(fs0,fs1)
+      if(computemoment)then
+         deallocate(fs1_SP)
+         deallocate(ns1,us1,jxex,jyey,jzez)
+      endif
       deallocate(hatV_s)
       deallocate(vvx,vvy,vvz)
 
@@ -1036,6 +1015,8 @@ module fpc
       character(100)  :: fmt_dbg1,fmt_dbg2           
       !! Eigenfunction Output Format used for debug
 
+      exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
+
       pi = 4.0*ATAN(1.0)
 
       !check if results directory exists
@@ -1150,7 +1131,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is))
+                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is),0.)
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1160,28 +1141,28 @@ module fpc
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is),0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is),0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is),0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is))
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is),0.)
               enddo
             enddo
           enddo
@@ -1502,8 +1483,6 @@ module fpc
 
       pival = 4.0*ATAN(1.0)
 
-      exbar = (1.0,0.) !TODO: this is the default value, we should load it!
-
       omega_temp = real(omega)-ii*aimag(omega)
       kpar_temp = kpar
       
@@ -1748,8 +1727,8 @@ module fpc
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
-    
-    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1)
+    !TODO: remoev A1, B1- used for debug but not needed now!
+    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1,epsSokhotski_Plemelj)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
       use vars, only : betap,kperp,kpar,vtp,pi
@@ -1801,6 +1780,9 @@ module fpc
       
       complex, intent(out)  :: fs1              
       !! first order distribution
+
+      real, intent(in) :: epsSokhotski_Plemelj
+      !! Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1 
 
       integer :: n 
       !! bessel sum counter
@@ -1884,7 +1866,7 @@ module fpc
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that dosn't depend on m
-       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)!+(0,1)*EpsilonSokhotski_Plemelj !EpsilonSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
+       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)+(0.,1.)*epsSokhotski_Plemelj !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
        Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1

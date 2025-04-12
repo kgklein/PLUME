@@ -293,6 +293,12 @@ module vars
   real    :: elecdircontribution                 
   ! !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
 
+  logical :: computemoment = .true.
+  !! Enables computation of fs1 moments; not recommended as it is prone to inaccuracies and is unnecessary give that analytical moments are computed. Used for verifying self consistency of the code instead.
+
+  real :: EpsilonSokhotski_Plemelj = 0.05
+  !! Epsilon in the Sokhotski–Plemelj theorem, which states int f(x)/(x-a) dx can be approximated using eps->0 int f(x)/(x-a+i eps) dx to 'better' handle the singularity  numerically. This value should be left as zero, only be used by advanced users, and only when the user is computing moments for comparison to the analytic form (because it requires a *very* small delta v to 'work') (Remember to recompile!)
+
   integer :: nroots
   !!Number of roots found.  
 
@@ -312,6 +318,7 @@ module vars
   public :: vperpmin,vperpmax,vparmin,vparmax,delv
   public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
   public :: elecdircontribution
+  public :: computemoment,EpsilonSokhotski_Plemelj
   public :: new_low_n
 
 end module vars
