@@ -241,6 +241,9 @@ module fpc
       
       real :: pi                                     
       !! 3.1415....
+
+      real :: eeuler
+      !! eulers number
       
       character(100)  :: fmt_dbg1,fmt_dbg2           
       !! Eigenfunction Output Format
@@ -255,6 +258,7 @@ module fpc
       !! dimensional reference equil density (only used to normalize moments with same normalization as plume)
 
       exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
+      eeuler = EXP(1.0)
 
       pi = 4.0*ATAN(1.0)
       A1 = 1. !Temporary scalar to fix coeff 
@@ -299,6 +303,10 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+
+      if(ABS(aimag(omega)) .gt. 1./eeuler) then
+         write(*,*)'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC (see appendix B of Brown et al 2025) might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
+      endif
       
       
       !==============================================================================
@@ -859,6 +867,7 @@ module fpc
       use vars, only : elecdircontribution
       use vars, only : wroots, nroots
       use vars, only : outputName, dataName
+      use vars, only : computemoment
       
       use disprels, only : calc_eigen, rtsec, disp
 
@@ -1009,6 +1018,9 @@ module fpc
       real :: pi
       !! 3.14159...
 
+      real :: eeuler
+      !! eulers number
+
       complex    :: exbar               
       !! amplitude factor of fs1 which is \propto Ex/B0 (B0 is external B)
 
@@ -1018,6 +1030,11 @@ module fpc
       exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
 
       pi = 4.0*ATAN(1.0)
+      eeuler = EXP(1.0)
+
+      if(computemoment)then
+         write(*,*)"WARNING! The gyro routine does not support computing moments at this time!"
+      endif
 
       !check if results directory exists
       ! INQUIRE (DIRECTORY='data', EXIST=ex)
@@ -1056,6 +1073,10 @@ module fpc
       omega=rtsec(disp,om1,om2,tol,iflag)
       
       call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,.true.,.true.)
+
+      if(ABS(aimag(omega)) .gt. 1./eeuler) then
+         write(*,*)'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC (see appendix B of Brown et al 2025) might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
+      endif
   
       !==============================================================================
       ! Create Velocity grid and allocate variables
