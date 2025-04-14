@@ -55,7 +55,7 @@ If you use the code for a science publication,
 
 2. cite the DOI of the code:
 ```
-@software{alps_2023_8075682,
+@software{PLUME_2025,
   author       = {{Klein}, K. G. and
                   {Howes}, G. G.},
   title        = {kgklein/PLUME: Zenodo release},
@@ -84,7 +84,7 @@ Details on the input parameters can be found in [`input.md`](./input.md).
 
 The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
 ```
-./plume.e tests/drift_cbe_test.in
+./plume.e inputs/example/run_example.in
 ```
 
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
