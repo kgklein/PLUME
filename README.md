@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/15215514.svg)](https://zenodo.org/badge/latestdoi/15215514)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg)](https://doi.org/10.5281/zenodo.15215514)
 
 # PLUME: Plasma in a Linear Uniform Magnetized Environment
 
@@ -53,7 +53,6 @@ Supplementary calculation of the associated heating rates or eigenfunctions can 
 If you use the code for a science publication,
 1. please provide the code website [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements,
 
-2. cite the DOI of the code:
 2. cite the DOI of the code:
 ```
 @software{alps_2023_8075682,
