@@ -30,7 +30,7 @@ This code is based upon a F90 adaptation by Greg Howes of a solver originally by
 The calculation follows Stix 'Waves in Plasmas' Chapter 10, Eqns. 66-73.
 The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:
 
-- Reference plasma beta: \(\beta_{\parallel,ref} = \frac{8 \pi n_{ref} T_{\parallel,ref}}{B^2}\)
+- Reference plasma beta: $\beta_{\parallel,\mathrm{ref}} = \frac{8 \pi n_{\mathrm{ref}} T_{\parallel,\mathrm{ref}}}{B^2}$
 - Perpendicular wavevector: $k_\perp \rho_{ref}$
 - Parallel wavevector: $k_\parallel \rho_{ref}$
 - Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
