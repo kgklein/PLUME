@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_wparr, calc_fs_mom_pres_ten, check_f_gridsize_cart
+  private :: calc_fs1, calc_wparr, calc_n0s, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -251,11 +251,12 @@ module fpc
       complex    :: exbar               
       !! amplitude factor of fs1
 
-      real :: wparr
+      real:: wparr
       !! dimensional reference thermal velocity (only used to normalize moments with same normalization as plume)
 
-      real :: n0s
-      !! dimensional reference equil density (only used to normalize moments with same normalization as plume)
+      complex, allocatable, dimension(:) :: n0s(:)
+      !! dimensional equilibrium density for each species (only used to normalize moments with same normalization as plume)
+      !! note, this is a real quantity but due to numerical error, there will be a complex component we need to handle, so we store it as a comlpex value until we cant anymore
 
       exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
       eeuler = EXP(1.0)
@@ -409,7 +410,12 @@ module fpc
             Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
             Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
          end do
-         call calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
+         call calc_wparr(omega,ef,bf,Pi1ij_over_f00s,exbar,wparr)
+
+         allocate(n0s(nspec))
+         do is = 1, nspec
+            call calc_n0s(kpar,kperp,ns(is),fs1_SP,wparr,spec(is)%alph_s,spec(is)%tau_s,hatV_s(is),omega,vvx,vvy,vvz, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, n0s(is))
+         end do
       endif
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
@@ -848,6 +854,7 @@ module fpc
       if(computemoment)then
          deallocate(fs1_SP)
          deallocate(ns1,us1,jxex,jyey,jzez)
+         deallocate(n0s)
       endif
       deallocate(hatV_s)
       deallocate(vvx,vvy,vvz)
@@ -1447,8 +1454,8 @@ module fpc
 
     end function fs0hat
 
-    subroutine calc_wparr(omega,ef,bf,ns,Pi1ij_over_f00s,exbar,wparr)
-      !! Computes factors needed to take moments of the pert dist function in same units as PLUME
+    subroutine calc_wparr(omega,ef,bf,Pi1ij_over_f00s,exbar,wparr)
+      !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
 
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
 
@@ -1457,9 +1464,6 @@ module fpc
       
       complex, dimension(1:3), intent(in)   :: ef, bf           
       !! E, B
-
-      complex, dimension(1:nspec)     :: ns     
-      !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
 
       complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
       !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
@@ -1564,13 +1568,170 @@ module fpc
 
       wparr = ((sumpres)*vtp**2/((vtp**2*sqrt(spec(1)%alph_s)/betap)*LHS-sumlor))**(1./5.)
 
-      ! Write to file (TODO: this is temporary- debug and remove!)
-      unit_number = unit_number - 1
+      unit_number = 14
       open(newunit=unit_number, file="wparr_output.dat", status="replace", action="write")
       write(unit_number,*) ((sumpres)*vtp**2/((vtp**2*spec(1)%alph_s/betap)*LHS-sumlor))**(1./5.)
       close(unit_number)
 
     end subroutine calc_wparr
+
+    subroutine calc_n0s(kpar,kperp,ns,fs,wparr,alephs,taus,hatVs,omega,vvx,vvy,vvz,ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, n0s)
+       use vars, only : delv
+
+       complex, dimension(:,:,:,:), intent(in)  :: fs       
+       !! Phase space distribution function for each species
+
+       complex, intent(in)                   :: omega
+       !! wave freq
+
+       integer, intent(in)                   :: ivxmin    
+       !! Minimum velocity index in x-direction
+
+       integer, intent(in)                   :: ivxmax    
+       !! Maximum velocity index in x-direction
+
+       integer, intent(in)                   :: ivymin    
+       !! Minimum velocity index in y-direction
+
+       integer, intent(in)                   :: ivymax    
+       !! Maximum velocity index in y-direction
+
+       integer, intent(in)                   :: ivzmin    
+       !! Minimum velocity index in z-direction
+
+       integer, intent(in)                   :: ivzmax    
+       !! Maximum velocity index in z-direction
+
+       integer, intent(in)                   :: nspec     
+       !! Total number of species
+
+       integer, intent(in)                   :: nspecidx  
+       !! Index of the species to be processed
+
+       complex, intent(in)                   :: ns
+       !! species den 
+
+       real, intent(in)                      :: wparr
+       !! dimensional parallel ref thermal velocity
+
+       real, intent(in)                      :: alephs
+       !! Tperp,s/Tpar,s (measurement of temperature anisotropy)
+
+       real, intent(in)                      :: taus
+       !! parallel ref to species temp ratio
+
+       real, intent(in)                      :: hatVs
+       !! Parallel species drift velocity
+
+       real, dimension(:), intent(in)        :: vvx       
+       !! Velocity grid in the x-direction
+
+       real, dimension(:), intent(in)        :: vvy       
+       !! Velocity grid in the y-direction
+
+       real, dimension(:), intent(in)        :: vvz       
+       !! Velocity grid in the z-direction
+
+       complex, intent(out)                  :: n0s      
+       !! Matrix element of the pressure tensor
+
+       integer                               :: dir
+       !! picks out vx vy vz direction for moment
+
+       complex                                :: uxs_num, uyx_num, uzx_num
+       !! numerical values of 1st moment
+
+       complex                                :: omega_temp
+       !! omega with corrected gamma sign
+
+       ! Local variables
+       integer                                :: ivx        
+       !! Loop index for x-direction
+
+       integer                                :: ivy        
+       !! Loop index for y-direction
+
+       integer                                :: ivz        
+       !! Loop index for z-direction
+
+       complex                                :: temp_sum  
+       !! Temporary sum accumulator
+
+       real                                   :: v1
+       !! Velocity components value
+
+       complex                                :: numerator
+       !! temp val
+
+       complex                                :: denominator
+       !! temp val
+
+       real                                   :: kpar, kperp
+       !! wavevector 
+
+       complex                           :: ii= (0,1.) 
+       !! Imaginary unit: 0+1i
+
+       character(100) :: filename
+       !! filename for writing to file
+
+       integer :: unit_number
+       !! unit number for writing to file
+
+       !call check_f_gridsize_cart(nspecidx,aleph_s) !TODO: add back!
+
+       omega_temp = real(omega)-ii*aimag(omega) 
+
+       do dir = 1, 3
+
+          if (dir == 2) cycle !skip if dir == 2 as we don't need it here
+
+          ! Loop through the array and sum values at the specified species index
+          temp_sum = (0.,0.)
+          do ivx = ivxmin, ivxmax
+              do ivy = ivymin, ivymax
+                  do ivz = ivzmin, ivzmax
+
+                      ! Select the appropriate velocity components based on dir1 and dir2
+                      if (dir == 1) then
+                          v1 = vvx(ivx)
+                      elseif (dir == 2) then
+                          v1 = vvy(ivy)
+                      else
+                          v1 = vvz(ivz) - hatVs
+                      end if
+
+                      ! Compute the contribution to the pressure tensor
+                      temp_sum = temp_sum + v1 * fs(ivx, ivy, ivz, nspecidx)
+                  end do
+              end do
+          end do
+          ! Normalize by velocity volume element
+          temp_sum = temp_sum * delv**3
+
+          ! Select the appropriate velocity components based on dir1 and dir2
+          if (dir == 1) then
+              uxs_num = temp_sum
+          elseif (dir == 2) then
+              uyx_num = temp_sum
+          else
+              uzx_num = temp_sum
+          end if
+      end do
+      !kpar,kperp,ns,fs,wparr,alephs,taus,omega
+      denominator = sqrt(alephs)/wparr*(kperp*uxs_num+kpar*uzx_num)
+      numerator = -(alephs/taus**3.*omega_temp/wparr+hatVs*alephs**(1.5)/taus**2.*kpar/wparr)*ns
+
+      ! Assign output
+      n0s = numerator/denominator
+
+      unit_number = unit_number - 1
+      write(filename, '(A,I0,A)') 'n0s_', nspecidx, '.dat'
+      open(newunit=unit_number, file=filename, status="replace", action="write")
+      write(unit_number,*) n0s
+      close(unit_number)
+
+   end subroutine calc_n0s
 
 
  subroutine check_f_gridsize_cart(nspecidx,aleph_s)
