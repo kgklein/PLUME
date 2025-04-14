@@ -72,7 +72,7 @@ module disprels
       logical, parameter :: outmap=.true.
       !!Output ASCII map file.
       
-      character(100) :: mapName
+      character(300) :: mapName
       !!Output file name.
       
       integer, dimension(1:2,1:numroots) :: iroots
@@ -278,6 +278,7 @@ module disprels
             write(*,'(i3,a)')nroots-k,' roots with gamma/Omega_ref>1 eliminated'
        nroots=k
     endif
+
 
     !OUTPUT File with values 
     if (outmap) then       
