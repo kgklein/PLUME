@@ -39,7 +39,7 @@ relation in hot (even relativistic) magnetised plasma.
 If you use the code for a science publication, please provide the code website
 [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper:
 
-`
+```
 @software{PLUME_2025,
   author       = {{Klein}, K. G. and
                   {Howes}, G. G.},
@@ -51,7 +51,7 @@ If you use the code for a science publication, please provide the code website
   doi          = {10.5281/zenodo.15215514},
   url          = {https://doi.org/10.5281/zenodo.15215514}
 }
-`
+```
 
 Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
 
