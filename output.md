@@ -79,7 +79,7 @@ They are ordered as
 1. $k_\perp \rho_{ref}$
 2. $k_\parallel \rho_{ref}$
 3. $\beta_{ref,\parallel}$
-4. $v_{t,ref,\parallel}/c$
+4. $v_{t,ref,\parallel}/c$ (WARNING: prior non-public releases normalized this to the reference Alfven velocity)
 5. $\omega_{\textrm{r}}/\Omega_{ref}$   
 6. $\gamma/\Omega_{ref}$
 
