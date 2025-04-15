@@ -1034,7 +1034,7 @@ module fpc
       character(100)  :: fmt_dbg1,fmt_dbg2           
       !! Eigenfunction Output Format used for debug
 
-      exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
+      exbar = sqrt(betap)/vtp*(1.0,0.) !TODO: (1.0,0.) is the default value for Ex/B0, we should load it if provided in future PLUME update!
 
       pi = 4.0*ATAN(1.0)
       eeuler = EXP(1.0)
