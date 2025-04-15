@@ -475,7 +475,7 @@ def plot_disp_rel(plumeinput, root, sweep, xkey, ykey, xlabel, ylabel, flnm ='',
 
     plt.show()
 
-def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
+def plot_disp_power_2spec(sweep,flnm='',xlim=[],ylim=[]):
     """
     Quick example plot routine that plots power vs kperp
 
@@ -500,42 +500,23 @@ def plot_disp_power(sweep,flnm='',xlim=[],ylim=[]):
 
     #p1 is species 1, ions. p2 is species 2, electrons
 
+    ildposh = sweep['p1ld_zz']+sweep['p1ld_zy']
+    ildnegh = -1*(sweep['p1ld_zz']+sweep['p1ld_zy'])
+    eldposh = (sweep['p2ld_zz']+sweep['p2ld_zy'])
+    eldnegh = -1*(sweep['p2ld_zz']+sweep['p2ld_zy'])
 
-    ildposh = sweep['p1ld1']+sweep['p1ld2']
-    ildnegh = -1*(sweep['p1ld1']+sweep['p1ld2'])
-    eldposh = (sweep['p2ld1']+sweep['p2ld2'])
-    eldnegh = -1*(sweep['p1ld1']+sweep['p1ld2'])
+    ittdposh = sweep['ps1ttd_yy']+sweep['p1ttd_yz']
+    ittdnegh = -1*(sweep['ps1ttd_yy']+sweep['p1ttd_yz'])
+    ettdposh = (sweep['ps2ttd_yy']+sweep['p2ttd_yz'])
+    ettdnegh = -1*(sweep['ps2ttd_yy']+sweep['p2ttd_yz'])
 
-    ittdposh = sweep['p1ttd1']+sweep['p1ttd2']
-    ittdnegh = -1*(sweep['p1ttd1']+sweep['p1ttd2'])
-    ettdposh = (sweep['p2ttd1']+sweep['p2ttd2'])
-    ettdnegh = -1*(sweep['p2ttd1']+sweep['p2ttd2'])
-
-    itoth = sweep['ps1']
-    etoth = sweep['ps2']
+    itoth = sweep['p1']
+    etoth = sweep['p2']
 
     gamma_over_omega = []
     for _i in range(0,len(sweep['kperp'])):
         gamma_over_omega.append(-sweep['g'][_i]/sweep['w'][_i])
     gamma_over_omega = np.asarray(gamma_over_omega)
-
-    ildpose = sweep['p1ld1']+sweep['p1ld2']
-    ildnege = -1*(sweep['p1ld1']+sweep['p1ld2'])
-    eldpose = (sweep['p2ld1']+sweep['p2ld2'])
-    eldnege = -1*(sweep['p1ld1']+sweep['p1ld2'])
-
-    ittdpose = sweep['p1ttd1']+sweep['p1ttd2']
-    ittdnege = -1*(sweep['p1ttd1']+sweep['p1ttd2'])
-    ettdpose = (sweep['p2ttd1']+sweep['p2ttd2'])
-    ettdnege = -1*(sweep['p2ttd1']+sweep['p2ttd2'])
-
-    itote = sweep['ps1']
-    etote = sweep['ps2']
-
-    gamma_over_omegae = []
-    for _i in range(0,len(sweep['kperp'])):
-        gamma_over_omegae.append(-sweep['g'][_i]/sweep['w'][_i])
-    gamma_over_omegae = np.asarray(gamma_over_omegae)
 
     fig = plt.plot(figsize=(8,8))
     plt.loglog(sweep['kperp'],itoth,color='red',label=r'$\gamma_i/\omega$',ls='-',lw=2)

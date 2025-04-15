@@ -189,13 +189,14 @@ class plume_input:
 
         f.write('&params\n')
         for key in self.params.keys():
-            if(key == 'dataName'):
-                line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
-            elif(key == 'outputName'):
+            if(key == 'outputName'):
                 line = str(key)+'='+"'"+str(outputname)+"'"+'\n'
             else:
                 line = str(key)+'='+str(self.params[key])+'\n'
             f.write(line)
+
+        line = 'dataName'+"='"+str(self.dataname)+"'\n"
+        f.write(line)
         f.write('/\n\n')
 
         if(len(self.fpc) != 0):
@@ -244,7 +245,7 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','dataName','outputName']
+        paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','outputName'] #note dataName is missing as that is set by self.dataname and defined at creation
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
@@ -275,13 +276,15 @@ class plume_input:
                     if(parse[0] in paramkeys):
                         if(parse[0] in ['nspec','nscan','option','nroot_max']):
                             tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
-                        else:
+                        elif(parse[0] != 'dataName'):#dataname is class level var
                             try:
                                 tempparamdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
                             except:
                                 tempparamdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
+
                     _i += 1
                 self.params = tempparamdict
+
 
             if(parse[0] == '&fpc'):
                 tempfpcdict = {}
@@ -442,6 +445,7 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
+    print("debug ",plume_input.dataname)
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
