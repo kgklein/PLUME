@@ -108,7 +108,7 @@ module fpc
       !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
 
       complex, dimension(1:3,1:nspec) :: Us     
-      !! analytic (i.e. from PLUME not JET-PLUME) velocity eigenfunction (all species; all 3 componets per specie)
+      !! analytic (i.e. from PLUME not JET-PLUME) velocity eigenfunction (all species; all 3 componets per specie) normalized to c Ex/B0 (where Ex/B0 will be one until we add ability to manually set)
 
       !Heating (Required parameters of calc eigen)
       real, dimension(1:nspec) :: Ps 
@@ -219,7 +219,7 @@ module fpc
       !! Density Fluctuation from numerical moment of fs1
       
       complex, allocatable, dimension(:,:) :: us1 
-      !! Fluid Velocity Fluctuation from numerical moment of fs1
+      !! Fluid Velocity Fluctuation from numerical moment of fs1 normalized to c Ex/B0
 
       complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
       !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
@@ -930,10 +930,10 @@ module fpc
       !! E, B
       
       complex, dimension(1:nspec)     :: ns     
-      !! density
+      !! density eigenmode
       
       complex, dimension(1:3,1:nspec) :: Us     
-      !! Velocity
+      !! Velocity eigenmode
       
       !Heating (Required parameters of calc eigen) ----------
       real, dimension(1:nspec) :: Ps 
@@ -1040,7 +1040,7 @@ module fpc
       eeuler = EXP(1.0)
 
       if(computemoment)then
-         write(*,*)"WARNING! The gyro routine does not support computing moments at this time!"
+         write(*,*)"WARNING! The gyro routine does not support computing moments at this time due!" !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case 
       endif
 
       !check if results directory exists
