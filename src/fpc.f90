@@ -583,7 +583,7 @@ module fpc
             ns1(is)=sum(sum(sum(fs1_SP(:,:,:,is),3),2),1)*delv3
 
             !Correct Normalization to n_0R
-            ns1(is)=ns1(is)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
+            ns1(is)=ns1(is)*(spec(is)%tau_s)**(1.5)/(sqrt(pi**3.)*spec(is)%alph_s)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
          
          ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
             !x-component
@@ -1454,6 +1454,7 @@ module fpc
 
     end function fs0hat
 
+
     subroutine calc_wparr(omega,ef,bf,Pi1ij_over_f00s,exbar,wparr)
       !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
 
@@ -1504,6 +1505,10 @@ module fpc
       complex :: LHS, sumlor, sumpres
       !! intermediate values of expression that comes from normalized momentum equation
 
+      complex :: root
+      !! temp value
+
+
       allocate(hatV_s(nspec))
 
       pival = 4.0*ATAN(1.0)
@@ -1531,9 +1536,9 @@ module fpc
 
         !Lorentz force terms
         runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
-        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/spec(is)%tau_s*vtp
+        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/sqrt(betap)*vtp
         runningterm = runningterm+ef(2)
-        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/spec(is)%tau_s
+        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/sqrt(betap)
 
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2./(spec(is)%mu_s)**2.)
 
@@ -1558,25 +1563,29 @@ module fpc
 
 
         !Pressure terms
-        runningterm = (spec(is)%q_s/spec(is)%mu_s*(kperp*Pi1ij_over_f00s(2,1,is)+kpar*Pi1ij_over_f00s(2,3,is)))*(spec(is)%alph_s**(3./2.)/(spec(is)%tau_s**3.*pival**(3./2.)))
-        runningterm = runningterm + ((spec(is)%q_s/spec(is)%mu_s)**2.*omega*(kperp*Pi1ij_over_f00s(1,1,is)+kpar*Pi1ij_over_f00s(1,3,is)))*(spec(is)%alph_s**(3/2)/(spec(is)%tau_s**3.*pival**(3./2.)))
+        runningterm = (spec(is)%q_s/spec(is)%mu_s*(kperp*Pi1ij_over_f00s(2,1,is)+kpar*Pi1ij_over_f00s(2,3,is)))*(spec(is)%tau_s**(1.5)/(pival**(1.5)*spec(is)%alph_s*sqrt(spec(1)%alph_s)))
+        runningterm = runningterm + ((spec(is)%q_s/spec(is)%mu_s)**2.*omega_temp*(kperp*Pi1ij_over_f00s(1,1,is)+kpar*Pi1ij_over_f00s(1,3,is)))*(spec(is)%tau_s**(1.5)/(pival**(1.5)*spec(is)%alph_s*sqrt(spec(1)%alph_s)))
 
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2/(spec(is)%mu_s)**2.)
 
         sumpres = sumpres + runningterm
       enddo
 
-      wparr = ((sumpres)*vtp**2/((vtp**2*sqrt(spec(1)%alph_s)/betap)*LHS-sumlor))**(1./5.)
+      !wparr = sumpres/((LHS*(betap/(sqrt(spec(1)%alph_s)*vtp**2.)))-sumlor)**(1./5.)
+      root =  (sumpres/(LHS/(betap/(sqrt(spec(1)%alph_s)*vtp))-sumlor))**(1./5.)!sumpres/((LHS*(betap/(sqrt(spec(1)%alph_s)*vtp)))-sumlor)**(1./5.)
 
       unit_number = 14
       open(newunit=unit_number, file="wparr_output.dat", status="replace", action="write")
-      write(unit_number,*) ((sumpres)*vtp**2/((vtp**2*spec(1)%alph_s/betap)*LHS-sumlor))**(1./5.)
+      write(unit_number,*) root!((sumpres)*vtp**2/((vtp**2*spec(1)%alph_s/betap)*LHS-sumlor))**(1./5.)
       close(unit_number)
+
+      wparr = real(root)
 
     end subroutine calc_wparr
 
     subroutine calc_n0s(kpar,kperp,ns,fs,wparr,alephs,taus,hatVs,omega,vvx,vvy,vvz,ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, n0s)
        use vars, only : delv
+       use vars, only : betap
 
        complex, dimension(:,:,:,:), intent(in)  :: fs       
        !! Phase space distribution function for each species
@@ -1678,6 +1687,11 @@ module fpc
        integer :: unit_number
        !! unit number for writing to file
 
+       real :: pival
+       !! 3.15159..
+
+       pival = 4.0*ATAN(1.0)
+
        !call check_f_gridsize_cart(nspecidx,aleph_s) !TODO: add back!
 
        omega_temp = real(omega)-ii*aimag(omega) 
@@ -1719,11 +1733,11 @@ module fpc
           end if
       end do
       !kpar,kperp,ns,fs,wparr,alephs,taus,omega
-      denominator = sqrt(alephs)/wparr*(kperp*uxs_num+kpar*uzx_num)
-      numerator = -(alephs/taus**3.*omega_temp/wparr+hatVs*alephs**(1.5)/taus**2.*kpar/wparr)*ns
+      denominator = (kperp*uxs_num+kpar*uzx_num)
+      numerator = -(omega_temp+hatVs*alephs**(.5)*kpar*sqrt(betap))*ns
 
       ! Assign output
-      n0s = numerator/denominator
+      n0s = ((pival)**(3./2.)*taus**(3./2.)*wparr**4.)/((alephs)**(1.5))*numerator/denominator
 
       unit_number = unit_number - 1
       write(filename, '(A,I0,A)') 'n0s_', nspecidx, '.dat'
@@ -2015,8 +2029,8 @@ module fpc
       !fix sign definition difference between swanson/ stix
       !Note, this sign difference causes for a strange mixture of signs in the terms (namely in Ubar_s and Wbar_s) but this has been tested!
       if (q_s .gt. 0.) then 
-          omega_temp = real(omega)-ii*aimag(omega) 
-          kpar_temp = kpar !want to keep the same direction
+          omega_temp = -real(omega)-ii*aimag(omega) 
+          kpar_temp = -kpar !want to keep the same direction
           kperp_temp = kperp 
           vpar_temp = vpar
           ef3 = ef3
@@ -2048,7 +2062,7 @@ module fpc
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that dosn't depend on m
-       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)+(0.,1.)*epsSokhotski_Plemelj !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
+       denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)+(0.,1.)*epsSokhotski_Plemelj*abs(imag(omega_temp)) !abs(imag(omega_temp)) term makes the eps more appropriately sized !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
        Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
