@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_wparr, calc_n0s, calc_fs_mom_pres_ten, check_f_gridsize_cart
+  private :: calc_fs1, calc_ExoverB0, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -251,14 +251,10 @@ module fpc
       complex    :: exbar               
       !! amplitude factor of fs1
 
-      real:: wparr
-      !! dimensional reference thermal velocity (only used to normalize moments with same normalization as plume)
+      complex    :: exoverB0
+      !! Ex over B0
 
-      complex, allocatable, dimension(:) :: n0s(:)
-      !! dimensional equilibrium density for each species (only used to normalize moments with same normalization as plume)
-      !! note, this is a real quantity but due to numerical error, there will be a complex component we need to handle, so we store it as a comlpex value until we cant anymore
-
-      exbar = (1.0,0.) !TODO: this is the default value, we should load it if provided in future PLUME update!
+      exbar = sqrt(betap)/vtp*(1.0,0.) 
       eeuler = EXP(1.0)
 
       pi = 4.0*ATAN(1.0)
@@ -410,12 +406,8 @@ module fpc
             Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
             Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
          end do
-         call calc_wparr(omega,ef,bf,Pi1ij_over_f00s,exbar,wparr)
+         call calc_ExoverB0(omega,ef,bf,Pi1ij_over_f00s,exoverB0)
 
-         allocate(n0s(nspec))
-         do is = 1, nspec
-            call calc_n0s(kpar,kperp,ns(is),fs1_SP,wparr,spec(is)%alph_s,spec(is)%tau_s,hatV_s(is),omega,vvx,vvy,vvz, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, n0s(is))
-         end do
       endif
       !=============================================================================
       ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
@@ -854,7 +846,6 @@ module fpc
       if(computemoment)then
          deallocate(fs1_SP)
          deallocate(ns1,us1,jxex,jyey,jzez)
-         deallocate(n0s)
       endif
       deallocate(hatV_s)
       deallocate(vvx,vvy,vvz)
@@ -1034,13 +1025,13 @@ module fpc
       character(100)  :: fmt_dbg1,fmt_dbg2           
       !! Eigenfunction Output Format used for debug
 
-      exbar = sqrt(betap)/vtp*(1.0,0.) !TODO: (1.0,0.) is the default value for Ex/B0, we should load it if provided in future PLUME update!
+      exbar = (1.0,0.) !assume a default value...
 
       pi = 4.0*ATAN(1.0)
       eeuler = EXP(1.0)
 
       if(computemoment)then
-         write(*,*)"WARNING! The gyro routine does not support computing moments at this time due!" !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case 
+         write(*,*)"WARNING! The gyro routine does not support computing moments at this time due to computational demand!" !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case 
       endif
 
       !check if results directory exists
@@ -1455,7 +1446,7 @@ module fpc
     end function fs0hat
 
 
-    subroutine calc_wparr(omega,ef,bf,Pi1ij_over_f00s,exbar,wparr)
+    subroutine calc_ExoverB0(omega,ef,bf,Pi1ij_over_f00s,exoverB0)
       !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
 
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
@@ -1469,11 +1460,8 @@ module fpc
       complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
       !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
       
-      complex, intent(in) :: exbar
-      !! Amplitude factor of fs1
-
-      real, intent(out) :: wparr
-      !! dimensional reference thermal velocity (only used to normalize moments with same normalization as plume)
+      complex, intent(out) :: exoverB0
+      !! Ex/B0 amplitude factor of fs1
 
       real,  allocatable, dimension(:)  :: hatV_s     
       !! Flow normalized to wpar_s
@@ -1571,237 +1559,60 @@ module fpc
         sumpres = sumpres + runningterm
       enddo
 
-      !wparr = sumpres/((LHS*(betap/(sqrt(spec(1)%alph_s)*vtp**2.)))-sumlor)**(1./5.)
-      root =  (sumpres/(LHS/(betap/(sqrt(spec(1)%alph_s)*vtp))-sumlor))**(1./5.)!sumpres/((LHS*(betap/(sqrt(spec(1)%alph_s)*vtp)))-sumlor)**(1./5.)
+      root =  (sumpres/(LHS/(betap/(sqrt(spec(1)%alph_s)*vtp))-sumlor))
 
       unit_number = 14
-      open(newunit=unit_number, file="wparr_output.dat", status="replace", action="write")
-      write(unit_number,*) root!((sumpres)*vtp**2/((vtp**2*spec(1)%alph_s/betap)*LHS-sumlor))**(1./5.)
+      open(newunit=unit_number, file="exoverb0_output.dat", status="replace", action="write")
+      write(unit_number,*) root
       close(unit_number)
 
-      wparr = real(root)
+      exoverB0 = root
 
-    end subroutine calc_wparr
+    end subroutine calc_ExoverB0
 
-    subroutine calc_n0s(kpar,kperp,ns,fs,wparr,alephs,taus,hatVs,omega,vvx,vvy,vvz,ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx, n0s)
-       use vars, only : delv
-       use vars, only : betap
 
-       complex, dimension(:,:,:,:), intent(in)  :: fs       
-       !! Phase space distribution function for each species
+    subroutine check_f_gridsize_cart(nspecidx,aleph_s)
 
-       complex, intent(in)                   :: omega
-       !! wave freq
+         use vars, only : vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
 
-       integer, intent(in)                   :: ivxmin    
-       !! Minimum velocity index in x-direction
+         integer, intent(in)                   :: nspecidx  
+         !! Index of the species to be processed
 
-       integer, intent(in)                   :: ivxmax    
-       !! Maximum velocity index in x-direction
+         real, intent(in)                      :: aleph_s
+       !! Tperp,s/Tpar,s (measurement of temperature anisotropy for)
 
-       integer, intent(in)                   :: ivymin    
-       !! Minimum velocity index in y-direction
+         logical  :: isbadrangeflag
 
-       integer, intent(in)                   :: ivymax    
-       !! Maximum velocity index in y-direction
+         isbadrangeflag = .false.
 
-       integer, intent(in)                   :: ivzmin    
-       !! Minimum velocity index in z-direction
+         !make sure we go out to 3 times the std deviation (basically because we assume a normal fs0 and normalize things based on parallal vth)
+         if(ABS(vzmin) < 3 .or. ABS(vzmax) < 3) then
+            isbadrangeflag = .true.
+         end if
 
-       integer, intent(in)                   :: ivzmax    
-       !! Maximum velocity index in z-direction
+         if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
+            isbadrangeflag = .true.
+         end if
 
-       integer, intent(in)                   :: nspec     
-       !! Total number of species
+         if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
+            isbadrangeflag = .true.
+         end if
 
-       integer, intent(in)                   :: nspecidx  
-       !! Index of the species to be processed
+         if(delv > 1./5.) then
+            write(*,*) 'Warning delv is too large for the parallel direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s/vth = 1.) for fs0'
+            write(*,*) 'This will only directly impact the numerical moments calculation...'
+         end if
 
-       complex, intent(in)                   :: ns
-       !! species den 
+         if(delv > aleph_s/5.) then
+            write(*,*) 'Warning delv is too large for the perp direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s*aleph_s/vth = 1.) for fs0'
+            write(*,*) 'This will only directly impact the numerical moments calculation...'
+         end if 
 
-       real, intent(in)                      :: wparr
-       !! dimensional parallel ref thermal velocity
-
-       real, intent(in)                      :: alephs
-       !! Tperp,s/Tpar,s (measurement of temperature anisotropy)
-
-       real, intent(in)                      :: taus
-       !! parallel ref to species temp ratio
-
-       real, intent(in)                      :: hatVs
-       !! Parallel species drift velocity
-
-       real, dimension(:), intent(in)        :: vvx       
-       !! Velocity grid in the x-direction
-
-       real, dimension(:), intent(in)        :: vvy       
-       !! Velocity grid in the y-direction
-
-       real, dimension(:), intent(in)        :: vvz       
-       !! Velocity grid in the z-direction
-
-       complex, intent(out)                  :: n0s      
-       !! Matrix element of the pressure tensor
-
-       integer                               :: dir
-       !! picks out vx vy vz direction for moment
-
-       complex                                :: uxs_num, uyx_num, uzx_num
-       !! numerical values of 1st moment
-
-       complex                                :: omega_temp
-       !! omega with corrected gamma sign
-
-       ! Local variables
-       integer                                :: ivx        
-       !! Loop index for x-direction
-
-       integer                                :: ivy        
-       !! Loop index for y-direction
-
-       integer                                :: ivz        
-       !! Loop index for z-direction
-
-       complex                                :: temp_sum  
-       !! Temporary sum accumulator
-
-       real                                   :: v1
-       !! Velocity components value
-
-       complex                                :: numerator
-       !! temp val
-
-       complex                                :: denominator
-       !! temp val
-
-       real                                   :: kpar, kperp
-       !! wavevector 
-
-       complex                           :: ii= (0,1.) 
-       !! Imaginary unit: 0+1i
-
-       character(100) :: filename
-       !! filename for writing to file
-
-       integer :: unit_number
-       !! unit number for writing to file
-
-       real :: pival
-       !! 3.15159..
-
-       pival = 4.0*ATAN(1.0)
-
-       !call check_f_gridsize_cart(nspecidx,aleph_s) !TODO: add back!
-
-       omega_temp = real(omega)-ii*aimag(omega) 
-
-       do dir = 1, 3
-
-          if (dir == 2) cycle !skip if dir == 2 as we don't need it here
-
-          ! Loop through the array and sum values at the specified species index
-          temp_sum = (0.,0.)
-          do ivx = ivxmin, ivxmax
-              do ivy = ivymin, ivymax
-                  do ivz = ivzmin, ivzmax
-
-                      ! Select the appropriate velocity components based on dir1 and dir2
-                      if (dir == 1) then
-                          v1 = vvx(ivx)
-                      elseif (dir == 2) then
-                          v1 = vvy(ivy)
-                      else
-                          v1 = vvz(ivz) - hatVs
-                      end if
-
-                      ! Compute the contribution to the pressure tensor
-                      temp_sum = temp_sum + v1 * fs(ivx, ivy, ivz, nspecidx)
-                  end do
-              end do
-          end do
-          ! Normalize by velocity volume element
-          temp_sum = temp_sum * delv**3
-
-          ! Select the appropriate velocity components based on dir1 and dir2
-          if (dir == 1) then
-              uxs_num = temp_sum
-          elseif (dir == 2) then
-              uyx_num = temp_sum
-          else
-              uzx_num = temp_sum
-          end if
-      end do
-      !kpar,kperp,ns,fs,wparr,alephs,taus,omega
-      denominator = (kperp*uxs_num+kpar*uzx_num)
-      numerator = -(omega_temp+hatVs*alephs**(.5)*kpar*sqrt(betap))*ns
-
-      ! Assign output
-      n0s = ((pival)**(3./2.)*taus**(3./2.)*wparr**4.)/((alephs)**(1.5))*numerator/denominator
-
-      unit_number = unit_number - 1
-      write(filename, '(A,I0,A)') 'n0s_', nspecidx, '.dat'
-      open(newunit=unit_number, file=filename, status="replace", action="write")
-      write(unit_number,*) n0s
-      close(unit_number)
-
-   end subroutine calc_n0s
-
-
- subroutine check_f_gridsize_cart(nspecidx,aleph_s)
-
-      use vars, only : vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
-
-      integer, intent(in)                   :: nspecidx  
-      !! Index of the species to be processed
-
-      real, intent(in)                      :: aleph_s
-    !! Tperp,s/Tpar,s (measurement of temperature anisotropy for)
-
-      logical  :: isbadrangeflag
-
-      isbadrangeflag = .false.
-
-      !make sure we go out to 3 times the std deviation (basically because we assume a normal fs0 and normalize things based on parallal vth)
-      if(ABS(vzmin) < 3 .or. ABS(vzmax) < 3) then
-         isbadrangeflag = .true.
-      end if
-
-      if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
-         isbadrangeflag = .true.
-      end if
-
-      if(ABS(vxmin) < 3*aleph_s.or. ABS(vxmax) < 3*aleph_s) then
-         isbadrangeflag = .true.
-      end if
-
-      if(delv > 1./5.) then
-         write(*,*) 'Warning delv is too large for the parallel direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s/vth = 1.) for fs0'
-         write(*,*) 'This will only directly impact the numerical moments calculation...'
-      end if
-
-      if(delv > aleph_s/5.) then
-         write(*,*) 'Warning delv is too large for the perp direction for species',nspecidx,'- want at least 5 points per characteristic length (in velocity space which has a characteristic length of v_par,s*aleph_s/vth = 1.) for fs0'
-         write(*,*) 'This will only directly impact the numerical moments calculation...'
-      end if 
-
-      if (isbadrangeflag) then
-         write(*,*) 'your gridsize is too small for species',nspecidx,'. Want at least 3 times vthpar in the par direction and 3*aleph_s in the perp direction (to capture ~99.7% of the normal distribution).'
-         write(*,*) 'This will only impact the numerical moments calculation but beware there *may* be features outside the computed domain... Changing things is not strictly necessary.'
-      end if
- end subroutine check_f_gridsize_cart
-
-! !TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
-! subroutine calc_fs0_mom_cart(fs0, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, nspecidx)
-  
-
- 
-
-
-!  end subroutine
-
-
-
+         if (isbadrangeflag) then
+            write(*,*) 'your gridsize is too small for species',nspecidx,'. Want at least 3 times vthpar in the par direction and 3*aleph_s in the perp direction (to capture ~99.7% of the normal distribution).'
+            write(*,*) 'This will only impact the numerical moments calculation but beware there *may* be features outside the computed domain... Changing things is not strictly necessary.'
+         end if
+    end subroutine check_f_gridsize_cart
 
 
    !TODO: add a gyrotropic form of this is we ever plan to take gyrotropic moments
