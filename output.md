@@ -28,7 +28,7 @@ The data is ordered in columns as:
 1. $k_\perp \rho_{ref}$
 2. $k_\parallel \rho_{ref}$
 3. $\beta_{ref,\parallel}$
-4. $v_{t,ref,\parallel}/(c E_x/B_0)$, choosing $E_x/B_0 = 1$ by default
+4. $v_{t,ref,\parallel}/c$
 5. $\omega_{r}/\Omega_{ref}$
 6. $\gamma/\Omega_{ref}$
 
@@ -83,7 +83,8 @@ They are ordered as
 5. $\omega_{\textrm{r}}/\Omega_{ref}$   
 6. $\gamma/\Omega_{ref}$
 
-If `eigen` is set to true, the next set of columns will be the eigenfluctuations   
+If `eigen` is set to true, the next set of columns will be the eigenfluctuations, with fields normalized to $E_x$, velocity normalized to $c E_x/B_0$ and, density normalized to $n_{0s} E_x/B_0$, 
+
 7. Re $[B_x]$   
 8. Im $[B_x]$   
 9. Re $[B_y]$   
