@@ -83,7 +83,7 @@ They are ordered as
 5. $\omega_{\textrm{r}}/\Omega_{ref}$   
 6. $\gamma/\Omega_{ref}$
 
-If `eigen` is set to true, the next set of columns will be the eigenfluctuations, with fields normalized to $E_x$, velocity normalized to $c E_x/B_0$ and, density normalized to $n_{0s} E_x/B_0$, 
+If `eigen` is set to true, the next set of columns will be the eigenfluctuations, with fields normalized to $E_x$, velocity normalized to $c E_x/B_0$ and density normalized to $n_{0s} E_x/B_0$, 
 
 7. Re $[B_x]$   
 8. Im $[B_x]$   
