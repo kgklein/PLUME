@@ -142,7 +142,7 @@ The range of $\gamma_{\textrm{r}}/\Omega_p$ is from <code>gami</code> to <code>g
 1. $k_\perp \rho_{ref}$
 2. $k_\parallel \rho_{ref}$
 3. $\beta_{ref,\parallel}$
-4. $v_{t,ref,\parallel}/(c E_x/B_0)$, choosing $E_x/B_0 = 1$ by default
+4. $v_{t,ref,\parallel}/c$
 5. $\omega_{r}/\Omega_{ref}$
 6. $\gamma/\Omega_{ref}$</p>
 <p>This will be followed by 6<code>nspec</code> columns containing the parameter lists $\mathcal{P}<em ref_parallel="ref,\parallel">j$ for each species or component.
@@ -188,27 +188,29 @@ They are ordered as
 4. $v_{t,ref,\parallel}/c$
 5. $\omega_{\textrm{r}}/\Omega_{ref}$ <br>
 6. $\gamma/\Omega_{ref}$</p>
-<p>If <code>eigen</code> is set to true, the next set of columns will be the eigenfluctuations <br>
-7. Re $[B_x]$ <br>
-8. Im $[B_x]$ <br>
-9. Re $[B_y]$ <br>
-10. Im $[B_y]$ <br>
-11. Re $[B_z]$ <br>
-12. Im $[B_z]$ <br>
-13. Re $[E_x]$ <br>
-14. Im $[E_x]$ <br>
-15. Re $[E_y]$ <br>
-16. Im $[E_y]$ <br>
-17. Re $[E_z]$ <br>
-18. Im $[E_z]$ <br>
-19. [+6(j-1)] Re $[\delta U_{x,j}]$ <br>
-20. [+6(j-1)] Im $[\delta U_{x,j}]$ <br>
-21. [+6(j-1)] Re $[\delta U_{y,j}]$ <br>
-22. [+6(j-1)] Im $[\delta U_{y,j}]$ <br>
-23. [+6(j-1)] Re $[\delta U_{z,j}]$ <br>
-24. [+6(j-1)] Im $[\delta U_{z,j}]$ <br>
-19. [+6(<code>nspec</code>)+2(j-1)] Re $[\delta n_{j}]$ <br>
-20. [+6(<code>nspec</code>)+2(j-1)] Im $[\delta n_{j}]$ </p>
+<p>If <code>eigen</code> is set to true, the next set of columns will be the eigenfluctuations, with fields normalized to $E_x$, velocity normalized to $c E_x/B_0$ and, density normalized to $n_{0s} E_x/B_0$, </p>
+<ol>
+<li>Re $[B_x]$   </li>
+<li>Im $[B_x]$   </li>
+<li>Re $[B_y]$   </li>
+<li>Im $[B_y]$   </li>
+<li>Re $[B_z]$   </li>
+<li>Im $[B_z]$   </li>
+<li>Re $[E_x]$   </li>
+<li>Im $[E_x]$   </li>
+<li>Re $[E_y]$   </li>
+<li>Im $[E_y]$   </li>
+<li>Re $[E_z]$   </li>
+<li>Im $[E_z]$   </li>
+<li>[+6(j-1)] Re $[\delta U_{x,j}]$   </li>
+<li>[+6(j-1)] Im $[\delta U_{x,j}]$   </li>
+<li>[+6(j-1)] Re $[\delta U_{y,j}]$   </li>
+<li>[+6(j-1)] Im $[\delta U_{y,j}]$   </li>
+<li>[+6(j-1)] Re $[\delta U_{z,j}]$   </li>
+<li>[+6(j-1)] Im $[\delta U_{z,j}]$   </li>
+<li>[+6(<code>nspec</code>)+2(j-1)] Re $[\delta n_{j}]$   </li>
+<li>[+6(<code>nspec</code>)+2(j-1)] Im $[\delta n_{j}]$ </li>
+</ol>
 <p>where <code>j</code> ranges from 1 to <code>nspec</code>.
 The normalization follows Eqns. X-Y in Klein et al RNAAS 2025 [doi here]</p>
 <p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>new_low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
