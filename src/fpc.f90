@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_ExoverB0, calc_fs_mom_pres_ten, check_f_gridsize_cart
+  private :: calc_fs1, calc_ExoverB0, calc_vrat, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -251,8 +251,11 @@ module fpc
       complex    :: exbar               
       !! amplitude factor of fs1
 
-      complex    :: exoverB0
+      complex    :: exoverB0 !TODO: rename
       !! Ex over B0
+
+      complex :: vrat
+      !! vel moment ratios between plume and jetplume
 
       exbar = sqrt(betap)/vtp*(1.0,0.) 
       eeuler = EXP(1.0)
@@ -406,7 +409,8 @@ module fpc
             Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
             Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
          end do
-         call calc_ExoverB0(omega,ef,bf,Pi1ij_over_f00s,exoverB0)
+         !calc_ExoverB0(omega,ef,bf,vmean,nspecidx,Pi1ij_over_f00s,exoverB0)
+         call calc_ExoverB0(omega,ef,bf,Us,1,Pi1ij_over_f00s,exoverB0) 
 
       endif
       !=============================================================================
@@ -590,7 +594,12 @@ module fpc
             do ivz=ivzmin,ivzmax
                us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1_SP(:,:,ivz,is),2),1)*delv3 
             enddo
+
+            ! Find term that fixes vel moment norm
+            call calc_vrat(omega,ns,is,us1,vrat)
          enddo
+       
+         
 
          !Integrate Correlations
          !TODO: remove or consider computing properly with fs1_SP
@@ -1446,7 +1455,8 @@ module fpc
     end function fs0hat
 
 
-    subroutine calc_ExoverB0(omega,ef,bf,Pi1ij_over_f00s,exoverB0)
+    !TODO: rename
+    subroutine calc_ExoverB0(omega,ef,bf,vmean,nspecidx,Pi1ij_over_f00s,exoverB0)
       !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
 
       use vars, only : betap,kperp,kpar,vtp,nspec,spec
@@ -1457,8 +1467,15 @@ module fpc
       complex, dimension(1:3), intent(in)   :: ef, bf           
       !! E, B
 
-      complex, allocatable, dimension(:,:,:) :: Pi1ij_over_f00s
+      complex, dimension(:,:,:) :: Pi1ij_over_f00s
       !! Normalized Pressure tensor fluctation (related to 2nd mom of fs1)
+
+      complex, dimension(1:3,1:nspec), intent(in) :: vmean
+      !! Complex Velocity fluctuations:
+      !! (Uxs, Uys, Uzs)
+
+      integer, intent(in) :: nspecidx
+      !! species index
       
       complex, intent(out) :: exoverB0
       !! Ex/B0 amplitude factor of fs1
@@ -1500,19 +1517,14 @@ module fpc
       allocate(hatV_s(nspec))
 
       pival = 4.0*ATAN(1.0)
-
-      omega_temp = real(omega)-ii*aimag(omega)
-      kpar_temp = kpar
       
-      LHS = -(0,1.)*kpar_temp*bf(2)-(0,1.)*vtp/sqrt(spec(1)%alph_s)*omega_temp !Warning: assumes first species is reference species
-
       sumlor = (0.,0.)
-      do is = 1, nspec
+      is = nspecidx
          !TODO: remove this? seems like signs are okay here?
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
          if (spec(is)%q_s .ge. 0.) then
-           omega_temp = real(omega)-ii*aimag(omega)
-           kpar_temp = kpar
+           omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+           kpar_temp = -kpar !sign convetion fix (kperp does not need fixing)
          end if
          if (spec(is)%q_s .lt. 0.) then
            omega_temp = real(omega)-ii*aimag(omega)
@@ -1523,23 +1535,22 @@ module fpc
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
 
         !Lorentz force terms
-        runningterm = -(0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
-        runningterm = runningterm + (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/sqrt(betap)*vtp
-        runningterm = runningterm+ef(2)
-        runningterm = runningterm+bf(1)*vtp*hatV_s(is)/sqrt(betap)
+        runningterm = (0,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s
+        runningterm = runningterm - (0.,1.)*omega_temp*spec(is)%q_s/spec(is)%mu_s*hatV_s(is)/sqrt(betap)*vtp*bf(2)
+        runningterm = runningterm-ef(2)
+        runningterm = runningterm-bf(1)*vtp*hatV_s(is)/sqrt(betap)
 
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2./(spec(is)%mu_s)**2.)
 
         sumlor = sumlor + runningterm
-      enddo
 
       sumpres = (0.,0.)
-      do is = 1, nspec
+      is = nspecidx
          !TODO: remove this? seems like signs are okay here?
          !signs are inconsistent in our different materials (due to definitions such as carrying sign with cyclotron freq...), so we just make them the correct values for what is empirically correct
          if (spec(is)%q_s .ge. 0.) then
-           omega_temp = real(omega)-ii*aimag(omega)
-           kpar_temp = kpar
+           omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+           kpar_temp = -kpar !sign convetion fix (kperp  does not need fixing)
          end if
          if (spec(is)%q_s .lt. 0.) then
            omega_temp = real(omega)-ii*aimag(omega)
@@ -1552,23 +1563,111 @@ module fpc
 
         !Pressure terms
         runningterm = (spec(is)%q_s/spec(is)%mu_s*(kperp*Pi1ij_over_f00s(2,1,is)+kpar*Pi1ij_over_f00s(2,3,is)))*(spec(is)%tau_s**(1.5)/(pival**(1.5)*spec(is)%alph_s*sqrt(spec(1)%alph_s)))
-        runningterm = runningterm + ((spec(is)%q_s/spec(is)%mu_s)**2.*omega_temp*(kperp*Pi1ij_over_f00s(1,1,is)+kpar*Pi1ij_over_f00s(1,3,is)))*(spec(is)%tau_s**(1.5)/(pival**(1.5)*spec(is)%alph_s*sqrt(spec(1)%alph_s)))
+        runningterm = runningterm - ((spec(is)%q_s/spec(is)%mu_s)**2.*omega_temp*(kperp*Pi1ij_over_f00s(1,1,is)+kpar*Pi1ij_over_f00s(1,3,is)))*(spec(is)%tau_s**(1.5)/(pival**(1.5)*spec(is)%alph_s*sqrt(spec(1)%alph_s)))
 
         runningterm = (spec(is)%D_s/spec(is)%q_s)*runningterm/(1-omega_temp**2.*(spec(is)%q_s)**2/(spec(is)%mu_s)**2.)
 
         sumpres = sumpres + runningterm
-      enddo
 
-      root =  (sumpres/(LHS/(betap/(sqrt(spec(1)%alph_s)*vtp))-sumlor))
+      root = sumpres/(vmean(1,nspecidx)-sumlor)
 
       unit_number = 14
       open(newunit=unit_number, file="exoverb0_output.dat", status="replace", action="write")
       write(unit_number,*) root
       close(unit_number)
 
+      unit_number = 14
+      open(newunit=unit_number, file="lorpre_output.dat", status="replace", action="write")
+      write(unit_number,*) sumpres/sumlor
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="lor_output.dat", status="replace", action="write")
+      write(unit_number,*) sumlor
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="pre_output.dat", status="replace", action="write")
+      write(unit_number,*) sumpres
+      close(unit_number)
+
       exoverB0 = root
 
     end subroutine calc_ExoverB0
+
+   subroutine calc_vrat(omega, nden, nspecidx, vmean_over_f00s, vrat)
+     !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
+
+     use vars, only : betap, kperp, kpar, vtp, nspec, spec
+
+     complex, intent(in)   :: omega
+     !! Complex Frequency
+
+     complex, dimension(1:nspec)     :: nden     
+     !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
+
+     complex, dimension(1:3,1:nspec), intent(in) :: vmean_over_f00s
+     !! Complex Velocity fluctuations:
+     !! (Uxs, Uys, Uzs)
+
+     real  :: hatV_s     
+     !! Flow normalized to wpar_s for specie number nspecidx
+
+     complex, intent(out) :: vrat
+     !! u normalization ratio
+
+     complex :: omega_temp
+     !! omega with fixed signs
+
+     complex :: kpar_temp
+     !! kpar with fixed signs
+     
+     complex :: kperp_temp
+     !! kperp with fixed signs
+
+     complex :: ii= (0,1.) 
+     !! Imaginary unit: 0+1i
+
+     real :: pival 
+     !! 3.14159
+
+     integer :: unit_number, nspecidx
+     character(len=200) :: filename
+     character(len=10) :: idx_str
+
+      !fix sign definition difference between swanson/ stix
+      !Note, this sign difference causes for a strange mixture of signs in the terms (namely in Ubar_s and Wbar_s) but this has been tested!
+      if (spec(nspecidx)%q_s .gt. 0.) then 
+          omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+          kpar_temp = -kpar !sign convetion fix
+          kperp_temp = kperp  !sign convetion fix
+      else
+          omega_temp = real(omega)-ii*aimag(omega)
+          kpar_temp = kpar
+          kperp_temp = kperp 
+      end if
+
+     pival = 4.0*ATAN(1.0)
+
+     ! calculate drift over vth from drift over vAr
+     hatV_s=spec(nspecidx)%vv_s*sqrt(spec(nspecidx)%tau_s/(spec(1)%mu_s*betap))
+
+     ! Calculate vrat
+     vrat = -((kperp * vmean_over_f00s(1, nspecidx)+kpar*vmean_over_f00s(1, nspecidx))/pival**1.5)/(nden(nspecidx)*vtp*(omega_temp-kpar*hatV_s*sqrt(spec(nspecidx)%alph_s)))
+
+     ! Convert nspecidx to string
+     write(idx_str, '(I0)') nspecidx
+     filename = 'vrat_output_' // trim(adjustl(idx_str)) // '.dat'
+
+     ! Open file and write
+     open(newunit=unit_number, file=filename, status="replace", action="write")
+     write(unit_number,*) vrat
+     close(unit_number)
+
+     vrat = (1., 0.)
+
+   end subroutine calc_vrat
+
 
 
     subroutine check_f_gridsize_cart(nspecidx,aleph_s)
@@ -1734,7 +1833,7 @@ module fpc
     !------------------------------------------------------------------------------
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
-    !TODO: remoev A1, B1- used for debug but not needed now!
+    !TODO: remove A1, B1- used for debug but not needed now!
     subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1,epsSokhotski_Plemelj)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
@@ -1840,9 +1939,9 @@ module fpc
       !fix sign definition difference between swanson/ stix
       !Note, this sign difference causes for a strange mixture of signs in the terms (namely in Ubar_s and Wbar_s) but this has been tested!
       if (q_s .gt. 0.) then 
-          omega_temp = -real(omega)-ii*aimag(omega) 
-          kpar_temp = -kpar !want to keep the same direction
-          kperp_temp = kperp 
+          omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+          kpar_temp = -kpar !sign convetion fix
+          kperp_temp = kperp !this does not recieve a minus sign due to sign convention; seems to effectively be absorbed by phi but not sure- this is empirically correct tho
           vpar_temp = vpar
           ef3 = ef3
           ef2 = ef2
@@ -1869,12 +1968,12 @@ module fpc
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0.,0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s= -2.*vperp/aleph_s*(1.+kpar*sqrt(mu_s/(tau_s*aleph_r))/(real(omega)-ii*aimag(omega))*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
+      Ubar_s= -2.*vperp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/(real(omega_temp)-ii*aimag(omega_temp))*((aleph_s-1)*vpar_temp-aleph_s*hatV_s))
 
       do n = -nbesmax,nbesmax
        !Calculate all parts of solution that dosn't depend on m
        denom=(omega_temp-kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r))-n*mu_s/q_s)+(0.,1.)*epsSokhotski_Plemelj*abs(imag(omega_temp)) !abs(imag(omega_temp)) term makes the eps more appropriately sized !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity (in which case eps should be very very small)
-       Wbar_s=2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega)-ii*aimag(omega))*aleph_s))*vpar_temp
+       Wbar_s=2.*(n*mu_s/(q_s*(real(omega_temp)-ii*aimag(omega_temp)))-1.)*(vpar_temp-hatV_s) - 2.*(n*mu_s/(q_s*(real(omega_temp)-ii*aimag(omega_temp))*aleph_s))*vpar_temp
        if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
           emult=n*jbess(n)*Ubar_s/(b_s)*ef1
           if(n .ne. 0) then
@@ -1899,6 +1998,7 @@ module fpc
       fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)*(exbar/q_s)*fs1*fs0
 
     end subroutine calc_fs1
+
 
 
    subroutine check_nbesmax(vperpmax,tau_s,mu_s,aleph_r)
