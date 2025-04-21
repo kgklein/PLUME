@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 
 BASE_URL = "https://api.adsabs.harvard.edu/v1"
-ALPS_ADS_BIB_CODE = "2015PhPl...22c2903K"
+PLUME_ADS_BIB_CODE = "2015PhPl...22c2903K"
 ADS_LIBRARY_ID = "RWGonkVgRpOaTizvWwsjKg"
 
 logging.basicConfig(
@@ -94,12 +94,12 @@ def get_sorted_bib_entries() -> list:
 
 
 def print_markdown() -> None:
-    logger.info("Printing markdown file containing papers citing ALPS")
+    logger.info("Printing markdown file containing papers citing PLUME")
     year: Optional[int] = None
 
     print(
-        "title: Papers citing ALPS\n"
-        "# Papers citing ALPS"
+        "title: Papers citing PLUME\n"
+        "# Papers citing PLUME"
     )
 
     for entry in get_sorted_bib_entries():

@@ -3,17 +3,17 @@ import json
 import requests
 
 BASE_URL = "https://api.adsabs.harvard.edu/v1"
-ALPS_ADS_BIB_CODE = "2015PhPl...22c2903K"
+PLUME_ADS_BIB_CODE = "2015PhPl...22c2903K"
 ADS_LIBRARY_ID = "RWGonkVgRpOaTizvWwsjKg"
 
 
 def query_response() -> requests.Response:
-    """Get a response by querying the ADS database for citations of the ALPS code"""
+    """Get a response by querying the ADS database for citations of the PLUME code"""
     response = requests.get(
         url=f"{BASE_URL}/search/query",
         headers={"Authorization": f"Bearer {os.environ['ADS_API_TOKEN']}"},
         params={
-            "q": f"citations(bibcode:{ALPS_ADS_BIB_CODE})",  # Query
+            "q": f"citations(bibcode:{PLUME_ADS_BIB_CODE})",  # Query
             "fl": "bibcode",  # Fields to return
             "rows": 1000  # Max num results to return
         }
@@ -32,7 +32,7 @@ def bibcodes_from_response(response: requests.Response) -> list:
     try:
         bibcodes = [item["bibcode"] for item in data["response"]["docs"]]
         assert len(bibcodes) == data["response"]["numFound"]
-        print(f"Found {len(bibcodes)} papers citing {ALPS_ADS_BIB_CODE}")
+        print(f"Found {len(bibcodes)} papers citing {PLUME_ADS_BIB_CODE}")
 
     except (KeyError, AssertionError) as e:
         raise RuntimeError(f"Response from {response.url} was not valid") from e
