@@ -55,23 +55,26 @@ make tidyup
 ```
 will move the extraneous *.o and *.mod files to the include directory.
 
-Running
+
+**If you need a clean compilations**, run
 ```
 make clean
 ```
-will remove all of the files from the include directory as well as the compiled executable, enabling a clean recompilation if necessary.
+This will remove all of the files from the `include` directory as well as the compiled executable, enabling a clean recompilation if necessary.
 
 
 ## EXECUTION OF TEST RUNS
 
 PLUME comes with a selection of test runs that cycle through various test
-problems. To execute a small set of tests, execute the following shell script:
+problems.
+To execute a small set of tests, navigate to `inputs/example/` and execute the following shell script:
 
 ```
 ./run_example.sh
 ```
 This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.
-*More example cases will be added.*
+
+**More example cases will be added.**
 
 ## Building the documentation
 
