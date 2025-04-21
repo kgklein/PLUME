@@ -80,8 +80,6 @@ This script will run a simple parallel wavevector scan after identifying four mo
 
 ## Building the documentation
 
-*Documentation Pages Will Only De Available Once Repository is Made Public*
-
 PLUME uses [Ford](https://forddocs.readthedocs.io/en/latest/) to build its documentation. The documentation is automatically built and deployed to [github.io](https://kgklein.github.io/PLUME/) by the [doc workflow](https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml). To build the documentation locally, follow the [Build documentation](https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32) step in the workflow, summarized here:
 1. Install `ford` by e.g. `pip install ford`. See [Ford documentation](https://forddocs.readthedocs.io/en/latest/) for details
 2. Create a `docs` directory by `mkdir docs`
