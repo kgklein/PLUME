@@ -25,7 +25,7 @@ favicon: favicon.ico
 
 ---
 
-[![DOI](https://zenodo.org/badge/243310181.svg)](https://zenodo.org/badge/latestdoi/243310181)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg)](https://doi.org/10.5281/zenodo.15215514)
 [![build](https://github.com/kgklein/PLUME/actions/workflows/tests.yml/badge.svg)](https://github.com/kgklein/PLUME/actions/workflows/tests.yml)
 
 ## Plasma in a Linear Uniform Magnetized Environment
