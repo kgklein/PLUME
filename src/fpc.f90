@@ -25,7 +25,7 @@ module fpc
   !!!!!!!(This might be dated now as of mar 12 2025, TODO check this statement and maybe remove this comment....?)!!!!!!
 
   implicit none
-  private :: calc_fs1, calc_ExoverB0, calc_vrat, calc_fs_mom_pres_ten, check_f_gridsize_cart
+  private :: calc_fs1, calc_ExoverB0, calc_susc_rat, calc_norm_rat, calc_vrat, calc_fs_mom_pres_ten, check_f_gridsize_cart
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -254,6 +254,9 @@ module fpc
       complex    :: exoverB0 !TODO: rename
       !! Ex over B0
 
+      complex, dimension(1:3) :: termrats
+      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
+
       complex :: vrat
       !! vel moment ratios between plume and jetplume
 
@@ -362,6 +365,10 @@ module fpc
       allocate(hatV_s(nspec))
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
       do is = 1, nspec
+
+         call calc_susc_rat(omega,ef,bf)
+         call calc_norm_rat(omega,ef,bf,Us,is,termrats)
+
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
          hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
@@ -375,47 +382,52 @@ module fpc
                   phi = ATAN2(vvy(ivy),vvx(ivx))
                   call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is),0.)
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is),0.,termrats)
                   if(computemoment)then
                      call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj)
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj,termrats)
                   endif
                enddo
             enddo
          enddo
       enddo
 
+      !TODO: remove
       !normalize fs1
       !ideally we wouldnt need to compute this numerically, but that would require a lot of work to compute, normalize, and implement this calculation, just to sometimes be more accurate in a second way to compute ns1 and us1, but it is possible to do this analytically!
       !TODO: calc_fs_mom_pres_ten has unneeded inputs!
-      if(computemoment)then
-         allocate(Pi1ij_over_f00s(3,3,nspec))
-         do is = 1, nspec
-            hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-            call calc_fs_mom_pres_ten(fs1_SP, 1, 1, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(1,1,is) = Pi1ij_over_f00s_temp_element
-            call calc_fs_mom_pres_ten(fs1_SP, 2, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(2,2,is) = Pi1ij_over_f00s_temp_element
-            call calc_fs_mom_pres_ten(fs1_SP, 3, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(3,3,is) = Pi1ij_over_f00s_temp_element
-            call calc_fs_mom_pres_ten(fs1_SP, 1, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(1,2,is) = Pi1ij_over_f00s_temp_element
-            Pi1ij_over_f00s(2,1,is) = Pi1ij_over_f00s_temp_element
-            call calc_fs_mom_pres_ten(fs1_SP, 1, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(1,3,is) = Pi1ij_over_f00s_temp_element
-            Pi1ij_over_f00s(3,1,is) = Pi1ij_over_f00s_temp_element
-            call calc_fs_mom_pres_ten(fs1_SP, 2, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
-            Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
-            Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
-         end do
-         !calc_ExoverB0(omega,ef,bf,vmean,nspecidx,Pi1ij_over_f00s,exoverB0)
-         call calc_ExoverB0(omega,ef,bf,Us,1,Pi1ij_over_f00s,exoverB0) 
+      ! if(computemoment)then
+      !    allocate(Pi1ij_over_f00s(3,3,nspec))
+      !    do is = 1, nspec
+      !       hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+      !       call calc_fs_mom_pres_ten(fs1_SP, 1, 1, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(1,1,is) = Pi1ij_over_f00s_temp_element
+      !       call calc_fs_mom_pres_ten(fs1_SP, 2, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(2,2,is) = Pi1ij_over_f00s_temp_element
+      !       call calc_fs_mom_pres_ten(fs1_SP, 3, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(3,3,is) = Pi1ij_over_f00s_temp_element
+      !       call calc_fs_mom_pres_ten(fs1_SP, 1, 2, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(1,2,is) = Pi1ij_over_f00s_temp_element
+      !       Pi1ij_over_f00s(2,1,is) = Pi1ij_over_f00s_temp_element
+      !       call calc_fs_mom_pres_ten(fs1_SP, 1, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(1,3,is) = Pi1ij_over_f00s_temp_element
+      !       Pi1ij_over_f00s(3,1,is) = Pi1ij_over_f00s_temp_element
+      !       call calc_fs_mom_pres_ten(fs1_SP, 2, 3, ivxmin, ivxmax, ivymin, ivymax, ivzmin, ivzmax, nspec, is, spec(is)%alph_s, hatV_s(is), vvx, vvy, vvz, Pi1ij_over_f00s_temp_element) 
+      !       Pi1ij_over_f00s(2,3,is) = Pi1ij_over_f00s_temp_element
+      !       Pi1ij_over_f00s(3,2,is) = Pi1ij_over_f00s_temp_element
+      !    end do
+      !    !calc_ExoverB0(omega,ef,bf,vmean,nspecidx,Pi1ij_over_f00s,exoverB0)
+      !    call calc_ExoverB0(omega,ef,bf,Us,1,Pi1ij_over_f00s,exoverB0)
+         
 
-      endif
-      !=============================================================================
-      ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
-      !=============================================================================
+      
+
+
+      ! endif
+      ! !=============================================================================
+      ! ! End Calculate fs0 and fs1 on (vx,vy,vz) grid
+      ! !=============================================================================
 
       !=============================================================================
       ! Calculate velocity derivatives of fs1
@@ -1016,6 +1028,9 @@ module fpc
       real, allocatable, dimension(:) :: jparepar,jperpeperp 
       !! int_v 3V Correlations (j_i times E_i) - currently not used TODO: implement or remove
       
+      complex, dimension(1:3) :: termrats
+      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
+
       integer :: jj                                   
       !! Index
       
@@ -1148,6 +1163,8 @@ module fpc
       do is = 1, nspec
         call check_nbesmax(MAX(ABS(vparmin),ABS(vparmax),ABS(vperpmin),ABS(vperpmax)),spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s)
 
+        call calc_norm_rat(omega,ef,bf,Us,is,termrats)
+
         !Create variable for parallel flow velocity normalized to
         !       species parallel thermal speed
         hatV_s(is)=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
@@ -1159,7 +1176,7 @@ module fpc
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is),0.)
+                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is),0.,termrats)
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1169,28 +1186,28 @@ module fpc
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is),0.)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is),0.)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is),0.)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
                   fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s)
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is),0.)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats)
               enddo
             enddo
           enddo
@@ -1595,6 +1612,704 @@ module fpc
 
     end subroutine calc_ExoverB0
 
+!     subroutine calc_susc_rat(omega,ef,bf)
+!     ! Calculates the xx component of the susceptibility tensor Chi_xx for species 1
+!     ! based on the derivation from f_s1 structure (see LaTeX doc chi_xx_derivation_latex_v2).
+!     ! This version correctly includes the sum over harmonics 'n' and uses the
+!     ! n-dependent resonant denominator.
+
+!     use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc, nbesmax ! Added nbesmax
+!     use disprels, only: zet_in ! Assumed to compute Z(zeta)
+!     ! Need access to a function for Modified Bessel Function I_n(x) -> e.g., from 'bessels' module?
+!     use bessels, only : bessim, bessim0, bessim1
+
+!     implicit none
+
+!     ! -- Argument Declarations --
+!     complex, intent(in)    :: omega            !! Complex Frequency (Lab frame)
+!     complex, dimension(1:3), intent(in) :: ef, bf !! E, B fields (not directly used in this Chi_xx calc)
+
+!     ! -- Local Variable Declarations --
+!     integer :: unit_number       !! Holds unit number of file used for debug writing to file
+!     integer :: n                 !! Harmonic summation index
+!     real    :: pi                !! Mathematical constant pi
+!     complex :: ii = (0.0, 1.0)   !! Imaginary unit (0+1i)
+
+!     ! Parameters related to species s=1
+!     real    :: q_s               !! Species charge (spec(1)%q_s)
+!     real    :: mu_s              !! Mass ratio m_ref/m_s (spec(1)%mu_s)
+!     real    :: tau_s             !! Temp ratio T_ref/T_s_par (spec(1)%tau_s)
+!     real    :: aleph_s           !! Temp anisotropy T_perp/T_par (spec(1)%alph_s)
+!     real    :: Vs_drift          !! Parallel drift speed (spec(1)%vv_s) - NEEDS CONVERSION to actual speed
+
+!     ! Parameters related to the calculation/normalization
+!     real    :: k_parallel_bar    !! Effective k_parallel from code logic (kpar_temp)
+!     real    :: k_perp_bar        !! Effective k_perp from code logic (kperp_temp)
+!     real    :: k_eff             !! Effective parallel wavenumber in resonance
+!     real    :: Omega_eff         !! Effective cyclotron frequency in resonance (mu_s/q_s)
+!     real    :: beta_prime        !! Constant for Bessel argument b_s = beta' * v_perp
+!     real    :: lambda_prime      !! Argument for Modified Bessel function I_n (lambda'/2)
+!     complex :: omega_temp        !! Frequency used in resonance (with sign convention)
+
+!     ! Intermediate constants from derivation (A', B', C', P0, P1)
+!     complex :: A_prime_num
+!     complex :: A_prime_den
+!     complex :: A_prime
+!     complex :: B_prime
+!     real    :: hatV_s            !! Normalized drift velocity V_s / vts_parallel
+!     complex :: C_prime_num
+!     complex :: C_prime_den
+!     complex :: C_prime
+!     complex :: P0                !! 1 - A'*C'
+!     complex :: P1                !! A'*B'
+
+!     ! Variables for the parallel integral part P_parallel(n)
+!     complex :: zeta_n            !! Argument of Z function for harmonic n
+!     complex :: Z_zeta_n          !! Value of Z(zeta_n)
+!     complex :: P_par_coeff_Z     !! Coefficient of Z(zeta_n) in P_parallel(n)
+!     complex :: P_parallel_n      !! Value of the parallel integral factor for harmonic n
+
+!     ! Variables for the sum
+!     real    :: bessel_arg        !! Argument lambda'/2 for I_n
+!     real    :: bessel_val_In     !! Value of I_n(lambda'/2)
+!     real    :: exp_val           !! Value of exp(-lambda'/2)
+!     complex :: term_n            !! Value of the n-th term in the sum
+!     complex :: sum_over_n        !! Accumulated sum over harmonics
+
+!     ! Final result and prefactor
+!     complex :: chi_xx_prefactor_num
+!     complex :: chi_xx_prefactor_den
+!     complex :: chi_xx_prefactor
+!     complex :: chi_xx_s1         !! Final computed Chi_xx for species 1
+
+
+!     ! --- Start Computation ---
+
+!     ! Constants
+!     pi = 4.0*ATAN(1.0)
+
+!     ! --- Get parameters for species s=1 ---
+!     q_s     = spec(1)%q_s
+!     mu_s    = spec(1)%mu_s
+!     tau_s   = spec(1)%tau_s
+!     aleph_s = spec(1)%alph_s
+!     Vs_drift= spec(1)%vv_s ! NOTE: Check if vv_s is actual drift or normalized! Assuming actual for now.
+
+
+!     ! --- Apply sign conventions from calc_fs1 ---
+!     ! NOTE: Using these conventions directly as they appear in calc_fs1
+!     ! It's crucial these are consistent with the f_s1 derivation used.
+!     if (q_s .gt. 0.) then
+!         omega_temp = -real(omega)-ii*aimag(omega) !sign convention fix
+!         k_parallel_bar = -kpar !sign convention fix
+!         k_perp_bar = kperp !sign convention fix - Check if this needs sign flip too?
+!     else
+!         omega_temp = real(omega)-ii*aimag(omega)
+!         k_parallel_bar = kpar
+!         k_perp_bar = kperp
+!     end if
+
+!     ! --- Calculate intermediate constants based on derivation ---
+!     ! Effective wavenumber and frequency in resonance denominator
+!     ! omega_res,n = omega_temp - k_eff * x - n * Omega_eff
+!     ! k_eff = k_parallel_bar * sqrt(mu_s / (tau_s * aleph_s)) ! Check aleph_s vs aleph_R? Using aleph_s based on A' calc below
+!     if (tau_s * aleph_s <= 0.0) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Non-positive term sqrt(tau_s*aleph_s).'
+!         return
+!     end if
+!     k_eff = k_parallel_bar * sqrt(mu_s / (tau_s * aleph_s)) ! Assuming aleph_R = aleph_s here based on A' calc
+!     Omega_eff = mu_s / q_s ! Effective cyclotron frequency term
+
+!     ! Constants for U_bar_parallel (P0, P1 from A', B', C')
+!     ! A' = (k_parallel_bar / omega_temp) * sqrt(mu_s / (tau_s * aleph_s)) ! Using aleph_s based on Fortran A' calc
+!     if (omega_temp == cmplx(0.0, 0.0)) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): omega_temp is zero in A_prime denominator.'
+!         return
+!     end if
+!     A_prime_den = omega_temp * sqrt(tau_s * aleph_s / mu_s)
+!     if (A_prime_den == cmplx(0.0, 0.0)) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Division by zero calculating A_prime denominator.'
+!         return
+!     end if
+!     A_prime = k_parallel_bar / A_prime_den
+
+!     B_prime = aleph_s - 1.0
+
+!     ! C' = aleph_s * hatV_s * sqrt(tau_s / (mu_s * betap)) ! Using betap based on Fortran C' calc
+!     hatV_s = spec(1)%vv_s*sqrt(spec(1)%tau_s/(spec(1)%mu_s*betap))
+!     if (mu_s * betap <= 0.0) then
+!          write(*,'(A)') 'ERROR (calc_susc_rat): Non-positive term under square root for C_prime.'
+!          return
+!     end if
+!     C_prime_den = sqrt(mu_s * betap / tau_s)
+!     if (C_prime_den == 0.0) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Division by zero calculating C_prime denominator.'
+!         return
+!     end if
+!     C_prime = aleph_s * hatV_s / C_prime_den
+
+!     P1 = A_prime * B_prime
+!     P0 = 1.0 - A_prime * C_prime
+
+!     ! Constants for perpendicular integral
+!     ! beta' = k_perp_bar * q_s / sqrt(mu_s * tau_s * aleph_s) ! Assuming aleph_R = aleph_s
+!     if (mu_s * tau_s * aleph_s <= 0.0) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Non-positive term under square root for beta_prime.'
+!         return
+!     end if
+!     beta_prime = k_perp_bar * q_s / sqrt(mu_s * tau_s * aleph_s)
+!     lambda_prime = beta_prime**2 ! TODO: is this missing an aleph_s? Argument for I_n is lambda'/2
+
+!     ! --- Summation Loop ---
+!     sum_over_n = cmplx(0.0, 0.0)
+!     bessel_arg = lambda_prime / 2.0
+!     if (bessel_arg < 0.0) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Argument for Bessel function is negative.'
+!         return
+!     end if
+!     write(*,*)'test 1769'
+!     exp_val = exp(-bessel_arg) ! Corresponds to exp(-lambda'/2)
+!     write(*,*)'test 1771m'
+!     write(*,*)'bessel_arg'
+!     do n = -nbesmax, nbesmax
+!       write(*,*)'n,',n
+!         ! Calculate n-dependent Zeta_n argument
+!         !zeta_n = (omega_temp - n*Omega_eff - k_eff * Vs_drift) / (k_eff * vts_parallel)
+
+!         zeta_n = omega_temp/k_parallel_bar-hatV_s- n*Omega_eff
+
+!         ! Call external function for Z(zeta_n)
+!         ! Note: Original mcode used zet_in(kpar_temp, zeta_prime). Assuming zet_in(zeta) is correct.
+!         Z_zeta_n = zet_in(k_parallel_bar, zeta_n) ! Pass kpar_temp if needed by zet_in
+!         write(*,*)'1787,',n
+
+!         ! Calculate P_parallel(n) = -sqrt(pi)/k_eff * [ P1 + (P0 + P1*hatV_s + P1*zeta_n) * Z(zeta_n) ]
+!         if (k_eff == 0.0) then
+!             write(*,'(A)') 'ERROR (calc_susc_rat): k_eff is zero in P_parallel_n denominator.'
+!             cycle ! Or handle differently
+!         end if
+!         P_par_coeff_Z = P0 + P1*hatV_s + P1*zeta_n
+!         P_parallel_n = -(sqrt(pi)/k_eff) * (P1 + P_par_coeff_Z * Z_zeta_n)
+!         write(*,*)'1797'
+
+!         ! Calculate I_n(lambda'/2) using external function
+!         ! Assumes Bessel_I handles negative n via I_{-n}=I_n if needed, or use ABS(n)
+!         if(abs(n) >= 2) then
+
+!          bessel_val_In = bessim(abs(n), bessel_arg)
+!         else if (abs(n) == 1) then
+!          bessel_val_In = bessim0(bessel_arg)
+!         else
+!          bessel_val_In = bessim1(bessel_arg)
+!         endif
+!         write(*,*)'1800'
+
+!         ! Calculate n-th term: n^2 * exp(-lambda'/2) * I_n(lambda'/2) * P_parallel(n)
+!         term_n = real(n**2) * exp_val * bessel_val_In * P_parallel_n
+
+!         ! Add to sum
+!         sum_over_n = sum_over_n + term_n
+!     end do
+!     write(*,*)'test 1805'
+
+!     ! --- Calculate Final Chi_xx ---
+!     ! Prefactor from Eq. 40 in LaTeX doc:
+!     ! chi_xx_prefactor = (2 * n_s) / (omega * epsilon_0 * k_eff) * sqrt(mu_s * tau_s / betap) * (1.0 / (vts_parallel * vts_perp * aleph_s * beta_prime**2))
+!     ! Need epsilon_0 defined somewhere, or calculate conductivity first.
+!     ! Let's calculate sigma_xx first from Eq. 36:
+!     ! sigma_xx = (2 * i * n_s / sqrt(pi)) * sqrt(mu_s * tau_s / betap) * (1.0 / (vts_parallel * vts_perp * aleph_s * beta_prime**2)) * sum_over_n
+!     if (aleph_s * beta_prime**2 == 0.0) then
+!         write(*,'(A)') 'ERROR (calc_susc_rat): Division by zero in sigma_xx prefactor denominator.'
+!         chi_xx_s1 = cmplx(0.0, 0.0)
+!     else
+!         ! Assuming betap is defined globally or passed in
+!         if (betap <= 0.0) then
+!             write(*,'(A)') 'ERROR (calc_susc_rat): Non-positive betap under square root.'
+!             chi_xx_s1 = cmplx(0.0, 0.0)
+!         else
+!             chi_xx_prefactor_num = (2.0 * ii/ sqrt(pi)) * sqrt(mu_s * tau_s / betap)
+!             chi_xx_prefactor_den = aleph_s * beta_prime**2
+!             chi_xx_prefactor = chi_xx_prefactor_num / chi_xx_prefactor_den
+
+!             ! Calculate sigma_xx
+!             ! sigma_xx_s1 = chi_xx_prefactor * sum_over_n
+
+!             ! Calculate chi_xx = sigma_xx / (-i * omega * epsilon_0)
+!             ! Need epsilon_0. If working in normalized units where epsilon_0=1:
+!             ! chi_xx_s1 = sigma_xx_s1 / (-ii * omega)
+!             ! chi_xx_s1 = (chi_xx_prefactor * sum_over_n) / (-ii * omega)
+!             ! chi_xx_s1 = ( (2.0 * ii * n_s / sqrt(pi)) * sqrt(mu_s * tau_s / betap) / (vts_parallel * vts_perp * aleph_s * beta_prime**2) * sum_over_n ) / (-ii * omega)
+!             if (omega == cmplx(0.0, 0.0)) then
+!                 write(*,'(A)') 'ERROR (calc_susc_rat): Division by zero (omega) calculating chi_xx.'
+!                 chi_xx_s1 = cmplx(0.0, 0.0)
+!             else
+!                 chi_xx_s1 = (chi_xx_prefactor / (-ii * omega)) * sum_over_n
+!             end if
+!         end if
+!     end if
+
+!     ! --- Debug Output ---
+!     unit_number = 14
+!     open(newunit=unit_number, file="JP_susc_output.dat", status="replace", action="write")
+!     write(unit_number,*) chi_xx_s1 ! Write the calculated Chi_xx
+!     close(unit_number)
+
+!     unit_number = 14
+!     open(newunit=unit_number, file="P_susc_output.dat", status="replace", action="write")
+!     write(unit_number,*) susc(1,1,1) 
+!     close(unit_number)
+
+!     ! (Keep other debug outpumts if needed)
+!     unit_number = 14
+!     open(newunit=unit_number, file="kpar_output.dat", status="replace", action="write")
+!     write(unit_number,*) complex(k_parallel_bar,0.) !lazy way to make compatabile with python load functions
+!     close(unit_number)
+
+!     unit_number = 14
+!     open(newunit=unit_number, file="kperp_output.dat", status="replace", action="write")
+!     write(unit_number,*) complex(k_perp_bar,0.) !lazy way to make compatabile with python load functions
+!     close(unit_number)
+
+!     unit_number = 14
+!     open(newunit=unit_number, file="om_output.dat", status="replace", action="write")
+!     write(unit_number,*) omega_temp
+!     close(unit_number)
+
+!     ! Maybe write the last zeta_n or Z_zeta_n? Z_zeta_prime is not relevant anymore.
+!     ! unit_number = 14
+!     ! open(newunit=unit_number, file="Zeta_output.dat", status="replace", action="write")
+!     ! write(unit_number,*) Z_zeta_n ! Write Z(zeta_n) for n=nbesmax maybe?
+!     ! close(unit_number)
+
+! end subroutine calc_susc_rat
+
+   subroutine calc_norm_rat(omega,ef,bf,vmean,is,termrats)
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc,nbesmax !TODO: consider using 
+      use disprels, only: zet_in, bessel
+
+      complex, intent(in)   :: omega            
+      !! Complex Frequency
+      
+      complex, dimension(1:3), intent(in) :: ef, bf           
+      !! E, B
+
+      integer, intent(in) :: is
+
+      complex, dimension(1:3,1:nspec), intent(in) :: vmean
+      !! Complex Velocity fluctuations:
+      !! (Uxs, Uys, Uzs)
+
+      complex, dimension(1:3), intent(out) :: termrats
+
+      complex, dimension(3,3) :: susc_rat   
+      !! Ratio between PLUME susc (spec 1) and effective JET-PLUME susc from moments of fs1
+
+      complex, dimension(3,3) :: inv_susc   
+      !! Inverse matrix of Ratio between PLUME susc (spec 1) and effective JET-PLUME susc from moments of fs1
+
+      complex :: omega_temp
+      real :: kpar_temp, kperp_temp
+
+      complex :: prefac
+      real :: vthperp_dimensional, vthpar_dimensional, vth_perp_eff, p, C_b
+      complex :: D0, D1, D1prime, zeta_input, zeta_val
+      complex :: K_U0, K_U1, K_prime_U0, K_prime_U1
+      complex :: C_2, C_1, C_0
+      complex :: W0, W1, W0prime, W1prime
+      real :: hat_V_s, bar_V_s
+      complex :: In, Inprime
+
+      real :: lambda
+
+      complex :: matxx_temp, matxy_temp, matxz_temp
+      complex :: matyx_temp, matyy_temp, matyz_temp
+      complex :: matzx_temp, matzy_temp, matzz_temp
+
+      complex :: Pn, IparnC, IparNzA, IparnzC
+      !! Temp par integral vals
+
+      complex  :: Iperpn,IperpnB, Iperpnyy 
+      !! Temp perp integral valeus
+
+      complex :: Eperpbar 
+
+      real    :: pi                      !! Mathematical constant pi
+      complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
+      integer :: n = 0
+
+      complex :: det
+
+      integer :: unit_number
+      !! Holds unit number of file used for debug writing to file
+
+      write(*,*)'1945'
+
+      pi = 4.0*ATAN(1.0)
+
+      omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+      kpar_temp = -kpar !sign convetion fix
+      kperp_temp = kperp !sign convetion fix
+
+      Eperpbar = vtp/sqrt(betap) 
+      prefac = -ii*sqrt(spec(is)%mu_s*spec(is)%tau_s/betap)*Eperpbar/spec(is)%q_s
+
+      vthpar_dimensional = 1.
+      vthperp_dimensional = 1.
+      vth_perp_eff = vthperp_dimensional**2*spec(is)%alph_s
+
+      bar_V_s = spec(is)%vv_s
+      hat_V_s = spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(1)%mu_s*betap))
+
+      C_b = spec(is)%q_s*kperp_temp/(vthperp_dimensional*sqrt(spec(is)%tau_s*spec(1)%alph_s))
+      write(*,*)'C_b',C_b
+
+      lambda = C_b**2*vth_perp_eff**2/2.
+
+      K_U0 = (-2.0 / (vthperp_dimensional * spec(is)%alph_s)) * &
+       (1.0 - (kpar_temp / omega_temp) * &
+       sqrt(spec(is)%mu_s / (spec(is)%tau_s * spec(1)%alph_s)) * &
+       spec(is)%alph_s * bar_V_s * &
+       sqrt(spec(is)%tau_s / (spec(is)%mu_s * betap)))
+
+      K_U1 = -2.0 / (vthperp_dimensional * spec(is)%alph_s) * &
+       (kpar_temp / omega_temp) * &
+       sqrt(spec(is)%mu_s / (spec(is)%tau_s * spec(1)%alph_s)) * &
+       (spec(is)%alph_s - 1.0) / vthpar_dimensional
+
+      K_prime_U0 = K_U0+K_U1*vthpar_dimensional*hat_V_s
+      K_prime_U1 = K_U1*vthpar_dimensional
+
+      D1 = kpar_temp/vthpar_dimensional*sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
+      D1prime = D1*vthpar_dimensional
+
+      write(*,*)'1982'
+
+      do n = -nbesmax, nbesmax
+
+         In = bessel(abs(n),lambda)
+         Inprime = 0.5*(bessel(abs(n+1),lambda)+bessel(abs(n-1),lambda))
+
+         D0 = omega_temp-n*spec(is)%mu_s/spec(is)%q_s
+         zeta_input = (D0-D1prime*hat_V_s)/D1prime
+         zeta_val = zet_in(kpar_temp,zeta_input)
+
+         W0 = -2*(n*spec(is)%mu_s/(omega_temp*spec(is)%q_s)-1)*hat_V_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+         W1 = 2/vthpar_dimensional*(n*spec(is)%mu_s/(omega_temp*spec(is)%q_s)-1)-2/vthpar_dimensional*(n*spec(is)%mu_s/(omega_temp*spec(is)%q_s*spec(is)%alph_s))
+         W1prime = W1*vthpar_dimensional
+         W0prime = W0+W1prime*hat_V_s
+
+         C_2 = W1*vthpar_dimensional**2
+         C_1 = W0*vthpar_dimensional+2*C_2*hat_V_s
+         C_0 = W0*vthpar_dimensional*hat_V_s+C_2*hat_V_s**2
+         
+         Pn = vthpar_dimensional*sqrt(pi)/(-D1prime)*((K_prime_U0+K_prime_U1*zeta_input)*zeta_val+K_prime_U1)
+         IparnC = vthpar_dimensional*sqrt(pi)/(-D1prime)*((W0prime+W1prime*zeta_input)*zeta_val+W1prime)
+         ! IparNzA = vthpar_dimensional**2*sqrt(pi)/(-D1prime)
+         ! IparNzA *= ((K_prime_U0+K_prime_U1*(zet_in+hat_V_s))+zeta_val*(zeta_input*(K_prime_U0+K_prime_U1*(zeta_input+hat_V_s))+K_prime_U0*hat_V_s))
+         ! IparnzC = vthpar_dimensional*sqrt(pi)/(-D1prime)
+         ! IparnzC *= ((C_2*zeta_input+C_1)+zeta_val*(C_2*zeta_input**2+C_1*zeta_input+C_0))
+
+         IparNzA = vthpar_dimensional**2 * sqrt(pi) / (-D1prime)
+         IparNzA = IparNzA * ((K_prime_U0 + K_prime_U1 * (zeta_input + hat_V_s)) + &
+                   zeta_val * (zeta_input * (K_prime_U0 + K_prime_U1 * (zeta_input + hat_V_s)) + &
+                   K_prime_U0 * hat_V_s))
+
+         IparnzC = vthpar_dimensional * sqrt(pi) / (-D1prime)
+         IparnzC = IparnzC * ((C_2 * zeta_input + C_1) + &
+                   zeta_val * (C_2 * zeta_input**2 + C_1 * zeta_input + C_0))
+
+
+         Iperpn = vth_perp_eff**2/2*exp(-lambda)*(In)
+         IperpnB = C_b*vth_perp_eff**4/4*exp(-lambda)*(Inprime-In)
+         Iperpnyy = vth_perp_eff**4/4*exp(-lambda)*(n**2/lambda*In+2*lambda*In-2*lambda*Inprime)
+
+         matxx_temp = n**2/C_b**2*Iperpn*Pn !xx
+         matxy_temp = n*IperpnB*Pn !xy
+         matxz_temp = n*Iperpn*IparnC !xz
+         matyx_temp = n*IperpnB*Pn !yx
+         matyy_temp = Iperpnyy*Pn !yy
+         matyz_temp = IperpnB*IparnC !yz
+         matzx_temp = n*Iperpn*IparNzA !zx
+         matzy_temp = IperpnB*IparNzA !zy
+         matzz_temp = Iperpn*IparnzC  !zz
+
+         susc_rat(1,1) = susc_rat(1,1)+ matxx_temp !xx
+         susc_rat(1,2) = susc_rat(1,2)+ matxy_temp !xy
+         susc_rat(1,3) = susc_rat(1,3)+ matxz_temp !xz
+         susc_rat(2,1) = susc_rat(2,1)+ matyx_temp !yx
+         susc_rat(2,2) = susc_rat(2,2)+ matyy_temp !yy
+         susc_rat(2,3) = susc_rat(2,3)+ matyz_temp !yz
+         susc_rat(3,1) = susc_rat(3,1)+ matzx_temp !zx
+         susc_rat(3,2) = susc_rat(3,2)+ matzy_temp !zy
+         susc_rat(3,3) = susc_rat(3,3)+ matzz_temp !zz
+      enddo
+
+      write(*,*)'2047'
+
+      ! we suppress qs here
+      susc_rat(1,1) = susc_rat(1,1) * 4.0 * pi * (2.0 * pi * prefac / (omega_temp)) ! xx
+      susc_rat(1,2) = susc_rat(1,2) * 4.0 * pi * ((2.0 * ii * pi * prefac / C_b) / (omega_temp)) ! xy
+      susc_rat(1,3) = susc_rat(1,3) * 4.0 * pi * ((2.0 * pi * prefac / C_b) / (omega_temp)) ! xz
+      susc_rat(2,1) = susc_rat(2,1) * 4.0 * pi * (-(2.0 * ii * pi * prefac / C_b) / (omega_temp)) ! yx
+      susc_rat(2,2) = susc_rat(2,2) * 4.0 * pi * (2.0 * pi * prefac / (omega_temp)) ! yy
+      susc_rat(2,3) = susc_rat(2,3) * 4.0 * pi * (-(2.0 * pi * ii * prefac) / (omega_temp)) ! yz
+      susc_rat(3,1) = susc_rat(3,1) * 4.0 * pi * ((2.0 * ii * pi * prefac / C_b) / (omega_temp)) ! zx
+      susc_rat(3,2) = susc_rat(3,2) * 4.0 * pi * ((2.0 * pi * ii * prefac) / (omega_temp)) ! zy
+      susc_rat(3,3) = susc_rat(3,3) * 4.0 * pi * ((2.0 * pi * prefac) / (omega_temp)) ! zz
+
+
+      write(*,*)'2061'
+
+      !Solve for termrats using matrix math (susc_jp dot ef times omega_temp = vmean (factor of 4pi is implicit!))
+      susc_rat(1,1) = susc_rat(1,1) * omega_temp * (4.0 * pi)/ (susc(is,1,1)) ! xx
+      susc_rat(1,2) = susc_rat(1,2) * omega_temp * (4.0 * pi)/ (susc(is,1,2)) ! xy
+      susc_rat(1,3) = susc_rat(1,3) * omega_temp * (4.0 * pi)/ (susc(is,1,3)) ! xz
+      susc_rat(2,1) = susc_rat(2,1) * omega_temp * (4.0 * pi)/ (susc(is,2,1)) ! yx
+      susc_rat(2,2) = susc_rat(2,2) * omega_temp * (4.0 * pi)/ (susc(is,2,2)) ! yy
+      susc_rat(2,3) = susc_rat(2,3) * omega_temp * (4.0 * pi)/ (susc(is,2,3)) ! yz
+      susc_rat(3,1) = susc_rat(3,1) * omega_temp * (4.0 * pi)/ (susc(is,3,1)) ! zx
+      susc_rat(3,2) = susc_rat(3,2) * omega_temp * (4.0 * pi)/ (susc(is,3,2)) ! zy
+      susc_rat(3,3) = susc_rat(3,3) * omega_temp * (4.0 * pi)/ (susc(is,3,3)) ! zz
+
+      ! susc_rat(1,1) = susc_rat(1,1) / (susc(is,1,1)  * omega_temp / (4.0 * pi)) ! xx
+      ! susc_rat(1,2) = susc_rat(1,2) / (susc(is,1,2)  * omega_temp / (4.0 * pi)) ! xy
+      ! susc_rat(1,3) = susc_rat(1,3) / (susc(is,1,3)  * omega_temp / (4.0 * pi)) ! xz
+      ! susc_rat(2,1) = susc_rat(2,1) / (susc(is,2,1)  * omega_temp / (4.0 * pi)) ! yx
+      ! susc_rat(2,2) = susc_rat(2,2) / (susc(is,2,2)  * omega_temp / (4.0 * pi)) ! yy
+      ! susc_rat(2,3) = susc_rat(2,3) / (susc(is,2,3)  * omega_temp / (4.0 * pi)) ! yz
+      ! susc_rat(3,1) = susc_rat(3,1) / (susc(is,3,1)  * omega_temp / (4.0 * pi)) ! zx
+      ! susc_rat(3,2) = susc_rat(3,2) / (susc(is,3,2)  * omega_temp / (4.0 * pi)) ! zy
+      ! susc_rat(3,3) = susc_rat(3,3) / (susc(is,3,3)  * omega_temp / (4.0 * pi)) ! zz
+
+      ! Debug
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat11.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(1,1)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat12.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(1,2)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat13.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(1,3)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat21.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(2,1)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat22.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(2,2)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat23.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(2,3)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat31.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(3,1)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat32.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(3,2)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="susc_rat33.dat", status="replace", action="write")
+      write(unit_number,*) susc_rat(3,3)
+      close(unit_number)
+
+      write(*,*)'2109'
+
+      write(*,*)'2122'
+      
+      det = susc_rat(1,1)*(susc_rat(2,2)*susc_rat(3,3) - susc_rat(2,3)*susc_rat(3,2)) &
+         - susc_rat(1,2)*(susc_rat(2,1)*susc_rat(3,3) - susc_rat(2,3)*susc_rat(3,1)) &
+         + susc_rat(1,3)*(susc_rat(2,1)*susc_rat(3,2) - susc_rat(2,2)*susc_rat(3,1))
+
+     if (abs(det) < 1.0d-12) then
+        print *, 'Matrix is singular or near-singular!',det
+     end if
+
+     write(*,*)'2130'
+
+     inv_susc(1,1) =  (susc_rat(2,2)*susc_rat(3,3) - susc_rat(2,3)*susc_rat(3,2)) / det
+     inv_susc(1,2) = -(susc_rat(1,2)*susc_rat(3,3) - susc_rat(1,3)*susc_rat(3,2)) / det
+     inv_susc(1,3) =  (susc_rat(1,2)*susc_rat(2,3) - susc_rat(1,3)*susc_rat(2,2)) / det
+     inv_susc(2,1) = -(susc_rat(2,1)*susc_rat(3,3) - susc_rat(2,3)*susc_rat(3,1)) / det
+     inv_susc(2,2) =  (susc_rat(1,1)*susc_rat(3,3) - susc_rat(1,3)*susc_rat(3,1)) / det
+     inv_susc(2,3) = -(susc_rat(1,1)*susc_rat(2,3) - susc_rat(1,3)*susc_rat(2,1)) / det
+     inv_susc(3,1) =  (susc_rat(2,1)*susc_rat(3,2) - susc_rat(2,2)*susc_rat(3,1)) / det
+     inv_susc(3,2) = -(susc_rat(1,1)*susc_rat(3,2) - susc_rat(1,2)*susc_rat(3,1)) / det
+     inv_susc(3,3) =  (susc_rat(1,1)*susc_rat(2,2) - susc_rat(1,2)*susc_rat(2,1)) / det
+
+     ! Compute solution termrats = inv_susc * vmean
+     termrats(1) = inv_susc(1,1)*vmean(is,1) + inv_susc(1,2)*vmean(is,2) + inv_susc(1,3)*vmean(is,3)
+     termrats(2) = inv_susc(2,1)*vmean(is,1) + inv_susc(2,2)*vmean(is,2) + inv_susc(2,3)*vmean(is,3)
+     termrats(3) = inv_susc(3,1)*vmean(is,1) + inv_susc(3,2)*vmean(is,2) + inv_susc(3,3)*vmean(is,3)
+
+     write(*,*)'2147'
+
+     write(*,*)'termrats',termrats(1),termrats(2),termrats(3)
+
+      ! Debug
+      unit_number = 14
+      open(newunit=unit_number, file="termrats1.dat", status="replace", action="write")
+      write(unit_number,*) termrats(1)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="termrats2.dat", status="replace", action="write")
+      write(unit_number,*) termrats(2)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="termrats3.dat", status="replace", action="write")
+      write(unit_number,*) termrats(3)
+      close(unit_number)
+
+      ! termrats(1) = (1.,0)
+      ! termrats(2) = (1.,0)
+      ! termrats(3) = (1.,0)
+
+   end subroutine calc_norm_rat
+
+
+   subroutine calc_susc_rat(omega,ef,bf)
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc
+      use disprels, only: zet_in
+
+      complex, intent(in)   :: omega            
+      !! Complex Frequency
+      
+      complex, dimension(1:3), intent(in)   :: ef, bf           
+      !! E, B
+
+      integer :: unit_number
+      !! Holds unit number of file used for debug writing to file
+
+       ! Compute the integral I_xx based on the final derived expression
+       ! using the denominator omega_res = omega_tilde - k_parallel_bar * v_parallel_hat
+       ! Uses default real/complex precision.
+
+       ! Based on the expression (equal to integral in vx direction with Ex=1 Ey=0 Ez=0):
+       ! I_xx = [ Prefactor ] * { A'B' + ( 1 - A'C' + A'B' * (omega_tilde / k_parallel_bar) ) * Z(zeta') }
+       ! Prefactor = pi^(1.5) * C0 * E_perp_1 * qs * Qs * k_perp_bar * vts_parallel * vts_perp^2 * aleph_s / (k_parallel_bar * sqrt(mu_s * tau_s * aleph_R))
+       ! zeta' = (omega_tilde * vts_parallel - k_parallel_bar * Vs_drift) / (k_parallel_bar * vts_parallel)
+       ! A' = (k_parallel_bar / omega_tilde) * sqrt(mu_s / (tau_s * aleph_R))
+       ! B' = aleph_s - 1.0
+       ! C' = aleph_s * V_bar_s * sqrt(tau_s / (mu_s * beta_par_R))
+       ! vts_perp = vts_parallel * sqrt(aleph_s)
+
+       ! Uses external PlasmaDispersionFunction
+
+       ! -- Result Declaration --
+       complex :: Ixx_value               !! Final computed value of the integral I_xx
+
+       ! -- Local Variable Declarations --
+       real    :: pi                      !! Mathematical constant pi
+       complex    :: A_prime_num             !! Numerator for A' calculation
+       complex    :: A_prime_den             !! Denominator for A' calculation
+       complex    :: A_prime                 !! Intermediate constant A'
+       complex    :: B_prime                 !! Intermediate constant B'
+       complex    :: C_prime_num             !! Numerator for C' calculation
+       complex    :: C_prime_den             !! Denominator for C' calculation
+       complex    :: C_prime                 !! Intermediate constant C'
+       complex    :: prefactor_num           !! Numerator for overall prefactor calculation
+       complex    :: prefactor_den           !! Denominator for overall prefactor calculation
+       complex    :: prefactor_const         !! Overall constant prefactor
+       complex    :: term_par_coeff          !! Coefficient multiplying Z(zeta') in the parallel term
+       complex    :: C0                   !! prefactor term
+       complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
+       complex :: zeta_prime              !! Argument for Plasma Dispersion Function
+       complex :: Z_zeta_prime            !! Value of Plasma Dispersion Function Z(zeta')
+       complex :: term_par_curly_brace    !! Value of the term in curly braces {}
+
+       complex :: omega_temp !!omega with fixed sign
+       real :: kpar_temp !!kpar with fixed sign
+       real :: kperp_temp !!kperp with fixed sign
+       real :: hatV_s !!Vdrift with correct norm
+
+       omega_temp = -real(omega)-ii*aimag(omega) !sign convetion fix
+       kpar_temp = -kpar !sign convetion fix
+       kperp_temp = kperp  !sign convetion fix
+
+
+       ! Constants
+       pi = 4.0*ATAN(1.0)
+
+       A_prime_num = kpar_temp
+       A_prime_den = omega_temp * SQRT(spec(1)%tau_s * spec(1)%alph_s / spec(1)%mu_s)
+       A_prime = A_prime_num / A_prime_den
+
+       B_prime = spec(1)%alph_s - 1.0
+
+       ! Calculate C_prime
+       hatV_s=spec(1)%vv_s*sqrt(spec(1)%tau_s/(spec(1)%mu_s*betap))
+       C_prime_num = spec(1)%alph_s * hatV_s
+       C_prime_den = SQRT(spec(1)%mu_s * betap / spec(1)%tau_s)
+       C_prime = C_prime_num / C_prime_den
+
+       ! Calculate Zeta_prime argument
+       zeta_prime = omega_temp/kpar_temp-hatV_s
+
+       ! Call external function for Z(zeta')
+       Z_zeta_prime = zet_in(kpar_temp,zeta_prime)
+
+       ! Calculate the term in curly braces {}
+       term_par_coeff = 1.0 - A_prime * C_prime + A_prime * B_prime * (omega_temp / kpar_temp)
+       term_par_curly_brace = A_prime * B_prime + term_par_coeff * Z_zeta_prime
+
+       ! Calculate the overall prefactor constant
+       C0 = (spec(1)%mu_s*spec(1)%tau_s/betap)**(0.5)*1/spec(1)%q_s
+       prefactor_num = C0*pi**(1.5) * spec(1)%q_s * kperp_temp * spec(1)%alph_s
+       prefactor_den = kpar_temp * SQRT(spec(1)%mu_s * spec(1)%tau_s * spec(1)%alph_s)
+       prefactor_const = prefactor_num / prefactor_den
+
+       ! Final result
+       Ixx_value = prefactor_const * term_par_curly_brace
+
+      unit_number = 14
+      open(newunit=unit_number, file="JP_susc_output.dat", status="replace", action="write")
+      write(unit_number,*) Ixx_value
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="P_susc_output.dat", status="replace", action="write")
+      write(unit_number,*) susc(1,1,1)
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="kpar_output.dat", status="replace", action="write")
+      write(unit_number,*) complex(kpar_temp,0.) !lazy way to make compatabile with python load functions
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="kperp_output.dat", status="replace", action="write")
+      write(unit_number,*) complex(kperp_temp,0.) !lazy way to make compatabile with python load functions
+      close(unit_number)
+
+      unit_number = 14
+      open(newunit=unit_number, file="om_output.dat", status="replace", action="write")
+      write(unit_number,*) omega_temp
+      close(unit_number)
+
+
+      unit_number = 14
+      open(newunit=unit_number, file="Zeta_output.dat", status="replace", action="write")
+      write(unit_number,*) Z_zeta_prime
+      close(unit_number)
+
+   end subroutine calc_susc_rat
+
    subroutine calc_vrat(omega, nden, nspecidx, vmean_over_f00s, vrat)
      !! Computes factors needed to take moments of the pert dist function in same units as PLUME- note this term is dimensional!
 
@@ -1834,7 +2549,7 @@ module fpc
     !                           Collin Brown and Greg Howes, 2023
     !------------------------------------------------------------------------------
     !TODO: remove A1, B1- used for debug but not needed now!
-    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1,epsSokhotski_Plemelj)
+    subroutine calc_fs1(omega,vperp,vpar,phi,ef,bf,hatV_s,q_s,aleph_s,tau_s,mu_s,aleph_r,elecdircontribution,A1,B1,exbar,fs0,fs1,epsSokhotski_Plemelj,termrats)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
       use vars, only : betap,kperp,kpar,vtp,pi
@@ -1890,6 +2605,9 @@ module fpc
       real, intent(in) :: epsSokhotski_Plemelj
       !! Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1 
 
+      complex, dimension(1:3), intent(in) :: termrats
+      !! terms that capture the fact that we effectively have different normalization between JETPLUME and PLUME do to the timing we make things dimensionless
+
       integer :: n 
       !! bessel sum counter
       
@@ -1943,16 +2661,16 @@ module fpc
           kpar_temp = -kpar !sign convetion fix
           kperp_temp = kperp !this does not recieve a minus sign due to sign convention; seems to effectively be absorbed by phi but not sure- this is empirically correct tho
           vpar_temp = vpar
-          ef3 = ef3
-          ef2 = ef2
-          ef1 = ef1
+          ef3 = ef3*termrats(3)
+          ef2 = ef2*termrats(2)
+          ef1 = ef1*termrats(1)
       else
         omega_temp = real(omega)-ii*aimag(omega)
         kpar_temp = kpar
         vpar_temp = vpar
-        ef3 = ef3
-        ef2 = ef2
-        ef1 = ef1
+        ef3 = ef3*termrats(3)
+        ef2 = ef2*termrats(2)
+        ef1 = ef1*termrats(1)
       end if
 
       !Compute Bessel functions (if necessary)

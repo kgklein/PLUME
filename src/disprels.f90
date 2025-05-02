@@ -25,8 +25,9 @@ module disprels
   real, parameter :: prec=1.E-7
   !!Root Finding precision  
 
-  private :: find_minima,zet_in,zetout,bessel,get_out_name
+  private :: find_minima,zetout,get_out_name
 
+  public :: zet_in, bessel
   public :: map_search, refine_guess, om_scan, om_double_scan, map_scan, test_disp
   public :: radial_scan
   public :: calc_eigen, rtsec, disp !fpc.f90 now accesses these
