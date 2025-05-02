@@ -71,7 +71,7 @@ If you use the code for a science publication,
 3. and cite the code paper:
 
 [Klein, K. G., Howes, G. G.,
-and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025 in prep](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
+and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
    
 ##  3. Installing the PLUME code
 
