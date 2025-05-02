@@ -36,7 +36,7 @@ PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
 relation in hot (even relativistic) magnetised plasma. 
 
 If you use the code for a science publication, please provide the code website
-[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper:
+[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication, and cite the code:
 
 ```
 @software{PLUME_2025,
@@ -51,6 +51,9 @@ If you use the code for a science publication, please provide the code website
   url          = {https://doi.org/10.5281/zenodo.15215514}
 }
 ```
+and code paper 
+[Klein, K. G., Howes, G. G.,
+and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
 Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
 
