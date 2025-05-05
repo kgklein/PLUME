@@ -2176,6 +2176,8 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   
   complex, dimension(3,3) :: dsusch
   !!The Difference in the Hermitian Susceptibility Tensors.
+
+  complex, dimension(nspec,3,3) :: tempsusc
   
   complex, dimension(nspec,3) :: term
   !! Summation terms for heating calculation.
@@ -2263,17 +2265,18 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
              ((omega-kpar * spec(jj)%vv_s/sqrt(betap*spec(1)%alph_s))&
              *sqrt(spec(1)%alph_s)*vtp)
      enddo
-
      
      !EndIf (scan(is)%eigen_s) loop
   endif
 
   !If (scan(is)%heat_s) loop
   !Greg Howes, 2006; Kristopher Klein, 2015
-  if (heat_L) then
+  if (heat_L) then !TODO: have temp1 use a different suscmatrix....
      !CALCULATE ELECTRON AND ION HEATING======================================
+     ! Save susc into tempsusc as susc is overwritten in these calculations
+     tempsusc(:,:,:) = susc(:,:,:)
      temp1 = cmplx(real(omega),0.)
-     temp1 = disp(temp1)
+     temp1 = disp(temp1) !WARNING: this changes the susc tensor fundamentally!!!! Other parts of code might want the original one so we save and restore it above and below
 
      do ii = 1, 3 !tensor index
         do j = 1, 3 !tensor index
@@ -2468,6 +2471,10 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
 
      endif
      endif
+
+     ! Restore susc from tempsusc
+     susc(:,:,:) = tempsusc(:,:,:)
+
 
      !EndIf (scan(is)%heat_s) loop
   endif
