@@ -17,7 +17,7 @@ module fpc
   !! associated routines to calculate the FPC from it
 
   implicit none
-  private :: calc_fs1, find_wperpR, check_f_gridsize_cart 
+  private :: calc_fs1, calc_wperpR, check_f_gridsize_cart, calc_ns0
   public :: compute_fpc_gyro, compute_fpc_cart
 
   real :: bs_last=0.0       
@@ -266,6 +266,8 @@ module fpc
       
       complex, dimension(1:3)       :: efiden 
 
+      real :: n0r
+
       exbar = sqrt(betap)/vtp*(1.0,0.) 
       eeuler = EXP(1.0)
 
@@ -381,7 +383,11 @@ module fpc
       termrats(2) = (1.,0.)
       termrats(3) = (1.,0.)
 
-      call find_wperpR(omega,wperp) !TODO: move into for loop and calc for each spec
+      call calc_wperpR(omega,wperp) !TODO: move into for loop and calc for each spec
+      call calc_ns0(wperp,omega,ef,ns(1),n0r) !TODO: divide fs1 by n0/pi^3/2 wpar wperp^2 and make sure to 'undo this' before taking moment
+
+
+
 
       wperp = wperp
 
@@ -396,26 +402,23 @@ module fpc
                vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
                do ivz=ivzmin,ivzmax
                   !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz)*real(wperp),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s(is),spec(is)%alph_s,(1.,0.))
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy),vvx(ivx))
-                  call calc_fs1(omega,vperp,vvz(ivz)*real(wperp),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+                  call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is),0.,termrats,wperp)
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1(ivx,ivy,ivz,is),0.,termrats,(1.,0.))
                   if(computemoment)then
-                     call calc_fs1(omega,vperp,vvz(ivz)*real(wperp),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
+                     call calc_fs1(omega,vperp,vvz(ivz),phi,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,&
-                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj*real(wperp),termrats,wperp) !since EpsilonSokhotski_Plemelj is 'arbitrary', we rescale it by wperp to get better numerical behavior (want it to be on the order of mag as the grid)
-                     if(is .eq. 1)then
-                     fs0val = fs0val + fs0(ivx,ivy,ivz,is) !TODO: don't be so hacky with this
-                  endif
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj,termrats,(1.,0.))
                   endif
                enddo
             enddo
          enddo
       enddo
 
-      fs0val = fs0val*delv3
+      
 
  
       !=============================================================================
@@ -577,14 +580,21 @@ module fpc
             write(*,*)'It is strongly suggested you change the value of EpsilonSokhotski_Plemelj in the vars.f90 file!'
          endif
 
-
          do is = 1, nspec
          ! Density Fluctuation: Zeroth Moment of delta f
-            ns1(is)=sum(sum(sum(fs1_SP(:,:,:,is),3),2),1)*delv3*wperp**3
+            
 
-            !Correct Normalization to n_0R
+            write(*,*)'fs0val',fs0val
+
+            fs0val = 1./pi**1.5 !TODO: in present form, this should be 1.... figure out where we are absorbing an extra pi^3/2 and fix!!! TODO: again, be sure to divide fs1 by this (and remember to get rid of it with fs00^2 here)
+                                !TODO: becareful about delv3 wperp factors here, which have cancelled in current form but may not
+
+            !Correct Normalization to n_0R?
+            ns1(is)=sum(sum(sum(fs1_SP(:,:,:,is),3),2),1)*delv3
             ns1(is)=ns1(is)*(spec(is)%tau_s)**(1.5)/(sqrt(pi**3.)*spec(is)%alph_s)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
-            ns1(is)=wperp**3*ns1(is)*fs0val/vtp/(4*pi) !TODO: double check this vtp and 4pi factor.... ....
+            ns1(is)=ns1(is)*fs0val
+            ns1(is)=ns1(is)/n0r
+            ! ns1(is)=ns1(is)*fs0val/vtp/(4*pi) !TODO: double check this vtp and 4pi factor.... ....
 
             us1(1,is) = (0.,0.)
             us1(2,is) = (0.,0.)
@@ -593,24 +603,26 @@ module fpc
          ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
             !x-component
             do ivx=ivxmin,ivxmax
-               us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1_SP(ivx,:,:,is),2),1)*delv3*wperp**3 !Note, while 1st moment typically divides by n0, we do not need to explicitly do that here as it is incorporated in the units already
+               us1(1,is)=us1(1,is)+vvx(ivx)*sum(sum(fs1_SP(ivx,:,:,is),2),1)*delv3
             enddo
-            us1(1,is) = wperp**4*us1(1,is)/fs0val !TODO: calc wperp for all species and make it possible for aleph!=1
+            us1(1,is) = vtp*wperp*us1(1,is)*fs0val !TODO: calc wperp for all species and make it possible for aleph!=1 !vtp converts to 1/(c (Ex/B0)) rather than 1/(vth (Ex/B0))
             !y-component
             do ivy=ivymin,ivymax
-               us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1_SP(:,ivy,:,is),2),1)*delv3*wperp**3 
+               us1(2,is)=us1(2,is)+vvy(ivy)*sum(sum(fs1_SP(:,ivy,:,is),2),1)*delv3
             enddo
-            us1(2,is) = wperp**4*us1(2,is)/fs0val 
+            us1(2,is) = vtp*wperp*us1(2,is)*fs0val 
             !z-component
             do ivz=ivzmin,ivzmax
-               us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1_SP(:,:,ivz,is),2),1)*delv3 *wperp**3 
+               us1(3,is)=us1(3,is)+vvz(ivz)*sum(sum(fs1_SP(:,:,ivz,is),2),1)*delv3
             enddo
-            us1(3,is) = wperp**4*us1(3,is)/fs0val
+            us1(3,is) = vtp*wperp*us1(3,is)*fs0val
          enddo
+
+         write(*,*)'fs0val',fs0val
 
          unit_number = 14
          open(newunit=unit_number, file="fs0val.dat", status="replace", action="write")
-         write(unit_number,*) wperp
+         write(unit_number,*) fs0val
          close(unit_number)
 
 
@@ -1056,6 +1068,8 @@ module fpc
       character(100)  :: fmt_dbg1,fmt_dbg2           
       !! Eigenfunction Output Format used for debug
 
+      real :: n0r
+
       complex :: wperp
 
       wperp = (1.,0.)
@@ -1170,7 +1184,8 @@ module fpc
       !=============================================================================
       allocate(hatV_s(nspec))
 
-      call find_wperpR(omega,wperp) !TODO: make work for all spec and move to in loop!
+      call calc_wperpR(omega,wperp) !TODO: make work for all spec and move to in loop!
+      call calc_ns0(wperp,omega,ef,ns(1),n0r) !TODO: divide fs1 by n0/pi^3/2 wpar wperp^2 and make sure to 'undo this' before taking moment
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
       do is = 1, nspec
@@ -1183,11 +1198,11 @@ module fpc
           do ivpar=ivparmin,ivparmax
             do ivphi=ivphimin,ivphimax
                   !Compute dimensionless equilibrium Distribution value, fs0
-                  fs0(ivperp,ivpar,ivphi,is)=fs0hat(vvperp(ivperp),vvpar(ivpar),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0(ivperp,ivpar,ivphi,is)=fs0hat(vvperp(ivperp),vvpar(ivpar),hatV_s(is),spec(is)%alph_s,(1.0,0.0))
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega,vvperp(ivperp),vvpar(ivpar),vvphi(ivphi),ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
                                     spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,&
-                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is),0.,termrats,wperp)
+                                    elecdircontribution,(1.,0),(1.,0),exbar,fs0(ivperp,ivpar,ivphi,is),fs1(ivperp,ivpar,ivphi,is),0.,termrats,(1.0,0.0))
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1195,30 +1210,30 @@ module fpc
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,(1.0,0.0))
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats,wperp)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats,(1.0,0.0))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))-delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,(1.0,0.0))
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats,wperp)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp1(ivperp,ivpar,ivphi,is),0.,termrats,(1.0,0.0))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))+delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,(1.0,0.0))
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats,wperp)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_plus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats,(1.0,0.0))
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))-delv
                   phi_adjacent = ATAN2(vperp2_adjacent,vperp1_adjacent) 
                   vperp_adjacent = SQRT(vperp1_adjacent**2+vperp2_adjacent**2)
-                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,wperp)
+                  fs0_temp=fs0hat(vperp_adjacent,vvpar(ivpar),hatV_s(is),spec(is)%alph_s,(1.0,0.0))
                   call calc_fs1(omega,vperp_adjacent,vvpar(ivpar),phi_adjacent,ef,bf,hatV_s(is),spec(is)%q_s,spec(is)%alph_s,&
-                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats,wperp)
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,elecdircontribution,(1.,0),(1.,0),exbar,fs0_temp,fs1_minus_delvperp2(ivperp,ivpar,ivphi,is),0.,termrats,(1.0,0.0))
               enddo
             enddo
           enddo
@@ -1706,14 +1721,13 @@ module fpc
           fs1=fs1+jbess(m)*exp(ii*(m-n)*phi_temp)*emult/denom
        enddo
        enddo
-      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)*(exbar/q_s)*fs1*fs0
+      fs1 = -1.*ii*sqrt(mu_s*tau_s/betap)*(exbar/q_s)*fs1*fs0/vtp
 
     end subroutine calc_fs1
 
     !TODO: add documentation here
     complex function wperp_from_ratio(wperp)
-      !!Returns Plasma Dispersion Function for input complex frequency
-     !! and global values of the dimensionless plasma parameters.
+
      use vars,  only: pi
      use disprels, only: bessel, zet_in
       use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc !TODO remove susc (was mfor debug)
@@ -1816,6 +1830,9 @@ module fpc
 
       real :: phi
 
+      complex :: Cval
+      !! debug
+
 
       !(temporary solution) COMPUTE NUMERICALLY----------------------------
       efiden(1) = (1.,0.)
@@ -1843,13 +1860,13 @@ module fpc
       allocate(vvz(ivzmin:ivzmax)); vvz(:)=0.
       !Populate velocity grid values in ideal range
       do ivx=ivxmin,ivxmax
-         vvx(ivx)=real(ivx)*delv*wperp
+         vvx(ivx)=real(ivx)*delv
       enddo
       do ivy=ivymin,ivymax
-         vvy(ivy)=real(ivy)*delv*wperp
+         vvy(ivy)=real(ivy)*delv
       enddo
       do ivz=ivzmin,ivzmax
-         vvz(ivz)=real(ivz)*delv*wperp
+         vvz(ivz)=real(ivz)*delv
       enddo
 
 
@@ -1871,11 +1888,9 @@ module fpc
 
      om = omega_val
 
-     !wperp = real(wperp) TODO: add back (and make rtsec_real function)
-
      lambdap = kperp**2./2.
      lambdap=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
-     Vdrifts = kpar/wperp * disp_v / sqrt(betap*alphp)
+     Vdrifts = kpar * disp_v / sqrt(betap*alphp)
 
      omega = -real(omega_val)-ii*aimag(omega_val)
 
@@ -1884,28 +1899,28 @@ module fpc
       termrats(2) = (1.,0.)
       termrats(3) = (1.,0.)
 
-      is = 1.
-      hatV_s=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
-      do ivx=ivxmin,ivxmax
-         do ivy=ivymin,ivymax
-            vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
-            do ivz=ivzmin,ivzmax
-               !Compute dimensionless equilibrium Distribution value, fs0
-               fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s,spec(is)%alph_s,wperp)
-               !Compute perturbed  Distribution value, fs1
-               phi = ATAN2(vvy(ivy),vvx(ivx))
-                     call calc_fs1(omega,vperp,vvz(ivz),phi,efiden,efiden,hatV_s,spec(is)%q_s,spec(is)%alph_s,&
-                                 spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,1.,&
-                                 A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj,termrats,wperp)
+         is = 1.
+         hatV_s=spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
+         do ivx=ivxmin,ivxmax
+            do ivy=ivymin,ivymax
+               vperp=sqrt(vvx(ivx)*vvx(ivx)+vvy(ivy)*vvy(ivy))
+               do ivz=ivzmin,ivzmax
+                  !Compute dimensionless equilibrium Distribution value, fs0
+                  fs0(ivx,ivy,ivz,is)=fs0hat(vperp,vvz(ivz),hatV_s,spec(is)%alph_s,(1.0,0.0))
+                  !Compute perturbed  Distribution value, fs1
+                  phi = ATAN2(vvy(ivy),vvx(ivx))
+                        call calc_fs1(omega,vperp,vvz(ivz),phi,efiden,efiden,hatV_s,spec(is)%q_s,spec(is)%alph_s,&
+                                    spec(is)%tau_s,spec(is)%mu_s,spec(1)%alph_s,1.,&
+                                    A1,B1,(1.,0.),fs0(ivx,ivy,ivz,is),fs1_SP(ivx,ivy,ivz,is),EpsilonSokhotski_Plemelj,termrats,(1.,0.))
+                  enddo
                enddo
             enddo
-         enddo
-         fs1_uxxmom = (0.,0.)
-         do ivx=ivxmin,ivxmax
-            fs1_uxxmom=fs1_uxxmom+vvx(ivx)*sum(sum(fs1_SP(ivx,:,:,is),2),1)*delv**3*(wperp**3) !wperp**3 is fromt fact that we change the grid location and size!
-         enddo
+            fs1_uxxmom = (0.,0.)
+            do ivx=ivxmin,ivxmax
+               fs1_uxxmom=fs1_uxxmom+vvx(ivx)*sum(sum(fs1_SP(ivx,:,:,is),2),1)*delv**3
+            enddo
 
-      numerator = fs1_uxxmom
+         numerator = fs1_uxxmom
 
       !(end temp solution) COMPUTE NUMERICALLY----------------------------
 
@@ -1952,38 +1967,31 @@ module fpc
       denomenator = denomenator + n**2*bessel(abs(n),lambdap)*An
      end do
 
-     write(*,*)'----'
-     write(*,*)'num denom',numerator,denomenator
-     write(*,*)'om',om
-     write(*,*)'wperp',wperp
-
-     !wperp_from_ratio = real((wperp**(1)*numerator)/(-pi**(1.5)*ii*om**2*lambdap*(disp_Q/disp_D)*vtp**2/betap*denomenator)-1)
-
-     !TODO: remember to change this when i implement the analytic solution!!!
-     wperp_from_ratio = real((wperp**(1)*numerator)/(-ii*pi**(1.5)*om*susc(1,1,1)*vtp**2/betap)-1)
-
-     !TODO: after we find an analytic form of this, we can note that the fs0 term cancels with the fs0 term, meaning we don't need to compute the underflow causing term at all!
-
      write(*,*)'wperp_from_ratio',wperp_from_ratio
+     !write(*,*)'wperp analytical', (-ii*pi**(1.5)*om*susc(1,1,1)*(disp_Q/disp_D)*vtp**2/betap)/(wperp**(1)*numerator)
 
-      deallocate(fs1_SP,fs0)
-      deallocate(vvx,vvy,vvz)
+     write(*,*)'num',numerator,'den',(-1.0d0 * (0.0d0, 1.0d0) * pi**1.5 * om * susc(1,1,1) * (disp_Q / disp_D) * vtp**1 / betap)
+
+     Cval = numerator / (pi**1.5*-1.0d0 * (0.0d0, 1.0d0) *  om * susc(1,1,1) * (disp_Q / disp_D) * vtp**1 / betap)
+
+     write(*,*)'wperp analytical', 1.0d0 / real(Cval), Cval
+
+     wperp_from_ratio = 1.0d0 / real(Cval)
+
+     deallocate(fs1_SP,fs0)
+     deallocate(vvx,vvy,vvz)
 
 
      end function wperp_from_ratio
 
 
 
-   subroutine find_wperpR(omega,wperp)
+   subroutine calc_wperpR(omega,wperp)
 
       use vars,  only: omega_val
-      use disprels, only: rtsec
 
       complex, intent(in) :: omega
       complex, intent(out) :: wperp
-
-      complex  :: wperp1 !initial guess
-      complex :: wperp2  !initial guess
 
       complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
 
@@ -1995,10 +2003,9 @@ module fpc
 
       omega_val = -real(omega)-ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
 
-      wperp1 = 1.0 - 1.E-7
-      wperp2 = 1.0 + 1.E-7
+      wperp=wperp_from_ratio(wperp)
 
-      wperp=rtsec(wperp_from_ratio,wperp1,wperp2,1.0E-5,iflag) !root finding tolearance is passed as number
+      wperp = abs(wperp) !due to numerical error, sometimes our numerator is negative when it should be positive when the integral results in a small, near zero value (note it will be still inaccurate, but this is at least better....)
 
       write(*,*)'iflag',iflag
       write(*,*)'wperp',wperp
@@ -2008,7 +2015,218 @@ module fpc
       write(unit_number,*) wperp
       close(unit_number)
 
-   end subroutine find_wperpR
+   end subroutine calc_wperpR
+
+
+   !TODO: with n0 and wperp calculated, we will finally need to divide out final fs1 by it!
+   !TODO: clean up! (i just copied everything from wperp_from_ratio)
+   complex function n0_from_wperp(wperp,om,ef,ns)
+     use vars,  only: pi
+     use disprels, only: bessel, zet_in
+      use vars, only : betap,kperp,kpar,vtp,nspec,spec,susc !TODO remove susc (was mfor debug)
+      use vars, only : vxmin,vxmax,vymin,vymax,vzmin,vzmax,delv,nbesmax
+      use vars, only : elecdircontribution, EpsilonSokhotski_Plemelj, omega_val
+
+      complex, dimension(1:3), intent(in)   :: ef 
+      complex, intent(in) :: ns 
+
+     complex :: wperp !the secant solver we have assumes complex input so we just cast it 
+     !! dimensional wperp
+
+     complex :: om
+
+     complex  :: numerator
+
+     complex :: denomenator
+
+     integer :: n
+
+     complex :: An
+
+     real :: lambdap
+
+     integer :: is
+
+     complex :: c
+
+     real :: alphp
+     !! \( T_{\perp}/T_{\parallel}_{ref} \)
+
+     !Species Parameters defined locally
+     real :: disp_tau     
+     !!Relative Temperature ratio.
+     !!\(T_{ref}/T_{s}|_{\parallel}\)
+     
+     real :: disp_mu
+     !!Relative Mass ratio.
+     !!\(m_{ref}/m_{s}\)
+
+     real :: disp_alph
+     !!Temperature Anisotropy.
+     !!\(T_{\perp}/T_{\parallel}_s\)
+
+     real :: disp_Q
+     !!Relative charge ratio.
+     !!\(q_{ref}/q_{s}\)
+
+     real :: disp_D
+     !!Density Ratio.
+     !!\(n_{s}/n_{ref}\)
+
+     real :: disp_v
+     !!Relative Drift, normalized to reference Alfven velocity
+     !!\(v_{drift}/v_{A,ref}\)
+     !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
+
+     real :: Vdrifts
+
+     complex :: zz_n
+     !! plasma disp func
+
+     complex :: zz_minusn
+     !! plasma disp func
+
+     complex :: tsi_n
+     !! plasma disp func arg
+
+     complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
+
+     complex :: fs1_uxxmom
+
+     !arrays that hold values on grid for efficiency
+      real, allocatable, dimension(:) :: vvx,vvy,vvz  
+      !! Velocity grid values (norm: w_par_s)
+
+      integer :: ivx,ivy,ivz                    
+      !! Index for each velocity dimension
+
+      integer :: ivxmin,ivxmax,ivymin,ivymax,ivzmin,ivzmax  
+      !! Index limits
+
+     complex, allocatable, dimension(:,:,:,:) :: fs1_SP
+   !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj theorem to compute moments. Only used is computemoments is true
+
+      complex :: omega
+
+      complex, dimension(1:3)       :: efiden 
+
+      real::hatV_s
+
+      complex    :: A1, B1           
+      !! Temporary scalars to fix coeff error!
+
+
+      real,  allocatable, dimension(:,:,:,:) :: fs0   
+      !! Dimensionless equilibrium fs0
+
+      complex, dimension(3) :: termrats
+      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
+
+      real :: vperp
+
+      real :: phi
+
+      complex :: Cval
+
+      complex :: sigma1,sigma3
+
+
+
+      !(temporary solution) COMPUTE NUMERICALLY----------------------------
+      efiden(1) = (1.,0.)
+      efiden(2) = (1.,0.)
+      efiden(3) = (1.,0.)
+
+      termrats(1) = (1.,0.)
+      termrats(2) = (1.,0.)
+      termrats(3) = (1.,0.)
+
+      A1 = (1.,0.)
+      B1 = (1.,0.)
+
+
+     !  ivxmin=int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write(*,*)'WARNING: vxmin not integer multiple of delv'
+     !  ivxmax=int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write(*,*)'WARNING: vxmax not integer multiple of delv'
+     !  ivymin=int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write(*,*)'WARNING: vymin not integer multiple of delv'
+     !  ivymax=int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write(*,*)'WARNING: vymax not integer multiple of delv'
+     !  ivzmin=int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write(*,*)'WARNING: vzmin not integer multiple of delv'
+     !  ivzmax=int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write(*,*)'WARNING: vzmax not integer multiple of delv'
+
+     !  !Allocate velocity grid variables
+     !  allocate(vvx(ivxmin:ivxmax)); vvx(:)=0.
+     !  allocate(vvy(ivymin:ivymax)); vvy(:)=0.
+     !  allocate(vvz(ivzmin:ivzmax)); vvz(:)=0.
+     !  !Populate velocity grid values in ideal range
+     !  do ivx=ivxmin,ivxmax
+     !     vvx(ivx)=real(ivx)*delv
+     !  enddo
+     !  do ivy=ivymin,ivymax
+     !     vvy(ivy)=real(ivy)*delv
+     !  enddo
+     !  do ivz=ivzmin,ivzmax
+     !     vvz(ivz)=real(ivz)*delv
+     !  enddo
+
+
+     !  allocate(fs1_SP(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+     !  fs1_SP = 0.
+
+
+     !  allocate(fs0(ivxmin:ivxmax,ivymin:ivymax,ivzmin:ivzmax,1:nspec))
+     !  fs0(:,:,:,:)=0.
+
+     is = 1
+     alphp = spec(1)%alph_s
+     disp_tau  =spec(is)%tau_s
+     disp_mu   =spec(is)%mu_s
+     disp_alph =spec(is)%alph_s
+     disp_Q    =spec(is)%Q_s
+     disp_D    =spec(is)%D_s
+     disp_v    =spec(is)%vv_s
+
+     ! om = omega_val
+
+     ! lambdap = kperp**2./2.
+     ! lambdap=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
+     ! Vdrifts = kpar * disp_v / sqrt(betap*alphp)
+
+      omega = -real(omega_val)+ii*aimag(omega_val)
+
+      sigma1 = -1.0d0 * (0.0d0, 1.0d0) *  om * susc(1,1,1) * (disp_Q / disp_D) * vtp**1 / betap
+      sigma3 = -1.0d0 * (0.0d0, 1.0d0) *  om * susc(1,1,3) * (disp_Q / disp_D) * vtp**1 / betap
+
+      n0_from_wperp = (1/(omega*ns))*(kperp*sigma1*ef(1) + kpar*sigma3*ef(3))/wperp
+
+   end function
+
+
+!TODO: we assume wperp=wpar in this current version! fix
+
+   subroutine calc_ns0(wperp,omega,ef,ns,n0)
+      use vars, only : omega_val
+
+      complex, intent(in) :: wperp !TODO: we have these as complex and then take the real part everywhere, just start with having them as complex!!
+      complex, intent(in) :: omega
+      complex, dimension(1:3), intent(in)   :: ef         
+      complex, intent(in) :: ns 
+      real, intent(out) :: n0
+
+      complex :: ii = (0.,1.)
+
+      integer :: unit_number
+
+      omega_val = -real(omega)-ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
+
+      n0 = real(n0_from_wperp(wperp,omega,ef,ns))
+
+      write(*,*)'n0',n0,'wperp',wperp
+
+      unit_number = 14
+      open(newunit=unit_number, file="n0.dat", status="replace", action="write")
+      write(unit_number,*) complex(n0,0)
+      close(unit_number)
+
+   end subroutine
 
 
 
