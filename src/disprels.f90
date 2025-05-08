@@ -3601,7 +3601,7 @@ end subroutine get_double_out_name
      complex ::temp
      !! Temp. Scalar for readability.
 
-     !Species Parameters called locally
+     !Species Parameters defined locally
      real :: disp_tau     
      !!Relative Temperature ratio.
      !!\(T_{ref}/T_{s}|_{\parallel}\)

@@ -305,6 +305,9 @@ module vars
   real, dimension(1:2,1:numroots) :: wroots
   !!Real and Imaginary components of each solution.
 
+  complex :: omega_val
+  !!var used to pass omega to rtsec in fpc.f90
+
   integer :: nroot_max
   !!Input specified nroots to follow.
 
@@ -318,7 +321,7 @@ module vars
   public :: vperpmin,vperpmax,vparmin,vparmax,delv
   public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
   public :: elecdircontribution
-  public :: computemoment,EpsilonSokhotski_Plemelj
+  public :: computemoment,EpsilonSokhotski_Plemelj,omega_val
   public :: new_low_n
 
 end module vars

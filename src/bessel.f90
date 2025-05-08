@@ -286,10 +286,9 @@ module bessels
       IMPLICIT NONE
       REAL, INTENT(IN) :: x
       REAL :: bess0_s_prime
-      REAL :: h
       integer :: n 
 
-      n = -1
-      bess0_s_prime = bessj_s(n,x)
+      n = 1
+      bess0_s_prime = -bessj_s(n,x)
    END FUNCTION bess0_s_prime
  end module bessels
