@@ -3940,7 +3940,7 @@ end subroutine get_double_out_name
              (disp_D*disp_tau*sqrt(betap*alphp)/(om*disp_alph*disp_Q**2.))
 
         !Save the temporary susceptibility to the 'susc' array
-        susc(is,1,1) = eps_xx_t
+        susc(is,1,1) = eps_xx_t !Despite calling these terms 'eps', they are missing the I (identity matrix) from the terms as adding them would be redundant to compute susc!
         susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
         susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
         susc(is,2,2) = eps_yy_t
