@@ -586,14 +586,14 @@ module fpc
 
             write(*,*)'fs0val',fs0val
 
-            fs0val = 1./pi**1.5 !TODO: in present form, this should be 1.... figure out where we are absorbing an extra pi^3/2 and fix!!! TODO: again, be sure to divide fs1 by this (and remember to get rid of it with fs00^2 here)
+            fs0val = 1./pi**1.5 !(Actually this may be correct with how the other terms cancel out!!!). TODO: in present form, this should be 1.... figure out where we are absorbing an extra pi^3/2 and fix!!! TODO: again, be sure to divide fs1 by this (and remember to get rid of it with fs00^2 here)
                                 !TODO: becareful about delv3 wperp factors here, which have cancelled in current form but may not
 
             !Correct Normalization to n_0R?
             ns1(is)=sum(sum(sum(fs1_SP(:,:,:,is),3),2),1)*delv3
-            ns1(is)=ns1(is)*(spec(is)%tau_s)**(1.5)/(sqrt(pi**3.)*spec(is)%alph_s)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
+            !ns1(is)=ns1(is)*(spec(is)%tau_s)**(1.5)/(sqrt(pi**3.)*spec(is)%alph_s)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s 
             ns1(is)=ns1(is)*fs0val
-            ns1(is)=ns1(is)/n0r
+            ns1(is)=ns1(is)!/n0r
             ! ns1(is)=ns1(is)*fs0val/vtp/(4*pi) !TODO: double check this vtp and 4pi factor.... ....
 
             us1(1,is) = (0.,0.)
@@ -1976,7 +1976,7 @@ module fpc
 
      write(*,*)'wperp analytical', 1.0d0 / real(Cval), Cval
 
-     wperp_from_ratio = 1.0d0 / real(Cval)
+     wperp_from_ratio = 1.0d0 / real(Cval) !TODO: this is technicalyl 1/wperp.... (i think- double check and update manuscript if needed! AND update code...)
 
      deallocate(fs1_SP,fs0)
      deallocate(vvx,vvy,vvz)
@@ -2195,13 +2195,14 @@ module fpc
       sigma1 = -1.0d0 * (0.0d0, 1.0d0) *  om * susc(1,1,1) * (disp_Q / disp_D) * vtp**1 / betap
       sigma3 = -1.0d0 * (0.0d0, 1.0d0) *  om * susc(1,1,3) * (disp_Q / disp_D) * vtp**1 / betap
 
-      n0_from_wperp = (1/(omega*ns))*(kperp*sigma1*ef(1) + kpar*sigma3*ef(3))/wperp
+      n0_from_wperp = (1/(omega*ns))*(kperp*sigma1*ef(1) + kpar*sigma3*ef(3))/wperp !TODO: check to make sure that this is 1/n0R, if not, update manuscript. If so, update code
 
    end function
 
 
 !TODO: we assume wperp=wpar in this current version! fix
 
+   !TODO: remove this---- was made in error (ns0 can be really sensitive to small changes in grid!)
    subroutine calc_ns0(wperp,omega,ef,ns,n0)
       use vars, only : omega_val
 
