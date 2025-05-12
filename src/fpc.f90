@@ -377,7 +377,6 @@ contains
 
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
       do is = 1, nspec
-
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
          hatV_s(is) = spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
@@ -525,7 +524,7 @@ contains
       !Reduce Correlations
       corex_xy(:, :, :) = sum(corex(:, :, :, :), 3)*delv
       corex_xz(:, :, :) = sum(corex(:, :, :, :), 2)*delv
-      corex_zy(:, :, :) = sum(corex(:, :, :, :), 1)*delv !NOTE: Assumes nvy=nvz! TODO: remove this requirement (and fix comments everywhere)
+      corex_zy(:, :, :) = sum(corex(:, :, :, :), 1)*delv !NOTE: Assumes nvy=nvz!
       corey_xy(:, :, :) = sum(corey(:, :, :, :), 3)*delv
       corey_xz(:, :, :) = sum(corey(:, :, :, :), 2)*delv
       corey_zy(:, :, :) = sum(corey(:, :, :, :), 1)*delv !NOTE: Assumes nvy=nvz!
@@ -582,7 +581,7 @@ contains
             do ivx = ivxmin, ivxmax
                us1(1, is) = us1(1, is) + vvx(ivx)*sum(sum(fs1_SP(ivx, :, :, is), 2), 1)*delv3
             end do
-            us1(1, is) = vtp*wperp*us1(1, is)*fs0val !TODO: calc wperp for all species and make it possible for aleph!=1 !vtp converts to 1/(c (Ex/B0)) rather than 1/(vth (Ex/B0))
+            us1(1, is) = vtp*wperp*us1(1, is)*fs0val
             !y-component
             do ivy = ivymin, ivymax
                us1(2, is) = us1(2, is) + vvy(ivy)*sum(sum(fs1_SP(:, ivy, :, is), 2), 1)*delv3
@@ -618,11 +617,7 @@ contains
                             spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s)
 
          !make file to store result
-         !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
          unit_s = 12 + 5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
-         !TODO: fix formating in the write statements here and in gyro...
-         !write(*,'(5A,A,1A,A,16A,I0.2,5A,I0.2)')&
-         !'data/',trim(dataName),'/',trim(outputName),'.cparcart.specie',(is),'.mode',wrootindex
          write (filename, '(5A,I0.2,1A,I0.2)') &
             'data/', trim(dataName), '/', trim(outputName), '.cparcart.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
          open (unit=unit_s, file=trim(filename), status='replace')
@@ -923,6 +918,9 @@ contains
       logical :: ex
       !! used to check if results directory exists
 
+      integer :: status
+      !! used to check return status of if directory exists
+
       complex, dimension(1:3)       :: ef, bf
       !! E, B
 
@@ -1036,30 +1034,29 @@ contains
          write (*, *) "WARNING! The gyro routine does not support computing moments at this time due to computational demand!" !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case
       end if
 
-      !check if results directory exists
-      ! INQUIRE (DIRECTORY='data', EXIST=ex)
-      ex = .true. !TODO: make this work for gfortran compiler
-      if (ex) then
+      ! Check if the "data" directory exists
+      status = system('test -d data')
+      if (status == 0) then
          write (*, *) "Assuming data folder already exists..."
       else
          write (*, *) "Creating data folder for output..."
-         write (*, *) 'mkdir data'
          CALL system('mkdir data')
          write (*, *) "Saving output to data folder..."
       end if
 
-      write (outputPath, *) 'data/', trim(dataName) !!TODO: use more general pathing
-      ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
-      ex = .true.
-      if (ex) then
-         write (*, *) "assuming subfolder ", trim(dataName), "already exists"
+      ! Check if the subfolder "dataName" exists inside "data"
+      write (outputPath, *) 'data/', trim(dataName)
+
+      status = system('test -d ' // trim(outputPath))
+      if (status == 0) then
+         write (*, *) "Assuming subfolder ", trim(dataName), " already exists"
       else
          write (*, *) "Creating data subfolder ", trim(dataName)
-         write (cmd, *) 'mkdir ', trim(outputPath)
-         write (*, *) cmd
-         CALL system(cmd)
+         CALL system('mkdir ' // trim(outputPath))  ! Create the subfolder
          write (*, *) "Saving to data subfolder ", trim(dataName)
       end if
+
+
 
       !Grab dispersion relation solution
       wi = wroots(1, wrootindex)
@@ -1886,9 +1883,7 @@ contains
 
       wperp = abs(wperp) !due to numerical error, sometimes our numerator is negative when it should be positive when the integral results in a small, near zero value (note it will be still inaccurate, but this is at least better....)
 
-      write (*, *) 'iflag', iflag
-      write (*, *) 'wperp', wperp
-
+      !TODO: remove all of these debug output files...
       unit_number = 14
       open (newunit=unit_number, file="wperp.dat", status="replace", action="write")
       write (unit_number, *) wperp
