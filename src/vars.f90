@@ -12,103 +12,103 @@
 !=============================================================================!
 module vars
   !! Contains all global variables.
-  implicit none
-  private
+   implicit none
+   private
 
-  !INPUT PARAMETERS
-  !The following parameters will be read in from 'scripts/*.in'
-  !Global Input Parameters
+   !INPUT PARAMETERS
+   !The following parameters will be read in from 'scripts/*.in'
+   !Global Input Parameters
 
-  real, target :: betap
+   real, target :: betap
   !!Reference Species Parallel Thermal-to-Magnetic Pressure Ratio.
   !!8 pi n_ref T_ref,par/B^2
-  
-  real, target :: kperp
+
+   real, target :: kperp
   !!Wavenumber perpendicular to B0, normalized to reference gyroradius.
   !!k_perp rho_ref = k_perp w_perp,ref/Omega_ref
-  
-  real, target :: kpar      
+
+   real, target :: kpar
   !!Wavenumber parallel to B0, normalized to reference gyroradius.
   !!k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref
-  
-  real, target :: vtp
+
+   real, target :: vtp
   !!Parallel reference thermal velocity normalized to the speed of light.
   !!v_t,ref,par/c
 
-  integer :: nspec
+   integer :: nspec
   !!Number of species/components to be included in calculation.
-  
-  integer :: nscan = 0
+
+   integer :: nscan = 0
   !!Number of parameter scans.
 
-  public :: specie
-  type :: specie
+   public :: specie
+   type :: specie
      !!Species Input Parameters
-     
-     real :: tau_s
+
+      real :: tau_s
      !!Relative Temperature ratio.
      !!\(T_{ref}/T_{s}|_{\parallel}\)
 
-     real :: mu_s
+      real :: mu_s
      !!Relative Mass ratio.
      !!\(m_{ref}/m_{s}\)
 
-     real :: alph_s
+      real :: alph_s
      !!Temperature Anisotropy.
      !!\(T_{\perp}/T_{\parallel}_s\)
 
-     real :: Q_s
+      real :: Q_s
      !!Relative charge ratio.
      !!\(q_{ref}/q_{s}\)
 
-     real :: D_s
+      real :: D_s
      !!Density Ratio.
      !!\(n_{s}/n_{ref}\)
 
-     real :: vv_s
+      real :: vv_s
      !!Relative Drift, normalized to reference Alfven velocity
      !!\(v_{drift}/v_{A,ref}\)
      !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
 
-  end type specie
+   end type specie
 
-  type (specie), dimension (:), allocatable, target :: spec
+   type(specie), dimension(:), allocatable, target :: spec
   !! Dimensionless Species/Component Parameters.
 
-  type (specie), dimension (:,:), allocatable, target :: rad_spec
+   type(specie), dimension(:, :), allocatable, target :: rad_spec
   !! Array for Varying Species/Component Parameters (under development).
 
-  public :: scanner
-  type :: scanner
+   public :: scanner
+   type :: scanner
      !!Parameters to control parameter scans.
 
-     real :: range_i
+      real :: range_i
      !!Initial value of scanned parameter.
 
-     real :: range_f
+      real :: range_f
      !!Final value of scanned parameter.
 
-     logical :: log_scan
+      logical :: log_scan
      !! Linear or Logarithmic scan.
      !!T-> log, F-> linear scan
 
-     logical :: heat_s
+      logical :: heat_s
      !! Controls supplementary heating calculation.
      !!T-> Heating Calculation; F-> No heating calculation.
 
-     logical :: eigen_s
+      logical :: eigen_s
      !! Controls supplementary eigenfunction calculation.
      !!T-> Eigenfunction calculation;   F-> No eigenfunction Calculation.
 
-     logical :: tensor_s
+      logical :: tensor_s
      !! Controls supplementary output of susceptibility tensor.
      !!T-> Output tensor; F-> Supress output.
 
-     integer :: type_s
+      integer :: type_s
 
      !!Defines nature of parameter scans.
      !! Style: -1- Global two component Scan:
-     !!     Type: 0 k_0-> k_1           
+     !!     Type: 0 k_0-> k_1
      !!           1 theta_0 -> theta_1
      !!           2 k_fixed angle
      !!Style: 0- Global Scan:
@@ -124,62 +124,62 @@ module vars
      !!           4 D_s
      !!           5 vv_s
 
-     integer :: style_s
+      integer :: style_s
      !! Defines nature of parameter scan.
      !!-1: Global two-component scan
      !! 0: Global one-component
      !! 1 to nspec: species specific parameter scan
-     
-     integer :: n_scan
+
+      integer :: n_scan
      !!Number of output steps.
      !!n_scan*n_res Total steps taken.
-     
-     integer :: n_res
-     !!Scan resolution between output steps.    
+
+      integer :: n_res
+     !!Scan resolution between output steps.
      !!n_scan*n_res Total steps taken.
-     
-     real :: diff
+
+      real :: diff
      !!Step size for scanned parameter.
      !! Either (swf-swi)/(n_scan*n_res)
      !! or
      !! (log10(swf)-log10(swi))/(n_scan*n_res).
-     
-  end type scanner
 
-     !-=-=-=-=-=-=-=-=-    
-  type (scanner), dimension (:), allocatable :: scan
+   end type scanner
+
+   !-=-=-=-=-=-=-=-=-
+   type(scanner), dimension(:), allocatable :: scan
   !! Array of scan parameters for all scans to be calculated.
-  
-  type (scanner), dimension (:), allocatable :: rad_scan
+
+   type(scanner), dimension(:), allocatable :: rad_scan
   !! Array of scan parameters for extended parameter scans (under development).
 
-  real, pointer :: sw,sw2,sw3,sw4
+   real, pointer :: sw, sw2, sw3, sw4
   !!Parameter Sweep parameter values.
 
-  !Susceptibility and elements in tensor form of wave equation
+   !Susceptibility and elements in tensor form of wave equation
 
-  complex, dimension(:,:,:), allocatable:: susc
+   complex, dimension(:, :, :), allocatable:: susc
   !! Susceptibility tensor.
   !! (1:nspec,1:3,1:3) with the 3x3 subarray arranged as:
   !! (1,1) xx; (1,2) xy; (1,3) xz;
   !! (2,1) yx; (2,2) yy; (2,3) yz;
   !! (3,1) zx; (3,2) zy; (3,3) zz;
-  
-  complex, dimension(:,:,:,:), allocatable:: susc_low
+
+   complex, dimension(:, :, :, :), allocatable:: susc_low
   !! low-n components of the susceptibility tensor.
   !! (1:nspec,1:3,1:3,0:1) with the 3x3 subarray arranged as susc.
   !! The final index contains the n=0 and n=\pm 1 contributions.
 
-  logical :: low_n=.true.
+   logical :: low_n = .true.
   !!Toggle on low-n susceptibility suplementary calculation.
 
-  logical :: new_low_n=.true. 
+   logical :: new_low_n = .true.
   !!Flag to use Revised low_n for LD/TTD separation. This modifies the Collisionless Power Absorption Calculation! IF TRUE THEN low_n MUST BE TRUE TOO! (GGH: 1/18/23)
-  
-  complex, dimension(3,3) :: lam
+
+   complex, dimension(3, 3) :: lam
   !!Matrix in Wave equation.
 
-  integer :: option
+   integer :: option
   !! Selection for the type of dispersion calculation to be undertaken.
   !!-1: Calculate disp(om) at a single (omega, gamma)
   !! 0: Calculate Roots for input plasma parameters.
@@ -193,81 +193,81 @@ module vars
   !! 5: Find roots for parameters along a prescribed path
   !!    Path is set by solar wind models, with values calculated and
   !!    output by helper function (in development, the radial scan function.).
-  
-  logical :: writeOut
+
+   logical :: writeOut
   !! Enables or suppressed output to screen.
-  
-  character(100) :: dataName
+
+   character(100) :: dataName
   !! Data Subdirectory where output is stored.
 
-  character(100) :: outputName
+   character(100) :: outputName
   !! Common name string for output files.
 
-  character(100) :: print_Name
+   character(100) :: print_Name
   !! Additional string for output files.
 
-  logical :: use_map
+   logical :: use_map
 
   !!Determines method for selecting initial solutions.
   !!T-> Use map routine to determine solutions in defined regions of complex frequency space.
   !!    Map parameters determined by &maps list in *.in file.
   !!F-> Read nroot_max initial guesses for complex frequency solutions.
   !!    Guesses determined by &guess_N lists in *.in file.
-  
-  logical :: loggridw
+
+   logical :: loggridw
   !!Set log or linear spacing for real frequency axis of the map search.
 
-  logical :: loggridg
+   logical :: loggridg
   !!Set log or linear spacing for imaginary frequency axis of the map search.
-  
-  real :: omi
+
+   real :: omi
   !!Lower bound on real frequency map search axis.
 
-  real :: omf
+   real :: omf
   !!Upper bound on real frequency map search axis.
 
-  real :: gami
+   real :: gami
   !!Lower bound on imaginary frequency map search axis.
 
-  real :: gamf
+   real :: gamf
   !!Upper bound on imaginary frequency map search axis.
-  
-  logical :: positive_roots=.false.
+
+   logical :: positive_roots = .false.
   !! Consider all solutions (false) or only solutions with positive real frequencies (true).
 
-  integer, parameter :: nr=128
+   integer, parameter :: nr = 128
   !!Number of grid points along real frequency axis
-  
-  integer, parameter :: ni=128
+
+   integer, parameter :: ni = 128
   !!Number of grid points along imaginary frequency axis
-  
-  integer, parameter :: numroots=500
+
+   integer, parameter :: numroots = 500
   !!Maximum number of minima to keep for a further refinement from a map search.
 
-  integer, parameter :: nbesmax=15 
-  ! !maximum bessel sum counter 1 (from -nbesmax, to nbesmax) used when calcuating fs1 in JET-PLUME. No change for dispersion relation calculation
-  !This has no impact on how the dispersion relation is calculated!!!
-  !rule of thumb: As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
-  
-  !Variables for radial scan of solar wind models: See Option 5.
+   integer, parameter :: nbesmax = 15
+   ! !maximum bessel sum counter 1 (from -nbesmax, to nbesmax) used when calcuating fs1 in JET-PLUME. No change for dispersion relation calculation
+   !This has no impact on how the dispersion relation is calculated!!!
+   !rule of thumb: As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
 
-  integer :: nRad
+   !Variables for radial scan of solar wind models: See Option 5.
+
+   integer :: nRad
   !!Number of points to scan in radial models.
-  
-  character(100) :: modelName
+
+   character(100) :: modelName
   !!Input file name for radial model
-  
-  real, dimension (:), allocatable :: radius
+
+   real, dimension(:), allocatable :: radius
   !!Radial distance from the Sun, in Rs.
 
-  real, dimension (:), allocatable :: beta_rad, vtp_rad
-  !Model for beta_||p and vtp, as a function of radial distance (Rs)shin
-  
-  !turns on/off heating and eigenfunction diagnostics for
-  !radial scan
-  logical :: radial_heating, radial_eigen
+   real, dimension(:), allocatable :: beta_rad, vtp_rad
+   !Model for beta_||p and vtp, as a function of radial distance (Rs)shin
 
-  integer :: k_scan
+   !turns on/off heating and eigenfunction diagnostics for
+   !radial scan
+   logical :: radial_heating, radial_eigen
+
+   integer :: k_scan
   !!Determines wavevector values to include in radial scan
   !!0: single point in kperp, kpar space
   !!1: fixed kperp, scan over kpar
@@ -277,51 +277,50 @@ module vars
   !!5: plane scan over (kperp, kpar)
   !!6: plane scan over (k, theta)
 
-  real :: pi
+   real :: pi
 
+   !variables for fpc
+   real    :: vperpmin, vperpmax, vparmin, vparmax
+   ! !upper and lowerbounds of normalized velocity (v/vts) space samples (gyro coords)
 
-  !variables for fpc
-  real    :: vperpmin,vperpmax,vparmin,vparmax   
-  ! !upper and lowerbounds of normalized velocity (v/vts) space samples (gyro coords)
+   real    :: vxmin, vxmax, vymin, vymax, vzmin, vzmax
+   ! !upper and lowerbounds of normalized velocity (v/vts) space samples (cart coords)
 
-  real    :: vxmin,vxmax,vymin,vymax,vzmin,vzmax 
-  ! !upper and lowerbounds of normalized velocity (v/vts) space samples (cart coords)
+   real    :: delv
+   ! !normalized velocity (delv/vts) space grid spacing
 
-  real    :: delv                                
-  ! !normalized velocity (delv/vts) space grid spacing
+   real    :: elecdircontribution
+   ! !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
 
-  real    :: elecdircontribution                 
-  ! !Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
-
-  logical :: computemoment = .true.
+   logical :: computemoment = .true.
   !! Enables computation of fs1 moments; not recommended as it is prone to inaccuracies and is unnecessary give that analytical moments are computed. Used for verifying self consistency of the code instead.
 
-  real :: EpsilonSokhotski_Plemelj = 0.01 !should be positive!
+   real :: EpsilonSokhotski_Plemelj = 0.01 !should be positive!
   !! Epsilon in the Sokhotski–Plemelj theorem, which states int f(x)/(x-a) dx can be approximated using eps->0 int f(x)/(x-a+i eps) dx to 'better' handle the singularity  numerically. This value should be left as zero, only be used by advanced users, and only when the user is computing moments for comparison to the analytic form (because it requires a *very* small delta v to 'work') (Remember to recompile!)
 
-  integer :: nroots
-  !!Number of roots found.  
+   integer :: nroots
+  !!Number of roots found.
 
-  real, dimension(1:2,1:numroots) :: wroots
+   real, dimension(1:2, 1:numroots) :: wroots
   !!Real and Imaginary components of each solution.
 
-  complex :: omega_val
+   complex :: omega_val
   !!var used to pass omega to rtsec in fpc.f90
 
-  integer :: nroot_max
+   integer :: nroot_max
   !!Input specified nroots to follow.
 
-  public :: betap,kperp,kpar,vtp,nspec,spec,susc,lam,option,writeOut
-  public :: loggridw,loggridg,omi,omf,gami,gamf,nr,ni,numroots,nroot_max,nbesmax
-  public :: nroots, wroots,dataName,outputName,use_map,print_Name
-  public :: nscan,scan,sw,sw2,sw3,sw4, k_scan, rad_scan, positive_roots
-  public :: nRad,modelName,rad_spec,radius, beta_rad, vtp_rad
-  public :: radial_heating, radial_eigen, pi
-  public :: low_n, susc_low
-  public :: vperpmin,vperpmax,vparmin,vparmax,delv
-  public :: vxmin,vxmax,vymin,vymax,vzmin,vzmax
-  public :: elecdircontribution
-  public :: computemoment,EpsilonSokhotski_Plemelj,omega_val
-  public :: new_low_n
+   public :: betap, kperp, kpar, vtp, nspec, spec, susc, lam, option, writeOut
+   public :: loggridw, loggridg, omi, omf, gami, gamf, nr, ni, numroots, nroot_max, nbesmax
+   public :: nroots, wroots, dataName, outputName, use_map, print_Name
+   public :: nscan, scan, sw, sw2, sw3, sw4, k_scan, rad_scan, positive_roots
+   public :: nRad, modelName, rad_spec, radius, beta_rad, vtp_rad
+   public :: radial_heating, radial_eigen, pi
+   public :: low_n, susc_low
+   public :: vperpmin, vperpmax, vparmin, vparmax, delv
+   public :: vxmin, vxmax, vymin, vymax, vzmin, vzmax
+   public :: elecdircontribution
+   public :: computemoment, EpsilonSokhotski_Plemelj, omega_val
+   public :: new_low_n
 
 end module vars
