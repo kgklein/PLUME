@@ -201,6 +201,13 @@ contains
       complex, allocatable, dimension(:, :, :) :: fs1_xy, fs1_xz, fs1_zy
       !! 2V fs1
 
+      logical :: useOnlyReferenceWpar
+      !! if true, will use wparR and input ratios to computed the needed wparS for fs1 moments
+      !! While using only wparR is possible (and seems less 'forceful' in ensuring normalization consistency)
+      !! it only works when the reference species and other species have comparable numerical error, which typically is not true.
+      !! Testing in specific domains yields good results, but these domains are often nonphysical...
+      !! By using each species to compute the wparS, we are able to (somewhat better) absorb the distint error for each species 
+
       complex, allocatable, dimension(:) :: ns1
       !! Density Fluctuation from numerical moment of fs1
 
@@ -559,9 +566,7 @@ contains
          end if
 
          do is = 1, nspec
-
-            !TODO: make this an internal flag!!
-            if(.true.) then
+            if(useOnlyReferenceWpar) then
                call calc_wparth(omega, wparth, 1, ef) !we can either relate wperps to wperpR or calculate each separately! Both have pros and cons depending on numerical integral...
             else
                call calc_wparth(omega, wparth, is, ef) !This is numerically better but is more 'forceful'
@@ -581,22 +586,31 @@ contains
 
             ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
             !x-component
-            wIs = vtp*sqrt(1./spec(is)%alph_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s/spec(is)%alph_s)
+            if(useOnlyReferenceWpar) then
+               wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s/spec(is)%alph_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)
+            else
+               wIs = vtp*sqrt(1./spec(is)%alph_s)
+            endif
             do ivx = ivxmin, ivxmax
                us1(1, is) = us1(1, is) + vvx(ivx)*sum(sum(fs1_SP(ivx, :, :, is), 2), 1)*delv3
             end do
-            us1(1, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(1, is)*fs0val !TODO: Why does this need a minus?? TODO: fix this too with the wperpR to wperps
+            us1(1, is) = wIs*(1./wparth**3)*us1(1, is)*fs0val
             !y-component
             do ivy = ivymin, ivymax
                us1(2, is) = us1(2, is) + vvy(ivy)*sum(sum(fs1_SP(:, ivy, :, is), 2), 1)*delv3
             end do
-            us1(2, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(2, is)*fs0val !TODO: Why does this need a minus??
+            us1(2, is) = wIs*(1./wparth**3)*us1(2, is)*fs0val
             !z-component
             wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s)
+            if(useOnlyReferenceWpar) then
+               wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)
+            else
+               wIs = vtp
+            endif
             do ivz = ivzmin, ivzmax
                us1(3, is) = us1(3, is) + vvz(ivz)*sum(sum(fs1_SP(:, :, ivz, is), 2), 1)*delv3
             end do
-            us1(3, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(3, is)*fs0val !TODO: Why does this need a minus??
+            us1(3, is) = wIs*(1./wparth**3)*us1(3, is)*fs0val
          end do
 
          !Integrate Correlations
@@ -1622,6 +1636,7 @@ contains
 
    end subroutine calc_fs1
 
+   !TODO: clean up the many unused variables here...
    complex function wparth_from_ratio(is,ef)
       use vars, only: pi
       use disprels, only: bessel, zet_in
@@ -1791,7 +1806,7 @@ contains
 
       !END COMPUTE NUMERICALLY----------------------------
       omega = -real(omega_val) - ii*aimag(omega_val)
-      termrats(1) = (1., 0.)
+      termrats(1) = (1., 0.) !TODO: remove this (in calc_fs1 too!)
       termrats(2) = (1., 0.)
       termrats(3) = (1., 0.)
       hatV_s = spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
@@ -1813,77 +1828,21 @@ contains
       do ivx = ivxmin, ivxmax
          fs1_uxxmom = fs1_uxxmom + vvx(ivx)*sum(sum(fs1_SP(ivx, :, :, is), 2), 1)*delv**3
       end do
-      ! fs1_uxxmom = (0., 0.)
-      ! do ivy = ivymin, ivymax
-      !    fs1_uxxmom = fs1_uxxmom + vvy(ivy)*sum(sum(fs1_SP(:, ivy, :, is), 2), 1)*delv**3
-      ! end do
 
       numerator = fs1_uxxmom
       !END COMPUTE NUMERICALLY----------------------------
-
-      ! !TODO: debug and implement analytical solution
-      ! if (.false.) then
-      !    numerator = (0., 0.)
-      !    !This function could be sped up a good bit by removing the redundant calls but thats a future problem
-      !    do n = -nbesmax, nbesmax
-      !       tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-      !               (om - Vdrifts - dble(n)*disp_mu/disp_Q)/(kpar*wperp)
-      !       zz_n = zet_in(real(wperp)*kpar, tsi_n)
-      !       tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-      !               (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/(kpar*wperp)
-      !       zz_minusn = zet_in(real(wperp)*kpar, tsi_n)
-
-      !       An = (2.*(disp_alph - 1.) &
-      !             + (sqrt(alphp*disp_tau/disp_mu)/(kpar*wperp))*( &
-      !             disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
-      !             + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
-      !       numerator = numerator + n**2*bessel(abs(n), real(lambdap/wperp**2))*An
-      !    end do
-      ! end if
-
-      ! lambdap = kperp**2./2.
-      ! lambdap = lambdap*(disp_Q**2.*disp_alph)/(disp_mu*disp_tau*alphp)
-      ! Vdrifts = kpar*disp_v/sqrt(betap*alphp)
-
-      ! denomenator = (0., 0.)
-      ! do n = -nbesmax, nbesmax
-
-      !    tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-      !            (om - Vdrifts - dble(n)*disp_mu/disp_Q)/kpar
-      !    zz_n = zet_in(kpar, tsi_n)
-      !    tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-      !            (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/kpar
-      !    zz_minusn = zet_in(kpar, tsi_n)
-
-      !    An = (2.*(disp_alph - 1.) &
-      !          + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-      !          disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
-      !          + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
-      !    denomenator = denomenator + n**2*bessel(abs(n), lambdap)*An
-      ! end do
+      !TODO: evenutally implement analytical solution - very low priority since this routine is only used to debug and numerical integral is accurate enough!
 
       om = omega_val
 
       !This block 'undos' the 'sign change' in calc_fs1
       if(disp_Q .gt. 0) then
-         om = real(omega_val) - ii*aimag(omega_val) !TODO: handle omega better! (this is basically just a stray minus sign...)
+         om = real(omega_val) - ii*aimag(omega_val) !TODO: handle omega better to make more readable! (this is basically just a stray minus sign...)
       else
          om =  -real(omega_val) - ii*aimag(omega_val)
       endif
 
-      Cval = numerator/(ef(1)*pi**1.5*-1.0d0*(0.0d0, 1.0d0)*om*susc(is, 1, 1)*(disp_Q/disp_D)*vtp/betap)/sqrt(disp_alph)
-      if(is .eq. 1) then
-         unit_number = 14
-         open(newunit=unit_number, file="n0R.dat", status="replace", action="write")
-         write(unit_number,*) 1./(Cval)
-         close(unit_number)
-      endif
-      if(is .eq. 2) then
-         unit_number = 14
-         open(newunit=unit_number, file="n0s.dat", status="replace", action="write")
-         write(unit_number,*) 1./(Cval)
-         close(unit_number)
-      endif
+      Cval = numerator/(sqrt(disp_alph)*ef(1)*pi**1.5*-1.0d0*(0.0d0, 1.0d0)*om*susc(is, 1, 1)*(disp_Q/disp_D)*vtp/betap)
       wparth_from_ratio = (Cval)**(1./3.)
 
       deallocate (fs1_SP, fs0)
@@ -1912,11 +1871,8 @@ contains
 
       omega_val = -real(omega) - ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
 
-      wparth = wparth_from_ratio(is,ef)
-
-      !wparth = abs(wparth) !due to numerical error, sometimes our numerator is negative when it should be positive when the integral results in a small, near zero value (note it will be still inaccurate, but this is at least better....)
-
-      
+      wparth = wparth_from_ratio(is,ef) !Due to numerical error, this can sometimes be complex/negative. We allow this to absorb numerical error in some sense. Forcing this to be postive and real produces (slightly less) accurate results! 
+                                        !That is for most fs1 we expect to be easy to integrate, there is no difference! But for hard to integrate fs1, there can be a lot of difference (as expected!)
 
    end subroutine calc_wparth
 
