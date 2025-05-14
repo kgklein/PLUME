@@ -852,7 +852,7 @@ def loadlinfpccepar(filename,verbose=False):
     elif(len(vperp) > len(C)):
         vperp.pop()
 
-    linfpcdata = {'CEpar':C,'vpar':vpar,'vperp':vperp,'resonant_int':resonant_int,'vperpmin':vperpmin,'vperpmax':vperpmax,'vparmin':vparmin,'vparmax':vparmax,'delv':delv,'species':species,'omega':omega}
+    linfpcdata = {'CEpar':C,'vpar':vpar,'vperp':vperp,'resonant_int':resonant_int,'vperpmin':vperpmin,'vperpmax':vperpmax,'vparmin':vparmin,'vparmax':vparmax,'delv':delv,'species':species,'omega_sqrtbetap_over_kpar':omega}
 
     return linfpcdata
 
@@ -1139,7 +1139,7 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
 
         linfpcdata = {linfpcckeyname+'vxvy':Cvxvy,linfpcckeyname+'vxvz':Cvxvz,linfpcckeyname+'vyvz':Cvyvz,
                       'vx':vx,'vy':vy,'vz':vz,'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,
-                      'delv':delv,'species':species,'omega':omega,
+                      'delv':delv,'species':species,'omega_sqrtbetap_over_kpar':omega,
                       'vx_xy':vx_xy,'vy_xy':vy_xy,'vx_xz':vx_xz,'vz_xz':vz_xz,'vy_yz':vy_yz,'vz_yz':vz_yz}
 
         return linfpcdata
