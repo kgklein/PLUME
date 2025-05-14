@@ -38,7 +38,7 @@ contains
       use vars, only: elecdircontribution
       use vars, only: wroots, nroots
       use vars, only: outputName, dataName
-      use vars, only: computemoment, EpsilonSokhotski_Plemelj
+      use vars, only: computemoment, EpsilonSokhotski_Plemelj, vxshift, vyshift, vzshift
 
       use disprels, only: calc_eigen, rtsec, disp
 
@@ -331,13 +331,13 @@ contains
       allocate (vvz(ivzmin:ivzmax)); vvz(:) = 0.
       !Populate velocity grid values
       do ivx = ivxmin, ivxmax
-         vvx(ivx) = real(ivx)*delv
+         vvx(ivx) = real(ivx)*delv+vxshift
       end do
       do ivy = ivymin, ivymax
-         vvy(ivy) = real(ivy)*delv
+         vvy(ivy) = real(ivy)*delv+vyshift
       end do
       do ivz = ivzmin, ivzmax
-         vvz(ivz) = real(ivz)*delv
+         vvz(ivz) = real(ivz)*delv+vzshift
       end do
 
       !Allocate fs1 and fs0 variables

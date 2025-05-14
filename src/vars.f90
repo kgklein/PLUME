@@ -298,6 +298,15 @@ module vars
    real :: EpsilonSokhotski_Plemelj = 0.01 !should be positive!
   !! Epsilon in the Sokhotski–Plemelj theorem, which states int f(x)/(x-a) dx can be approximated using eps->0 int f(x)/(x-a+i eps) dx to 'better' handle the singularity  numerically. This value should be left as zero, only be used by advanced users, and only when the user is computing moments for comparison to the analytic form (because it requires a *very* small delta v to 'work') (Remember to recompile!)
 
+   real :: vxshift = 0.0 
+  !! shifts grid along vx- used to test stiffness of fs1 in JETPLUME
+
+   real :: vyshift = 0.0
+  !! shifts grid along vy- used to test stiffness of fs1 in JETPLUME
+
+   real :: vzshift = 0.0 
+  !! shifts grid along vz- used to test stiffness of fs1 in JETPLUME
+
    integer :: nroots
   !!Number of roots found.
 
@@ -321,6 +330,7 @@ module vars
    public :: vxmin, vxmax, vymin, vymax, vzmin, vzmax
    public :: elecdircontribution
    public :: computemoment, EpsilonSokhotski_Plemelj, omega_val
+   public :: vxshift, vyshift, vzshift
    public :: new_low_n
 
 end module vars
