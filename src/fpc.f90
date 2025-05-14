@@ -17,7 +17,7 @@ module fpc
   !! associated routines to calculate the FPC from it
 
    implicit none
-   private :: calc_fs1, calc_wperpR
+   private :: calc_fs1, calc_wparth
    public :: compute_fpc_gyro, compute_fpc_cart
 
    real :: bs_last = 0.0
@@ -254,13 +254,14 @@ contains
 
       complex, dimension(1:3)       :: nmomtemp
 
-      complex :: wperp
+      complex :: wparth !TODO: make this real
+
+      complex :: wIs !TODO: make this real
+      !! temp var that holds correct units for moment term
 
       real :: fs0val
 
       complex, dimension(1:3)       :: efiden
-
-      real :: n0r
 
       exbar = sqrt(betap)/vtp*(1.0, 0.)
       eeuler = EXP(1.0)
@@ -372,8 +373,6 @@ contains
       termrats(1) = (1., 0.)
       termrats(2) = (1., 0.)
       termrats(3) = (1., 0.)
-
-      call calc_wperpR(omega, wperp) !TODO: move into for loop and calc for each spec
 
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
       do is = 1, nspec
@@ -560,38 +559,44 @@ contains
          end if
 
          do is = 1, nspec
+
+            !TODO: make this an internal flag!!
+            if(.true.) then
+               call calc_wparth(omega, wparth, 1, ef) !we can either relate wperps to wperpR or calculate each separately! Both have pros and cons depending on numerical integral...
+            else
+               call calc_wparth(omega, wparth, is, ef) !This is numerically better but is more 'forceful'
+            endif
+
             fs0val = 1./pi**1.5 !Note that other terms cancel out leaving just pi**3/2)
             !That is, be careful about delv3 wperp factors here, which have cancelled in current form but may not
 
             ! Density Fluctuation: Zeroth Moment of delta f
-            !TODO: normalize for s!=R?
             ns1(is) = (0., 0.)
             ns1(is) = sum(sum(sum(fs1_SP(:, :, :, is), 3), 2), 1)*delv3
-            !ns1(is)=ns1(is)*(spec(is)%tau_s)**(1.5)/(sqrt(pi**3.)*spec(is)%alph_s)!*sqrt(spec(is)%mu_s/(pi*pi*pi*spec(is)%tau_s))*spec(is)%D_s
             ns1(is) = ns1(is)*fs0val
-            ns1(is) = ns1(is)
 
             us1(1, is) = (0., 0.)
             us1(2, is) = (0., 0.)
             us1(3, is) = (0., 0.)
 
             ! Fluid Velocity: First Moment of total f = delta f (since int v f_0=0)
-            !TODO: normalize for s!=R!
             !x-component
+            wIs = vtp*sqrt(1./spec(is)%alph_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s/spec(is)%alph_s)
             do ivx = ivxmin, ivxmax
                us1(1, is) = us1(1, is) + vvx(ivx)*sum(sum(fs1_SP(ivx, :, :, is), 2), 1)*delv3
             end do
-            us1(1, is) = vtp*wperp*us1(1, is)*fs0val
+            us1(1, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(1, is)*fs0val !TODO: Why does this need a minus?? TODO: fix this too with the wperpR to wperps
             !y-component
             do ivy = ivymin, ivymax
                us1(2, is) = us1(2, is) + vvy(ivy)*sum(sum(fs1_SP(:, ivy, :, is), 2), 1)*delv3
             end do
-            us1(2, is) = vtp*wperp*us1(2, is)*fs0val
+            us1(2, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(2, is)*fs0val !TODO: Why does this need a minus??
             !z-component
+            wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s)
             do ivz = ivzmin, ivzmax
                us1(3, is) = us1(3, is) + vvz(ivz)*sum(sum(fs1_SP(:, :, ivz, is), 2), 1)*delv3
             end do
-            us1(3, is) = vtp*wperp*us1(3, is)*fs0val
+            us1(3, is) = wIs*(1./wparth**3)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)*spec(is)%alph_s*us1(3, is)*fs0val !TODO: Why does this need a minus??
          end do
 
          !Integrate Correlations
@@ -1617,15 +1622,17 @@ contains
 
    end subroutine calc_fs1
 
-   complex function wperp_from_ratio(wperp)
+   complex function wparth_from_ratio(is,ef)
       use vars, only: pi
       use disprels, only: bessel, zet_in
       use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc !TODO remove susc (was mfor debug)
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv, nbesmax
       use vars, only: elecdircontribution, EpsilonSokhotski_Plemelj, omega_val
 
-      complex :: wperp !the secant solver we have assumes complex input so we just cast it
-     !! dimensional wperp
+      integer :: is
+
+      complex :: wparth 
+     !! dimensional wparRth
 
       complex :: om
      !! complex frequency (TODO: remove, we used two omegas...)
@@ -1644,9 +1651,6 @@ contains
 
       real :: lambdap
      !! modified bessel function argument
-
-      integer :: is
-     !! speices counter (defaults to 1, as assumed by the rest of the code)
 
       real :: alphp
      !! \( T_{\perp}/T_{\parallel}_{ref} \)
@@ -1713,6 +1717,8 @@ contains
       complex, dimension(1:3)       :: efiden
      !! identity vector used to 'eliminate' Ex,Ey,Ez when computing sigma_ij (conductivity tensor) from fs1
 
+      complex, dimension(1:3)       :: ef
+
       real::hatV_s
      !! normalized drift velocity
 
@@ -1731,7 +1737,9 @@ contains
       complex :: Cval
      !! temp variable
 
-      !(temporary solution) COMPUTE NUMERICALLY----------------------------
+      integer :: unit_number
+
+      !COMPUTE NUMERICALLY----------------------------
       efiden(1) = (1., 0.)
       efiden(2) = (1., 0.)
       efiden(3) = (1., 0.)
@@ -1768,7 +1776,6 @@ contains
       allocate (fs0(ivxmin:ivxmax, ivymin:ivymax, ivzmin:ivzmax, 1:nspec))
       fs0(:, :, :, :) = 0.
 
-      is = 1
       alphp = spec(1)%alph_s
       disp_tau = spec(is)%tau_s
       disp_mu = spec(is)%mu_s
@@ -1777,19 +1784,16 @@ contains
       disp_D = spec(is)%D_s
       disp_v = spec(is)%vv_s
 
-      om = omega_val
-
       lambdap = kperp**2./2.
       lambdap = lambdap*(disp_Q**2.*disp_alph)/(disp_mu*disp_tau*alphp)
       Vdrifts = kpar*disp_v/sqrt(betap*alphp)
 
-      omega = -real(omega_val) - ii*aimag(omega_val)
 
       !END COMPUTE NUMERICALLY----------------------------
+      omega = -real(omega_val) - ii*aimag(omega_val)
       termrats(1) = (1., 0.)
       termrats(2) = (1., 0.)
       termrats(3) = (1., 0.)
-      is = 1.
       hatV_s = spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
       do ivx = ivxmin, ivxmax
          do ivy = ivymin, ivymax
@@ -1799,7 +1803,7 @@ contains
                fs0(ivx, ivy, ivz, is) = fs0hat(vperp, vvz(ivz), hatV_s, spec(is)%alph_s)
                !Compute perturbed  Distribution value, fs1
                phi = ATAN2(vvy(ivy), vvx(ivx))
-               call calc_fs1(omega, vperp, vvz(ivz), phi, efiden, efiden, hatV_s, spec(is)%q_s, spec(is)%alph_s, &
+               call calc_fs1(omega, vperp, vvz(ivz), phi, ef, ef, hatV_s, spec(is)%q_s, spec(is)%alph_s, &
                              spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, 1., &
                              (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj, termrats, (1., 0.))
             end do
@@ -1809,67 +1813,96 @@ contains
       do ivx = ivxmin, ivxmax
          fs1_uxxmom = fs1_uxxmom + vvx(ivx)*sum(sum(fs1_SP(ivx, :, :, is), 2), 1)*delv**3
       end do
+      ! fs1_uxxmom = (0., 0.)
+      ! do ivy = ivymin, ivymax
+      !    fs1_uxxmom = fs1_uxxmom + vvy(ivy)*sum(sum(fs1_SP(:, ivy, :, is), 2), 1)*delv**3
+      ! end do
 
       numerator = fs1_uxxmom
       !END COMPUTE NUMERICALLY----------------------------
 
-      !TODO: debug and implement analytical solution
-      if (.false.) then
-         numerator = (0., 0.)
-         !This function could be sped up a good bit by removing the redundant calls but thats a future problem
-         do n = -nbesmax, nbesmax
-            tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-                    (om - Vdrifts - dble(n)*disp_mu/disp_Q)/(kpar*wperp)
-            zz_n = zet_in(real(wperp)*kpar, tsi_n)
-            tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-                    (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/(kpar*wperp)
-            zz_minusn = zet_in(real(wperp)*kpar, tsi_n)
+      ! !TODO: debug and implement analytical solution
+      ! if (.false.) then
+      !    numerator = (0., 0.)
+      !    !This function could be sped up a good bit by removing the redundant calls but thats a future problem
+      !    do n = -nbesmax, nbesmax
+      !       tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
+      !               (om - Vdrifts - dble(n)*disp_mu/disp_Q)/(kpar*wperp)
+      !       zz_n = zet_in(real(wperp)*kpar, tsi_n)
+      !       tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
+      !               (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/(kpar*wperp)
+      !       zz_minusn = zet_in(real(wperp)*kpar, tsi_n)
 
-            An = (2.*(disp_alph - 1.) &
-                  + (sqrt(alphp*disp_tau/disp_mu)/(kpar*wperp))*( &
-                  disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
-                  + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
-            numerator = numerator + n**2*bessel(abs(n), real(lambdap/wperp**2))*An
-         end do
-      end if
+      !       An = (2.*(disp_alph - 1.) &
+      !             + (sqrt(alphp*disp_tau/disp_mu)/(kpar*wperp))*( &
+      !             disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
+      !             + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
+      !       numerator = numerator + n**2*bessel(abs(n), real(lambdap/wperp**2))*An
+      !    end do
+      ! end if
 
-      lambdap = kperp**2./2.
-      lambdap = lambdap*(disp_Q**2.*disp_alph)/(disp_mu*disp_tau*alphp)
-      Vdrifts = kpar*disp_v/sqrt(betap*alphp)
+      ! lambdap = kperp**2./2.
+      ! lambdap = lambdap*(disp_Q**2.*disp_alph)/(disp_mu*disp_tau*alphp)
+      ! Vdrifts = kpar*disp_v/sqrt(betap*alphp)
 
-      denomenator = (0., 0.)
-      do n = -nbesmax, nbesmax
+      ! denomenator = (0., 0.)
+      ! do n = -nbesmax, nbesmax
 
-         tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-                 (om - Vdrifts - dble(n)*disp_mu/disp_Q)/kpar
-         zz_n = zet_in(kpar, tsi_n)
-         tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
-                 (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/kpar
-         zz_minusn = zet_in(kpar, tsi_n)
+      !    tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
+      !            (om - Vdrifts - dble(n)*disp_mu/disp_Q)/kpar
+      !    zz_n = zet_in(kpar, tsi_n)
+      !    tsi_n = sqrt((alphp*disp_tau)/(disp_mu))* &
+      !            (om - Vdrifts - dble(-n)*disp_mu/disp_Q)/kpar
+      !    zz_minusn = zet_in(kpar, tsi_n)
 
-         An = (2.*(disp_alph - 1.) &
-               + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-               disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
-               + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
-         denomenator = denomenator + n**2*bessel(abs(n), lambdap)*An
-      end do
+      !    An = (2.*(disp_alph - 1.) &
+      !          + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
+      !          disp_alph*(om - Vdrifts)*(zz_n + zz_minusn) &
+      !          + (zz_n - zz_minusn)*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
+      !    denomenator = denomenator + n**2*bessel(abs(n), lambdap)*An
+      ! end do
 
-      Cval = numerator/(pi**1.5*-1.0d0*(0.0d0, 1.0d0)*om*susc(1, 1, 1)*(disp_Q/disp_D)*vtp**1/betap)
-      wperp_from_ratio = 1.0d0/real(Cval) !TODO: this is technicalyl 1/wperp.... (i think- double check and update manuscript if needed! AND update code...)
+      om = omega_val
+
+      !This block 'undos' the 'sign change' in calc_fs1
+      if(disp_Q .gt. 0) then
+         om = real(omega_val) - ii*aimag(omega_val) !TODO: handle omega better! (this is basically just a stray minus sign...)
+      else
+         om =  -real(omega_val) - ii*aimag(omega_val)
+      endif
+
+      Cval = numerator/(ef(1)*pi**1.5*-1.0d0*(0.0d0, 1.0d0)*om*susc(is, 1, 1)*(disp_Q/disp_D)*vtp/betap)/sqrt(disp_alph)
+      if(is .eq. 1) then
+         unit_number = 14
+         open(newunit=unit_number, file="n0R.dat", status="replace", action="write")
+         write(unit_number,*) 1./(Cval)
+         close(unit_number)
+      endif
+      if(is .eq. 2) then
+         unit_number = 14
+         open(newunit=unit_number, file="n0s.dat", status="replace", action="write")
+         write(unit_number,*) 1./(Cval)
+         close(unit_number)
+      endif
+      wparth_from_ratio = (Cval)**(1./3.)
 
       deallocate (fs1_SP, fs0)
       deallocate (vvx, vvy, vvz)
 
-   end function wperp_from_ratio
+   end function wparth_from_ratio
 
-   subroutine calc_wperpR(omega, wperp)
+   subroutine calc_wparth(omega, wparth, is,ef)
 
       use vars, only: omega_val
 
       complex, intent(in) :: omega
-      complex, intent(out) :: wperp
+      complex, intent(out) :: wparth
+
+      complex, dimension(1:3)       :: ef
 
       complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
+
+      integer :: is
 
       integer :: iflag
 
@@ -1879,17 +1912,13 @@ contains
 
       omega_val = -real(omega) - ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
 
-      wperp = wperp_from_ratio(wperp)
+      wparth = wparth_from_ratio(is,ef)
 
-      wperp = abs(wperp) !due to numerical error, sometimes our numerator is negative when it should be positive when the integral results in a small, near zero value (note it will be still inaccurate, but this is at least better....)
+      !wparth = abs(wparth) !due to numerical error, sometimes our numerator is negative when it should be positive when the integral results in a small, near zero value (note it will be still inaccurate, but this is at least better....)
 
-      !TODO: remove all of these debug output files...
-      unit_number = 14
-      open (newunit=unit_number, file="wperp.dat", status="replace", action="write")
-      write (unit_number, *) wperp
-      close (unit_number)
+      
 
-   end subroutine calc_wperpR
+   end subroutine calc_wparth
 
    subroutine check_nbesmax(vperpmax, tau_s, mu_s, aleph_r)
       !! We approximate the infitine sums, which include terms like j_n(b), as finite sums from n=-Nlarge to Nlarge.
