@@ -802,17 +802,69 @@ contains
          write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.eigen.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 5, file=trim(filename), status='replace')
 
+         !Do some write formatting
+         !If really small (less than 10^-99 in magnitude)- round down to zero for formatting
+         if (ABS(bf(1)) .lt. 9.999E-99) then
+            bf(1) = 0.
+         end if
+         if (ABS(bf(2)) .lt. 9.999E-99) then
+            bf(2) = 0.
+         end if
+         if (ABS(bf(3)) .lt. 9.999E-99) then
+            bf(3) = 0.
+         end if
+         if (ABS(ef(1)) .lt. 9.999E-99) then
+            ef(1) = 0.
+         end if
+         if (ABS(ef(2)) .lt. 9.999E-99) then
+            ef(2) = 0.
+         end if
+         if (ABS(ef(3)) .lt. 9.999E-99) then
+            ef(3) = 0.
+         end if
+         do is = 1, nspec
+            if (ABS(Us(1, is)) .lt. 9.999E-99) then
+               Us(1, is) = 0.
+            end if
+            if (ABS(Us(2, is)) .lt. 9.999E-99) then
+               Us(2, is) = 0.
+            end if
+            if (ABS(Us(3, is)) .lt. 9.999E-99) then
+               Us(3, is) = 0.
+            end if
+            if (ABS(ns(is)) .lt. 9.999E-99) then
+               ns(is) = 0.
+            end if
+            if (ABS(Ps(is)) .lt. 9.999E-99) then
+               Ps(is) = 0.
+            end if
+            if (ABS(Ps_split_new(1,is)) .lt. 9.999E-99) then
+               Ps_split_new(1,is) = 0.
+            end if
+            if (ABS(Ps_split_new(2,is)) .lt. 9.999E-99) then
+               Ps_split_new(2,is) = 0.
+            end if
+            if (ABS(Ps_split_new(3,is)) .lt. 9.999E-99) then
+               Ps_split_new(3,is) = 0.
+            end if
+            if (ABS(Ps_split_new(4,is)) .lt. 9.999E-99) then
+               Ps_split_new(4,is) = 0.
+            end if
+            if (ABS(Ps_split_new(5,is)) .lt. 9.999E-99) then
+               Ps_split_new(5,is) = 0.
+            end if
+            if (ABS(Ps_split_new(6,is)) .lt. 9.999E-99) then
+               Ps_split_new(6,is) = 0.
+            end if
+         end do
+
          !Write format (consistent with usual PLUME output)
          write (fmt, '(a,i0,a)') '(6es15.6,12es15.6,', 15*nspec, 'es15.6)'
          write (unit_s + 5, fmt) &
             kperp, kpar, betap, vtp, &
             omega, &
             bf(1:3), ef(1:3), Us(1:3, 1:nspec), ns(1:nspec), &
-            Ps(1:nspec), Ps_split_new(1:6, 1:nspec) !,params(1:6,1:nspec)
-
-         write (*, *) 'debug', Us(1:3, 1:nspec)
-         write (*, *) 'usxi', Us(1, 1), 'usyi', Us(2, 1), 'usxe', Us(1, 2), 'usyi', Us(2, 2)
-
+            Ps(1:nspec), Ps_split_new(1:6, 1:nspec)
          close (unit_s + 5)
 
          !Write Velocity Integrated Moments-------------------------------------------
@@ -820,7 +872,7 @@ contains
          write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.mom.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 5, file=trim(filename), status='replace')
 
-         !Write format
+         !Do some write formatting
          !If really small (less than 10^-99 in magnitude)- round down to zero for formatting
          do is = 1, nspec
             if (ABS(ns1(is)) .lt. 9.999E-99) then
