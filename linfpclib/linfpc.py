@@ -2036,6 +2036,7 @@ def load_plume_sweep_orig(flnm,verbose=False,use_ps_split_new=True):
 
         return plume_sweep
 
+#TODO: make work for n species rather than just 2 <- low priority as this is for debug
 def loadeigen(flnm):
     """
     Used to load plume eigenfunction output made by FPC routine for debugging.
@@ -2083,6 +2084,7 @@ def loadeigen(flnm):
 
     return eigendict
 
+#TODO: make work for n species rather than just 2 <- low priority as this is for debug
 def loadmoms(flnm):
     """
     Used to load jet-plume fs1-moment output made by FPC routine for debugging.
