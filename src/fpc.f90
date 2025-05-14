@@ -394,13 +394,15 @@ contains
                   fs0(ivx, ivy, ivz, is) = fs0hat(vperp, vvz(ivz), hatV_s(is), spec(is)%alph_s)
                   !Compute perturbed  Distribution value, fs1
                   phi = ATAN2(vvy(ivy), vvx(ivx))
-                  call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0., termrats, (1., 0.))
                   if (computemoment) then
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                    spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
                                    (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj, termrats, (1., 0.))
+                     fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) !We need this like this to correctly compute jiEi = int CorEi d3v
+                  else
+                     call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
+                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
+                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0., termrats, (1., 0.))
                   end if
                end do
             end do
@@ -556,6 +558,9 @@ contains
          !allocate output arrays
          allocate (ns1(nspec)); ns1 = 0.
          allocate (us1(3, nspec)); us1 = 0.
+         allocate (jxex(nspec)); jxex = 0.
+         allocate (jyey(nspec)); jyey = 0.
+         allocate (jzez(nspec)); jzez = 0.
 
          !Integrate 0th moment
          !Note: one *MUST* have eps != 0 in the denominator of from 1/(A-B v+i eps) OR add the residual of this PV integral. We choose the first as it was easier to implement
@@ -611,17 +616,24 @@ contains
                us1(3, is) = us1(3, is) + vvz(ivz)*sum(sum(fs1_SP(:, :, ivz, is), 2), 1)*delv3
             end do
             us1(3, is) = wIs*(1./wparth**3)*us1(3, is)*fs0val
-         end do
 
-         !Integrate Correlations
-         !TODO: compute properly with fs1_SP
-         allocate (jxex(nspec)); jxex = 0.
-         allocate (jyey(nspec)); jyey = 0.
-         allocate (jzez(nspec)); jzez = 0.
-         do is = 1, nspec
+            !Integrate Correlations
+            if(useOnlyReferenceWpar) then
+               wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s/spec(is)%alph_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)
+            else
+               wIs = vtp*sqrt(1./spec(is)%alph_s)
+            endif
             jxex(is) = sum(sum(sum(corex(:, :, :, is), 3), 2), 1)*delv3 !int_v CEx= jxEx
+            jxex(is) = wIs*jxex(is)*(1./wparth**3)*fs0val
             jyey(is) = sum(sum(sum(corey(:, :, :, is), 3), 2), 1)*delv3 !int_v CEy= jyEy
+            jyey(is) = wIs*jyey(is)*(1./wparth**3)*fs0val
+            if(useOnlyReferenceWpar) then
+               wIs = vtp*sqrt(spec(is)%mu_s/spec(is)%tau_s)*sqrt(spec(is)%mu_s/spec(is)%tau_s)**(-1.5)
+            else
+               wIs = vtp
+            endif
             jzez(is) = sum(sum(sum(corez(:, :, :, is), 3), 2), 1)*delv3 !int_v CEz= jzEz
+            jzez(is) = wIs*jzez(is)*(1./wparth**3)*fs0val
          end do
          !=============================================================================
          ! END Integrate Distribution and Correlations over velocity

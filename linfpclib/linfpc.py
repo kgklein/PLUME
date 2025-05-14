@@ -1,16 +1,9 @@
-# linfpcwrite.py>
+# linfpc.py>
 
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import math
-
-#workflow
-#map form params and maps namelist
-#pick root
-#make fpc
-#sweep `out` from root
-#verify if this is the root we want
 
 def find_nearest(array, value): #random but very useful function
     """
@@ -2082,6 +2075,15 @@ def loadeigen(flnm):
     eigendict['Pi'] = complex(float(line[34]),float(line[35]))
     eigendict['Pe'] = complex(0,0)#complex(float(line[36]),float(line[37]))
 
+    #compute jiEi (TODO generalize for more than two species that aren't ions and electrons!!!) <- again, low priority as this is just used for debug...
+    #Note, our normalization divides by n0 on lhs
+    eigendict['jxiex'] = eigendict['uxi']*eigendict['ex']
+    eigendict['jxeex'] = eigendict['uxe']*eigendict['ex']
+    eigendict['jyiey'] = eigendict['uyi']*eigendict['ey']
+    eigendict['jyeey'] = eigendict['uye']*eigendict['ey']
+    eigendict['jziez'] = (eigendict['uzi'])*eigendict['ez'] #TODO: pass vdrift and account for vdrift here (e.g. (eigendict['uzi']+vvDriftI_inCorrectUnits*eigendict['ni'])*eigendict['ez'])<- low priority, this is just for debug
+    eigendict['jzeez'] = (eigendict['uze'])*eigendict['ez']  #TODO: account for vdrift here too <- low priority, this is just for debug
+
     return eigendict
 
 #TODO: make work for n species rather than just 2 <- low priority as this is for debug
@@ -2115,10 +2117,10 @@ def loadmoms(flnm):
     momsdict['uye'] = complex(float(line[12]),float(line[13]))
     momsdict['uze'] = complex(float(line[14]),float(line[15]))
     momsdict['jxiex'] = float(line[16])
-    momsdict['jyiey'] = float(line[17])
-    momsdict['jziez'] = float(line[18])
-    momsdict['jxeex'] = float(line[19])
-    momsdict['jyeey'] = float(line[20])
+    momsdict['jxeex'] = float(line[17])
+    momsdict['jyiey'] = float(line[18])
+    momsdict['jyeey'] = float(line[19])
+    momsdict['jziez'] = float(line[20])
     momsdict['jzeez'] = float(line[21])
 
     return momsdict
