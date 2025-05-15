@@ -112,6 +112,9 @@ Largest $\gamma/\Omega_{p}$ value for complex map search.
 **`ni`**  
 *TO BE ADDED* Number of $\gamma/\Omega_{p}$ points in frequency grid.
 
+**`positive_roots`**
+If true, the map routine will only select solutions with $\omega_{|textrm{r}} \ge 0$.
+
 ### *&species_j*  
 Species or component parameters list for distribution $f_{j}$.
 

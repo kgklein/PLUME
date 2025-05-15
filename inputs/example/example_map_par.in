@@ -36,7 +36,7 @@ outputName='map_par'
 &species_1
 tauS=1.0
 muS=1.0
-alphS=1.0
+alphS=1.0 !T_perp/T_par|ref
 Qs=1.0
 Ds=1.0
 vvS=0.0

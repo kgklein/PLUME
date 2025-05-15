@@ -83,7 +83,8 @@ They are ordered as
 5. $\omega_{\textrm{r}}/\Omega_{ref}$   
 6. $\gamma/\Omega_{ref}$
 
-If `eigen` is set to true, the next set of columns will be the eigenfluctuations   
+If `eigen` is set to true, the next set of columns will be the eigenfluctuations, with fields normalized to $E_x$, velocity normalized to $c E_x/B_0$ and density normalized to $n_{0s} E_x/B_0$, 
+
 7. Re $[B_x]$   
 8. Im $[B_x]$   
 9. Re $[B_y]$   
@@ -106,7 +107,8 @@ If `eigen` is set to true, the next set of columns will be the eigenfluctuations
 20. [+6(`nspec`)+2(j-1)] Im $[\delta n_{j}]$ 
 
 where `j` ranges from 1 to `nspec`.
-The normalization follows Eqns. X-Y in Klein et al RNAAS 2025 [doi here]
+The normalization follows Eqns. 33-37 in [Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
 If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `new_low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 `nspec`+1st column.
 

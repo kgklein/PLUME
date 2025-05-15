@@ -55,27 +55,30 @@ make tidyup
 ```
 will move the extraneous *.o and *.mod files to the include directory.
 
-Running
+
+**If you need a clean compilations**, run
 ```
 make clean
 ```
-will remove all of the files from the include directory as well as the compiled executable, enabling a clean recompilation if necessary.
+This will remove all of the files from the `include` directory as well as the compiled executable, enabling a clean recompilation if necessary.
 
 
 ## EXECUTION OF TEST RUNS
 
 PLUME comes with a selection of test runs that cycle through various test
-problems. To execute a small set of tests, execute the following shell script:
+problems.
+To execute a small set of tests, navigate to `inputs/example/` and execute the following shell script:
 
 ```
 ./run_example.sh
 ```
 This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.
-*More example cases will be added.*
+
+**More example cases will be added.**
+
+
 
 ## Building the documentation
-
-*Documentation Pages Will Only De Available Once Repository is Made Public*
 
 PLUME uses [Ford](https://forddocs.readthedocs.io/en/latest/) to build its documentation. The documentation is automatically built and deployed to [github.io](https://kgklein.github.io/PLUME/) by the [doc workflow](https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml). To build the documentation locally, follow the [Build documentation](https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32) step in the workflow, summarized here:
 1. Install `ford` by e.g. `pip install ford`. See [Ford documentation](https://forddocs.readthedocs.io/en/latest/) for details

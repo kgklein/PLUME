@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg)](https://doi.org/10.5281/zenodo.15215514)
+
 # PLUME: Plasma in a Linear Uniform Magnetized Environment
 
 This is the PLUME code: Plasma in a Linear Uniform Magnetized Environment.
@@ -30,7 +32,7 @@ This code is based upon a F90 adaptation by Greg Howes of a solver originally by
 The calculation follows Stix 'Waves in Plasmas' Chapter 10, Eqns. 66-73.
 The dispersion relation for $\omega/\Omega_{ref}$ is dependent on four global dimensionless parameters:
 
-- Reference plasma beta: $\beta_{\parallel,ref} = \frac{8 \pi n_{ref} T_{\parallel,ref}}{B^2}$
+- Reference plasma beta: $\beta_{\parallel,\mathrm{ref}} = \frac{8 \pi n_{\mathrm{ref}} T_{\parallel,\mathrm{ref}}}{B^2}$
 - Perpendicular wavevector: $k_\perp \rho_{ref}$
 - Parallel wavevector: $k_\parallel \rho_{ref}$
 - Parallel reference thermal velocity: $\sqrt{2 T_{\parallel,ref}/m_{ref}}/c$
@@ -53,9 +55,25 @@ Supplementary calculation of the associated heating rates or eigenfunctions can 
 If you use the code for a science publication,
 1. please provide the code website [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements,
 
-2. cite the DOI of the code: *TBD upon public release*
+2. cite the DOI of the code:
+```
+@software{PLUME_2025,
+  author       = {{Klein}, K. G. and
+                  {Howes}, G. G.},
+  title        = {kgklein/PLUME: Zenodo release},
+  month        = April,
+  year         = 2025,
+  publisher    = {Zenodo},
+  version      = {v1.0.1},
+  doi          = {10.5281/zenodo.15215514},
+  url          = {https://doi.org/10.5281/zenodo.15215514}
+}
+```
 
-3. and cite the code paper: *write up a research note on PLUME similar to Verscharen and Chandran 2018 RNAAS*
+3. and cite the code paper:
+
+[Klein, K. G., Howes, G. G.,
+and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
    
 ##  3. Installing the PLUME code
 
@@ -72,7 +90,7 @@ Details on the input parameters can be found in [`input.md`](./input.md).
 
 The values for the plasma parameters are extracted from *.in file, appended after the executable program call, e.g.
 ```
-./plume.e inputs/example/example_map_par.in
+./plume.e inputs/example/run_example.in
 ```
 
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).

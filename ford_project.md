@@ -26,8 +26,7 @@ preprocess: False
 
 ---
 
-[![DOI](https://zenodo.org/badge/243310181.svg)](https://zenodo.org/badge/latestdoi/243310181)
-[![build](https://github.com/kgklein/PLUME/actions/workflows/tests.yml/badge.svg)](https://github.com/kgklein/PLUME/actions/workflows/tests.yml)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg)](https://doi.org/10.5281/zenodo.15215514)
 
 ## Plasma in a Linear Uniform Magnetized Environment
 
@@ -38,11 +37,25 @@ PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
 relation in hot (even relativistic) magnetised plasma.
 
 If you use the code for a science publication, please provide the code website
-[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper:
+[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication, and cite the code:
 
-Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
+```
+@software{PLUME_2025,
+  author       = {{Klein}, K. G. and
+                  {Howes}, G. G.},
+  title        = {kgklein/PLUME: Zenodo release},
+  month        = April,
+  year         = 2025,
+  publisher    = {Zenodo},
+  version      = {v1.0.1},
+  doi          = {10.5281/zenodo.15215514},
+  url          = {https://doi.org/10.5281/zenodo.15215514}
+}
+```
+and code paper 
+[Klein, K. G., Howes, G. G.,
+and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
----
 
 For first-time users, we recommend working through our [PLUME Tutorial](./page/tutorial.md).
 
