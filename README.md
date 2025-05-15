@@ -115,7 +115,7 @@ JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer i
 
 If you use JET-PLUME (i.e. not just PLUME) for a science publication, please follow the directions in the Acknowledgements section above AND in the Acknowledgements of your publication and cite the paper for JET-PLUME: [... Work in Progress]
 
-With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional.
+With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional. NOTE: Please create and run notebooks from the main directory of the repository. This is necessary because the notebooks import key functions directly from the linfpclib module located there.
 
 JET-PLUME is operated in a similar manner to PLUME, either using command line or the python wrapper. See Section 4 above on how to operate and [README for JET-PLUME](./README-JETPLUME.md) for the additional inputs.
 
