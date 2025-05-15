@@ -8,7 +8,7 @@ JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer i
 ## Other Contributing Authors
 [Greg Howes](https://physics.uiowa.edu/people/gregory-g-howes)<br />
 [Kris Klein](https://www.lpl.arizona.edu/faculty/kristopher-klein)<br />
-Jason TenBarge<br />
+[Jason TenBarge](https://plasmacenter.princeton.edu/people/jason-tenbarge)<br />
 
 <img src="./Jet-Plume_Logo.svg" width=50% height=50%>
 
