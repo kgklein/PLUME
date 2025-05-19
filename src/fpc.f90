@@ -1,14 +1,14 @@
 !!=============================================================================!
-!!*PLUME                                                                    *!!
-!!Plasma in a Linear Uniform Magnetized Environment                          !!
+!!*JET-PLUME                                                                *!!
+!!Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environ.!!
 !!                                                                           !!
 !!Kristopher Klein (main author of PLUME)                                    !!
 !!kris.klein@gmail.com                                                       !!
-!!Lunar and Planetary Laboratory, University of Arizona
+!!Lunar and Planetary Laboratory, University of Arizona                      !!
 !!                                                                           !!
 !!*lin fpc routines                                                          !!
 !!Collin Brown (author of FPC routine in PLUME)                              !!
-!!collin.crbrown@gmail.com or collbrown@uiowa.edum                            !!
+!!collin.crbrown@gmail.com or collbrown@uiowa.edu                            !!
 !!University of Iowa                                                         !!
 !=============================================================================!
 !=============================================================================!
@@ -65,9 +65,6 @@ contains
 
       complex :: omega
       !!Complex Frequency
-
-      real    :: Cor_par_s, Cor_perp1_s, Cor_perp2_s
-      !! normalized correlation value TODO: remove these and other unused variables...
 
       real    :: wi, gi
       !! Freq and Damping of initial guess
@@ -238,37 +235,19 @@ contains
       real :: eeuler
       !! eulers number
 
-      character(100)  :: fmt_dbg1, fmt_dbg2
-      !! Eigenfunction Output Format
-
       complex    :: exbar
       !! amplitude factor of fs1
 
-      complex    :: exoverB0 !TODO: rename
-      !! Ex over B0
-
-      complex, dimension(1:3) :: termrats
-      !!vector of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's (DEBUG)
-
-      complex, dimension(3:3) :: termratsmat
-      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
-
-      complex, dimension(1:3) :: fieldsrats
-      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
-
       integer  ::unit_number
-      !! debug
+      !! for writing to files
 
-      complex, dimension(1:3)       :: nmomtemp
+      complex :: wparth
+      !! dimensional reference species par thermal velocity
 
-      complex :: wparth !TODO: make this real
-
-      complex :: wIs !TODO: make this real
-      !! temp var that holds correct units for moment term
+      complex :: wIs
+      !! dimensional species thermal velocity (either par or perp as needed)
 
       real :: fs0val
-
-      complex, dimension(1:3)       :: efiden
 
       exbar = sqrt(betap)/vtp*(1.0, 0.)
       eeuler = EXP(1.0)
@@ -277,9 +256,7 @@ contains
 
       delv3 = delv*delv*delv
 
-      !check if results directory exists
-      ! INQUIRE (DIRECTORY='data', EXIST=ex)
-      ex = .true. !TODO: make this work for gfortran compiler
+      ex = .true.
       if (ex) then
          write (*, *) "Assuming data folder already exists..."
       else
@@ -289,8 +266,7 @@ contains
          write (*, *) "Saving output to data folder..."
       end if
 
-      write (outputPath, *) 'data/', trim(dataName) !!TODO: use more general pathing
-      ! INQUIRE (DIRECTORY=trim(dataName), EXIST=ex)
+      write (outputPath, *) 'data/', trim(dataName)
       ex = .true.
       if (ex) then
          write (*, *) "assuming subfolder ", trim(dataName), " already exists"
@@ -369,17 +345,9 @@ contains
       ! END Create Velocity grid and allocate variables
       !=============================================================================
 
-      efiden(1) = (1., 0.)
-      efiden(2) = (1., 0.)
-      efiden(3) = (1., 0.)
-
       !=============================================================================
       ! Calculate fs0 and fs1 on (vx,vy,vz) grid
       !=============================================================================
-      !TODO: remove termrats
-      termrats(1) = (1., 0.)
-      termrats(2) = (1., 0.)
-      termrats(3) = (1., 0.)
 
       !Loop over (vx,vy,vz) grid and compute fs0 and fs1
       do is = 1, nspec
@@ -397,12 +365,12 @@ contains
                   if (computemoment) then
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                    spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj, termrats, (1., 0.))
-                     fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) !We need this like this to correctly compute jiEi = int CorEi d3v
+                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj)
+                     fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) !We fs1_sp to correctly compute jiEi = int CorEi d3v with residual!
                   else
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                 spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0., termrats, (1., 0.))
+                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0.)
                   end if
                end do
             end do
@@ -422,7 +390,6 @@ contains
       allocate (dfs1dvz(ivxmin:ivxmax, ivymin:ivymax, ivzmin:ivzmax, 1:nspec))
       dfs1dvz = 0.
 
-      !TODO: double check that these units are what we want!!!!
       do is = 1, nspec
          !dfs1/dvx-------------------------------------------------------
          do ivz = ivzmin, ivzmax
@@ -1085,9 +1052,6 @@ contains
       complex, allocatable, dimension(:, :, :) :: fs1_cyln
       !! 2V fs1
 
-      complex, dimension(1:3) :: termrats
-      !!Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
-
       integer :: jj
       !! Index
 
@@ -1102,11 +1066,6 @@ contains
 
       complex    :: exbar
       !! amplitude factor of fs1 which is \propto Ex/B0 (B0 is external B)
-
-      character(100)  :: fmt_dbg1, fmt_dbg2
-      !! Eigenfunction Output Format used for debug
-
-      !TODO: clean up unused variables above!
 
       exbar = (1.0, 0.) !assume a default value...
 
@@ -1165,15 +1124,15 @@ contains
       ! NOTE: All (x,y,z) velocity values are normalized to species parallel thermal velocity
       ! NOTE: Code below assumes max.min values are integer multiples of delv (if not, throw warning flag!)
       ivparmin = int(vparmin/delv); if (real(ivparmin) .ne. vparmin/delv) &
- write (*, *) 'WARNING: vparmin not integer multiple of delv'
+      write (*, *) 'WARNING: vparmin not integer multiple of delv'
       ivparmax = int(vparmax/delv); if (real(ivparmax) .ne. vparmax/delv) &
- write (*, *) 'WARNING: vparmax not integer multiple of delv'
+      write (*, *) 'WARNING: vparmax not integer multiple of delv'
       ivperpmin = int(vperpmin/delv); if (real(ivperpmin) .ne. vperpmin/delv) &
- write (*, *) 'WARNING: vperpmin not integer multiple of delv'
+      write (*, *) 'WARNING: vperpmin not integer multiple of delv'
       ivperpmax = int(vperpmax/delv); if (real(ivperpmax) .ne. vperpmax/delv) &
- write (*, *) 'WARNING: vperpmax not integer multiple of delv'
-      ivphimin = 0 !TODO: load this in input
-      ivphimax = 15 !WARNING: this is aggressively small
+      write (*, *) 'WARNING: vperpmax not integer multiple of delv'
+      ivphimin = 0
+      ivphimax = 30
 
       !Allocate velocity grid variables
       allocate (vvperp(ivperpmin:ivperpmax)); vvperp(:) = 0.
@@ -1230,7 +1189,7 @@ contains
                   !Compute perturbed  Distribution value, fs1
                   call calc_fs1(omega, vvperp(ivperp), vvpar(ivpar), vvphi(ivphi), ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                 spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, &
-                                elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0., termrats, (1.0, 0.0))
+                                elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0.)
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
@@ -1240,28 +1199,28 @@ contains
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0., termrats, (1.0, 0.0))
+                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi)) - delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0., termrats, (1.0, 0.0))
+                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) + delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0., termrats, (1.0, 0.0))
+                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) - delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0., termrats, (1.0, 0.0))
+                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
                end do
             end do
          end do
@@ -1292,7 +1251,7 @@ contains
                   dfs1dvpar(ivperp, ivpar, ivphi, is) = &
                      (fs1(ivperp, ivpar + 1, ivphi, is) - fs1(ivperp, ivpar - 1, ivphi, is))/(vvpar(ivpar + 1) - vvpar(ivpar - 1)); 
                end do
-               !Last point: 1st order Finite difference !TODO: ivpar might need to be reset after this-> similar issue may exist in compute_fpc_cart_new. Fix both
+               !Last point: 1st order Finite difference
                dfs1dvpar(ivperp, ivpar, ivphi, is) = &
                   (fs1(ivperp, ivpar, ivphi, is) - fs1(ivperp, ivpar - 1, ivphi, is))/(vvpar(ivparmax) - vvpar(ivparmax - 1)); 
             end do
@@ -1515,9 +1474,6 @@ contains
       real         :: mu_s
       !! m_ref/m_s
 
-      complex         :: wperp
-      !! factor picked up during u transform to get fs1 and fs0 on dimensionless grid
-
       fs0hat = exp(-1.*(vpar - hatV_s)**2.-(vperp)**2./aleph_s)
 
    end function fs0hat
@@ -1525,7 +1481,7 @@ contains
    !------------------------------------------------------------------------------
    !                           Collin Brown and Greg Howes, 2025
    !------------------------------------------------------------------------------
-   subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj, termrats, wperp)
+   subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
       use vars, only: betap, kperp, kpar, vtp, pi, delv
@@ -1577,10 +1533,9 @@ contains
 
       real, intent(in) :: epsSokhotski_Plemelj
       !! Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1
-      real             :: epsSokhotski_Plemelj_temp
 
-      complex, dimension(1:3), intent(in) :: termrats
-      !! terms that capture the fact that we effectively have different normalization between JETPLUME and PLUME do to the timing we make things dimensionless
+      real             :: epsSokhotski_Plemelj_temp
+      !! fixes sign of epsilon
 
       integer :: n
       !! bessel sum counter
@@ -1607,8 +1562,6 @@ contains
       real :: phi_temp
       real :: vpar_temp
       real :: vperp_temp
-
-      complex :: wperp
 
       phi_temp = phi
 
@@ -1638,18 +1591,18 @@ contains
          kpar_temp = -kpar !sign convetion fix
          kperp_temp = kperp !this does not recieve a minus sign due to sign convention; seems to effectively be absorbed by phi but not sure- this is empirically correct tho
          epsSokhotski_Plemelj_temp = -epsSokhotski_Plemelj !sign fix
-         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv*wperp!a 'good' eps value depends on the effective grid spacing near the denom. But honestly, its just hard to integrate over a denominator no matter what. Don't expect the best results without tuning eps per generated distribution (but this really only matters when taking moments)
-         vpar_temp = vpar*real(wperp)
-         vperp_temp = vperp*real(wperp)
+         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv!a 'good' eps value depends on the effective grid spacing near the denom. But honestly, its just hard to integrate over a denominator no matter what. Don't expect the best results without tuning eps per generated distribution (but this really only matters when taking moments)
+         vpar_temp = vpar
+         vperp_temp = vperp
          ef3 = ef3
          ef2 = ef2
          ef1 = ef1
       else
          omega_temp = real(omega) - ii*aimag(omega)
          kpar_temp = kpar
-         vpar_temp = vpar*real(wperp)
-         vperp_temp = vperp*real(wperp)
-         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv*wperp
+         vpar_temp = vpar
+         vperp_temp = vperp
+         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
          ef3 = ef3
          ef2 = ef2
          ef1 = ef1
@@ -1700,15 +1653,15 @@ contains
 
    end subroutine calc_fs1
 
-   !TODO: clean up the many unused variables here...
    complex function wparth_from_ratio(is,ef)
       use vars, only: pi
       use disprels, only: bessel, zet_in
-      use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc !TODO remove susc (was mfor debug)
+      use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv, nbesmax
       use vars, only: elecdircontribution, EpsilonSokhotski_Plemelj, omega_val
 
       integer :: is
+     !! species loop counter
 
       complex :: wparth 
      !! dimensional wparRth
@@ -1721,12 +1674,6 @@ contains
 
       complex :: denomenator
      !! temp term
-
-      integer :: n
-     !! loop
-
-      complex :: An
-     !! parallel integration term
 
       real :: lambdap
      !! modified bessel function argument
@@ -1762,15 +1709,6 @@ contains
 
       real :: Vdrifts
 
-      complex :: zz_n
-     !! plasma disp func
-
-      complex :: zz_minusn
-     !! plasma disp func
-
-      complex :: tsi_n
-     !! plasma disp func arg
-
       complex :: ii = (0.0, 1.0)
      !! Imaginary unit (0+1i)
 
@@ -1793,19 +1731,14 @@ contains
       complex :: omega
      !! frequency of solution (with negative gamma implying damping)
 
-      complex, dimension(1:3)       :: efiden
-     !! identity vector used to 'eliminate' Ex,Ey,Ez when computing sigma_ij (conductivity tensor) from fs1
-
       complex, dimension(1:3)       :: ef
+     !! electric field eigenmode
 
       real::hatV_s
      !! normalized drift velocity
 
       real, allocatable, dimension(:, :, :, :) :: fs0
      !! Dimensionless equilibrium fs0
-
-      complex, dimension(3) :: termrats
-     !! Matrix of ratios between JET-PLUME susc tensor (from fs1 norm) and PLUME's
 
       real :: vperp
      !! Temp var used to store vperp = sqrt(vx**2 + vy**2) (in normalized units)
@@ -1819,14 +1752,6 @@ contains
       integer :: unit_number
 
       !COMPUTE NUMERICALLY----------------------------
-      efiden(1) = (1., 0.)
-      efiden(2) = (1., 0.)
-      efiden(3) = (1., 0.)
-
-      termrats(1) = (1., 0.)
-      termrats(2) = (1., 0.)
-      termrats(3) = (1., 0.)
-
       ivxmin = int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write (*, *) 'WARNING: vxmin not integer multiple of delv'
       ivxmax = int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write (*, *) 'WARNING: vxmax not integer multiple of delv'
       ivymin = int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write (*, *) 'WARNING: vymin not integer multiple of delv'
@@ -1866,13 +1791,9 @@ contains
       lambdap = kperp**2./2.
       lambdap = lambdap*(disp_Q**2.*disp_alph)/(disp_mu*disp_tau*alphp)
       Vdrifts = kpar*disp_v/sqrt(betap*alphp)
-
-
       !END COMPUTE NUMERICALLY----------------------------
+
       omega = -real(omega_val) - ii*aimag(omega_val)
-      termrats(1) = (1., 0.) !TODO: remove this (in calc_fs1 too!)
-      termrats(2) = (1., 0.)
-      termrats(3) = (1., 0.)
       hatV_s = spec(is)%vv_s*sqrt(spec(is)%tau_s/(spec(is)%mu_s*betap))
       do ivx = ivxmin, ivxmax
          do ivy = ivymin, ivymax
@@ -1884,7 +1805,7 @@ contains
                phi = ATAN2(vvy(ivy), vvx(ivx))
                call calc_fs1(omega, vperp, vvz(ivz), phi, ef, ef, hatV_s, spec(is)%q_s, spec(is)%alph_s, &
                              spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, 1., &
-                             (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj, termrats, (1., 0.))
+                             (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj)
             end do
          end do
       end do
@@ -1915,23 +1836,24 @@ contains
    end function wparth_from_ratio
 
    subroutine calc_wparth(omega, wparth, is,ef)
+   !! wrapper function to compute dimensional thermal velocity
 
       use vars, only: omega_val
 
       complex, intent(in) :: omega
+      !! freq of solution
+
       complex, intent(out) :: wparth
+      !! dimensional parallel thermal velocity
 
       complex, dimension(1:3)       :: ef
+      !! electric eigenmode
 
-      complex :: ii = (0.0, 1.0)         !! Imaginary unit (0+1i)
+      complex :: ii = (0.0, 1.0)
+      !! Imaginary unit (0+1i)
 
       integer :: is
-
-      integer :: iflag
-
-      integer :: unit_number !debug value to write to file
-
-      iflag = 0
+      !! Spec conter
 
       omega_val = -real(omega) - ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
 
