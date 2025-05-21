@@ -1590,22 +1590,24 @@ subroutine radial_scan
   !Specify output formatting
   if (radial_eigen) then
      if (radial_heating) then
-        write(fmt,'(a,i0,a)')'(7es14.4,12es14.4,',15*nspec,'es14.4)'
+        write(fmt,'(a,i0,a)')'(7es14.4,12es14.4,',15*nspec+1,'es14.4)'
         out_type=0
      else
-        write(fmt,'(a,i0,a)')'(7es14.4,12es14.4,',14*nspec,'es14.4)'
+        write(fmt,'(a,i0,a)')'(7es14.4,12es14.4,',14*nspec+1,'es14.4)'
         out_type=1
      endif
   else
      if (radial_heating) then
-        write(fmt,'(a,i0,a)')'(7es14.4,',7*nspec,'es14.4)'
+        write(fmt,'(a,i0,a)')'(7es14.4,',7*nspec+1,'es14.4)'
         out_type=2
      else
-        write(fmt,'(a,i0,a)')'(7es14.4,',6*nspec,'es14.4)'
+        write(fmt,'(a,i0,a)')'(7es14.4,',6*nspec+1,'es14.4)'
         out_type=3
      endif
   endif
 
+  write(*,'(2a)')'Number of Columns:',trim(fmt)
+  
   !Allocate variable for last solution and copy in initial values
   allocate(omlast(nroot_max))
   allocate(omSafe(1:2,nroot_max)); omSafe=cmplx(0.,0.)
@@ -1618,7 +1620,7 @@ subroutine radial_scan
   enddo
 
   !Scan through radial trajectory in parameter space
-  do ir = 0, nRad
+  do ir = 0, nRad-1
      !Set global parameters
      betap=beta_rad(ir)
      vtp=vtp_rad(ir)
@@ -1640,8 +1642,8 @@ subroutine radial_scan
      enddo
 
      if (.true.) &
-          write(*,'(a,i0,a,es14.4,a)')&
-          'Radius(',ir,') = ',radius(ir),' Rs'
+          write(*,'(a,i0,a,es14.4)')&
+          'Parameter (',ir,') = ',radius(ir)
 
      !Scan (or don't) through kspace
      select case(k_scan)
@@ -1682,6 +1684,7 @@ subroutine radial_scan
               !Save roots for next scan of k
               do ii=1,nroot_max
                  omSafe(1,ii)=omLast(ii)
+                 write(*,*)'root saved',ii,omlast(ii)
               enddo
            endif
 
@@ -1707,7 +1710,7 @@ subroutine radial_scan
            else
               mod_write=.false.
            endif
-
+           
            !set kperp
            if (rad_scan(1)%log_scan) then
               kperp=10.**(log10(rad_scan(1)%range_i)+rad_scan(1)%diff*real(ij))
@@ -2097,28 +2100,28 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
            !Output results
            if (out_type==0) & !Om, Eigen, Heating
                 write(out_unit(ii),fmt)&
-                radius(ir),kperp,kpar,betap,vtp,&
+                kperp,kpar,betap,vtp,&
                 omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                 Ps(1:nspec),&
-                params(1:6,1:nspec),Ew
+                params(1:6,1:nspec),Ew, radius(ir)
            if (out_type==1) & !Om, Eigen
                 write(out_unit(ii),fmt)&
-                radius(ir),kperp,kpar,betap,vtp,&
+                kperp,kpar,betap,vtp,&
                 omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                params(1:6,1:nspec)
+                params(1:6,1:nspec), radius(ir)
            if (out_type==2) & !Om, Heating
                 write(out_unit(ii),fmt)&
-                radius(ir),kperp,kpar,betap,vtp,&
+                kperp,kpar,betap,vtp,&
                 omega,&            
                 Ps(1:nspec),&
-                params(1:6,1:nspec),Ew
+                params(1:6,1:nspec),Ew, radius(ir)
            if (out_type==3) & !Om
                 write(out_unit(ii),fmt)&
-                radius(ir),kperp,kpar,betap,vtp,&
+                kperp,kpar,betap,vtp,&
                 omega,&            
-                params(1:6,1:nspec)                        
+                params(1:6,1:nspec),radius(ir)
         endif
      enddo
 
