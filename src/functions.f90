@@ -412,7 +412,7 @@ subroutine read_radial_input
      call get_unused_unit (input_unit_no)
      unit=input_unit_no
      open(unit = unit, file=trim(readName) , status='old', action='read')
-     do ir = 0,nRad
+     do ir = 0,nRad-1
         read(unit,*)&
              radius(ir),&
              tau_in, mu_in, alph_in, Q_in, D_in, vv_in
@@ -437,8 +437,8 @@ subroutine read_radial_input
   call get_unused_unit (input_unit_no)
   unit=input_unit_no
   open(unit = unit, file=trim(readName) , status='old', action='read')
-  do ir = 0,nRad
-     read(5,*)&
+  do ir = 0,nRad-1
+     read(unit,*)&
           radius(ir),beta_rad(ir), vtp_rad(ir)          
   enddo
   close(unit)
@@ -463,24 +463,31 @@ subroutine read_radial_input
   select case(k_scan)
   case(0)
      !simple case of constant kperp, kpar
+     write(*,'(a)')'Parametric Scan with fixed (kperp,kpar)'
      call radial_read_0
   case(1)
      !fixed kperp, scan over kpar
+     write(*,'(a)')'Parametric Scan with fixed kperp, varying kpar'
      call radial_read_1
   case(2)
      !fixed kpar,  scan over kperp
+     write(*,'(a)')'Parametric Scan with varying kperp, fixed kpar'
      call radial_read_2
   case(3)
      !fixed theta, scan over k
+     write(*,'(a)')'Parametric Scan with varying |k|, fixed theta'
      call radial_read_3
   case(4)
      !fixed k, scan over theta
+     write(*,'(a)')'Parametric Scan with fixed |k|, varying theta'
      call radial_read_4
   case(5)
      !plane scan over (kperp, kpar)
+     write(*,'(a)')'Parametric Scan with varying kperp and kpar'
      call radial_read_5
   case(6)
      !plane scan over (k, theta)
+     write(*,'(a)')'Parametric Scan with varying |k| and theta'
      call radial_read_6
   end select
 
@@ -495,7 +502,7 @@ subroutine radial_read
 
   nameList /radial_input/ nRad, modelName, &
        radial_heating, radial_eigen, k_scan
-  read (unit=4,nml=radial_input)
+  read (unit=unit,nml=radial_input)
 
   
 end subroutine radial_read
