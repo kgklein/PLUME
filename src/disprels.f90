@@ -2272,7 +2272,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
                    *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap
            enddo
-           !  j=3!z
+           j=3!z
 
            vmean(j,jj) = -cmplx(0.,1.)*omega*sum(electric(:)*susc(jj,j,:)) &
                 *(spec(jj)%Q_s/spec(jj)%D_s)*vtp**2./betap &
