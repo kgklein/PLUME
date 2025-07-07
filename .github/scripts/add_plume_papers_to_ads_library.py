@@ -5,7 +5,7 @@ import requests
 BASE_URL = "https://api.adsabs.harvard.edu/v1"
 ADS_LIBRARY_ID = "RWGonkVgRpOaTizvWwsjKg"
 
-PLUME_ADS_BIB_CODE = [
+BIBCODES = [
     "2015PhPl...22c2903K",
     "2025RNAAS...9..102K"
 ]
@@ -42,7 +42,7 @@ def bibcodes_from_response(response: requests.Response) -> list:
     try:
         bibcodes = [item["bibcode"] for item in data["response"]["docs"]]
         assert len(bibcodes) == data["response"]["numFound"]
-        print(f"Found {len(bibcodes)} papers citing {PLUME_ADS_BIB_CODE}")
+        print(f"Found {len(bibcodes)} papers citing {BIBCODES}")
 
     except (KeyError, AssertionError) as e:
         raise RuntimeError(f"Response from {response.url} was not valid") from e
