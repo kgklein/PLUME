@@ -1628,6 +1628,17 @@ contains
          denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s) + (0., 1.)*epsSokhotski_Plemelj_temp!epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
          Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - 2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
          emult = (0., 0.)
+         !Compute emult = n*jbess(n)*Ubar_s/(b_s)*ef1 with identity if needed to avoid div by small or zero
+         if (b_s < 1.0e-8) then ! Handle small b_s limit (use small-b expansion)
+            if (n == 0) then
+               emult = 0.0
+            else
+               emult = 0.5 * (jbess(n-1) + jbess(n+1)) * Ubar_s * ef1
+            end if
+         else
+            emult = (n * jbess(n) / b_s) * Ubar_s * ef1
+         end if
+
          if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
             emult = n*jbess(n)*Ubar_s/(b_s)*ef1
             if (n .ne. 0) then
