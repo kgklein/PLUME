@@ -1297,7 +1297,6 @@ contains
                   corepar(ivperp, ivpar, ivphi, is) = &
                      -spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)*0.5*(CONJG(dfs1dvpar(ivperp, ivpar, ivphi, is))*ef(3) &
                                                                       + dfs1dvpar(ivperp, ivpar, ivphi, is)*CONJG(ef(3)))
-
                   ! CEperp
                   vvperp1temp = vvperp(ivperp)*COS(vvphi(ivphi))
                   vvperp2temp = vvperp(ivperp)*SIN(vvphi(ivphi))
@@ -1325,8 +1324,13 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
-                  fs1_cyln(ivperp, ivpar, is) = &
-                     fs1_cyln(ivperp, ivpar, is) + vvperp(ivperp)*fs1(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  if(ABS(vvperp(ivperp)) < .001) then!the cell centered at zero does not have zero radius, this fixes that (although the      way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                     fs1_cyln(ivperp, ivpar, is) = &
+                        fs1_cyln(ivperp, ivpar, is) + delv/4.*fs1(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  else
+                     fs1_cyln(ivperp, ivpar, is) = &
+                        fs1_cyln(ivperp, ivpar, is) + vvperp(ivperp)*fs1(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  endif
                end do
             end do
          end do
@@ -1341,10 +1345,20 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
-                  corepar_cyln(ivperp, ivpar, is) = &
-                     corepar_cyln(ivperp, ivpar, is) + vvperp(ivperp)*corepar(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
-                  coreperp_cyln(ivperp, ivpar, is) = &
-                     coreperp_cyln(ivperp, ivpar, is) + vvperp(ivperp)*coreperp(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  if(ABS(vvperp(ivperp)) < .001) then!the cell centered at zero does not have zero radius, this fixes that (although the way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                     corepar_cyln(ivperp, ivpar, is) = &
+                        corepar_cyln(ivperp, ivpar, is) + delv/4.*corepar(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  else
+                     corepar_cyln(ivperp, ivpar, is) = &
+                        corepar_cyln(ivperp, ivpar, is) + vvperp(ivperp)*corepar(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  end if
+                  if(ABS(vvperp(ivperp)) < .001) then!see above comment
+                     coreperp_cyln(ivperp, ivpar, is) = &
+                        coreperp_cyln(ivperp, ivpar, is) + delv/4.*coreperp(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  else
+                     coreperp_cyln(ivperp, ivpar, is) = &
+                        coreperp_cyln(ivperp, ivpar, is) + vvperp(ivperp)*coreperp(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
+                  endif
                end do
             end do
          end do
@@ -1628,10 +1642,11 @@ contains
          denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s) + (0., 1.)*epsSokhotski_Plemelj_temp!epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
          Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - 2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
          emult = (0., 0.)
+        
          !Compute emult = n*jbess(n)*Ubar_s/(b_s)*ef1 with identity if needed to avoid div by small or zero
-         if (b_s < 1.0e-8) then ! Handle small b_s limit (use small-b expansion)
+         if (ABS(b_s) < 1.0e-8) then ! Handle small b_s limit (use small-b expansion)
             if (n == 0) then
-               emult = 0.0
+               emult = 0.
             else
                emult = 0.5 * (jbess(n-1) + jbess(n+1)) * Ubar_s * ef1
             end if
@@ -1639,22 +1654,12 @@ contains
             emult = (n * jbess(n) / b_s) * Ubar_s * ef1
          end if
 
-         if (b_s .ne. 0.) then  !Handle division of first term if b_s=0 (U_bar_s also =0)
-            emult = n*jbess(n)*Ubar_s/(b_s)*ef1
-            if (n .ne. 0) then
-               emult = emult + ii*0.5*(jbess(n - 1) - jbess(n + 1))*Ubar_s*ef2
-            else
-               emult = emult + ii*bess0_s_prime(b_s)*Ubar_s*ef2
-            end if
-            emult = emult + jbess(n)*Wbar_s*ef3
+         if (n .ne. 0) then
+            emult = emult + ii*0.5*(jbess(n - 1) - jbess(n + 1))*Ubar_s*ef2
          else
-            if (n .ne. 0) then
-               emult = +ii*0.5*(jbess(n - 1) - jbess(n + 1))*Ubar_s*ef2
-            else
-               emult = +ii*bess0_s_prime(b_s)*Ubar_s*ef2
-            end if
-            emult = emult + jbess(n)*Wbar_s*ef3
+            emult = emult + ii*bess0_s_prime(b_s)*Ubar_s*ef2
          end if
+         emult = emult + jbess(n)*Wbar_s*ef3
 
          do m = -nbesmax, nbesmax
             fs1 = fs1 + jbess(m)*exp(ii*(m - n)*phi_temp)*emult/denom
