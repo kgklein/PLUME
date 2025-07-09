@@ -1280,7 +1280,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
         for _i in range(0,nspec):
             plume_sweep["p"+str(_i+1)] = []
         for _i in range(0,nspec):
-            plume_sweep["ps"+str(_i+1)+"ttd_yy"] = []
+            plume_sweep["p"+str(_i+1)+"ttd_yy"] = []
         for _i in range(0,nspec):
             plume_sweep["p"+str(_i+1)+"ttd_yz"] = []
         for _i in range(0,nspec):
@@ -1343,7 +1343,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                 for _i in range(1,nspec+1):
                     plume_sweep["p"+str(_i)].append(float(line[17+(8-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
                 for _i in range(1,nspec+1):
-                    plume_sweep["ps"+str(_i)+"ttd_yy"].append(float(line[17+(9-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                    plume_sweep["p"+str(_i)+"ttd_yy"].append(float(line[17+(9-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
                 for _i in range(1,nspec+1):
                     plume_sweep["p"+str(_i)+"ttd_yz"].append(float(line[17+(10-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
                 for _i in range(1,nspec+1):
