@@ -55,7 +55,8 @@ contains
       !! Varaible to store command line commands
 
       real    :: vxi, vyi, vzi
-      !! normalized velocity space current value in loop (note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
+      !! normalized velocity space current value in loop
+      !!(note: vx, vy, vz corresponds to vperp1,vperp2,vpar, but we use 'x','y','z' as convention)
 
       integer :: vxindex, vyindex, vzindex
       !! loop counters
@@ -97,7 +98,9 @@ contains
       !! analytic (i.e. from PLUME not JET-PLUME) density eigenfunction (all species)
 
       complex, dimension(1:3, 1:nspec) :: Us
-      !! analytic (i.e. from PLUME not JET-PLUME) velocity eigenfunction (all species; all 3 componets per specie) normalized to c Ex/B0 (where Ex/B0 will be one until we add ability to manually set)
+      !! analytic (i.e. from PLUME not JET-PLUME) velocity eigenfunction
+      !!(all species; all 3 componets per specie) normalized to c Ex/B0
+      !!(where Ex/B0 will be one until we add ability to manually set)
 
       !Heating (Required parameters of calc eigen)
       real, dimension(1:nspec) :: Ps
@@ -169,7 +172,8 @@ contains
       !! Perturbed Dist for all species
 
       complex, allocatable, dimension(:, :, :, :) :: fs1_SP
-      !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj theorem to compute moments. Only used is computemoments is true
+      !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj
+      !! theorem to compute moments. Only used is computemoments is true
 
       real, allocatable, dimension(:)  :: hatV_s
       !!Flow normalized to wpar_s
@@ -292,7 +296,9 @@ contains
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, Ps_split_new, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
-         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC (see appendix B of Brown et al 2025) might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
+         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler'
+         write (*, *) 'The assumptions made to derive the FPC (see appendix B of Brown et al 2025)' 
+         write (*, *) 'might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
       end if
 
       !==============================================================================
@@ -366,7 +372,8 @@ contains
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                    spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
                                    (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj)
-                     fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) !We fs1_sp to correctly compute jiEi = int CorEi d3v with residual!
+                     !We fs1_sp to correctly compute jiEi = int CorEi d3v with residual!
+                     fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) 
                   else
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                 spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
@@ -395,39 +402,48 @@ contains
          do ivz = ivzmin, ivzmax
             do ivy = ivymin, ivymax
                !First point: 1st order Finite difference
-               dfs1dvx(ivxmin, ivy, ivz, is) = (fs1(ivxmin + 1, ivy, ivz, is) - fs1(ivxmin, ivy, ivz, is))/(vvx(ivxmin + 1) - vvx(ivxmin)); 
+               dfs1dvx(ivxmin, ivy, ivz, is) = (fs1(ivxmin + 1, ivy, ivz, is) - fs1(ivxmin, ivy, ivz, is))/&
+                    (vvx(ivxmin + 1) - vvx(ivxmin)); 
                !Loop: 2nd order Centered Finite difference
                do ivx = ivxmin + 1, ivxmax - 1
-                  dfs1dvx(ivx, ivy, ivz, is) = (fs1(ivx + 1, ivy, ivz, is) - fs1(ivx - 1, ivy, ivz, is))/(vvx(ivx + 1) - vvx(ivx - 1)); 
+                  dfs1dvx(ivx, ivy, ivz, is) = (fs1(ivx + 1, ivy, ivz, is) - fs1(ivx - 1, ivy, ivz, is))/&
+                       (vvx(ivx + 1) - vvx(ivx - 1)); 
                end do
                !Last point: 1st order Finite difference
-               dfs1dvx(ivxmax, ivy, ivz, is) = (fs1(ivxmax, ivy, ivz, is) - fs1(ivxmax - 1, ivy, ivz, is))/(vvx(ivxmax) - vvx(ivxmax - 1)); 
+               dfs1dvx(ivxmax, ivy, ivz, is) = (fs1(ivxmax, ivy, ivz, is) - fs1(ivxmax - 1, ivy, ivz, is))/&
+                    (vvx(ivxmax) - vvx(ivxmax - 1)); 
             end do
          end do
          !dfs1/dvy-------------------------------------------------------
          do ivz = ivzmin, ivzmax
             do ivx = ivxmin, ivxmax
                !First point: 1st order Finite difference
-               dfs1dvy(ivx, ivymin, ivz, is) = (fs1(ivx, ivymin + 1, ivz, is) - fs1(ivx, ivymin, ivz, is))/(vvy(ivymin + 1) - vvy(ivymin)); 
+               dfs1dvy(ivx, ivymin, ivz, is) = (fs1(ivx, ivymin + 1, ivz, is) - fs1(ivx, ivymin, ivz, is))/&
+                    (vvy(ivymin + 1) - vvy(ivymin)); 
                !Loop: 2nd order Centered Finite difference
                do ivy = ivymin + 1, ivymax - 1
-                  dfs1dvy(ivx, ivy, ivz, is) = (fs1(ivx, ivy + 1, ivz, is) - fs1(ivx, ivy - 1, ivz, is))/(vvy(ivy + 1) - vvy(ivy - 1)); 
+                  dfs1dvy(ivx, ivy, ivz, is) = (fs1(ivx, ivy + 1, ivz, is) - fs1(ivx, ivy - 1, ivz, is))/&
+                       (vvy(ivy + 1) - vvy(ivy - 1)); 
                end do
                !Last point: 1st order Finite difference
-               dfs1dvy(ivx, ivymax, ivz, is) = (fs1(ivx, ivymax, ivz, is) - fs1(ivx, ivymax - 1, ivz, is))/(vvy(ivymax) - vvy(ivymax - 1)); 
+               dfs1dvy(ivx, ivymax, ivz, is) = (fs1(ivx, ivymax, ivz, is) - fs1(ivx, ivymax - 1, ivz, is))/&
+                    (vvy(ivymax) - vvy(ivymax - 1)); 
             end do
          end do
          !dfs1/dvz-------------------------------------------------------
          do ivy = ivymin, ivymax
             do ivx = ivxmin, ivxmax
                !First point: 1st order Finite difference
-               dfs1dvz(ivx, ivy, ivzmin, is) = (fs1(ivx, ivy, ivzmin + 1, is) - fs1(ivx, ivy, ivzmin, is))/(vvz(ivzmin + 1) - vvz(ivzmin)); 
+               dfs1dvz(ivx, ivy, ivzmin, is) = (fs1(ivx, ivy, ivzmin + 1, is) - fs1(ivx, ivy, ivzmin, is))/&
+                    (vvz(ivzmin + 1) - vvz(ivzmin)); 
                !Loop: 2nd order Centered Finite difference
                do ivz = ivzmin + 1, ivzmax - 1
-                  dfs1dvz(ivx, ivy, ivz, is) = (fs1(ivx, ivy, ivz + 1, is) - fs1(ivx, ivy, ivz - 1, is))/(vvz(ivz + 1) - vvz(ivz - 1)); 
+                  dfs1dvz(ivx, ivy, ivz, is) = (fs1(ivx, ivy, ivz + 1, is) - fs1(ivx, ivy, ivz - 1, is))/&
+                       (vvz(ivz + 1) - vvz(ivz - 1)); 
                end do
                !Last point: 1st order Finite difference
-               dfs1dvz(ivx, ivy, ivzmax, is) = (fs1(ivx, ivy, ivzmax, is) - fs1(ivx, ivy, ivzmax - 1, is))/(vvz(ivzmax) - vvz(ivzmax - 1)); 
+               dfs1dvz(ivx, ivy, ivzmax, is) = (fs1(ivx, ivy, ivzmax, is) - fs1(ivx, ivy, ivzmax - 1, is))/&
+                    (vvz(ivzmax) - vvz(ivzmax - 1)); 
             end do
          end do
       end do
@@ -448,16 +464,19 @@ contains
             do ivy = ivymin, ivymax
                do ivz = ivzmin, ivzmax
                   ! CEx
-                  corex(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)*0.5*(CONJG(dfs1dvx(ivx, ivy, ivz, is))*ef(1) &
-                                                                                      + dfs1dvx(ivx, ivy, ivz, is)*CONJG(ef(1)))
+                  corex(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvx(ivx)*vvx(ivx)*0.5*&
+                       (CONJG(dfs1dvx(ivx, ivy, ivz, is))*ef(1) &
+                       + dfs1dvx(ivx, ivy, ivz, is)*CONJG(ef(1)))
 
                   ! CEy
-                  corey(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)*0.5*(CONJG(dfs1dvy(ivx, ivy, ivz, is))*ef(2) &
-                                                                                      + dfs1dvy(ivx, ivy, ivz, is)*CONJG(ef(2)))
+                  corey(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvy(ivy)*vvy(ivy)*0.5*&
+                       (CONJG(dfs1dvy(ivx, ivy, ivz, is))*ef(2) &
+                       + dfs1dvy(ivx, ivy, ivz, is)*CONJG(ef(2)))
 
                   ! CEz
-                  corez(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)*0.5*(CONJG(dfs1dvz(ivx, ivy, ivz, is))*ef(3) &
-                                                                                      + dfs1dvz(ivx, ivy, ivz, is)*CONJG(ef(3)))
+                  corez(ivx, ivy, ivz, is) = -spec(is)%q_s*0.5*vvz(ivz)*vvz(ivz)*0.5*&
+                       (CONJG(dfs1dvz(ivx, ivy, ivz, is))*ef(3) &
+                       + dfs1dvz(ivx, ivy, ivz, is)*CONJG(ef(3)))
 
                end do
             end do
@@ -530,18 +549,22 @@ contains
          allocate (jzez(nspec)); jzez = 0.
 
          !Integrate 0th moment
-         !Note: one *MUST* have eps != 0 in the denominator of from 1/(A-B v+i eps) OR add the residual of this PV integral. We choose the first as it was easier to implement
+         !Note: one *MUST* have eps != 0 in the denominator of from 1/(A-B v+i eps)
+         ! OR add the residual of this PV integral. We choose the first as it was easier to implement
          !In general, ep
          if (abs(EpsilonSokhotski_Plemelj) < 0.0001) then
-            write (*, *) 'WARNING: either epsilon is zero or too small! EpsilonSokhotski_Plemelj = ', EpsilonSokhotski_Plemelj
+            write (*, *) 'WARNING: either epsilon is zero or too small! EpsilonSokhotski_Plemelj = ', &
+                 EpsilonSokhotski_Plemelj
             write (*, *) 'It is strongly suggested you change the value of EpsilonSokhotski_Plemelj in the vars.f90 file!'
          end if
 
          do is = 1, nspec
             if(useOnlyReferenceWpar) then
-               call calc_wparth(omega, wparth, 1, ef) !we can either relate wperps to wperpR or calculate each separately! Both have pros and cons depending on numerical integral...
+               !we can either relate wperps to wperpR or calculate each separately! Both have pros and cons depending on numerical integral...
+               call calc_wparth(omega, wparth, 1, ef) 
             else
-               call calc_wparth(omega, wparth, is, ef) !This is numerically better but is more 'forceful'
+               !This is numerically better but is more 'forceful'
+               call calc_wparth(omega, wparth, is, ef) 
             endif
 
             fs0val = 1./pi**1.5 !Note that other terms cancel out leaving just pi**3/2)
@@ -617,19 +640,24 @@ contains
          !make file to store result
          unit_s = 12 + 5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
          write (filename, '(5A,I0.2,1A,I0.2)') &
-            'data/', trim(dataName), '/', trim(outputName), '.cparcart.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
+              'data/', trim(dataName), '/', trim(outputName), '.cparcart.specie', (is), '.mode', &
+              wrootindex !Assumes nspec,nroots < 100 for filename formating (cart is for cartesian)
          open (unit=unit_s, file=trim(filename), status='replace')
 
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.cperp1.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.cperp1.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 1, file=trim(filename), status='replace')
 
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.cperp2.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.cperp2.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 2, file=trim(filename), status='replace')
 
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.dfs.real.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.dfs.real.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 3, file=trim(filename), status='replace')
 
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.dfs.imag.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.dfs.imag.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 4, file=trim(filename), status='replace')
 
          write (*, *) 'Calculating fpc for species ', is
@@ -778,7 +806,8 @@ contains
       if (computemoment) then
          !Write Complex Eigenfunction-------------------------------------------
          !The below output is for debugging and is not intended to be used by end users...
-         write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.eigen.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.eigen.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 5, file=trim(filename), status='replace')
 
          !Do some write formatting
@@ -848,7 +877,8 @@ contains
 
          !Write Velocity Integrated Moments-------------------------------------------
          !The below output is for debugging and is not intended to be used by end users...
-         write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.mom.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2)') 'data/', trim(dataName), '/', trim(outputName),&
+         '.mom.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 5, file=trim(filename), status='replace')
 
          !Do some write formatting
@@ -1026,10 +1056,13 @@ contains
       !! Perturbed Dist for all species
 
       real :: fs0_temp
-      !! Temporary Dimensionless equilibrium fs0 at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives)
+      !! Temporary Dimensionless equilibrium fs0 at adjacent location of fs0 array
+      !! in vperp1/vperp2 direction (used for derivatives)
 
-      complex, allocatable, dimension(:, :, :, :) :: fs1_plus_delvperp1, fs1_plus_delvperp2, fs1_minus_delvperp1, fs1_minus_delvperp2
-      !! perturbed dist at adjacent location of fs0 array in vperp1/vperp2 direction (used for derivatives) !Perturbed Dist for all species
+      complex, allocatable, dimension(:, :, :, :) :: fs1_plus_delvperp1, fs1_plus_delvperp2
+      complex, allocatable, dimension(:, :, :, :) :: fs1_minus_delvperp1, fs1_minus_delvperp2
+      !! perturbed dist at adjacent location of fs0 array in vperp1/vperp2 direction
+      !! (used for derivatives) !Perturbed Dist for all species
 
       real :: phi_adjacent
       !! var used to compute fs0/fs1 at adjacent location in vperp1/vperp2 direction
@@ -1073,7 +1106,8 @@ contains
       eeuler = EXP(1.0)
 
       if (computemoment) then
-         write (*, *) "WARNING! The gyro routine does not support computing moments at this time due to computational demand!" !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case
+         !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case
+         write (*, *) "WARNING! The gyro routine does not support computing moments at this time due to computational demand!" 
       end if
 
       ! Check if the "data" directory exists
@@ -1114,7 +1148,9 @@ contains
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, Ps_split_new, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
-         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC (see appendix B of Brown et al 2025) might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
+         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC '
+         write (*, *) '(see appendix B of Brown et al 2025) might be significantly incorrect '
+         write (*, *) '(although this cutoff is somewhat arbitrary)!'
       end if
 
       !==============================================================================
@@ -1176,7 +1212,8 @@ contains
 
       !Loop over (vperp,vpar,vphi) grid and compute fs0 and fs1
       do is = 1, nspec
-         call check_nbesmax(MAX(ABS(vparmin), ABS(vparmax), ABS(vperpmin), ABS(vperpmax)), spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s)
+         call check_nbesmax(MAX(ABS(vparmin), ABS(vparmax), ABS(vperpmin), ABS(vperpmax)), &
+              spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s)
 
          !Create variable for parallel flow velocity normalized to
          !       species parallel thermal speed
@@ -1187,40 +1224,50 @@ contains
                   !Compute dimensionless equilibrium Distribution value, fs0
                   fs0(ivperp, ivpar, ivphi, is) = fs0hat(vvperp(ivperp), vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
                   !Compute perturbed  Distribution value, fs1
-                  call calc_fs1(omega, vvperp(ivperp), vvpar(ivpar), vvphi(ivphi), ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, &
-                                elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0.)
+                  call calc_fs1(omega, vvperp(ivperp), vvpar(ivpar), vvphi(ivphi), ef, bf, hatV_s(is),&
+                       spec(is)%q_s, spec(is)%alph_s, &
+                       spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, &
+                       elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0.)
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
-                  !Note: delv may not be the best choice here when it is large. Consider using a separate variable to determine locations that we approximate derivative at
+                  !Note: delv may not be the best choice here when it is large.
+                  !Consider using a separate variable to determine locations that we approximate derivative at
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi)) + delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
-                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
+                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
+                       hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
+                       spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
+                       exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi)) - delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
-                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
+                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
+                       hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
+                       spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
+                       exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) + delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
-                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
+                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
+                       hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
+                       spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
+                       exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) - delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
                   vperp_adjacent = SQRT(vperp1_adjacent**2 + vperp2_adjacent**2)
                   fs0_temp = fs0hat(vperp_adjacent, vvpar(ivpar), hatV_s(is), spec(is)%alph_s)
-                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
-                                spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
+                  call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
+                       hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
+                       spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
+                       exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
                end do
             end do
          end do
@@ -1261,8 +1308,9 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
+                  !Note: this assumes a square grid with even spacings between all points
                   dfs1dvperp1(ivperp, ivpar, ivphi, is) = &
-                     (fs1_plus_delvperp1(ivperp, ivpar, ivphi, is) - fs1_minus_delvperp1(ivperp, ivpar, ivphi, is))/(delv); !Note: this assumes a square grid with even spacings between all points
+                     (fs1_plus_delvperp1(ivperp, ivpar, ivphi, is) - fs1_minus_delvperp1(ivperp, ivpar, ivphi, is))/(delv); 
                end do
             end do
          end do
@@ -1271,8 +1319,9 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
+                  !Note: this assumes a square grid with even spacings between all points
                   dfs1dvperp2(ivperp, ivpar, ivphi, is) = &
-                     (fs1_plus_delvperp2(ivperp, ivpar, ivphi, is) - fs1_minus_delvperp2(ivperp, ivpar, ivphi, is))/(delv); !Note: this assumes a square grid with even spacings between all points
+                     (fs1_plus_delvperp2(ivperp, ivpar, ivphi, is) - fs1_minus_delvperp2(ivperp, ivpar, ivphi, is))/(delv); 
                end do
             end do
          end do
@@ -1296,15 +1345,15 @@ contains
                   ! CEpar
                   corepar(ivperp, ivpar, ivphi, is) = &
                      -spec(is)%q_s*0.5*vvpar(ivpar)*vvpar(ivpar)*0.5*(CONJG(dfs1dvpar(ivperp, ivpar, ivphi, is))*ef(3) &
-                                                                      + dfs1dvpar(ivperp, ivpar, ivphi, is)*CONJG(ef(3)))
+                     + dfs1dvpar(ivperp, ivpar, ivphi, is)*CONJG(ef(3)))
                   ! CEperp
                   vvperp1temp = vvperp(ivperp)*COS(vvphi(ivphi))
                   vvperp2temp = vvperp(ivperp)*SIN(vvphi(ivphi))
                   coreperp(ivperp, ivpar, ivphi, is) = &
                      (-spec(is)%q_s*0.5*vvperp1temp*vvperp1temp*(0.5*(CONJG(dfs1dvperp1(ivperp, ivpar, ivphi, is))*ef(1) &
-                                                                      + dfs1dvperp1(ivperp, ivpar, ivphi, is)*CONJG(ef(1))))) &
+                     + dfs1dvperp1(ivperp, ivpar, ivphi, is)*CONJG(ef(1))))) &
                      - (spec(is)%q_s*0.5*vvperp2temp*vvperp2temp*(0.5*(CONJG(dfs1dvperp2(ivperp, ivpar, ivphi, is))*ef(2) &
-                                                                       + dfs1dvperp2(ivperp, ivpar, ivphi, is)*CONJG(ef(2)))))
+                     + dfs1dvperp2(ivperp, ivpar, ivphi, is)*CONJG(ef(2)))))
                end do
             end do
          end do
@@ -1324,7 +1373,9 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
-                  if(ABS(vvperp(ivperp)) < .001) then!the cell centered at zero does not have zero radius, this fixes that (although the      way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                  !the cell centered at zero does not have zero radius, this fixes that
+                  !(although the way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                  if(ABS(vvperp(ivperp)) < .001) then
                      fs1_cyln(ivperp, ivpar, is) = &
                         fs1_cyln(ivperp, ivpar, is) + delv/4.*fs1(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
                   else
@@ -1345,7 +1396,9 @@ contains
          do ivperp = ivperpmin, ivperpmax
             do ivpar = ivparmin, ivparmax
                do ivphi = ivphimin, ivphimax
-                  if(ABS(vvperp(ivperp)) < .001) then!the cell centered at zero does not have zero radius, this fixes that (although the way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                  !the cell centered at zero does not have zero radius, this fixes that
+                  !(although the way we detect is, is kinda hacky right now! This is fine IFF delv is never really small (less than .001)
+                  if(ABS(vvperp(ivperp)) < .001) then
                      corepar_cyln(ivperp, ivpar, is) = &
                         corepar_cyln(ivperp, ivpar, is) + delv/4.*corepar(ivperp, ivpar, ivphi, is)*2*pi/ivphimax
                   else
@@ -1374,10 +1427,12 @@ contains
          !make file to store result
          !TODO: used "get unused unit" to get unit_s to pick correct 'number' to write to
          unit_s = 10 + 5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.cpar.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.cpar.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s, file=trim(filename), status='replace')
 
-         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), '.cperp.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+         write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+              '.cperp.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 1, file=trim(filename), status='replace')
 
          write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
@@ -1495,7 +1550,8 @@ contains
    !------------------------------------------------------------------------------
    !                           Collin Brown and Greg Howes, 2025
    !------------------------------------------------------------------------------
-   subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)
+   subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, &
+        aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
       use vars, only: betap, kperp, kpar, vtp, pi, delv
@@ -1534,7 +1590,11 @@ contains
       !! T_perp/T_parallel_R
 
       real, intent(in)      :: elecdircontribution
-      !! Sets components of Electric field (0 (DEFAULT) (or any other value) = Do not modify, 1=Keep only Ex(i.e.Eperp1), 2=Keep only Ey(i.e.Eperp2), 3=Keep only Ez(i.e.Epar))
+      !! Sets components of Electric field
+      !!(0 (DEFAULT) (or any other value) = Do not modify,
+      !!1=Keep only Ex(i.e.Eperp1),
+      !!2=Keep only Ey(i.e.Eperp2),
+      !!3=Keep only Ez(i.e.Epar))
 
       complex, intent(in)  :: exbar
       !! normalizaiton factor
@@ -1603,9 +1663,13 @@ contains
       if (q_s .gt. 0.) then
          omega_temp = -real(omega) - ii*aimag(omega) !sign convetion fix
          kpar_temp = -kpar !sign convetion fix
-         kperp_temp = kperp !this does not recieve a minus sign due to sign convention; seems to effectively be absorbed by phi but not sure- this is empirically correct tho
+         kperp_temp = kperp !this does not recieve a minus sign due to sign convention;
+         !seems to effectively be absorbed by phi but not sure- this is empirically correct tho
          epsSokhotski_Plemelj_temp = -epsSokhotski_Plemelj !sign fix
-         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv!a 'good' eps value depends on the effective grid spacing near the denom. But honestly, its just hard to integrate over a denominator no matter what. Don't expect the best results without tuning eps per generated distribution (but this really only matters when taking moments)
+         !a 'good' eps value depends on the effective grid spacing near the denom.
+         !But honestly, its just hard to integrate over a denominator no matter what.
+         !Don't expect the best results without tuning eps per generated distribution (but this really only matters when taking moments)
+         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
          vpar_temp = vpar
          vperp_temp = vperp
          ef3 = ef3
@@ -1635,11 +1699,13 @@ contains
       !Double Bessel Sum to calculate fs1=========================================
       fs1 = (0., 0.)
       !Calculate all parts of solution that don't depend on m or n
-      Ubar_s = -2.*vperp_temp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/(omega_temp)*((aleph_s - 1)*vpar_temp - aleph_s*hatV_s))
+      Ubar_s = -2.*vperp_temp/aleph_s*(1.+kpar_temp*sqrt(mu_s/(tau_s*aleph_r))/&
+           (omega_temp)*((aleph_s - 1)*vpar_temp - aleph_s*hatV_s))
 
       do n = -nbesmax, nbesmax
          !Calculate all parts of solution that dosn't depend on m
-         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s) + (0., 1.)*epsSokhotski_Plemelj_temp!epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
+         !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
+         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s) + (0., 1.)*epsSokhotski_Plemelj_temp
          Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - 2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
          emult = (0., 0.)
         
@@ -1742,7 +1808,8 @@ contains
      !! Index limits
 
       complex, allocatable, dimension(:, :, :, :) :: fs1_SP
-     !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj theorem to compute moments. Only used is computemoments is true
+      !! Perturbed Dist for all species with epsilon term related to Sokhotski–Plemelj theorem to compute moments.
+      !! Only used is computemoments is true
 
       complex :: omega
      !! frequency of solution (with negative gamma implying damping)
@@ -1832,13 +1899,15 @@ contains
 
       numerator = fs1_uxxmom
       !END COMPUTE NUMERICALLY----------------------------
-      !TODO: evenutally implement analytical solution - very low priority since this routine is only used to debug and numerical integral is accurate enough!
+      !TODO: evenutally implement analytical solution -
+      !very low priority since this routine is only used to debug and numerical integral is accurate enough!
 
       om = omega_val
 
       !This block 'undos' the 'sign change' in calc_fs1
       if(disp_Q .gt. 0) then
-         om = real(omega_val) - ii*aimag(omega_val) !TODO: handle omega better to make more readable! (this is basically just a stray minus sign...)
+         om = real(omega_val) - ii*aimag(omega_val) !TODO: handle omega better to make more readable!
+         !!(this is basically just a stray minus sign...)
       else
          om =  -real(omega_val) - ii*aimag(omega_val)
       endif
@@ -1871,18 +1940,25 @@ contains
       integer :: is
       !! Spec conter
 
-      omega_val = -real(omega) - ii*aimag(omega) !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
+      !this is how we pass to wperp_from_ratio using rtsec (without modifying rtsec!)
+      omega_val = -real(omega) - ii*aimag(omega) 
 
-      wparth = wparth_from_ratio(is,ef) !Due to numerical error, this can sometimes be complex/negative. We allow this to absorb numerical error in some sense. Forcing this to be postive and real produces (slightly less) accurate results! 
-                                        !That is for most fs1 we expect to be easy to integrate, there is no difference! But for hard to integrate fs1, there can be a lot of difference (as expected!)
+      !Due to numerical error, this can sometimes be complex/negative.
+      !We allow this to absorb numerical error in some sense.
+      !Forcing this to be postive and real produces (slightly less) accurate results! 
+      wparth = wparth_from_ratio(is,ef) 
+      !That is for most fs1 we expect to be easy to integrate, there is no difference!
+      !But for hard to integrate fs1, there can be a lot of difference (as expected!)
 
    end subroutine calc_wparth
 
    subroutine check_nbesmax(vperpmax, tau_s, mu_s, aleph_r)
-      !! We approximate the infitine sums, which include terms like j_n(b), as finite sums from n=-Nlarge to Nlarge.
-      !! Since j_n(b) is pretty small when b = n/2, we just make sure that n is large enough for all b (which is related to vperp) values
+     !! We approximate the infitine sums, which include terms like j_n(b), as finite sums from n=-Nlarge to Nlarge.
+     !! Since j_n(b) is pretty small when b = n/2,
+     !!we just make sure that n is large enough for all b (which is related to vperp) values
 
-      !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
+     !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to
+     !b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
       use vars, only: kperp
       use vars, only: nbesmax
 

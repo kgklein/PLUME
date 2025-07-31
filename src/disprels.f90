@@ -3812,9 +3812,9 @@ contains
             if ((low_n) .and. (n == 1)) then
                susc_low(is, 1, 1, 1) = norm(1)* &
                                        n*n*jn(n, is)*(2.*(disp_alph - 1.) &
-                                                      + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-                                                      disp_alph*(om - Vdrifts)*(zz(n) + zz(-n)) &
-                                                      + (zz(n) - zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
+                                       + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
+                                       disp_alph*(om - Vdrifts)*(zz(n) + zz(-n)) &
+                                       + (zz(n) - zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q))))
 
                susc_low(is, 1, 2, 1) = norm(4)* &
                                        n*(jn(n, is) - jpn(n, is))*( &
@@ -3825,10 +3825,10 @@ contains
 
                susc_low(is, 1, 3, 1) = norm(5)* &
                                        n*jn(n, is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                                                    (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-                                                    (zz(n) - zz(-n))*(disp_alph*om*(om - Vdrifts) - &
-                                                                      (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                                                    (zz(n) + zz(-n))*(disp_mu*n*(om - 2.*om*disp_alph + Vdrifts*disp_alph)/disp_Q)))
+                                       (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
+                                       (zz(n) - zz(-n))*(disp_alph*om*(om - Vdrifts) - &
+                                       (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+                                       (zz(n) + zz(-n))*(disp_mu*n*(om - 2.*om*disp_alph + Vdrifts*disp_alph)/disp_Q)))
 
                susc_low(is, 3, 1, 1) = susc_low(is, 1, 3, 1)
 
@@ -3840,22 +3840,23 @@ contains
 
                susc_low(is, 2, 3, 1) = norm(6)* &
                                        (jn(n, is) - jpn(n, is))*(2.*(om*disp_alph - Vdrifts) &
-                                                                 + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-                                                                 (zz(n) + zz(-n))*(disp_alph*om*(om - Vdrifts) - &
-                                                                                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                                                                 + (zz(n) - zz(-n))*(n*disp_mu*(om - disp_alph*(2.*om - Vdrifts))/disp_Q)))
+                                       + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
+                                       (zz(n) + zz(-n))*(disp_alph*om*(om - Vdrifts) - &
+                                       (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
+                                       + (zz(n) - zz(-n))*(n*disp_mu*(om - disp_alph*(2.*om - Vdrifts))/disp_Q)))
 
                susc_low(is, 3, 2, 1) = -susc_low(is, 2, 3, 1)
 
                susc_low(is, 3, 3, 1) = norm(3)* &
                                        jn(n, is)*(2.*om*(om*disp_alph - Vdrifts) - &
-                                                  2.*n*n*disp_mu**2.*(1.-disp_alph)/(disp_Q**2.) &
-                                                  + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
-                                                  (zz(n) + zz(-n))*(om*om*disp_alph*(om - Vdrifts) &
-                                                                    + n*n*disp_mu**2.*(om*(3.*disp_alph - 2.) - disp_alph*Vdrifts)/disp_Q**2.) &
-                                                  + (n*disp_mu/disp_Q)*(zz(n) - zz(-n))* & !changed sign
-                                                  (om*(om + 2.*disp_alph*Vdrifts - 3.*disp_alph*om) + &
-                                                   n*n*disp_mu**2.*(1.-disp_alph)/(disp_Q**2.))))!?
+                                       2.*n*n*disp_mu**2.*(1.-disp_alph)/(disp_Q**2.) &
+                                       + (sqrt(alphp*disp_tau/disp_mu)/kpar)*( &
+                                       (zz(n) + zz(-n))*(om*om*disp_alph*(om - Vdrifts) &
+                                       + n*n*disp_mu**2.*(om*(3.*disp_alph - 2.) - &
+                                       disp_alph*Vdrifts)/disp_Q**2.) &
+                                       + (n*disp_mu/disp_Q)*(zz(n) - zz(-n))* & !changed sign
+                                       (om*(om + 2.*disp_alph*Vdrifts - 3.*disp_alph*om) + &
+                                       n*n*disp_mu**2.*(1.-disp_alph)/(disp_Q**2.))))!?
             end if
 
          end do
@@ -3877,7 +3878,7 @@ contains
          !YZ term
          eps_yz_t = eps_yz_t + &
                     (jn(0, is) - jpn(0, is))*(om*disp_alph - Vdrifts + &
-                                              disp_alph*(om - Vdrifts)*om*(sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0))
+                    disp_alph*(om - Vdrifts)*om*(sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0))
 
          !ZZ term
          eps_zz_t = eps_zz_t + &
