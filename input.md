@@ -107,10 +107,12 @@ Smallest $\gamma/\Omega_{p}$ value for complex map search.
 Largest $\gamma/\Omega_{p}$ value for complex map search.
 
 **`nr`**  
-*TO BE ADDED* Number of $\omega_{r}/\Omega_{p}$ points in frequency grid.
+Number of $\omega_{r}/\Omega_{p}$ points in frequency grid.
+Default is 128 if not specified.
 
 **`ni`**  
-*TO BE ADDED* Number of $\gamma/\Omega_{p}$ points in frequency grid.
+Number of $\gamma/\Omega_{p}$ points in frequency grid.
+Default is 128 if not specified.
 
 **`positive_roots`**
 If true, the map routine will only select solutions with $\omega_{|textrm{r}} \ge 0$.

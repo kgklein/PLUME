@@ -171,7 +171,7 @@ end subroutine spec_read
 subroutine read_map_input
   !!Read in parameters for bounds on mapping dispersion roots.
   !! Invokes [[map_read(subroutine)]].
-  use vars, only: loggridw,loggridg,omi,omf,gami,gamf
+  use vars, only: loggridw,loggridg,omi,omf,gami,gamf,nr,ni
   implicit none
   !Append the .in file as first argument in executable
   call get_runname(runname)
@@ -191,10 +191,12 @@ end subroutine read_map_input
 subroutine map_read
   !!Subroutine for reading in frequency limits for map search of
   !! complex frequency solution space.
-  use vars, only: loggridw,loggridg,omi,omf,gami,gamf,positive_roots
+  use vars, only: loggridw,loggridg,omi,omf
+  use vars, only: gami,gamf,positive_roots,nr,ni
   implicit none
 
-  nameList /maps/ loggridw,loggridg,omi,omf,gami,gamf,positive_roots
+  nameList /maps/ loggridw,loggridg,omi,omf,gami,gamf,&
+       positive_roots,nr,ni
 
   read (unit=unit,nml=maps)
   
