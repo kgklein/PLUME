@@ -4133,116 +4133,131 @@ end subroutine get_double_out_name
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006
 !------------------------------------------------------------------------------
-   subroutine find_minima(val,numroots,iroots,nroots)
+   subroutine find_minima(val, numroots, iroots, nroots)
      !! Finding minimum values on complex frequency grid.
-     use vars, only : ni,nr
+     use vars, only : ni, nr
      implicit none
      !Passed
-     real, dimension(:,:), pointer :: val
+
+     real,    dimension(:,:), pointer :: val
      !!Value of Dispersion relation.
-     
+     !!Covers 0:nr, 0:ni
+
      integer :: numroots
      !!Maximum number of roots.
-     
+
      integer, dimension(1:2,1:numroots) :: iroots
      !!Indices of roots.
      
      integer, intent(out) :: nroots
      !!Number of roots found.
-     
+
      !Local
      integer :: ir
      !! Real Frequency index.
-     
+
      integer :: ii
      !! Imaginary Frequency index.
-     
+          
+     logical :: is_left, is_right, is_bottom, is_top, mid_r, mid_i
+     !! Replace Parameter/constant logic that required fixed nr and ni.
+
+     iroots = 0
+     nroots = 0
+
      !Find local minima in map
-     iroots=0
-     nroots=0
-     do ii=ni,0,-1
-        do ir=0,nr
-           select case(ir)
-           case(0)
-              if (val(ir,ii) .lt. val(ir+1,ii)) then
-                 select case(ii)
-                 case(0)
-                    if (val(ir,ii) .lt. val(ir,ii+1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(1:ni-1)
-                    if (val(ir,ii) .lt. val(ir,ii-1) .and.  &
-                         val(ir,ii) .lt. val(ir,ii+1))then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(ni)
-                    if (val(ir,ii) .lt. val(ir,ii-1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 end select
-              endif
-           case(1:nr-1)
-              if (val(ir,ii) .lt. val(ir-1,ii) .and.  &
-                   val(ir,ii) .lt. val(ir+1,ii))then
-                 select case(ii)
-                 case(0)
-                    if (val(ir,ii) .lt. val(ir,ii+1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(1:ni-1)
-                    if (val(ir,ii) .lt. val(ir,ii-1) .and.  &
-                         val(ir,ii) .lt. val(ir,ii+1))then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(ni)
-                    if (val(ir,ii) .lt. val(ir,ii-1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 end select
+     do ii = ni, 0, -1
+        do ir = 0, nr
+           !Real checks
+           is_left   = (ir == 0)
+           is_right  = (ir == nr)
+           mid_r     = (ir > 0  .and. ir <  nr)
+           !Imaginary checks
+           is_bottom = (ii == 0)
+           is_top    = (ii == ni)
+           mid_i     = (ii > 0  .and. ii <  ni)
+           
+           ! --- handle left / middle / right in real index
+           if (is_left) then
+              if (val(ir,ii) < val(ir+1,ii)) then
+                 ! bottom / middle / top in imaginary index
+                 if (is_bottom) then
+                    if (val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 else if (mid_i) then
+                    if (val(ir,ii) < val(ir,ii-1) .and. &
+                         val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 else if (is_top) then
+                    if (val(ir,ii) < val(ir,ii-1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 end if
+              end if
+              
+           else if (mid_r) then
+              if (val(ir,ii) < val(ir-1,ii) .and. &
+                   val(ir,ii) < val(ir+1,ii)) then
+                 if (is_bottom) then
+                    if (val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 else if (mid_i) then
+                    if (val(ir,ii) < val(ir,ii-1) .and. &
+                         val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 else if (is_top) then
+                    if (val(ir,ii) < val(ir,ii-1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 end if
+              end if
+              
+           else if (is_right) then
+              if (val(ir,ii) < val(ir-1,ii)) then
+                 if (is_bottom) then
+                    if (val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                       iroots(1,nroots) = ir
+                       iroots(2,nroots) = ii
+                    end if
+                 else if (mid_i) then
+                    if (val(ir,ii) < val(ir,ii-1) .and. &
+                         val(ir,ii) < val(ir,ii+1)) then
+                       nroots = nroots + 1
+                    iroots(1,nroots) = ir
+                    iroots(2,nroots) = ii
+                 end if
+              else if (is_top) then
+                 if (val(ir,ii) < val(ir,ii-1)) then
+                    nroots = nroots + 1
+                    iroots(1,nroots) = ir
+                    iroots(2,nroots) = ii
+                 end if
+              end if
+           end if
+        end if
 
-              endif
-           case(nr)
-              if (val(ir,ii) .lt. val(ir-1,ii)) then
-                select case(ii)
-                 case(0)
-                    if (val(ir,ii) .lt. val(ir,ii+1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(1:ni-1)
-                    if (val(ir,ii) .lt. val(ir,ii-1) .and.  &
-                         val(ir,ii) .lt. val(ir,ii+1))then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 case(ni)
-                    if (val(ir,ii) .lt. val(ir,ii-1)) then
-                       nroots=nroots+1
-                       iroots(1,nroots)=ir
-                       iroots(2,nroots)=ii
-                    endif
-                 end select
-               endif
-           end select
-        enddo
-     enddo
+     end do
+  end do
+end subroutine find_minima
 
-   end subroutine find_minima
-
+  
 !-------------------------------------------------------------------------------
    function zet_in(kpar,zin)
      !!Evaluate Plasma Dispersion Function (Z) for kparallel >/< 0

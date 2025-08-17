@@ -234,11 +234,15 @@ module vars
   logical :: positive_roots=.false.
   !! Consider all solutions (false) or only solutions with positive real frequencies (true).
 
-  integer, parameter :: nr=128
+  !integer, parameter :: nr=128
+  integer :: nr=128
   !!Number of grid points along real frequency axis
+  !! Now read in by [[map_read(subroutine)]]
   
-  integer, parameter :: ni=128
+  !integer, parameter :: ni=128
+  integer :: ni=128
   !!Number of grid points along imaginary frequency axis
+  !! Now read in by [[map_read(subroutine)]]
   
   integer, parameter :: numroots=500
   !!Maximum number of minima to keep for a further refinement from a map search.
