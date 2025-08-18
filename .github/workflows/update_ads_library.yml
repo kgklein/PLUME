@@ -24,8 +24,29 @@ jobs:
         run: |
           pip install requests==2.31
 
-      - name: Run script
+      # Strict on the main repo: fail on 401 or any error
+      - name: Run script (strict on main PLUME repo)
+        if: ${{ github.repository == 'kgklein/PLUME' }}
         env:
           ADS_API_TOKEN: ${{ secrets.ADS_API_TOKEN }}
         run: |
           python .github/scripts/add_plume_papers_to_ads_library.py
+
+      # Lenient on forks/your repo: ignore only 401 or missing token errors
+      - name: Run script (lenient on forks)
+        if: ${{ github.repository != 'kgklein/PLUME' }}
+        env:
+          ADS_API_TOKEN: ${{ secrets.ADS_API_TOKEN }}
+        shell: bash
+        run: |
+          set -o pipefail
+          python .github/scripts/add_plume_papers_to_ads_library.py 2>&1 | tee ads_run.log
+          rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ]; then
+            if grep -qiE '401|UNAUTHORIZED|Please set ADS_API_TOKEN' ads_run.log; then
+              echo "::warning::ADS step skipped on ${GITHUB_REPOSITORY} (unauthorized or no token)."
+              exit 0
+            fi
+          fi
+          exit $rc
+
