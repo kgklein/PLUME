@@ -194,30 +194,34 @@ contains
    subroutine read_map_input
   !!Read in parameters for bounds on mapping dispersion roots.
   !! Invokes [[map_read(subroutine)]].
-      use vars, only: loggridw, loggridg, omi, omf, gami, gamf
-      implicit none
-      !Append the .in file as first argument in executable
-      call get_runname(runname)
-      !ie ./plume.e system.in
-      runname = trim(runname)//".in"
 
-      call get_unused_unit(input_unit_no)
-      unit = input_unit_no
-      open (unit=unit, file=runname, status='old', action='read')
-      call map_read
-      close (unit)
-
-   end subroutine read_map_input
+  use vars, only: loggridw,loggridg,omi,omf,gami,gamf,nr,ni
+  implicit none
+  !Append the .in file as first argument in executable
+  call get_runname(runname)
+  !ie ./plume.e system.in
+  runname=trim(runname)//".in"
+   
+  call get_unused_unit (input_unit_no)
+  unit=input_unit_no
+  open (unit=unit,file=runname,status='old',action='read')
+  call map_read
+  close (unit)
+  
+end subroutine read_map_input
 
 !-=-=-=-=-
 !-=-=-=-=-
    subroutine map_read
   !!Subroutine for reading in frequency limits for map search of
   !! complex frequency solution space.
-      use vars, only: loggridw, loggridg, omi, omf, gami, gamf, positive_roots
-      implicit none
 
-      nameList /maps/ loggridw, loggridg, omi, omf, gami, gamf, positive_roots
+  use vars, only: loggridw,loggridg,omi,omf
+  use vars, only: gami,gamf,positive_roots,nr,ni
+  implicit none
+
+  nameList /maps/ loggridw,loggridg,omi,omf,gami,gamf,&
+       positive_roots,nr,ni
 
       read (unit=unit, nml=maps)
 
@@ -428,56 +432,91 @@ contains
       !Allocate Radial Distance from Sun
       allocate (radius(0:nRad)); radius = 0.
 
-      !Read in radial parameters for each species
-      do is = 1, nspec
-         write (readName, '(a,i0,a)') &
-            trim(modelName), is, ".rad"
-         call get_unused_unit(input_unit_no)
-         unit = input_unit_no
-         open (unit=unit, file=trim(readName), status='old', action='read')
-         do ir = 0, nRad
-            read (unit, *) &
-               radius(ir), &
-               tau_in, mu_in, alph_in, Q_in, D_in, vv_in
-            !Assign Dummy Variables.
-            rad_spec(is, ir)%tau_s = tau_in
-            rad_spec(is, ir)%mu_s = mu_in
-            rad_spec(is, ir)%alph_s = alph_in
-            rad_spec(is, ir)%Q_s = Q_in
-            rad_spec(is, ir)%D_s = D_in
-            rad_spec(is, ir)%vv_s = vv_in
-         end do
-         close (unit)
-      end do
+  !Read in radial parameters for each species
+  do is = 1, nspec
+     write(readName,'(a,i0,a)')&
+          trim(modelName),is,".rad"
+     call get_unused_unit (input_unit_no)
+     unit=input_unit_no
+     open(unit = unit, file=trim(readName) , status='old', action='read')
+     do ir = 0,nRad-1
+        read(unit,*)&
+             radius(ir),&
+             tau_in, mu_in, alph_in, Q_in, D_in, vv_in
+        !Assign Dummy Variables.
+        rad_spec(is,ir)%tau_s = tau_in
+        rad_spec(is,ir)%mu_s = mu_in
+        rad_spec(is,ir)%alph_s = alph_in
+        rad_spec(is,ir)%Q_s = Q_in
+        rad_spec(is,ir)%D_s = D_in
+        rad_spec(is,ir)%vv_s = vv_in
+     enddo
+     close(unit)
+  enddo
 
       !Allocate Global Plasma Parameters
       allocate (beta_rad(0:nRad)); beta_rad = 0.
       allocate (vtp_rad(0:nRad)); vtp_rad = 0.
 
-      !Read in Global Parameters, beta_||p and vtp
-      write (readName, '(a,i0,a)') &
-         trim(modelName), 0, ".rad"
-      call get_unused_unit(input_unit_no)
-      unit = input_unit_no
-      open (unit=unit, file=trim(readName), status='old', action='read')
-      do ir = 0, nRad
-         read (5, *) &
-            radius(ir), beta_rad(ir), vtp_rad(ir)
-      end do
-      close (unit)
+  !Read in Global Parameters, beta_||p and vtp
+  write(readName,'(a,i0,a)')&
+       trim(modelName),0,".rad"
+  call get_unused_unit (input_unit_no)
+  unit=input_unit_no
+  open(unit = unit, file=trim(readName) , status='old', action='read')
+  do ir = 0,nRad-1
+     read(unit,*)&
+          radius(ir),beta_rad(ir), vtp_rad(ir)          
+  enddo
+  close(unit)
 
       !Set parameters to values at intial radial position
       betap = beta_rad(0)
       vtp = vtp_rad(0)
 
-      do is = 1, nspec
-         spec(is)%tau_s = rad_spec(is, 0)%tau_s
-         spec(is)%mu_s = rad_spec(is, 0)%mu_s
-         spec(is)%alph_s = rad_spec(is, 0)%alph_s
-         spec(is)%Q_s = rad_spec(is, 0)%Q_s
-         spec(is)%D_s = rad_spec(is, 0)%D_s
-         spec(is)%vv_s = rad_spec(is, 0)%vv_s
-      end do
+  do is = 1, nspec
+     spec(is)%tau_s  = rad_spec(is,0)%tau_s
+     spec(is)%mu_s   = rad_spec(is,0)%mu_s
+     spec(is)%alph_s = rad_spec(is,0)%alph_s
+     spec(is)%Q_s    = rad_spec(is,0)%Q_s
+     spec(is)%D_s    = rad_spec(is,0)%D_s
+     spec(is)%vv_s    = rad_spec(is,0)%vv_s
+  enddo
+  
+  call get_runname(runname)
+  runname=trim(runname)//".in"
+  
+  !Determine K range which will be explored
+  select case(k_scan)
+  case(0)
+     !simple case of constant kperp, kpar
+     write(*,'(a)')'Parametric Scan with fixed (kperp,kpar)'
+     call radial_read_0
+  case(1)
+     !fixed kperp, scan over kpar
+     write(*,'(a)')'Parametric Scan with fixed kperp, varying kpar'
+     call radial_read_1
+  case(2)
+     !fixed kpar,  scan over kperp
+     write(*,'(a)')'Parametric Scan with varying kperp, fixed kpar'
+     call radial_read_2
+  case(3)
+     !fixed theta, scan over k
+     write(*,'(a)')'Parametric Scan with varying |k|, fixed theta'
+     call radial_read_3
+  case(4)
+     !fixed k, scan over theta
+     write(*,'(a)')'Parametric Scan with fixed |k|, varying theta'
+     call radial_read_4
+  case(5)
+     !plane scan over (kperp, kpar)
+     write(*,'(a)')'Parametric Scan with varying kperp and kpar'
+     call radial_read_5
+  case(6)
+     !plane scan over (k, theta)
+     write(*,'(a)')'Parametric Scan with varying |k| and theta'
+     call radial_read_6
+  end select
 
       call get_runname(runname)
       runname = trim(runname)//".in"
@@ -516,9 +555,9 @@ contains
       use vars, only: nRad, modelName, radial_heating, radial_eigen, k_scan
       implicit none
 
-      nameList /radial_input/ nRad, modelName, &
-         radial_heating, radial_eigen, k_scan
-      read (unit=4, nml=radial_input)
+  nameList /radial_input/ nRad, modelName, &
+       radial_heating, radial_eigen, k_scan
+  read (unit=unit,nml=radial_input)
 
    end subroutine radial_read
 

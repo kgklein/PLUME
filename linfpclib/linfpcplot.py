@@ -507,10 +507,10 @@ def plot_disp_power_2spec(sweep,flnm='',xlim=[],ylim=[]):
     eldposh = (sweep['p2ld_zz']+sweep['p2ld_zy'])
     eldnegh = -1*(sweep['p2ld_zz']+sweep['p2ld_zy'])
 
-    ittdposh = sweep['ps1ttd_yy']+sweep['p1ttd_yz']
-    ittdnegh = -1*(sweep['ps1ttd_yy']+sweep['p1ttd_yz'])
-    ettdposh = (sweep['ps2ttd_yy']+sweep['p2ttd_yz'])
-    ettdnegh = -1*(sweep['ps2ttd_yy']+sweep['p2ttd_yz'])
+    ittdposh = sweep['p1ttd_yy']+sweep['p1ttd_yz']
+    ittdnegh = -1*(sweep['p1ttd_yy']+sweep['p1ttd_yz'])
+    ettdposh = (sweep['p2ttd_yy']+sweep['p2ttd_yz'])
+    ettdnegh = -1*(sweep['p2ttd_yy']+sweep['p2ttd_yz'])
 
     itoth = sweep['p1']
     etoth = sweep['p2']
