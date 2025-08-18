@@ -22,7 +22,6 @@ graph: true
 incl_src: false
 src_dir:  ./src
 favicon: favicon.ico
-preprocess: False
 
 ---
 
