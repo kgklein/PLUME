@@ -24,9 +24,10 @@ module disprels
   real, parameter :: prec=1.E-7
   !!Root Finding precision  
 
-  
-  private :: find_minima,disp,rtsec,zet_in,zetout,bessel,get_out_name
-  private :: calc_eigen
+  private :: find_minima,zetout,get_out_name
+  public :: calc_eigen, disp, zet_in, rtsec, bessel !! Required for fpc.f90
+                                   !! (Consider reducing scope with submodule or
+                                   !! other approach- fine for now)
 
   public :: map_search, refine_guess, om_scan, om_double_scan, map_scan, test_disp
   public :: radial_scan
