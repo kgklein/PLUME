@@ -10,7 +10,7 @@
     <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
     <link rel="icon" href="../favicon.png">
 
-    <title>  params &ndash; PLUME
+    <title>  fpc &ndash; PLUME
 </title>
 
     <!-- Bootstrap -->
@@ -82,7 +82,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>params</h1>
+    <h1>fpc</h1>
       <div class="container p-2 mb-4 bg-light border rounded-3">
     <div class="row align-items-center justify-content-between" id="info-bar">
       <div class="col">
@@ -96,7 +96,7 @@
           <ol class="breadcrumb justify-content-end mb-0">
                 <li class="breadcrumb-item"><a href='../module/functions.html'>functions</a></li>
                 <li class="breadcrumb-item"><a href='../proc/read_in_params.html'>read_in_params</a></li>
-            <li class="breadcrumb-item active" aria-current="page">params</li>
+            <li class="breadcrumb-item active" aria-current="page">fpc</li>
           </ol>
         </nav>
       </div>
@@ -124,20 +124,18 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../namelist/params.html#variable-betap">betap</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-nscan">nscan</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-option">option</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-nroot_max">nroot_max</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-use_map">use_map</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-low_n">low_n</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-new_low_n">new_low_n</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-writeout">writeOut</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-dataname">dataName</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-outputname">outputName</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vperpmin">vperpmin</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vperpmax~2">vperpmax</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vparmin">vparmin</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vparmax">vparmax</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-delv">delv</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vxmin">vxmin</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vxmax">vxmax</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vymin">vymin</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vymax">vymax</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vzmin">vzmin</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-vzmax">vzmax</a>
+            <a class="list-group-item" href="../namelist/fpc.html#variable-elecdircontribution~2">elecdircontribution</a>
         </div>
       </div>
     </div>
@@ -171,7 +169,7 @@
   <br class="visible-xs visible-sm hidden-md">
   <section>
     <h2>Variables</h2>
-    <table class="table table-striped" id="namelist-params">
+    <table class="table table-striped" id="namelist-fpc">
       <thead><tr>
           <th>Name</th>
           <th>Type</th>
@@ -179,122 +177,88 @@
           <th>Description</th>
       </tr></thead>
       <tbody>
-              <tr id="variable-betap">
-      <td><a href="#variable-betap">betap</a></td>
+              <tr id="variable-vperpmin">
+      <td><a href="#variable-vperpmin">vperpmin</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Reference Species Parallel Thermal-to-Magnetic Pressure Ratio.
-8 pi n_ref T_ref,par/B^2</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-kperp">
-      <td><a href="#variable-kperp">kperp</a></td>
+              <tr id="variable-vperpmax~2">
+      <td><a href="#variable-vperpmax~2">vperpmax</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Wavenumber perpendicular to B0, normalized to reference gyroradius.
-k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-kpar">
-      <td><a href="#variable-kpar">kpar</a></td>
+              <tr id="variable-vparmin">
+      <td><a href="#variable-vparmin">vparmin</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
-k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-vtp">
-      <td><a href="#variable-vtp">vtp</a></td>
+              <tr id="variable-vparmax">
+      <td><a href="#variable-vparmax">vparmax</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Parallel reference thermal velocity normalized to the speed of light.
-v_t,ref,par/c</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-nspec">
-      <td><a href="#variable-nspec">nspec</a></td>
-      <td>integer</td>
+              <tr id="variable-delv">
+      <td><a href="#variable-delv">delv</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Number of species/components to be included in calculation.</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-nscan">
-      <td><a href="#variable-nscan">nscan</a></td>
-      <td>integer</td>
-      <td>0</td>
-      <td><p>Number of parameter scans.</p></td>
-    </tr>
-
-              <tr id="variable-option">
-      <td><a href="#variable-option">option</a></td>
-      <td>integer</td>
+              <tr id="variable-vxmin">
+      <td><a href="#variable-vxmin">vxmin</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Selection for the type of dispersion calculation to be undertaken.
--1: Calculate disp(om) at a single (omega, gamma)
- 0: Calculate Roots for input plasma parameters.
- 1: Calculate Roots for input plasma parameters or Reads in root value
-    and then scan over plasma parameters, with range and type specified in <em>.in file.
- 2: Calculate Roots for input plasma parameters or Reads in root value
-    and then scan over two-dimensional plasma parameters space,
-    with range and type specified in </em>.in file.
- 3: deprecated
- 4: Make multiple maps of complex frequency space.
- 5: Find roots for parameters along a prescribed path
-    Path is set by solar wind models, with values calculated and
-    output by helper function (in development, the radial scan function.).</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-nroot_max">
-      <td><a href="#variable-nroot_max">nroot_max</a></td>
-      <td>integer</td>
+              <tr id="variable-vxmax">
+      <td><a href="#variable-vxmax">vxmax</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Input specified nroots to follow.</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-use_map">
-      <td><a href="#variable-use_map">use_map</a></td>
-      <td>logical</td>
+              <tr id="variable-vymin">
+      <td><a href="#variable-vymin">vymin</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Determines method for selecting initial solutions.
-T-&gt; Use map routine to determine solutions in defined regions of complex frequency space.
-    Map parameters determined by &amp;maps list in <em>.in file.
-F-&gt; Read nroot_max initial guesses for complex frequency solutions.
-    Guesses determined by &amp;guess_N lists in </em>.in file.</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-low_n">
-      <td><a href="#variable-low_n">low_n</a></td>
-      <td>logical</td>
-      <td>.true.</td>
-      <td><p>Toggle on low-n susceptibility suplementary calculation.</p></td>
-    </tr>
-
-              <tr id="variable-new_low_n">
-      <td><a href="#variable-new_low_n">new_low_n</a></td>
-      <td>logical</td>
-      <td>.true.</td>
-      <td><p>Flag to use Revised low_n for LD/TTD separation. This modifies the Collisionless Power Absorption Calculation! IF TRUE THEN low_n MUST BE TRUE TOO! (GGH: 1/18/23)</p></td>
-    </tr>
-
-              <tr id="variable-writeout">
-      <td><a href="#variable-writeout">writeOut</a></td>
-      <td>logical</td>
+              <tr id="variable-vymax">
+      <td><a href="#variable-vymax">vymax</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Enables or suppressed output to screen.</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-dataname">
-      <td><a href="#variable-dataname">dataName</a></td>
-      <td>character(len=100)</td>
+              <tr id="variable-vzmin">
+      <td><a href="#variable-vzmin">vzmin</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Data Subdirectory where output is stored.</p></td>
+      <td></td>
     </tr>
 
-              <tr id="variable-outputname">
-      <td><a href="#variable-outputname">outputName</a></td>
-      <td>character(len=100)</td>
+              <tr id="variable-vzmax">
+      <td><a href="#variable-vzmax">vzmax</a></td>
+      <td>real</td>
       <td>None</td>
-      <td><p>Common name string for output files.</p></td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-elecdircontribution~2">
+      <td><a href="#variable-elecdircontribution~2">elecdircontribution</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td></td>
     </tr>
 
       </tbody>

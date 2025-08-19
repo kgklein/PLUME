@@ -1,0 +1,883 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>compute_fpc_gyro &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>compute_fpc_gyro
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="15.1% of total for procedures.">326 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/fpc.html'>fpc</a></li>
+            <li class="breadcrumb-item active" aria-current="page">compute_fpc_gyro</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine compute_fpc_gyro(wrootindex)  
+</h2>
+        <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item">disprels</li>
+                  <li class="list-inline-item"><a href='../module/vars.html'>vars</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compute_fpc_gyro~~UsesGraph Pages: 1 -->
+<svg id="proccompute_fpc_gyroUsesGraph" width="208pt" height="74pt"
+ viewBox="0.00 0.00 208.00 74.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compute_fpc_gyro~~UsesGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 70)">
+<title>proc~~compute_fpc_gyro~~UsesGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-70 204,-70 204,4 -4,4"/>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~compute_fpc_gyro~~UsesGraph_node1" class="node">
+<title>proc~compute_fpc_gyro</title>
+<polygon fill="none" stroke="black" points="200,-45 90,-45 90,-21 200,-21 200,-45"/>
+<text text-anchor="middle" x="145" y="-30.6" font-family="Helvetica,sans-Serif" font-size="10.50">compute_fpc_gyro</text>
+</g>
+<!-- disprels -->
+<g id="proc~~compute_fpc_gyro~~UsesGraph_node2" class="node">
+<title>disprels</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-66 0,-66 0,-42 54,-42 54,-66"/>
+<text text-anchor="middle" x="27" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disprels</text>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;disprels -->
+<g id="proc~~compute_fpc_gyro~~UsesGraph_edge1" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;disprels</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M89.74,-42.82C81.03,-44.4 72.21,-46 64.07,-47.47"/>
+<polygon fill="#000000" stroke="#000000" points="63.39,-44.04 54.17,-49.26 64.64,-50.92 63.39,-44.04"/>
+</g>
+<!-- module~vars -->
+<g id="proc~~compute_fpc_gyro~~UsesGraph_node3" class="node">
+<title>module~vars</title>
+<g id="a_proc~~compute_fpc_gyro~~UsesGraph_node3"><a xlink:href="../module/vars.html" xlink:title="vars">
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vars</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;module~vars -->
+<g id="proc~~compute_fpc_gyro~~UsesGraph_edge2" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M89.74,-23.18C81.03,-21.6 72.21,-20 64.07,-18.53"/>
+<polygon fill="#000000" stroke="#000000" points="64.64,-15.08 54.17,-16.74 63.39,-21.96 64.64,-15.08"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <p>Computes the FPC associated with the linear fs1 and eigenfunction
+response on a square cartesian grid and writes fs1 and FPC to file</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-wrootindex~2"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>wrootindex</strong></td>
+            <td>
+                <p>index of selected root</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compute_fpc_gyro~~CallsGraph Pages: 1 -->
+<svg id="proccompute_fpc_gyroCallsGraph" width="641pt" height="200pt"
+ viewBox="0.00 0.00 641.00 200.09" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compute_fpc_gyro~~CallsGraph" class="graph" transform="scale(0.67 0.67) rotate(0) translate(4 295.04)">
+<title>proc~~compute_fpc_gyro~~CallsGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-295.04 954,-295.04 954,4 -4,4"/>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node1" class="node">
+<title>proc~compute_fpc_gyro</title>
+<polygon fill="none" stroke="black" points="110,-110.04 0,-110.04 0,-86.04 110,-86.04 110,-110.04"/>
+<text text-anchor="middle" x="55" y="-95.64" font-family="Helvetica,sans-Serif" font-size="10.50">compute_fpc_gyro</text>
+</g>
+<!-- calc_eigen -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node2" class="node">
+<title>calc_eigen</title>
+<polygon fill="#777777" stroke="#777777" points="230,-194.04 160,-194.04 160,-170.04 230,-170.04 230,-194.04"/>
+<text text-anchor="middle" x="195" y="-179.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;calc_eigen -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge1" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;calc_eigen</title>
+<path fill="none" stroke="#000000" d="M71.31,-110.18C88.75,-123.65 118.39,-145.54 146,-161.04 148.82,-162.62 151.77,-164.17 154.78,-165.66"/>
+<polygon fill="#000000" stroke="#000000" points="153.31,-168.83 163.85,-169.94 156.3,-162.51 153.31,-168.83"/>
+</g>
+<!-- proc~calc_fs1 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node3" class="node">
+<title>proc~calc_fs1</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node3"><a xlink:href="../proc/calc_fs1.html" xlink:title="calc_fs1">
+<polygon fill="#d9534f" stroke="#d9534f" points="222.5,-152.04 167.5,-152.04 167.5,-128.04 222.5,-128.04 222.5,-152.04"/>
+<text text-anchor="middle" x="195" y="-137.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_fs1</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~calc_fs1 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge2" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~calc_fs1</title>
+<path fill="none" stroke="#000000" d="M95.55,-110.07C114.99,-115.99 138.27,-123.08 157.32,-128.87"/>
+<polygon fill="#000000" stroke="#000000" points="156.54,-132.3 167.13,-131.86 158.58,-125.6 156.54,-132.3"/>
+</g>
+<!-- proc~check_nbesmax -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node4" class="node">
+<title>proc~check_nbesmax</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node4"><a xlink:href="../proc/check_nbesmax.html" xlink:title="check_nbesmax">
+<polygon fill="#d9534f" stroke="#d9534f" points="244,-110.04 146,-110.04 146,-86.04 244,-86.04 244,-110.04"/>
+<text text-anchor="middle" x="195" y="-95.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_nbesmax</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~check_nbesmax -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge3" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~check_nbesmax</title>
+<path fill="none" stroke="#000000" d="M110.15,-98.04C118.52,-98.04 127.2,-98.04 135.66,-98.04"/>
+<polygon fill="#000000" stroke="#000000" points="135.84,-101.54 145.84,-98.04 135.84,-94.54 135.84,-101.54"/>
+</g>
+<!-- proc~fs0hat -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node5" class="node">
+<title>proc~fs0hat</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node5"><a xlink:href="../proc/fs0hat.html" xlink:title="fs0hat">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="222,-68.04 168,-68.04 168,-44.04 222,-44.04 222,-68.04"/>
+<text text-anchor="middle" x="195" y="-53.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fs0hat</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~fs0hat -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge4" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~fs0hat</title>
+<path fill="none" stroke="#000000" d="M95.55,-86C115.35,-79.98 139.14,-72.74 158.37,-66.88"/>
+<polygon fill="#000000" stroke="#000000" points="159.42,-70.22 167.97,-63.96 157.38,-63.52 159.42,-70.22"/>
+</g>
+<!-- rtsec -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node6" class="node">
+<title>rtsec</title>
+<polygon fill="#777777" stroke="#777777" points="222,-26.04 168,-26.04 168,-2.04 222,-2.04 222,-26.04"/>
+<text text-anchor="middle" x="195" y="-11.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rtsec</text>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;rtsec -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge5" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;rtsec</title>
+<path fill="none" stroke="#000000" d="M71.31,-85.9C88.75,-72.43 118.39,-50.54 146,-35.04 149.99,-32.8 154.26,-30.63 158.56,-28.59"/>
+<polygon fill="#000000" stroke="#000000" points="160.23,-31.67 167.88,-24.35 157.33,-25.3 160.23,-31.67"/>
+</g>
+<!-- proc~bess0_s_prime -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node7" class="node">
+<title>proc~bess0_s_prime</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node7"><a xlink:href="../proc/bess0_s_prime.html" xlink:title="bess0_s_prime">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="371,-172.04 280,-172.04 280,-148.04 371,-148.04 371,-172.04"/>
+<text text-anchor="middle" x="325.5" y="-157.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bess0_s_prime</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_fs1&#45;&gt;proc~bess0_s_prime -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge6" class="edge">
+<title>proc~calc_fs1&#45;&gt;proc~bess0_s_prime</title>
+<path fill="none" stroke="#000000" d="M222.63,-144.18C236.32,-146.31 253.54,-148.99 269.91,-151.54"/>
+<polygon fill="#000000" stroke="#000000" points="269.53,-155.02 279.95,-153.1 270.6,-148.11 269.53,-155.02"/>
+</g>
+<!-- proc~bessj_s -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node8" class="node">
+<title>proc~bessj_s</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node8"><a xlink:href="../proc/bessj_s.html" xlink:title="bessj_s">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="461,-152.04 407,-152.04 407,-128.04 461,-128.04 461,-152.04"/>
+<text text-anchor="middle" x="434" y="-137.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj_s</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_fs1&#45;&gt;proc~bessj_s -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge7" class="edge">
+<title>proc~calc_fs1&#45;&gt;proc~bessj_s</title>
+<path fill="none" stroke="#000000" d="M222.86,-139.64C239.35,-139.41 260.89,-139.15 280,-139.04 320.44,-138.8 330.56,-138.71 371,-139.04 379.25,-139.11 388.12,-139.22 396.49,-139.35"/>
+<polygon fill="#000000" stroke="#000000" points="396.7,-142.86 406.76,-139.52 396.81,-135.86 396.7,-142.86"/>
+</g>
+<!-- proc~bess0_s_prime&#45;&gt;proc~bessj_s -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge8" class="edge">
+<title>proc~bess0_s_prime&#45;&gt;proc~bessj_s</title>
+<path fill="none" stroke="#000000" d="M371.05,-151.67C379.63,-150.06 388.51,-148.39 396.78,-146.84"/>
+<polygon fill="#000000" stroke="#000000" points="397.68,-150.23 406.87,-144.95 396.39,-143.35 397.68,-150.23"/>
+</g>
+<!-- proc~bessj0 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node9" class="node">
+<title>proc~bessj0</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node9"><a xlink:href="../proc/bessj0.html" xlink:title="bessj0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="551,-173.04 497,-173.04 497,-149.04 551,-149.04 551,-173.04"/>
+<text text-anchor="middle" x="524" y="-158.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj0</text>
+</a>
+</g>
+</g>
+<!-- proc~bessj_s&#45;&gt;proc~bessj0 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge9" class="edge">
+<title>proc~bessj_s&#45;&gt;proc~bessj0</title>
+<path fill="none" stroke="#000000" d="M461.4,-146.34C469.48,-148.27 478.51,-150.42 487.1,-152.47"/>
+<polygon fill="#000000" stroke="#000000" points="486.38,-155.9 496.92,-154.81 488,-149.09 486.38,-155.9"/>
+</g>
+<!-- proc~bessj1 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node10" class="node">
+<title>proc~bessj1</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node10"><a xlink:href="../proc/bessj1.html" xlink:title="bessj1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="551,-131.04 497,-131.04 497,-107.04 551,-107.04 551,-131.04"/>
+<text text-anchor="middle" x="524" y="-116.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj1</text>
+</a>
+</g>
+</g>
+<!-- proc~bessj_s&#45;&gt;proc~bessj1 -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge10" class="edge">
+<title>proc~bessj_s&#45;&gt;proc~bessj1</title>
+<path fill="none" stroke="#000000" d="M461.4,-133.74C469.48,-131.81 478.51,-129.66 487.1,-127.6"/>
+<polygon fill="#000000" stroke="#000000" points="488,-130.99 496.92,-125.26 486.38,-124.18 488,-130.99"/>
+</g>
+<!-- interface~poly -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node11" class="node">
+<title>interface~poly</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node11"><a xlink:href="../interface/poly.html" xlink:title="poly">
+<polygon fill="#a7506f" stroke="#a7506f" points="641,-152.04 587,-152.04 587,-128.04 641,-128.04 641,-152.04"/>
+<text text-anchor="middle" x="614" y="-137.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly</text>
+</a>
+</g>
+</g>
+<!-- proc~bessj0&#45;&gt;interface~poly -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge11" class="edge">
+<title>proc~bessj0&#45;&gt;interface~poly</title>
+<path fill="none" stroke="#000000" d="M551.4,-154.74C559.48,-152.81 568.51,-150.66 577.1,-148.6"/>
+<polygon fill="#000000" stroke="#000000" points="578,-151.99 586.92,-146.26 576.38,-145.18 578,-151.99"/>
+</g>
+<!-- proc~bessj1&#45;&gt;interface~poly -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge12" class="edge">
+<title>proc~bessj1&#45;&gt;interface~poly</title>
+<path fill="none" stroke="#000000" d="M551.4,-125.34C559.48,-127.27 568.51,-129.42 577.1,-131.47"/>
+<polygon fill="#000000" stroke="#000000" points="576.38,-134.9 586.92,-133.81 578,-128.09 576.38,-134.9"/>
+</g>
+<!-- proc~poly_cc -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node12" class="node">
+<title>proc~poly_cc</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node12"><a xlink:href="../proc/poly_cc.html" xlink:title="poly_cc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="747.5,-291.04 693.5,-291.04 693.5,-267.04 747.5,-267.04 747.5,-291.04"/>
+<text text-anchor="middle" x="720.5" y="-276.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_cc</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_cc -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge13" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_cc</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M619.26,-152.21C627.51,-174.43 647.5,-222.11 677,-253.04 679.81,-255.98 683.02,-258.72 686.39,-261.23"/>
+<polygon fill="#000000" stroke="#000000" points="684.71,-264.32 694.96,-266.99 688.61,-258.51 684.71,-264.32"/>
+</g>
+<!-- proc~poly_dd -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node13" class="node">
+<title>proc~poly_dd</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node13"><a xlink:href="../proc/poly_dd.html" xlink:title="poly_dd">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="950,-231.04 896,-231.04 896,-207.04 950,-207.04 950,-231.04"/>
+<text text-anchor="middle" x="923" y="-216.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_dd</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_dd -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge14" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_dd</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M622.78,-152.07C633.18,-167.02 653.08,-192.03 677,-204.04 744.55,-237.96 836.12,-232.07 885.99,-225.26"/>
+<polygon fill="#000000" stroke="#000000" points="886.58,-228.71 895.97,-223.81 885.57,-221.78 886.58,-228.71"/>
+</g>
+<!-- proc~poly_ddv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node14" class="node">
+<title>proc~poly_ddv</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node14"><a xlink:href="../proc/poly_ddv.html" xlink:title="poly_ddv">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="860,-211.04 800,-211.04 800,-187.04 860,-187.04 860,-211.04"/>
+<text text-anchor="middle" x="830" y="-196.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_ddv</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_ddv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge15" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_ddv</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M628.68,-152.21C640.56,-162.03 658.7,-175.29 677,-182.04 713.6,-195.54 758.24,-199.14 789.65,-199.76"/>
+<polygon fill="#000000" stroke="#000000" points="789.72,-203.26 799.76,-199.87 789.8,-196.26 789.72,-203.26"/>
+</g>
+<!-- proc~poly_msk_ddv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node15" class="node">
+<title>proc~poly_msk_ddv</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node15"><a xlink:href="../proc/poly_msk_ddv.html" xlink:title="poly_msk_ddv">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="764,-173.04 677,-173.04 677,-149.04 764,-149.04 764,-173.04"/>
+<text text-anchor="middle" x="720.5" y="-158.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_msk_ddv</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_msk_ddv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge16" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_msk_ddv</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M641.1,-145.28C648.92,-146.85 657.79,-148.64 666.68,-150.42"/>
+<polygon fill="#000000" stroke="#000000" points="666.18,-153.89 676.68,-152.43 667.56,-147.03 666.18,-153.89"/>
+</g>
+<!-- proc~poly_msk_rrv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node16" class="node">
+<title>proc~poly_msk_rrv</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node16"><a xlink:href="../proc/poly_msk_rrv.html" xlink:title="poly_msk_rrv">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="761.5,-131.04 679.5,-131.04 679.5,-107.04 761.5,-107.04 761.5,-131.04"/>
+<text text-anchor="middle" x="720.5" y="-116.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_msk_rrv</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_msk_rrv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge17" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_msk_rrv</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M641.1,-134.79C649.63,-133.08 659.4,-131.12 669.09,-129.17"/>
+<polygon fill="#000000" stroke="#000000" points="669.99,-132.56 679.11,-127.16 668.61,-125.69 669.99,-132.56"/>
+</g>
+<!-- proc~poly_rc -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node17" class="node">
+<title>proc~poly_rc</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node17"><a xlink:href="../proc/poly_rc.html" xlink:title="poly_rc">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="747.5,-89.04 693.5,-89.04 693.5,-65.04 747.5,-65.04 747.5,-89.04"/>
+<text text-anchor="middle" x="720.5" y="-74.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_rc</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_rc -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge18" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_rc</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M631.44,-128C643.71,-119.23 661.04,-107.33 677,-98.04 679.47,-96.6 682.05,-95.17 684.66,-93.77"/>
+<polygon fill="#000000" stroke="#000000" points="686.31,-96.85 693.58,-89.14 683.09,-90.64 686.31,-96.85"/>
+</g>
+<!-- proc~poly_rr -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node18" class="node">
+<title>proc~poly_rr</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node18"><a xlink:href="../proc/poly_rr.html" xlink:title="poly_rr">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="950,-31.04 896,-31.04 896,-7.04 950,-7.04 950,-31.04"/>
+<text text-anchor="middle" x="923" y="-16.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_rr</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_rr -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge19" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_rr</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M617.88,-127.89C624.13,-104.45 641.37,-53.25 677,-30.04 740.75,11.49 834.87,0.4 885.9,-10.08"/>
+<polygon fill="#000000" stroke="#000000" points="885.3,-13.53 895.82,-12.22 886.78,-6.69 885.3,-13.53"/>
+</g>
+<!-- proc~poly_rrv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_node19" class="node">
+<title>proc~poly_rrv</title>
+<g id="a_proc~~compute_fpc_gyro~~CallsGraph_node19"><a xlink:href="../proc/poly_rrv.html" xlink:title="poly_rrv">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="857.5,-51.04 802.5,-51.04 802.5,-27.04 857.5,-27.04 857.5,-51.04"/>
+<text text-anchor="middle" x="830" y="-36.64" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">poly_rrv</text>
+</a>
+</g>
+</g>
+<!-- interface~poly&#45;&gt;proc~poly_rrv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge20" class="edge">
+<title>interface~poly&#45;&gt;proc~poly_rrv</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M620.1,-127.8C628.72,-108.81 648.11,-72.7 677,-56.04 712.13,-35.78 759.45,-33.64 791.9,-35.21"/>
+<polygon fill="#000000" stroke="#000000" points="792.1,-38.73 802.3,-35.87 792.54,-31.75 792.1,-38.73"/>
+</g>
+<!-- proc~poly_ddv&#45;&gt;proc~poly_dd -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge21" class="edge">
+<title>proc~poly_ddv&#45;&gt;proc~poly_dd</title>
+<path fill="none" stroke="#000000" d="M860.04,-205.42C868.27,-207.23 877.32,-209.22 885.91,-211.11"/>
+<polygon fill="#000000" stroke="#000000" points="885.18,-214.53 895.7,-213.26 886.68,-207.69 885.18,-214.53"/>
+</g>
+<!-- proc~poly_msk_ddv&#45;&gt;proc~poly_ddv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge22" class="edge">
+<title>proc~poly_msk_ddv&#45;&gt;proc~poly_ddv</title>
+<path fill="none" stroke="#000000" d="M755.51,-173.06C766.55,-176.96 778.88,-181.32 790.24,-185.34"/>
+<polygon fill="#000000" stroke="#000000" points="789.31,-188.72 799.91,-188.76 791.65,-182.12 789.31,-188.72"/>
+</g>
+<!-- proc~poly_msk_rrv&#45;&gt;proc~poly_rrv -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge23" class="edge">
+<title>proc~poly_msk_rrv&#45;&gt;proc~poly_rrv</title>
+<path fill="none" stroke="#000000" d="M748.66,-107.03C753.9,-104.32 759.24,-101.28 764,-98.04 780.9,-86.53 797.94,-70.88 810.33,-58.59"/>
+<polygon fill="#000000" stroke="#000000" points="812.85,-61.01 817.4,-51.44 807.88,-56.09 812.85,-61.01"/>
+</g>
+<!-- proc~poly_rrv&#45;&gt;proc~poly_rr -->
+<g id="proc~~compute_fpc_gyro~~CallsGraph_edge24" class="edge">
+<title>proc~poly_rrv&#45;&gt;proc~poly_rr</title>
+<path fill="none" stroke="#000000" d="M857.81,-33.15C866.59,-31.22 876.49,-29.04 885.84,-26.99"/>
+<polygon fill="#000000" stroke="#000000" points="886.68,-30.39 895.69,-24.82 885.18,-23.55 886.68,-30.39"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccompute_fpc_gyroCallsGraph = svgPanZoom('#proccompute_fpc_gyroCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: proc~~compute_fpc_gyro~~CalledByGraph Pages: 1 -->
+<svg id="proccompute_fpc_gyroCalledByGraph" width="208pt" height="32pt"
+ viewBox="0.00 0.00 208.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~compute_fpc_gyro~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>proc~~compute_fpc_gyro~~CalledByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 204,-28 204,4 -4,4"/>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~compute_fpc_gyro~~CalledByGraph_node1" class="node">
+<title>proc~compute_fpc_gyro</title>
+<polygon fill="none" stroke="black" points="200,-24 90,-24 90,0 200,0 200,-24"/>
+<text text-anchor="middle" x="145" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">compute_fpc_gyro</text>
+</g>
+<!-- program~plume -->
+<g id="proc~~compute_fpc_gyro~~CalledByGraph_node2" class="node">
+<title>program~plume</title>
+<g id="a_proc~~compute_fpc_gyro~~CalledByGraph_node2"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_gyro -->
+<g id="proc~~compute_fpc_gyro~~CalledByGraph_edge1" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_gyro</title>
+<path fill="none" stroke="#000000" d="M54.03,-12C61.7,-12 70.45,-12 79.42,-12"/>
+<polygon fill="#000000" stroke="#000000" points="79.58,-15.5 89.58,-12 79.58,-8.5 79.58,-15.5"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 27.51" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.86 0.86) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 741.5,-28 741.5,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="70,-24 0,-24 0,0 70,0 70,-24"/>
+<text text-anchor="middle" x="35" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="146,-24 88,-24 88,0 146,0 146,-24"/>
+<text text-anchor="middle" x="117" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="225.5,-24 164.5,-24 164.5,0 225.5,0 225.5,-24"/>
+<text text-anchor="middle" x="195" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="374,-24 244,-24 244,0 374,0 374,-24"/>
+<text text-anchor="middle" x="309" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="537.5,-24 392.5,-24 392.5,0 537.5,0 537.5,-24"/>
+<text text-anchor="middle" x="465" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="614,-24 556,-24 556,0 614,0 614,-24"/>
+<text text-anchor="middle" x="585" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="737.5,-24 632.5,-24 632.5,0 737.5,0 737.5,-24"/>
+<text text-anchor="middle" x="685" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="description" content="Documentation for PLUME">
-    <meta name="author" content="Kristopher Klein, Gregory Howes" >
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
     <link rel="icon" href="./favicon.png">
 
     <title> PLUME </title>
@@ -102,7 +102,7 @@
 <p><img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
 <img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/></p>
 <p>PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
-relation in hot (even relativistic) magnetised plasma. </p>
+relation in hot (even relativistic) magnetised plasma.</p>
 <p>If you use the code for a science publication, please provide the code website
 <a href="https://github.com/kgklein/PLUME">github.com/kgklein/PLUME</a> in the acknowledgements of your publication, and cite the code:</p>
 <div class="codehilite"><pre><span></span><code><span class="nv">@software</span><span class="err">{</span><span class="n">PLUME_2025</span><span class="p">,</span>
@@ -122,18 +122,26 @@ relation in hot (even relativistic) magnetised plasma. </p>
 <a href="https://iopscience.iop.org/article/10.3847/2515-5172/add1c2">Klein, K. G., Howes, G. G.,
 and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025</a></p>
 <p>Publications using the PLUME code can be found in our <a href="https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg">NASA ADS Library</a>.</p>
-<hr>
 <p>For first-time users, we recommend working through our <a href="./page/tutorial.html">PLUME Tutorial</a>.</p>
 <p>The key input parameters for PLUME are described on the <a href="./page/input.html">PLUME Input</a> page.</p>
 <p>The output format of PLUME is described on the <a href="./page/output.html">PLUME Output</a> page.</p>
+<h2>Judging Energy Transfer in a - Plasma in a Linear Uniform Magnetized Environment</h2>
+<p><img src="./page/Jet-Plume_Logo.svg" alt="JetPlumeLogoDrawing" width="200"/></p>
+<p>JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the <a href="./page/README-JETPLUME.html">README for JET-PLUME</a>.</p>
+<p>JET-PLUME is operated in a similar manner to PLUME, either using command line or the python wrapper. See Section 4 above on how to operate and <a href="./README-JETPLUME.html">README for JET-PLUME</a> for the additional inputs.</p>
+<p>Details</p>
+<p>If you use this code for a science publication, please provide the same code website as plume
+<a href="https://github.com/kgklein/PLUME">github.com/kgklein/PLUME</a> in the acknowledgements of your publication and cite the code paper for JET-PLUME: ...</p>
+<h2>Python wrapper (linfpclib)</h2>
+<p>With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the <a href="./page/examplelinfpc.html">example notebook</a> to see the key features of this wrapper. The use of the wrapper is entirely optional. NOTE: Please create and run notebooks from the main directory of the repository. This is necessary because the notebooks import key functions directly from the linfpclib module located there.</p>
         </div>
           <div class="col-md-4">
             <div class="card card-body bg-light">
               <h2 class="card-title">Developer Info</h2>
-              <h4 class="card-text">Kristopher Klein, Gregory Howes</h4>
+              <h4 class="card-text">Kristopher Klein, Gregory Howes, Collin Brown</h4>
               <p class="card-text"></p>
                 <div class="text-center"><div class="btn-group" role="group">
-                      <a class="btn btn-lg btn-primary" href="mailto:kgklein@arizona.edu, gregory-howes@uiowa.edu"><i class="fa fa-envelope fa-lg"></i></a>
+                      <a class="btn btn-lg btn-primary" href="mailto:kgklein@arizona.edu, gregory-howes@uiowa.edu, collin.crbrown@gmail.com"><i class="fa fa-envelope fa-lg"></i></a>
                     
                     
                     
@@ -151,7 +159,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col-xs-6 col-sm-4">
             <div>
               <h3>Modules</h3>
-              <ul><li><a href='module/bessels.html'>bessels</a></li><li><a href='module/functions.html'>functions</a></li><li><a href='module/nrtype.html'>nrtype</a></li><li><a href='module/nrutil_trim.html'>nrutil_trim</a></li><li><a href='module/vars.html'>vars</a></li></ul>
+              <ul><li><a href='module/bessels.html'>bessels</a></li><li><a href='module/fpc.html'>fpc</a></li><li><a href='module/functions.html'>functions</a></li><li><a href='module/nrtype.html'>nrtype</a></li><li><a href='module/nrutil_trim.html'>nrutil_trim</a></li><li><a href='module/vars.html'>vars</a></li></ul>
             </div>
             <div>
               <ul>
@@ -162,7 +170,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col-xs-6 col-sm-4">
             <div>
               <h3>Procedures</h3>
-              <ul><li><a href='interface/assert.html'>assert</a></li><li><a href='proc/assert1.html'>assert1</a></li><li><a href='proc/assert2.html'>assert2</a></li><li><a href='proc/assert3.html'>assert3</a></li><li><a href='proc/assert4.html'>assert4</a></li><li><a href='proc/assert_v.html'>assert_v</a></li><li><a href='proc/bessim.html'>bessim</a></li><li><a href='proc/bessim0.html'>bessim0</a></li><li><a href='proc/bessim1.html'>bessim1</a></li><li><a href='proc/get_indexed_namelist_unit.html'>get_indexed_namelist_unit</a></li></ul>
+              <ul><li><a href='interface/assert.html'>assert</a></li><li><a href='proc/assert1.html'>assert1</a></li><li><a href='proc/assert2.html'>assert2</a></li><li><a href='proc/assert3.html'>assert3</a></li><li><a href='proc/assert4.html'>assert4</a></li><li><a href='proc/assert_v.html'>assert_v</a></li><li><a href='proc/bess0_s_prime.html'>bess0_s_prime</a></li><li><a href='proc/bessim.html'>bessim</a></li><li><a href='proc/bessim0.html'>bessim0</a></li><li><a href='proc/bessim1.html'>bessim1</a></li></ul>
             </div>
             <div>
               <ul>
@@ -190,7 +198,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col">
             <p>
               PLUME
- was developed by Kristopher Klein, Gregory Howes<br>              &copy; 2025 
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2025 
 </p>
           </div>
           <div class="col">
