@@ -1149,6 +1149,8 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
 
 def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = False, use_ps_split_new=True):
 
+    #use_ps_split_new is another name for use_new_low_n
+
     #Attempts to figure out what is output based on the number of values in a line-> Technically not possible
     # for all values of nspec given there exists a least common multiple where nspec*(num_additional_elements_if_eigen_is_true_and_new_low_n_is_false) = nspec^prime(num_additional_elements_if_both_are_true)
     # where nspec != nspec^prime
@@ -1156,7 +1158,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
     #verbose is currently not used....
 
     if(use_ps_split_new == False):
-        print("Warning- the most current version of PLUME forces use_ps_split_new=True now!")
+        print("Warning- the most current version of PLUME forces use_ps_split_new=True now! use_ps_split_new=False is not supported by this function at present.")
         return
 
     nspec = int(round(nspec)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
@@ -1198,25 +1200,24 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                 eigen = True
                 heating = False
                 nspec = int(round((nline - 18)/(8+6))) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
-                
                 noutperspec = 8 #note this is the *additional* number of output per spec accounting for the 6 that is always there
 
             elif((nline - 6) % (7+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = False
                 heating = True
-                nspec = int(round(nline - 6)/(7+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 6)  / (7+6)))   # eigen=False, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 7
 
             elif((nline - 18) % (15+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = True
                 heating = True
-                nspec = int(round(nline - 18)/(15+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 18) / (15+6)))  # eigen=True, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 15
 
             elif((nline - 6) % (6) == 0):
                 eigen = False
                 heating = False
-                nspec = int(round(nline - 6)/(6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 6)  / 6))       # eigen=False, heat=False #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 0
 
             else:
@@ -1367,7 +1368,6 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
 
     for key in plume_sweep.keys():
             plume_sweep[key] = np.asarray(plume_sweep[key])
-
 
     return plume_sweep
 
