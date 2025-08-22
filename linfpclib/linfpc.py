@@ -438,7 +438,6 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
-    print("debug ",plume_input.dataname)
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
