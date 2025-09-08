@@ -32,17 +32,17 @@ dataName='example'
 outputName='map_par'
 /
 
-!The reference component
+!The reference species/component
 &species_1
-tauS=1.0
-muS=1.0
-alphS=1.0 !T_perp/T_par|ref
-Qs=1.0
-Ds=1.0
-vvS=0.0
+tauS=1.0 !T_par,ref/T_par,ref = 1
+muS=1.0 !m_ref/m_ref = 1
+alphS=1.0 !T_perp/T_par|ref (does not have to be unity)
+Qs=1.0 !q_ref/q_ref = 1
+Ds=1.0 !n_ref/n_ref = 1
+vvS=0.0 !v_ref,drift/v_A,ref; determines frame of solution.
 /
 
-!The second component
+!The second species/component
 &species_2
 tauS=1.0 !T_par,ref/T_par,s
 muS=1836.0 !m_ref/m_s
