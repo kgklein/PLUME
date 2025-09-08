@@ -55,11 +55,14 @@ Choice of:
 
 **`low_n`**  
 Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels. *As made redundant by `new_low_n`, slated from removal.*
+characterizing heating channels. Separates Landau, Transit, and Cyclotron damping.
+This follows [Huang et al 2024 JPP](https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/velocityspace-signature-of-transittime-damping/60F34E118AFFC3701071477C52A81174) and is expressed in Sec. 5 of [Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2).
 
 **`new_low_n`**  
-*New* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels; correctly separates Landau, Transit, and Cyclotron damping.
+*Depricated* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
+characterizing heating channels. Previous had multiple versions of the low n susceptability calculation. As we are only using Eqns. 39,40, and 41 from [Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2), this logical flag is unnecessary.
 
 **`writeOut`**  
 Write or suppress output to screen.

@@ -1,5 +1,7 @@
 #Plotting Routine, *.plt
-input='unstable_check'
+#input='example_map'
+
+input='example_kpar'
 
 #Run the plotting routine.
 #Requires a local installation of gnuplot
@@ -25,6 +27,7 @@ do
 done
 
 #You don't need those extra files.
+rm -f *-inc-eps-converted-to.pdf
 rm -f *.log
 rm -f *.eps
 rm -f *.aux

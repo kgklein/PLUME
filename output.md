@@ -110,9 +110,9 @@ where `j` ranges from 1 to `nspec`.
 The normalization follows Eqns. 33-37 in [Klein, K. G., Howes, G. G.,
 and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
-If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `new_low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 `nspec`+1st column.
+If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 `nspec`+1st column.
 
-If `new_low_n` is true, we have
+If `low_n` is true, we have
 
 - 18+(8-6{!eigen})`nspec`+j. $P_j$
 - 18+(9-6{!eigen})`nspec`+j. $P_j^{yy}$ (Transit Time Damping term 1).
@@ -131,6 +131,10 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+
+![Table for output column numbering for a two-component plasma.](data/PLUME-Output-Table.svg)
+
+![Table for output column numbering for a three-component plasma.](data/PLUME-Output-Table-2.svg)
 
 This same data structure is preserved for the output from `om_double_scan`.
 The file naming convention will include a value of *param* from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.

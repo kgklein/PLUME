@@ -46,7 +46,7 @@ contains
     !!$ ./plume.e example.in
       use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc, option, writeOut
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
-      use vars, only: low_n, susc_low, new_low_n
+      use vars, only: low_n, susc_low
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
       implicit none
@@ -63,7 +63,7 @@ contains
       !Read in the basic parameter list.
       nameList /params/ &
          betap, kperp, kpar, vtp, nspec, nscan, option, nroot_max, &
-         use_map, low_n, new_low_n, &
+         use_map, low_n, &
          writeOut, dataName, outputName
 
       nameList /fpc/ &

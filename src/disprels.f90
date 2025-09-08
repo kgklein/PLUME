@@ -643,7 +643,6 @@ subroutine om_scan(is)
   !! Calculate solutions as a function of the variation of
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
-  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use vars, only : kperp,kpar,betap,vtp,spec,writeOut,susc
   use functions, only : get_unused_unit
   
@@ -920,25 +919,13 @@ subroutine om_scan(is)
            select case(out_type)
            case(0)!Om, Eigen, Heating
               if (low_n) then
-                               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
+                 !>>>GGH: 1/18/23
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                       Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                       params(1:6,1:nspec)
-              else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -956,22 +943,11 @@ subroutine om_scan(is)
            case(2) !Om, Heating
               if (low_n) then
                  !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                       params(1:6,1:nspec)
-              else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -1033,7 +1009,6 @@ subroutine om_double_scan
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
-  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use functions, only : get_unused_unit
   implicit none
   
@@ -1368,24 +1343,18 @@ subroutine om_double_scan
                  case(0) !Om, Eigen, Heating                    
                     if (low_n) then
                        !>>>GGH: 1/18/23
-                       if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                                Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                                params(1:6,1:nspec)
-                       else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                                Ps(1:nspec),Ps_split(1:4,1:nspec),&
                                params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
-                       endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -1403,22 +1372,16 @@ subroutine om_double_scan
                  case(2) !Om, Heating
                     if (low_n) then
                        !>>>GGH: 1/18/23
-                       if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
                                params(1:6,1:nspec)
-                       else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                Ps(1:nspec),Ps_split(1:4,1:nspec),&
                                params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
-                       endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -2138,7 +2101,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   !!  Calculates the electric and magnetic fields as well as species
   !!     velocities and density fluctuations for identified wave 
   !!     as well as the power emission or absorption.
-  use vars, only : new_low_n
 !<<<GGH: 1/18/23
   use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
   implicit none
@@ -2359,7 +2321,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
      !LD, TTD, and CD calculation
      if (low_n) then
      !>>>GGH: 1/18/23
-     if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
+     !Greg's New low_n calculation to separate LD/TTD
        !N=0
         do ii = 1, 3 !tensor index
            do j = 1, 3 !tensor index
@@ -2429,87 +2391,6 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
         !Normalization             
         Ps_split_new = Ps_split_new/ewave
         
-     else  !Old version of low_n using Stix/Quataert version of LD/TTD separation
-        !<<<GGH: 1/18/23        
-        !N=0
-        do ii = 1, 3 !tensor index
-           do j = 1, 3 !tensor index
-              do jj = 1, nspec !species index
-                 susca(jj,ii,j) = -0.5*cmplx(0.,1.)* &
-                      (susc_low(jj,ii,j,0) - conjg(susc_low(jj,j,ii,0)))
-              enddo
-           enddo
-        enddo
-        
-        !LANDAU DAMPING
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = conjg(electric(3))*susca(jj,3,ii)
-           enddo
-        enddo        
-        Ps_split(1,:) = 0.
-        do jj = 1, nspec
-           Ps_split(1,jj) = term(jj,3)*electric(3)
-        enddo
-
-        !Transit Time Damping
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = conjg(electric(2))*susca(jj,2,ii)
-           enddo
-        enddo        
-        Ps_split(2,:) = 0.
-        do jj = 1, nspec
-           Ps_split(2,jj) = term(jj,2)*electric(2)
-        enddo
-     
-        !Total n=0 terms
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
-           enddo
-        enddo        
-        Ps_split(3,:) = 0.
-        do jj = 1, nspec
-           Ps_split(3,jj) = sum(term(jj,:)*electric(:))
-        enddo
-
-        !N=1
-        do ii = 1, 3 !tensor index
-           do j = 1, 3 !tensor index
-              do jj = 1, nspec !species index
-                 susca(jj,ii,j) = -0.5*cmplx(0.,1.)* &
-                      (susc_low(jj,ii,j,1) - conjg(susc_low(jj,j,ii,1)))
-              enddo
-           enddo
-        enddo
-
-        !Total n=1 terms, Eperp
-        electric_xy=electric; electric_xy(3)=cmplx(0.,0.)
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
-           enddo
-        enddo        
-        Ps_split(4,:) = 0.
-        do jj = 1, nspec
-           Ps_split(4,jj) = sum(term(jj,:)*electric_xy(:))
-        enddo
-
-        !Normalization             
-        Ps_split = Ps_split/ewave
-
-        !>>>GGH: 1/18/23
-     endif
-     !<<<GGH: 1/18/23
      endif
 
      !EndIf (scan(is)%heat_s) loop
@@ -2762,7 +2643,6 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n
   !>>>GGH: 1/18/23
-  use vars, only : new_low_n
   !<<<GGH: 1/18/23
   implicit none
 
@@ -3067,14 +2947,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   if (scan(is)%eigen_s) then
      if (scan(is)%heat_s) then
         if (low_n) then
-           if (new_low_n) then  !Greg's New low_n calculation
               write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
-           else  !Old version of low_n 
-              !<<<GGH: 1/18/23
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
-              !>>>GGH: 1/18/23
-           endif
-           !<<<GGH: 1/18/23
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
         endif
@@ -3087,14 +2960,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
      if (scan(is)%heat_s) then
         if (low_n) then
            !>>>GGH: 1/18/23
-           if (new_low_n) then  !Greg's New low_n calculation
               write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
-           else  !Old version of low_n 
-              !<<<GGH: 1/18/23
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
-              !>>>GGH: 1/18/23
-           endif
-           !<<<GGH: 1/18/23
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3)'
         endif
@@ -3151,9 +3017,6 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !!Sets I/O strings, step sizes, and formats for [[om_double_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,sw3,sw4,betap,vtp,kperp,kpar, low_n
-  !>>>GGH: 1/18/23
-  use vars, only : new_low_n
-  !<<<GGH: 1/18/23
   implicit none
   !Passed
 
@@ -3452,14 +3315,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
         if (scan(2)%heat_s) then
            if (low_n) then
               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
-              else  !Old version of low_n 
-                 !<<<GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
-                 !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
            else
               write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
            endif
@@ -3472,14 +3328,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
         if (scan(2)%heat_s) then
            if (low_n) then
               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
-              else  !Old version of low_n 
-                 !<<<GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
-                 !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
            else
               write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3,es15.6e3)'
            endif
@@ -3542,9 +3391,6 @@ end subroutine get_double_out_name
      !! and global values of the dimensionless plasma parameters.
      use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
      use vars,  only: low_n, susc_low, pi
-     !>>>GGH: 1/18/23
-     use vars, only : new_low_n
-     !<<<GGH: 1/18/23
      implicit none
      complex :: om
      !!Complex Frequency
