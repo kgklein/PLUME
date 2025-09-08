@@ -126,7 +126,7 @@
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../namelist/params.html#variable-betap">betap</a>
             <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kpar~2">kpar</a>
             <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nscan">nscan</a>
@@ -134,7 +134,6 @@
             <a class="list-group-item" href="../namelist/params.html#variable-nroot_max">nroot_max</a>
             <a class="list-group-item" href="../namelist/params.html#variable-use_map">use_map</a>
             <a class="list-group-item" href="../namelist/params.html#variable-low_n">low_n</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-new_low_n">new_low_n</a>
             <a class="list-group-item" href="../namelist/params.html#variable-writeout">writeOut</a>
             <a class="list-group-item" href="../namelist/params.html#variable-dataname">dataName</a>
             <a class="list-group-item" href="../namelist/params.html#variable-outputname">outputName</a>
@@ -195,8 +194,8 @@
 k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
     </tr>
 
-              <tr id="variable-kpar">
-      <td><a href="#variable-kpar">kpar</a></td>
+              <tr id="variable-kpar~2">
+      <td><a href="#variable-kpar~2">kpar</a></td>
       <td>real</td>
       <td>None</td>
       <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
@@ -266,14 +265,9 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td><a href="#variable-low_n">low_n</a></td>
       <td>logical</td>
       <td>.true.</td>
-      <td><p>Toggle on low-n susceptibility suplementary calculation.</p></td>
-    </tr>
-
-              <tr id="variable-new_low_n">
-      <td><a href="#variable-new_low_n">new_low_n</a></td>
-      <td>logical</td>
-      <td>.true.</td>
-      <td><p>Flag to use Revised low_n for LD/TTD separation. This modifies the Collisionless Power Absorption Calculation! IF TRUE THEN low_n MUST BE TRUE TOO! (GGH: 1/18/23)</p></td>
+      <td><p>Toggle on low-n susceptibility suplementary calculation.
+ 25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
+ n=0, \pm 1 calculation we wish to perform.</p></td>
     </tr>
 
               <tr id="variable-writeout">

@@ -214,8 +214,8 @@ They are ordered as
 <p>where <code>j</code> ranges from 1 to <code>nspec</code>.
 The normalization follows Eqns. 33-37 in <a href="https://iopscience.iop.org/article/10.3847/2515-5172/add1c2">Klein, K. G., Howes, G. G.,
 and Brown, C. R., 2025</a></p>
-<p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>new_low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
-<p>If <code>new_low_n</code> is true, we have</p>
+<p>If <code>heat</code> is set to true, the next set of columns will be the power absorption or emission from each component. If <code>low_n</code> is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If <code>eigen</code> is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 <code>nspec</code>+1st column.</p>
+<p>If <code>low_n</code> is true, we have</p>
 <ul>
 <li>18+(8-6{!eigen})<code>nspec</code>+j. $P_j$</li>
 <li>18+(9-6{!eigen})<code>nspec</code>+j. $P_j^{yy}$ (Transit Time Damping term 1).</li>
@@ -234,6 +234,8 @@ Here, {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0
 - 23+<code>noutperspec</code> <code>nspec</code>+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+<code>noutperspec</code> <code>nspec</code>+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.</p>
+<p><img alt="Table for output column numbering for a two-component plasma." src="data/PLUME-Output-Table.svg"></p>
+<p><img alt="Table for output column numbering for a three-component plasma." src="data/PLUME-Output-Table-2.svg"></p>
 <p>This same data structure is preserved for the output from <code>om_double_scan</code>.
 The file naming convention will include a value of <em>param</em> from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.</p>
     </div>

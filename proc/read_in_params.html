@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 2.0% of total for procedures.">44 statements</a>
+                 title=" 1.0% of total for procedures.">44 statements</a>
             </li>
 
         </ul>
@@ -655,8 +655,8 @@ implementation in a submodule of an interface in a parent module.
 k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
     </tr>
 
-              <tr id="variable-kpar">
-      <td><a href="#variable-kpar">kpar</a></td>
+              <tr id="variable-kpar~2">
+      <td><a href="#variable-kpar~2">kpar</a></td>
       <td>real</td>
       <td>None</td>
       <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
@@ -726,14 +726,9 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td><a href="#variable-low_n">low_n</a></td>
       <td>logical</td>
       <td>.true.</td>
-      <td><p>Toggle on low-n susceptibility suplementary calculation.</p></td>
-    </tr>
-
-              <tr id="variable-new_low_n">
-      <td><a href="#variable-new_low_n">new_low_n</a></td>
-      <td>logical</td>
-      <td>.true.</td>
-      <td><p>Flag to use Revised low_n for LD/TTD separation. This modifies the Collisionless Power Absorption Calculation! IF TRUE THEN low_n MUST BE TRUE TOO! (GGH: 1/18/23)</p></td>
+      <td><p>Toggle on low-n susceptibility suplementary calculation.
+ 25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
+ n=0, \pm 1 calculation we wish to perform.</p></td>
     </tr>
 
               <tr id="variable-writeout">
@@ -789,8 +784,8 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td></td>
     </tr>
 
-              <tr id="variable-vperpmax~2">
-      <td><a href="#variable-vperpmax~2">vperpmax</a></td>
+              <tr id="variable-vperpmax">
+      <td><a href="#variable-vperpmax">vperpmax</a></td>
       <td>real</td>
       <td>None</td>
       <td></td>
@@ -859,8 +854,8 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td></td>
     </tr>
 
-              <tr id="variable-elecdircontribution~2">
-      <td><a href="#variable-elecdircontribution~2">elecdircontribution</a></td>
+              <tr id="variable-elecdircontribution">
+      <td><a href="#variable-elecdircontribution">elecdircontribution</a></td>
       <td>real</td>
       <td>None</td>
       <td></td>

@@ -1,0 +1,1680 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>disprels &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>disprels
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title="48.3% of total for modules and submodules.">2165 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">disprels</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/disprels.html#variable-nbrack">nbrack</a>
+            <a class="list-group-item" href="../module/disprels.html#variable-tol">tol</a>
+            <a class="list-group-item" href="../module/disprels.html#variable-prec">prec</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/disprels.html#proc-disp">disp</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-rtsec">rtsec</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-zet_in">zet_in</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-zetout">zetout</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-bessel">bessel</a>
+        </div>
+      </div>
+    </div>
+
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/disprels.html#proc-map_search">map_search</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-test_disp">test_disp</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-refine_guess">refine_guess</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-map_scan">map_scan</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-om_scan">om_scan</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-om_double_scan">om_double_scan</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-radial_scan">radial_scan</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-om_radial">om_radial</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-calc_eigen">calc_eigen</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-set_map_pointers">set_map_pointers</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-get_out_name">get_out_name</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-get_double_out_name">get_double_out_name</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-find_minima">find_minima</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Dispersion relation function and associated eigenfunction and minimization
+ calculations.
+ Required for fpc.f90
+ (Consider reducing scope with submodule or
+ other approach- fine for now)</p>
+<p>!!</p>
+<p>!!</p>
+<br>      
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: module~~disprels~~UsedByGraph Pages: 1 -->
+<svg id="moduledisprelsUsedByGraph" width="208pt" height="158pt"
+ viewBox="0.00 0.00 208.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~disprels~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154)">
+<title>module~~disprels~~UsedByGraph</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-154 204,-154 204,4 -4,4"/>
+<!-- module~disprels -->
+<g id="module~~disprels~~UsedByGraph_node1" class="node">
+<title>module~disprels</title>
+<polygon fill="none" stroke="black" points="54,-87 0,-87 0,-63 54,-63 54,-87"/>
+<text text-anchor="middle" x="27" y="-72.6" font-family="Helvetica,sans-Serif" font-size="10.50">disprels</text>
+</g>
+<!-- proc~compute_fpc_cart -->
+<g id="module~~disprels~~UsedByGraph_node2" class="node">
+<title>proc~compute_fpc_cart</title>
+<g id="a_module~~disprels~~UsedByGraph_node2"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="199,-150 91,-150 91,-126 199,-126 199,-150"/>
+<text text-anchor="middle" x="145" y="-135.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;module~disprels -->
+<g id="module~~disprels~~UsedByGraph_edge1" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;module~disprels</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M109.49,-125.92C102.9,-123.24 96.15,-120.22 90,-117 76.92,-110.14 63.24,-101.09 52.06,-93.15"/>
+<polygon fill="#000000" stroke="#000000" points="53.85,-90.13 43.7,-87.09 49.74,-95.79 53.85,-90.13"/>
+</g>
+<!-- proc~compute_fpc_gyro -->
+<g id="module~~disprels~~UsedByGraph_node3" class="node">
+<title>proc~compute_fpc_gyro</title>
+<g id="a_module~~disprels~~UsedByGraph_node3"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="200,-108 90,-108 90,-84 200,-84 200,-108"/>
+<text text-anchor="middle" x="145" y="-93.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;module~disprels -->
+<g id="module~~disprels~~UsedByGraph_edge2" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;module~disprels</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M89.74,-86.18C81.03,-84.6 72.21,-83 64.07,-81.53"/>
+<polygon fill="#000000" stroke="#000000" points="64.64,-78.08 54.17,-79.74 63.39,-84.96 64.64,-78.08"/>
+</g>
+<!-- proc~wparth_from_ratio -->
+<g id="module~~disprels~~UsedByGraph_node4" class="node">
+<title>proc~wparth_from_ratio</title>
+<g id="a_module~~disprels~~UsedByGraph_node4"><a xlink:href="../proc/wparth_from_ratio.html" xlink:title="wparth_from_ratio">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="199.5,-66 90.5,-66 90.5,-42 199.5,-42 199.5,-66"/>
+<text text-anchor="middle" x="145" y="-51.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wparth_from_ratio</text>
+</a>
+</g>
+</g>
+<!-- proc~wparth_from_ratio&#45;&gt;module~disprels -->
+<g id="module~~disprels~~UsedByGraph_edge3" class="edge">
+<title>proc~wparth_from_ratio&#45;&gt;module~disprels</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M90.41,-63.7C81.57,-65.3 72.58,-66.93 64.28,-68.43"/>
+<polygon fill="#000000" stroke="#000000" points="63.43,-65.03 54.21,-70.25 64.67,-71.92 63.43,-65.03"/>
+</g>
+<!-- program~plume -->
+<g id="module~~disprels~~UsedByGraph_node5" class="node">
+<title>program~plume</title>
+<g id="a_module~~disprels~~UsedByGraph_node5"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="172,-24 118,-24 118,0 172,0 172,-24"/>
+<text text-anchor="middle" x="145" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;module~disprels -->
+<g id="module~~disprels~~UsedByGraph_edge4" class="edge">
+<title>program~plume&#45;&gt;module~disprels</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M117.93,-20.79C108.89,-24.18 98.82,-28.37 90,-33 76.92,-39.86 63.24,-48.91 52.06,-56.85"/>
+<polygon fill="#000000" stroke="#000000" points="49.74,-54.21 43.7,-62.91 53.85,-59.87 49.74,-54.21"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 2.43.0 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="518pt" height="32pt"
+ viewBox="0.00 0.00 517.50 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-28 513.5,-28 513.5,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24 0,-24 0,0 54,0 54,-24"/>
+<text text-anchor="middle" x="27" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="145.5,-24 72.5,-24 72.5,0 145.5,0 145.5,-24"/>
+<text text-anchor="middle" x="109" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="234,-24 164,-24 164,0 234,0 234,-24"/>
+<text text-anchor="middle" x="199" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="310,-24 252,-24 252,0 310,0 310,-24"/>
+<text text-anchor="middle" x="281" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="386,-24 328,-24 328,0 386,0 386,-24"/>
+<text text-anchor="middle" x="357" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="509.5,-24 404.5,-24 404.5,0 509.5,0 509.5,-24"/>
+<text text-anchor="middle" x="457" y="-9.6" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nbrack"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>nbrack</strong></td>
+<td> =</td>
+                <td>128</td>
+            <td>
+                <p>Number of Bessel functions to sum</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tol"></span>
+              real,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>tol</strong></td>
+<td> =</td>
+                <td>1.0E-13</td>
+            <td>
+                <p>Root Search Tolerance</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-prec"></span>
+              real,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>prec</strong></td>
+<td> =</td>
+                <td>1.E-7</td>
+            <td>
+                <p>Root Finding precision</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+
+        <section>
+          <h2>Functions</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-disp"></span> <h3>public  function <a href='../proc/disp.html'>disp</a>(om)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns Plasma Dispersion Function for input complex frequency
+ and global values of the dimensionless plasma parameters.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-om~2"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>om</strong></td>
+            <td>
+<p>Complex Frequency</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-rtsec"></span> <h3>public  function <a href='../proc/rtsec.html'>rtsec</a>(func, x1, x2, xacc, iflag)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Secant routine to find minimum value of dispersion relation function.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-func"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>func</strong></td>
+            <td>
+<p>Function to evaluate.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x1"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x1</strong></td>
+            <td>
+<p>Lower bracket value of solution refinement.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x2"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x2</strong></td>
+            <td>
+<p>Upper bracket value of solution refinement.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-xacc"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>xacc</strong></td>
+            <td>
+<p>Solution tolerance.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iflag~6"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>iflag</strong></td>
+            <td>
+<p>flag for tracking iteration.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-zet_in"></span> <h3>public  function <a href='../proc/zet_in.html'>zet_in</a>(kpar, zin)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Evaluate Plasma Dispersion Function (Z) for kparallel &gt;/&lt; 0
+ Calls <a href="../proc/zetout.html">zetout</a> with appropriate argument.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kpar"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kpar</strong></td>
+            <td>
+<p>
+<script type="math/tex"> k_{\parallel} \rho_{ref} </script>
+</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zin"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>zin</strong></td>
+            <td>
+<p>Argument of plasma dispersion function.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    <p>Value of plasma dispersion function.</p>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-zetout"></span> <h3>private  function <a href='../proc/zetout.html'>zetout</a>(zin)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>This is the subroutine used by Linsker to evaluate his Z-function.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zin~2"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>zin</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-bessel"></span> <h3>public  function <a href='../proc/bessel.html'>bessel</a>(n, x)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Call the correct Numerical Recipes Bessel function
+    bessels is a function which calls the numerical recipes
+    routine of the appropriate order -- this is to avoid
+    to many if - then statements in the program.
+Note that we are determining I_n(x) e^(-x) to avoid large argument errors.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~3"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+<p>Bessel function order.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~2"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+<p>Bessel function argument.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>real</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-map_search"></span> <h3>public  subroutine <a href='../proc/map_search.html'>map_search</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Identifies minima in a prescribed region of complex frequency space.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-test_disp"></span> <h3>public  subroutine <a href='../proc/test_disp.html'>test_disp</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Testing routine for single evaluation of dispersion relation.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-refine_guess"></span> <h3>public  subroutine <a href='../proc/refine_guess.html'>refine_guess</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Refine solutions for roots of dispersion relation.</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-map_scan"></span> <h3>public  subroutine <a href='../proc/map_scan.html'>map_scan</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculate complex frequency maps for scanned parameters.
+ Intervatively calls <a href="../proc/map_search.html">map_search</a>
+ over a fixed range of parameters.
+k_1|=swf
+k_1|=swf</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-om_scan"></span> <h3>public  subroutine <a href='../proc/om_scan.html'>om_scan</a>(is)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculate solutions as a function of the variation of
+ a single parameter.
+k_1|=swf</p><a href="../proc/om_scan.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~2"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+            <td>
+<p>Scan index.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-om_double_scan"></span> <h3>public  subroutine <a href='../proc/om_double_scan.html'>om_double_scan</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculate solutions as a function of the variation of
+ two parameters, creating a surface in parameter space.
+k_1|=swf</p><a href="../proc/om_double_scan.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-radial_scan"></span> <h3>public  subroutine <a href='../proc/radial_scan.html'>radial_scan</a>()  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculates normal modes of the system
+for a specified radial solar wind model
+ (under development)
+ADD split power calculations here... (KGK)</p>
+
+  <h4>Arguments</h4>
+    <em>None</em>
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-om_radial"></span> <h3>private  subroutine <a href='../proc/om_radial.html'>om_radial</a>(omlast, params, out_unit, fmt, out_type, ir, mod_write)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Scans roots at a given location in parameter space.
+Used in conjunction with <a href="../proc/radial_scan.html">radial_scan</a>.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-omlast~4"></span>
+              complex,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>omlast</strong></td>
+            <td>
+<p>Arrays with complex frequency for each solution.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-params~5"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(1:6,1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>params</strong></td>
+            <td>
+<p>Species parameters:</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_unit~4"></span>
+              integer,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(1:nroot_max)
+            </td>
+            <td>::</td>
+            <td><strong>out_unit</strong></td>
+            <td>
+<p>Main output unit.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmt~5"></span>
+              character(len=100)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fmt</strong></td>
+            <td>
+<p>Output format for dispersion relation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_type~4"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>out_type</strong></td>
+            <td>
+<p>logic for outputing supplementary eigenfunction and heating
+calculations.
+0: Frequency, Eigenfuction, Heating.
+1: Frequency, Eigenfuction.
+2: Frequency, Heating.
+3: Frequency.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ir~3"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ir</strong></td>
+            <td>
+<p>Radial index.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-mod_write~2"></span>
+              logical
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>mod_write</strong></td>
+            <td>
+<p>For only writing out every n_scan, not n_scan * n_res steps
+species parameters: useful for outputing data (INVESTIGATE THIS...)</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-calc_eigen"></span> <h3>public  subroutine <a href='../proc/calc_eigen.html'>calc_eigen</a>(omega, electric, magnetic, vmean, ns, Ps, Ps_split, Ps_split_new, eigen_L, heat_L)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Calculates the electric and magnetic fields as well as species
+     velocities and density fluctuations for identified wave
+     as well as the power emission or absorption.</p><a href="../proc/calc_eigen.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-omega~7"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>omega</strong></td>
+            <td>
+<p>Complex Frequency of identified wave.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-electric"></span>
+              complex,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:3)
+            </td>
+            <td>::</td>
+            <td><strong>electric</strong></td>
+            <td>
+<p>Complex electric field fluctuations
+(Ex, Ey, Ez)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-magnetic"></span>
+              complex,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:3)
+            </td>
+            <td>::</td>
+            <td><strong>magnetic</strong></td>
+            <td>
+<p>Complex magnetic field fluctuations
+(Bx, By, Bz)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-vmean"></span>
+              complex,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:3,1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>vmean</strong></td>
+            <td>
+<p>Complex Velocity fluctuations:
+ (Uxs, Uys, Uzs)</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ns~4"></span>
+              complex,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>ns</strong></td>
+            <td>
+<p>Complex Density fluctuations.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ps~4"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>Ps</strong></td>
+            <td>
+<p>Power into/out of species/components.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ps_split~4"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:4,1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>Ps_split</strong></td>
+            <td>
+<p>Power into/out of species</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ps_split_new~4"></span>
+              real,
+            </td>
+<td>intent(out),</td>
+              <td></td>            <td>
+              dimension(1:6,1:nspec)
+            </td>
+            <td>::</td>
+            <td><strong>Ps_split_new</strong></td>
+            <td>
+<p>&lt;&lt;&lt;GGH: 1/18/23
+Power into/out of species/components from LD, TTD, CD.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eigen_l"></span>
+              logical
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>eigen_L</strong></td>
+            <td>
+<p>Logical for calculating eigenvalues</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_l"></span>
+              logical
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>heat_L</strong></td>
+            <td>
+<p>Logical for calculating heating</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-set_map_pointers"></span> <h3>private  subroutine <a href='../proc/set_map_pointers.html'>set_map_pointers</a>(outName, diff, diff2)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Sets step sizes for all classes of parameter scans
+ called in for <a href="../proc/map_scan.html">map_scan</a>.
+k_1|=swf</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outname~5"></span>
+              character(len=150)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outName</strong></td>
+            <td>
+<p>String for I/O identification.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff~4"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diff</strong></td>
+            <td>
+<p>Spacing for scanned parameter.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff2~3"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diff2</strong></td>
+            <td>
+<p>Suplemental spacing for scanned parameter.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_out_name"></span> <h3>private  subroutine <a href='../proc/get_out_name.html'>get_out_name</a>(outName, tensorName, fmt, fmt_tnsr, out_type, is, diff, diff2)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Sets I/O strings, step sizes, and formats for <a href="../proc/om_scan.html">om_scan</a>.</p><a href="../proc/get_out_name.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outname~6"></span>
+              character(len=150)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outName</strong></td>
+            <td>
+<p>String for I/O identification.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tensorname~3"></span>
+              character(len=150)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tensorName</strong></td>
+            <td>
+<p>String for Susceptability output.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmt~6"></span>
+              character(len=100)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fmt</strong></td>
+            <td>
+<p>Output format for solution.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmt_tnsr~4"></span>
+              character(len=100)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fmt_tnsr</strong></td>
+            <td>
+<p>Output format for susceptibility tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_type~5"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>out_type</strong></td>
+            <td>
+<p>logic for outputing supplementary eigenfunction and heating
+calculations.
+0: Frequency, Eigenfuction, Heating.
+1: Frequency, Eigenfuction.
+2: Frequency, Heating.
+3: Frequency.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-is~5"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>is</strong></td>
+            <td>
+<p>Scan index</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff~5"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diff</strong></td>
+            <td>
+<p>Spacing for scanned parameter.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff2~4"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>diff2</strong></td>
+            <td>
+<p>Suplemental spacing for scanned parameter.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_double_out_name"></span> <h3>private  subroutine <a href='../proc/get_double_out_name.html'>get_double_out_name</a>(outName, tensorName, fmt, fmt_tnsr, out_type, diff)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Sets I/O strings, step sizes, and formats for <a href="../proc/om_double_scan.html">om_double_scan</a>.
+k_1|=swf</p><a href="../proc/get_double_out_name.html" class="pull-right"><emph>Read more&hellip;</emph></a>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-outname~7"></span>
+              character(len=150)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>outName</strong></td>
+            <td>
+<p>String for I/O identification.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-tensorname~4"></span>
+              character(len=150)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>tensorName</strong></td>
+            <td>
+<p>String for Susceptability output.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmt~7"></span>
+              character(len=100)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fmt</strong></td>
+            <td>
+<p>Output format for solution.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fmt_tnsr~5"></span>
+              character(len=100)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>fmt_tnsr</strong></td>
+            <td>
+<p>Output format for susceptibility tensor.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-out_type~6"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>out_type</strong></td>
+            <td>
+<p>logic for outputing supplementary eigenfunction and heating
+calculations.
+0: Frequency, Eigenfuction, Heating.
+1: Frequency, Eigenfuction.
+2: Frequency, Heating.
+3: Frequency.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-diff~6"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(1:2,1:2)
+            </td>
+            <td>::</td>
+            <td><strong>diff</strong></td>
+            <td>
+<p>Spacing for scanned parameter.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-find_minima"></span> <h3>private  subroutine <a href='../proc/find_minima.html'>find_minima</a>(val, numroots, iroots, nroots)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Finding minimum values on complex frequency grid.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-val~5"></span>
+              real,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(:,:), pointer
+            </td>
+            <td>::</td>
+            <td><strong>val</strong></td>
+            <td>
+<p>Value of Dispersion relation.
+Covers 0:nr, 0:ni</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-numroots"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>numroots</strong></td>
+            <td>
+<p>Maximum number of roots.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-iroots~2"></span>
+              integer,
+            </td>
+<td></td>
+              <td></td>            <td>
+              dimension(1:2,1:numroots)
+            </td>
+            <td>::</td>
+            <td><strong>iroots</strong></td>
+            <td>
+<p>Indices of roots.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nroots"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nroots</strong></td>
+            <td>
+<p>Number of roots found.</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
