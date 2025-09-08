@@ -132,9 +132,9 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
-![Table for output column numbering for a two-component plasma.](data/PLUME-Output-Table.svg)
+![Table for output column numbering for a two-component plasma.](PLUME/data/PLUME-Output-Table.svg)
 
-![Table for output column numbering for a three-component plasma.](data/PLUME-Output-Table-2.svg)
+![Table for output column numbering for a three-component plasma.](PLUME/data/PLUME-Output-Table-2.svg)
 
 This same data structure is preserved for the output from `om_double_scan`.
 The file naming convention will include a value of *param* from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.
