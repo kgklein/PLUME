@@ -132,10 +132,12 @@ Gregory Howes      (gregory-howes@uiowa.edu)</p>
 <li>Before getting started</li>
 <li>Installing PLUME</li>
 <li>Running PLUME</li>
+<li>Visualizing Results</li>
 </ol>
 <h2>1. Before getting started</h2>
 <p>Before starting with the steps described in this tutorial, we recommend that you familiarise yourself with the code paper.</p>
-<p><em>code paper here</em></p>
+<p><a href="https://iopscience.iop.org/article/10.3847/2515-5172/add1c2">Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025</a></p>
 <p>You don't need to go through all details, but it is certainly helpful to know what PLUME does and doesn't calculate.
 The code paper also explains the numerical techniques used in the code.
 We also recommend checking the <a href="../README.html">Readme</a> file.</p>
@@ -152,7 +154,32 @@ We also recommend checking the <a href="../README.html">Readme</a> file.</p>
 <div class="codehilite"><pre><span></span><code>./plume.e inputs/example/example_map_par.in
 </code></pre></div>
 
-<p><em>Additional cases go here</em></p>
+<p>You can run this entire routine by moving to the</p>
+<div class="codehilite"><pre><span></span><code>inputs/example
+</code></pre></div>
+
+<p>subdirectory and running the <code>run_example.sh</code> executable.</p>
+<p>A similar calculation, with a map scan over a prescribed range of complex frequencies, and then followed along a logirithmic scan of $k_\perp \rho_{ref}$ values, can be performed via</p>
+<div class="codehilite"><pre><span></span><code>./plume.e inputs/example/example_map_perp.in
+</code></pre></div>
+
+<h2>4. Visualizing Results</h2>
+<p>Assuming you have gnuplot installed on your computer, move to the</p>
+<div class="codehilite"><pre><span></span><code>plotter/example
+</code></pre></div>
+
+<p>subdirectory and run</p>
+<div class="codehilite"><pre><span></span><code>./cycle.sh
+</code></pre></div>
+
+<p>which executes a bash script to plot the dispersion surface map and identified solutions from the <code>example_map_par.in</code> calculation.</p>
+<p>If you would like to see the $k_\parallel \rho_p$ scans of the four identified solutions, 
+uncomment out the</p>
+<div class="codehilite"><pre><span></span><code>input=&#39;example_kpar&#39;
+</code></pre></div>
+
+<p>line in <code>cycle.sh</code> and rerun the script.
+This will construct a plot of $\omega_{r}}/\Omega_p$ (top row), $\gamma/Omega_p$ (second row), $\gamma_p/\omega_{r}$ (third row), $\gamma_e/\omega_{r}$ (fourth row), and the degree of elliptical polarization of the $x$ and $y$ components of the electric field.</p>
     </div>
   </div>
       <hr>
