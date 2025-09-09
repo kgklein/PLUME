@@ -154,17 +154,17 @@ module disprels
          do is = 1, nspec
             write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
             write(*,'(a,i3)')      'Parameters for Species :',is
-            write(*,'(a,g14.6)')'T_||p/T_||s =    ',spec(is)%tau_s
-            write(*,'(a,g14.6)')'m_p/m_s =        ',spec(is)%mu_s
+            write(*,'(a,g14.6)')'T_||,ref/T_||s =    ',spec(is)%tau_s
+            write(*,'(a,g14.6)')'m_ref/m_s =        ',spec(is)%mu_s
             write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
-            write(*,'(a,g14.6)')'q_p/q_s =        ',spec(is)%Q_s
-            write(*,'(a,g14.6)')'n_s/n_p =        ',spec(is)%D_s
-            write(*,'(a,g14.6)')'v_drift s/vAR =    ',spec(is)%vv_s
+            write(*,'(a,g14.6)')'q_ref/q_s =        ',spec(is)%Q_s
+            write(*,'(a,g14.6)')'n_s/n_ref =        ',spec(is)%D_s
+            write(*,'(a,g14.6)')'v_drift s/v_A,ref =    ',spec(is)%vv_s
          enddo
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
          write(*,'(a)')'Searching over:'
-         write(*,'(a,es10.3,a,es10.3,a)')'om  \in [',omi,',',omf,']'
-         write(*,'(a,es10.3,a,es10.3,a)')'gam \in [',gami,',',gamf,']'
+         write(*,'(a,es10.3,a,es10.3,a)')'omega/Omega_ref  \in [',omi,',',omf,']'
+         write(*,'(a,es10.3,a,es10.3,a)')'gamma/Omega_ref \in [',gami,',',gamf,']'
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
       endif
     

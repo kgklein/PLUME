@@ -1,9 +1,9 @@
 #Plotting Routine, *.plt
-#input='example_map'
+input='example_map'
 
 #input='example_kpar'
 
-input='example_kperp'
+#input='example_kperp'
 
 #Run the plotting routine.
 #Requires a local installation of gnuplot
