@@ -159,7 +159,7 @@ module disprels
             write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
             write(*,'(a,g14.6)')'q_p/q_s =        ',spec(is)%Q_s
             write(*,'(a,g14.6)')'n_s/n_p =        ',spec(is)%D_s
-            write(*,'(a,g14.6)')'v_drift s/c =    ',spec(is)%vv_s
+            write(*,'(a,g14.6)')'v_drift s/vAR =    ',spec(is)%vv_s
          enddo
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
          write(*,'(a)')'Searching over:'
