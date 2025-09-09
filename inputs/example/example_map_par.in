@@ -67,6 +67,10 @@ gami    = -3.E-3
 gamf    = 1.E-3
 !select only roots with omega_real >= 0
 positive_roots = .true.
+!Real frequency sampling
+nr=128
+!Imaginary frequency sampling
+ni=128
 /
 
 !parameter scan namelist
