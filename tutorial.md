@@ -54,6 +54,12 @@ A similar calculation, with a map scan over a prescribed range of complex freque
 ./plume.e inputs/example/example_map_perp.in
 ```
 
+To illustrate a double scan over a plane in $|k| \rho_{ref}$ and $\theta$, run
+```
+./plume.e inputs/example/example_guess_double.in
+```
+which will vary the two parameters in tandem.
+
 ## 4. Visualizing Results
 
 Assuming you have gnuplot installed on your computer, move to the
