@@ -229,10 +229,15 @@ Drift speed parallel to mean magnetic field, normalized to the reference Alfven 
 <p>Inputs for scanning parameter space for $l$th scan.  </p>
 <p><strong><code>scan_type</code></strong><br>
 Type of parameter scan.</p>
-<p>For <code>scan_style</code>=-1 (Global Two-Component Scan), options of:
-- 0: Scan from $\textbf{k}<em ref>0 \rho</em>$ to $\textbf{k}<em ref>1 \rho</em>$. Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=<code>swi</code> and $k_\parallel \rho_{ref}$=<code>swf</code>.
-- 1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$. Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$<code>swi</code>$)$, with <code>swi</code> in degrees.
-- 2: Scan from $|k|<em ref>1\rho</em>$ to $|k|<em ref>1\rho</em>$ with a fixed value of $\theta$. Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=<code>swf</code> with constant $\theta = \atan (k_\perp/k_\parallel)$.</p>
+<p>For <code>scan_style</code>=-1 (Global Two-Component Scan), options of:</p>
+<ul>
+<li>0: Scan from $\textbf{k}<em ref>0 \rho</em>$ to $\textbf{k}<em ref>1 \rho</em>$.
+Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=<code>swi</code> and $k_\parallel \rho_{ref}$=<code>swf</code>.</li>
+<li>1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$.
+Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$<code>swi</code>$)$, with <code>swi</code> in degrees.</li>
+<li>2: Scan from $|k|<em ref>0 \rho</em>$ to $|k|<em ref>1 \rho</em>$ with a fixed value of $\theta$.
+Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=<code>swf</code> with constant $\theta = \atan (k_\perp/k_\parallel)$.</li>
+</ul>
 <p>For <code>scan_style</code>=0 (Global Scan), options of:</p>
 <ul>
 <li>0: $k_\perp \rho_{ref}$</li>
