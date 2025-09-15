@@ -5,6 +5,8 @@ input='example_map'
 
 #input='example_kperp'
 
+#input='example_double'
+
 #Run the plotting routine.
 #Requires a local installation of gnuplot
 gnuplot $input.plt
