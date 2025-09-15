@@ -1,0 +1,136 @@
+!An Example Double Scan
+!|k| and \theta
+!-=-=-
+!=-=-=
+!Test input file for PLUME dispersion solver
+&params
+!Reference parallel plasma beta, 8 pi n_ref T_par,ref/B^2
+betap=1.00
+!Perpendicular Scale k perp rho_ref
+kperp=1.E-6
+!Parallel Scale k parallel rho_ref
+kpar=1.E-3
+!Normalized Parallel Thermal Velocity, w_par,ref/c
+vtp=1.E-4
+!Number of components to be included in susceptibility
+nspec=2
+!Number of parameter scans,
+!kinds determined by scan_input namelists
+nscan=2
+!option determines the type of calculation(s) to be performed
+!with cases outlines in README.cases
+option=2
+!The number of Normal Mode Solutions to be followed
+nroot_max=1
+!Logical for map search for solutions
+!True-> read in complex frequency region from %maps namelist
+!False-> Read in nroot_max guesses from %guess_# namelists
+use_map=.false.
+!enable or suppress output to STD_OUT
+writeOut=.true.
+!Subdirectory (below PLUME/data/) where outputs will be written.
+dataName='example'
+!Name to be included in output files.
+outputName='guess_double'
+/
+
+!The reference species/component
+&species_1
+tauS=1.0 !T_par,ref/T_par,ref = 1
+muS=1.0 !m_ref/m_ref = 1
+alphS=1.0 !T_perp/T_par|ref (does not have to be unity)
+Qs=1.0 !q_ref/q_ref = 1
+Ds=1.0 !n_ref/n_ref = 1
+vvS=0.0 !v_ref,drift/v_A,ref; determines frame of solution.
+/
+
+!The second species/component
+&species_2
+tauS=1.0 !T_par,ref/T_par,s
+muS=1836.0 !m_ref/m_s
+alphS=1.00 !T_perp/T_par|s
+Qs=-1.0 !q_ref/q_s
+Ds=1.0 !n_s/n_ref
+vvS=0.0 !v_s,drift/v_A,ref
+/
+
+!parameter scan namelist
+&scan_input_1
+!the meaning of Type varies depending on 'style'
+scan_type=1 ! theta scan
+!style determines:
+!Global Two Component (-1)
+!Global Scan (0)
+!Single Parameter (1-nspec)
+scan_style=-1 !global
+!For this scan type + style, 'swi' is the final theta value
+swi=89.E0 !in degrees
+!not used for this scan type + style
+swf=1.E2 
+!log or linear steps
+swlog=.false.
+!recorded steps
+ns=128
+!sub-steps between outputs
+nres=2
+!calculate heating rates
+heating=.true.
+!calculate eigenfunctions
+eigen=.true.
+!output tensor components
+tensor=.false.
+/
+
+!parameter scan namelist
+&scan_input_2
+!the meaning of Type varies depending on 'style'
+scan_type=2 !|k| rho_ref
+!style determines:
+!Global Two Component (-1)
+!Global Scan (0)
+!Single Parameter (1-nspec)
+scan_style=-1 !global
+!not used for this type + style
+swi=1.E-3
+!For this scan type + style, 'swi' is the final |k| value
+swf=1.E1
+!log or linear steps
+swlog=.true.
+!recorded steps
+ns=200
+!sub-steps between outputs
+nres=2
+!calculate heating rates
+heating=.true.
+!calculate eigenfunctions
+eigen=.true.
+!output tensor components
+tensor=.false.
+/
+
+!intial guess, to be used if use_map=.false.
+&guess_1
+g_om=9.9E-4
+g_gam=-3.15E-8
+/
+
+&maps
+!Linear or Log spacing for real frequency component
+loggridw=.false. 
+!Linear or Log spacing for imaginary frequency component
+loggridg=.false.
+!lower bound for real frequency component
+omi     = -3E-3
+!upper bound for real frequency component
+omf     = 3E-3
+!lower bound for imaginary frequency component
+gami    = -3.E-3
+!upper bound for imaginary frequency component
+gamf    = 1.E-3
+!select only roots with omega_real >= 0
+positive_roots = .true.
+!Real frequency sampling
+nr=128
+!Imaginary frequency sampling
+ni=128
+/
