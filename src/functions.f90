@@ -131,7 +131,7 @@ contains
       !Note if:
       if (spec(1)%vv_s .ne. 0.) &
          write (*, '(a,es11.4)') &
-         'ERROR?/WARNING: Not in refernece species rest frame:    v_par drift ref =', spec(1)%vv_s
+         'ERROR?/WARNING: Not in reference species rest frame:    v_par drift ref =', spec(1)%vv_s
 
       !You always need pi. Always. And sometimes pie too.
       pi = 4.*atan(1.)

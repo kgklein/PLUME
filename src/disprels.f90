@@ -1190,18 +1190,22 @@ subroutine om_double_scan
   do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
      !Advance scanned parameter values
+
+     !Global Two-Component Scans
      if ((scan(1)%style_s)==-1)then
-        if ((scan(1)%type_s)==0) then
+
+        !Scan from (kpar_0;kperp_0) to (kpar_1;kperp_1)
+        if ((scan(1)%type_s)==0) then           
            if (scan(1)%log_scan) then
-              !k0->k1
-              sw=10.**(log10(kperpi)+diff(1,1)*real(kk))    
-              sw2=10.**(log10(kpari)+diff(1,2)*real(kk))    
+              sw=10.**(log10(kperpi)+diff(1,1)*real(kk)) !kperp
+              sw2=10.**(log10(kpari)+diff(1,2)*real(kk)) !kpar
            else
-              sw=(kperpi)+diff(1,1)*real(kk)    
-              sw2=(kpari)+diff(1,2)*real(kk)    
+              sw=(kperpi)+diff(1,1)*real(kk) !kperp
+              sw2=(kpari)+diff(1,2)*real(kk) !kpar
            endif
+
+        !Scan from (theta_0) to (theta_1)
         elseif ((scan(1)%type_s)==1) then
-           !theta_0->theta_1
            if (scan(1)%log_scan) then
               theta_q=10.**(log10((theta))+diff(1,1)*real(kk))    
            else
@@ -1209,16 +1213,19 @@ subroutine om_double_scan
            endif
            sw=(ki*sin(theta_q))!kperp
            sw2=(ki*cos(theta_q))!kpar
+
+        !Scan from (|k_0|) to (|k_1|) at constant theta
         elseif ((scan(1)%type_s)==2) then
-           !k along contant theta
            if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk))    
-              sw2=10.**(log10(ki*cos(theta))+diff(1,1)*real(kk))    
+              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk)) !kperp
+              sw2=10.**(log10(ki*cos(theta))+diff(1,2)*real(kk)) !kpar
            else
-              sw=(ki*sin(theta))+diff(1,1)*real(kk)    
-              sw2=(ki*cos(theta))+diff(1,1)*real(kk)    
+              sw=(ki*sin(theta))+diff(1,1)*real(kk)  !kperp
+              sw2=(ki*cos(theta))+diff(1,2)*real(kk) !kpar
            endif
         endif
+
+     !Single Component Scans
      else
         if (scan(1)%log_scan) then
            sw=10.**(log10(scan(1)%range_i)+diff(1,1)*real(kk))    
@@ -1226,7 +1233,7 @@ subroutine om_double_scan
            sw=(scan(1)%range_i)+diff(1,1)*real(kk)    
         endif
      endif
-
+     
      !Root Scan....
      do ii=1,nroot_max
         !Bracket values for root search
@@ -1257,18 +1264,22 @@ subroutine om_double_scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
            !Advance scanned parameter values
+
+           !Global Two-Component Scans
            if ((scan(2)%style_s)==-1)then
+              
+              !Scan from (kpar_0;kperp_0) to (kpar_1;kperp_1)
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
-                    !k0->k1
-                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))    
-                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))    
+                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj)) !kperp
+                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))  !kpar
                  else
-                    sw3=(kperpi)+diff(2,1)*real(jj)    
-                    sw4=(kpari)+diff(2,2)*real(jj)    
+                    sw3=(kperpi)+diff(2,1)*real(jj) !kperp
+                    sw4=(kpari)+diff(2,2)*real(jj)  !kpar
                  endif
+
+              !Scan from (theta_0) to (theta_1)
               elseif ((scan(2)%type_s)==1) then
-                 !theta_0->theta_1
                  if (scan(2)%log_scan) then
                     theta_q=10.**(log10((theta))+diff(2,1)*real(jj))    
                  else
@@ -1276,16 +1287,19 @@ subroutine om_double_scan
                  endif
                  sw3=(ki*sin(theta_q))!kperp
                  sw4=(ki*cos(theta_q))!kpar
+
+                 !Scan from (|k_0|) to (|k_1|) at constant theta
               elseif ((scan(2)%type_s)==2) then
-                 !k along contant theta
                  if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj))    
-                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,1)*real(jj))    
+                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj)) !kperp
+                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,2)*real(jj)) !kpar
                  else
-                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj)    
-                    sw4=(ki*cos(theta_q))+diff(2,1)*real(jj)    
+                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj) !kperp
+                    sw4=(ki*cos(theta_q))+diff(2,2)*real(jj) !kpar
                  endif
               endif
+
+              !Single Component Scans
            else
               if (scan(2)%log_scan) then
                  sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))    
@@ -3106,7 +3120,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
            endif
            kpari=kpar
            kperpi=kperp
-           if (writeOut) &          
+           if (writeOut) &
                 write(*,'(a,i0,4a,es15.6e3,a,es15.6e3,a,es15.6e3,a,es15.6e3,a)') &
                 'Scan ',is,' over ',trim(param(is)),' from ',&
                 '(kperp,kpar) = (',kperp,',',kpar,') to (',&
@@ -3118,12 +3132,19 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=(log10(scan(is)%range_f)-log10(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Log-spaced scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+
            else
               !Linear spacing
               diff(is,1)=((scan(is)%range_i)-(kperp))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=((scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Linear scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
            endif
                       
         elseif (scan(is)%type_s.eq.1) then
@@ -3150,10 +3171,20 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               !Log spacing
               diff(is,1)=(log10(pi*(scan(is)%range_i)/180.)-log10(theta))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Log-spaced scan: d_theta: ',diff(is,1)
+              
            else
               !Linear spacing
               diff(is,1)=((pi*(scan(is)%range_i)/180.)-(theta))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Linear scan: d_theta: ',diff(is,1)
+              
            endif
            
         elseif (scan(is)%type_s.eq.2) then
@@ -3184,12 +3215,22 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=(log10(cos(theta)*scan(is)%range_f)-log10(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Log-spaced scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+              
            else
               !Linear spacing
               diff(is,1)=((sin(theta)*scan(is)%range_f)-(kperp))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=((cos(theta)*scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Linear scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+              
            endif
            
         endif

@@ -157,6 +157,14 @@ Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$`swi`$)
 - 2: Scan from $|k|_0 \rho_{ref}$ to $|k|_1 \rho_{ref}$ with a fixed value of $\theta$.
 Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=`swf` with constant $\theta = \atan (k_\perp/k_\parallel)$.
 
+*NOTE:* If you are executing a two-parameter plane scan of $\theta$ and $|k|\rho_{ref}$, $\theta$ (`scan_style`=-1, `scan_type`=1) must be set to `scan_input_1` and $|k| \rho_{ref}|$ (`scan_style`=-1, `scan_type`=2) to `scan_input_2`.
+The opposite order will not properly scan through $|k| \rho_{ref}|$.
+See
+```
+inputs/example/example_map_perp.in
+```
+for an example.
+
 For `scan_style`=0 (Global Scan), options of:
 
 - 0: $k_\perp \rho_{ref}$
