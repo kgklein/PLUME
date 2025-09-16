@@ -3092,6 +3092,20 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      stop
   endif
 
+  if ( ((scan(1)%style_s)==-1).and.&
+       ((scan(2)%style_s)==-1).and.&
+       ((scan(1)%type_s)==2) .and. &
+       ((scan(2)%type_s)==1) &
+       ) then
+     write(*,'(a)')&
+          'For (theta,|k| \rho) double scan, set theta as scan_input_1'
+     write(*,'(a)')&
+          'and |k| as scan_input_2.'
+     write(*,'(a)')&
+          'HALTING...'
+     stop
+  endif
+
   do is=1,2!iterate over first and second scan information
 
      if((scan(is)%style_s).ge.0) then
