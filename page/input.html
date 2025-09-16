@@ -238,6 +238,13 @@ Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$<code>s
 <li>2: Scan from $|k|<em ref>0 \rho</em>$ to $|k|<em ref>1 \rho</em>$ with a fixed value of $\theta$.
 Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=<code>swf</code> with constant $\theta = \atan (k_\perp/k_\parallel)$.</li>
 </ul>
+<p><em>NOTE:</em> If you are executing a two-parameter plane scan of $\theta$ and $|k|\rho_{ref}$, $\theta$ (<code>scan_style</code>=-1, <code>scan_type</code>=1) must be set to <code>scan_input_1</code> and $|k| \rho_{ref}|$ (<code>scan_style</code>=-1, <code>scan_type</code>=2) to <code>scan_input_2</code>.
+The opposite order will not properly scan through $|k| \rho_{ref}|$.
+See</p>
+<div class="codehilite"><pre><span></span><code>inputs/example/example_map_perp.in
+</code></pre></div>
+
+<p>for an example.</p>
 <p>For <code>scan_style</code>=0 (Global Scan), options of:</p>
 <ul>
 <li>0: $k_\perp \rho_{ref}$</li>
