@@ -1074,6 +1074,9 @@ subroutine om_double_scan
 
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
+
+  real :: ktmp
+  !! Temporary value of \( |k| \), for spliting into \( \perp )\ and \( \parallel \) components.
   
   !Frequency
 
@@ -1252,9 +1255,15 @@ subroutine om_double_scan
 
      !Transition from parameter 1 scan to parameter 2 scan
      if (mod(kk,scan(1)%n_res)==0) then
-        if (writeOut) &
-             write(*,'(a,es11.4)')&
-             'parameter 1: ',sw
+        if (writeOut) then
+           if ((scan(1)%style_s)==-1)then
+              write(*,'(a,2es11.4)')&
+                   '(kperp,kpar): ',sw,sw2
+           else
+              write(*,'(a,es11.4)')&
+                   'Parameter 1: ',sw
+           endif
+        endif
         !Save roots
         do ii = 1,nroot_max
            omSafe(ii) = omlast(ii)
@@ -1290,13 +1299,19 @@ subroutine om_double_scan
 
                  !Scan from (|k_0|) to (|k_1|) at constant theta
               elseif ((scan(2)%type_s)==2) then
+
                  if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj)) !kperp
-                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,2)*real(jj)) !kpar
+                    
+                    ktmp=10.**(log10(ki)+diff(2,1)*real(jj)) !k
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
                  else
-                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj) !kperp
-                    sw4=(ki*cos(theta_q))+diff(2,2)*real(jj) !kpar
+                                        
+                    ktmp=ki+diff(2,1)*real(jj) !k
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
                  endif
+
               endif
 
               !Single Component Scans
@@ -3225,25 +3240,21 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                       
            if (scan(is)%log_scan) then
               !Log spacing
-              diff(is,1)=(log10(sin(theta)*scan(is)%range_f)-log10(kperp))/&
+              diff(is,1)=(log10(scan(is)%range_f)-log10(ki))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
-              diff(is,2)=(log10(cos(theta)*scan(is)%range_f)-log10(kpar))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
-
+              
               if (writeOut) &
-                   write(*,'(a,es15.6e3,a,es15.6e3)')&
-                   'Log-spaced scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+                   write(*,'(a,es15.6e3)')&
+                   'Log-spaced scan: d_|k|: ',diff(is,1)
               
            else
               !Linear spacing
-              diff(is,1)=((sin(theta)*scan(is)%range_f)-(kperp))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
-              diff(is,2)=((cos(theta)*scan(is)%range_f)-(kpar))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
-
+              diff(is,1)=((scan(is)%range_f)-(ki))/&
+                   real(scan(is)%n_scan*scan(is)%n_res)                      
+              
               if (writeOut) &
-                   write(*,'(a,es15.6e3,a,es15.6e3)')&
-                   'Linear scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+                   write(*,'(a,es15.6e3)')&
+                   'Linear scan: d_|k|: ',diff(is,1)
               
            endif
            
