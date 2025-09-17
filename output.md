@@ -120,7 +120,8 @@ If `low_n` is true, we have
 - 18+(11-6{!eigen})`nspec`+j. $P_j^{zy}$ (Landau Damping term 1).
 - 18+(12-6{!eigen})`nspec`+j. $P_j^{zz}$ (Landau Damping term 2).
 - 18+(13-6{!eigen})`nspec`+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
-- 18+(14-6{!eigen})`nspec`+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).
+- 18+(14-6{!eigen})`nspec`+j. $P_j^{n=+1}$ ($n=+ 1$ Cyclotron Damping).
+- 18+(15-6{!eigen})`nspec`+j. $P_j^{n=-1}$ ($n=- 1$ Cyclotron Damping).
 Here, {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
 This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component. 
@@ -131,6 +132,8 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+
+For ease of reference, consider the below tables for column numbers for two and three component calculations.
 
 ![Table for output column numbering for a two-component plasma.](./data/PLUME-Output-Table.svg)
 

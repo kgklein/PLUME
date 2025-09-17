@@ -167,7 +167,7 @@ module vars
 
    complex, dimension(:, :, :, :), allocatable:: susc_low
   !! low-n components of the susceptibility tensor.
-  !! (1:nspec,1:3,1:3,0:1) with the 3x3 subarray arranged as susc.
+  !! (1:nspec,1:3,1:3,-1:1) with the 3x3 subarray arranged as susc.
   !! The final index contains the n=0 and n=\pm 1 contributions.
 
    logical :: low_n = .true.
