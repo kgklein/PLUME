@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 3.2% of total for procedures.">137 statements</a>
+                 title=" 3.6% of total for procedures.">156 statements</a>
             </li>
 
         </ul>
@@ -148,7 +148,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>public  subroutine calc_eigen(omega, electric, magnetic, vmean, ns, Ps, Ps_split, Ps_split_new, eigen_L, heat_L)  
+    <h2>public  subroutine calc_eigen(omega, electric, magnetic, vmean, ns, Ps, Ps_split, eigen_L, heat_L)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -294,7 +294,7 @@ modules which it uses.
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-omega~12"></span>
+              <span class="anchor" id="variable-omega~7"></span>
               complex
             </td>
 <td></td>
@@ -357,7 +357,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ns~7"></span>
+              <span class="anchor" id="variable-ns~4"></span>
               complex,
             </td>
 <td>intent(out),</td>
@@ -372,7 +372,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ps~6"></span>
+              <span class="anchor" id="variable-ps~4"></span>
               real,
             </td>
 <td>intent(out),</td>
@@ -387,33 +387,19 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ps_split~6"></span>
+              <span class="anchor" id="variable-ps_split~4"></span>
               real,
             </td>
 <td>intent(out),</td>
               <td></td>            <td>
-              dimension(1:4,1:nspec)
+              dimension(1:7,1:nspec)
             </td>
             <td>::</td>
             <td><strong>Ps_split</strong></td>
             <td>
-                <p>Power into/out of species</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-              <span class="anchor" id="variable-ps_split_new~6"></span>
-              real,
-            </td>
-<td>intent(out),</td>
-              <td></td>            <td>
-              dimension(1:6,1:nspec)
-            </td>
-            <td>::</td>
-            <td><strong>Ps_split_new</strong></td>
-            <td>
                 <p>&lt;&lt;&lt;GGH: 1/18/23
-Power into/out of species/components from LD, TTD, CD.</p>
+Power into/out of species/components from LD, TTD, CD.
+Split \pm 1 CD (KGK)</p>
             </td>
         </tr>
         <tr>
