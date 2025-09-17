@@ -86,7 +86,7 @@ contains
       !Allocate the susceptibility tensor to have nspec indicies
       allocate (susc(1:nspec, 3, 3))
       if (low_n) &
-         allocate (susc_low(1:nspec, 3, 3, 0:1))
+         allocate (susc_low(1:nspec, 3, 3, -1:1))
 
       !initialized quasineutrality and current conservation check.
       sum_nq = 0.; sum_nqv = 0.

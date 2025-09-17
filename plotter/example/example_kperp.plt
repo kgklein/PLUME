@@ -43,6 +43,7 @@ dy=0.225
 base_color='#000000'
 n0_color='#009e73'
 n1_color='#e68f00'
+nm1_color='#00f86e'
 
 set log x
 set xrange [k_min:k_max]
@@ -135,7 +136,9 @@ file_in(mm) u 1:($35/sgn($5)) w l lc rgb base_color dt 2 title '$\gamma_p<0$' ,\
 file_in(mm) u 1:(-$41/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
 file_in(mm) u 1:($41/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
 file_in(mm) u 1:(-$42/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
+file_in(mm) u 1:(-$43/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
@@ -151,10 +154,12 @@ set label '$|\gamma_e|/|\omega_{\textrm{r}}|$' at graph -0.3,0.15 rotate by 90
 plot \
 file_in(mm) u 1:(-$36/sgn($5)) w l lc rgb base_color dt 1 title '$\gamma_e>0$' ,\
 file_in(mm) u 1:($36/sgn($5)) w l lc rgb base_color dt 2 title '$\gamma_e<0$' ,\
-file_in(mm) u 1:(-$47/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
-file_in(mm) u 1:($47/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
-file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($48/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
+file_in(mm) u 1:($48/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
+file_in(mm) u 1:(-$49/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
+file_in(mm) u 1:($49/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
+file_in(mm) u 1:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Polarization
 unset label
@@ -224,7 +229,9 @@ file_in(mm) u 1:($35/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
 file_in(mm) u 1:(-$41/sgn($5)) w l lc rgb n0_color dt 1 title '$\gamma_p^{n=0}>0$' ,\
 file_in(mm) u 1:($41/sgn($5)) w l lc rgb n0_color dt 2 title '$\gamma_p^{n=0}<0$' ,\
 file_in(mm) u 1:(-$42/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
+file_in(mm) u 1:(-$43/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
@@ -239,10 +246,12 @@ set yrange [gam_min:gam_max]
 plot \
 file_in(mm) u 1:(-$36/sgn($5)) w l lc rgb base_color dt 1 title '' ,\
 file_in(mm) u 1:($36/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
-file_in(mm) u 1:(-$47/sgn($5)) w l lc rgb n0_color dt 1 title '$\gamma_e^{n=0}>0$' ,\
-file_in(mm) u 1:($47/sgn($5)) w l lc rgb n0_color dt 2 title '$\gamma_e^{n=0}<0$' ,\
-file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($48/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n0_color dt 1 title '$\gamma_e^{n=0}>0$' ,\
+file_in(mm) u 1:($48/sgn($5)) w l lc rgb n0_color dt 2 title '$\gamma_e^{n=0}<0$' ,\
+file_in(mm) u 1:(-$49/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
+file_in(mm) u 1:($49/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
+file_in(mm) u 1:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Polarization
 unset label
@@ -310,8 +319,10 @@ file_in(mm) u 1:(-$35/sgn($5)) w l lc rgb base_color dt 1 title '' ,\
 file_in(mm) u 1:($35/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
 file_in(mm) u 1:(-$41/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
 file_in(mm) u 1:($41/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
-file_in(mm) u 1:(-$42/sgn($5)) w l lc rgb n1_color dt 1 title '$\gamma_p^{n=\pm 1}>0$' ,\
-file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title '$\gamma_p^{n=\pm 1}<0$'
+file_in(mm) u 1:(-$42/sgn($5)) w l lc rgb n1_color dt 1 title '$\gamma_p^{n=+ 1}>0$' ,\
+file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title '$\gamma_p^{n=+ 1}<0$' ,\
+file_in(mm) u 1:(-$43/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
@@ -326,10 +337,12 @@ set yrange [gam_min:gam_max]
 plot \
 file_in(mm) u 1:(-$36/sgn($5)) w l lc rgb base_color dt 1 title '' ,\
 file_in(mm) u 1:($36/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
-file_in(mm) u 1:(-$47/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
-file_in(mm) u 1:($47/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
-file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n1_color dt 1 title '$\gamma_e^{n=\pm 1}>0$' ,\
-file_in(mm) u 1:($48/sgn($5)) w l lc rgb n1_color dt 2 title '$\gamma_e^{n=\pm 1}<0$'
+file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
+file_in(mm) u 1:($48/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
+file_in(mm) u 1:(-$49/sgn($5)) w l lc rgb n1_color dt 1 title '$\gamma_e^{n=+ 1}>0$' ,\
+file_in(mm) u 1:($49/sgn($5)) w l lc rgb n1_color dt 2 title '$\gamma_e^{n=+ 1}<0$'  ,\
+file_in(mm) u 1:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
+file_in(mm) u 1:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Polarization
 unset label
@@ -398,7 +411,9 @@ file_in(mm) u 1:($35/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
 file_in(mm) u 1:(-$41/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
 file_in(mm) u 1:($41/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
 file_in(mm) u 1:(-$42/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:($42/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
+file_in(mm) u 2:(-$43/sgn($5)) w l lc rgb nm1_color dt 1 title '$\gamma_p^{n=- 1}>0$' ,\
+file_in(mm) u 2:($43/sgn($5)) w l lc rgb nm1_color dt 2 title '$\gamma_p^{n=- 1}>0$'
 
 #Electron Damping Rates
 unset label
@@ -413,10 +428,12 @@ set yrange [gam_min:gam_max]
 plot \
 file_in(mm) u 1:(-$36/sgn($5)) w l lc rgb base_color dt 1 title '' ,\
 file_in(mm) u 1:($36/sgn($5)) w l lc rgb base_color dt 2 title '' ,\
-file_in(mm) u 1:(-$47/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
-file_in(mm) u 1:($47/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
-file_in(mm) u 1:(-$48/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
-file_in(mm) u 1:($48/sgn($5)) w l lc rgb n1_color dt 2 title ''
+file_in(mm) u 1:(-$4/sgn($5)) w l lc rgb n0_color dt 1 title '' ,\
+file_in(mm) u 1:($48/sgn($5)) w l lc rgb n0_color dt 2 title '' ,\
+file_in(mm) u 1:(-$49/sgn($5)) w l lc rgb n1_color dt 1 title '' ,\
+file_in(mm) u 1:($49/sgn($5)) w l lc rgb n1_color dt 2 title ''  ,\
+file_in(mm) u 1:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '$\gamma_e^{n=- 1}>0$' ,\
+file_in(mm) u 1:($50/sgn($5)) w l lc rgb nm1_color dt 2 title '$\gamma_e^{n=- 1}>0$'
 
 #Polarization
 unset label

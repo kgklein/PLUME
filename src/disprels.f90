@@ -748,15 +748,12 @@ subroutine om_scan(is)
   !Heating
   real, dimension(1:nspec) :: Ps
   !! Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !! Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -892,15 +889,13 @@ subroutine om_scan(is)
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
               !>>>GGH: 1/18/23
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,&
-                   Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,&
+                   Ps_split,scan(is)%eigen_s,scan(is)%heat_s)
               !<<<GGH: 1/18/23
               omega=omlast(ii)
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
-                 !>>>GGH: 1/18/23
-                 Ps_split_new=-0.1
                  !<<<GGH: 1/18/23
               endif
            endif
@@ -924,7 +919,7 @@ subroutine om_scan(is)
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                      Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
               else
                  write(out_unit(ii),fmt)&
@@ -946,7 +941,7 @@ subroutine om_scan(is)
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
-                      Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                      Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
               else
                  write(out_unit(ii),fmt)&
@@ -1120,15 +1115,12 @@ subroutine om_double_scan
   !Heating
   real, dimension(1:nspec) :: Ps
   !!Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !!Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -1356,14 +1348,12 @@ subroutine om_double_scan
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
                     !>>>GGH: 1/18/23
-                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(2)%eigen_s,scan(2)%heat_s)
+                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     !<<<GGH: 1/18/23
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
                        !>>>GGH: 1/18/23
-                       Ps_split_new=1.0
-                       !<<<GGH: 1/18/23
                     endif
 
                  endif
@@ -1376,13 +1366,7 @@ subroutine om_double_scan
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                               Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
-                               params(1:6,1:nspec)
-                          write(out_unit(ii),fmt)&
-                               kperp,kpar,betap,vtp,&
-                               omega,&            
-                               bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                               Ps(1:nspec),Ps_split(1:4,1:nspec),&
+                               Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
                     else
                        write(out_unit(ii),fmt)&
@@ -1404,12 +1388,7 @@ subroutine om_double_scan
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
-                               Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
-                               params(1:6,1:nspec)
-                          write(out_unit(ii),fmt)&
-                               kperp,kpar,betap,vtp,&
-                               omega,&            
-                               Ps(1:nspec),Ps_split(1:4,1:nspec),&
+                               Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
                     else
                        write(out_unit(ii),fmt)&
@@ -2056,15 +2035,12 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   !Heating
   real, dimension(1:nspec) :: Ps
   !!Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !!Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -2087,7 +2063,7 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
            !Calculate eigenfunctions and heating rates
            if ((radial_heating).or.(radial_eigen)) then
               val=abs(disp(omega))
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,radial_eigen,radial_heating)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,radial_eigen,radial_heating)
            endif
            
            !Output results
@@ -2126,7 +2102,7 @@ end subroutine om_radial
 !------------------------------------------------------------------------------
 !-=-=-=-=-=-
 subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
-     Ps_split,Ps_split_new,eigen_L,heat_L)
+     Ps_split,eigen_L,heat_L)
   !!  Calculates the electric and magnetic fields as well as species
   !!     velocities and density fluctuations for identified wave 
   !!     as well as the power emission or absorption.
@@ -2165,12 +2141,10 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   real, dimension(1:nspec), intent(out) :: Ps
   !!Power into/out of species/components.
   
-  real, dimension(1:4,1:nspec), intent(out) :: Ps_split
-  !!Power into/out of species
-
-  real, dimension(1:6,1:nspec), intent(out) :: Ps_split_new
+  real, dimension(1:7,1:nspec), intent(out) :: Ps_split
   !!<<<GGH: 1/18/23
   !!Power into/out of species/components from LD, TTD, CD.
+  !!Split \pm 1 CD (KGK)
 
   logical :: eigen_L
   !!Logical for calculating eigenvalues
@@ -2361,23 +2335,23 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
            enddo
         enddo
 
-        !Initialize Ps_split_new
-        Ps_split_new(:,:) = 0.
+        !Initialize Ps_split
+        Ps_split(:,:) = 0.
         
         !chi_yy  (TTD term 1)
-        Ps_split_new(1,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(1,:) =-0.5*cmplx(0.,1.)*&
              conjg(electric(2))*electric(2)* &
              (susc_low(:,2,2,0)-conjg(susc_low(:,2,2,0)))
         !chi_yz  (TTD term 2)
-        Ps_split_new(2,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(2,:) =-0.5*cmplx(0.,1.)*&
              (electric(3)*conjg(electric(2))*susc_low(:,2,3,0) - &
              conjg(electric(3))*electric(2)*conjg(susc_low(:,2,3,0)))
         !chi_zy  (LD term 1)
-        Ps_split_new(3,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(3,:) =-0.5*cmplx(0.,1.)*&
              (electric(2)*conjg(electric(3))*susc_low(:,3,2,0) - &
              conjg(electric(2))*electric(3)*conjg(susc_low(:,3,2,0)))
         !chi_zz  (LD term 2)
-        Ps_split_new(4,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(4,:) =-0.5*cmplx(0.,1.)*&
              conjg(electric(3))*electric(3)* &
              (susc_low(:,3,3,0)-conjg(susc_low(:,3,3,0)))
 
@@ -2388,9 +2362,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
            enddo
         enddo        
-        Ps_split_new(5,:) = 0.
+        Ps_split(5,:) = 0.
         do jj = 1, nspec
-           Ps_split_new(5,jj) = sum(term(jj,:)*electric(:))
+           Ps_split(5,jj) = sum(term(jj,:)*electric(:))
         enddo
 
         !N=1
@@ -2412,13 +2386,37 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
            enddo
         enddo        
-        Ps_split_new(6,:) = 0.
+        Ps_split(6,:) = 0.
         do jj = 1, nspec
-           Ps_split_new(6,jj) = sum(term(jj,:)*electric_xy(:))
+           Ps_split(6,jj) = sum(term(jj,:)*electric_xy(:))
+        enddo
+
+        !N=-1
+        do ii = 1, 3 !tensor index
+           do j = 1, 3 !tensor index
+              do jj = 1, nspec !species index
+                 susca(jj,ii,j) = -0.5*cmplx(0.,1.)* &
+                      (susc_low(jj,ii,j,-1) - conjg(susc_low(jj,j,ii,-1)))
+              enddo
+           enddo
+        enddo
+
+        !Total n=1 terms, Eperp
+        electric_xy=electric; electric_xy(3)=cmplx(0.,0.)
+        term(:,:)=0.
+        term1(:)=0.
+        do ii = 1, 3
+           do jj = 1, nspec
+              term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
+           enddo
+        enddo        
+        Ps_split(7,:) = 0.
+        do jj = 1, nspec
+           Ps_split(7,jj) = sum(term(jj,:)*electric_xy(:))
         enddo
 
         !Normalization             
-        Ps_split_new = Ps_split_new/ewave
+        Ps_split = Ps_split/ewave
         
      endif
 
@@ -2976,7 +2974,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   if (scan(is)%eigen_s) then
      if (scan(is)%heat_s) then
         if (low_n) then
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',22*nspec,'es15.6e3)'
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
         endif
@@ -2989,7 +2987,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
      if (scan(is)%heat_s) then
         if (low_n) then
            !>>>GGH: 1/18/23
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
+              write(fmt,'(a,i0,a)')'(6es15.6e3,',14*nspec,'es15.6e3)'
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3)'
         endif
@@ -3775,52 +3773,109 @@ end subroutine get_double_out_name
            !-=-=-=-=-=-=-=-=-=-=
            !n=\pm 1 susceptibility
            if ((low_n).and.(n==1)) then
+              
+              !\chi_xx
               susc_low(is,1,1,1) = norm(1)*&
-                   n*n*jn(n,is)*( 2.*(disp_alph-1.) &
+                   n*n*jn(n,is)*( (disp_alph-1.) &
                    + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                   disp_alph* (om - Vdrifts) * (zz(n)+zz(-n)) &
-                   + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+                   disp_alph* (om - Vdrifts) * (zz(n)) &
+                   + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
 
+              susc_low(is,1,1,-1) = norm(1)*&
+                   n*n*jn(n,is)*( (disp_alph-1.) &
+                   + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
+                   disp_alph* (om - Vdrifts) * (zz(-n)) &
+                   + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+
+              !\chi_xy
               susc_low(is,1,2,1) = norm(4)*&
                    n*(jn(n,is)-jpn(n,is))*( &
-                   (zz(n)-zz(-n))*disp_alph*(om-Vdrifts) &
-                   +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+                   (zz(n))*disp_alph*(om-Vdrifts) &
+                   +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
 
+              susc_low(is,1,2,-1) = norm(4)*&
+                   n*(jn(n,is)-jpn(n,is))*( &
+                   (-zz(-n))*disp_alph*(om-Vdrifts) &
+                   +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+
+              !\chi_yx
               susc_low(is,2,1,1) = -susc_low(is,1,2,1)
 
+              susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
+
+              !\chi_xz
               susc_low(is,1,3,1) = norm(5)*&
-                   n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
                    (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n) -zz(-n))*(disp_alph*om*(om-Vdrifts)-&
+                   (zz(n))*(disp_alph*om*(om-Vdrifts)-&
                    (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                   (zz(n) +zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
+                   (zz(n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
 
+              susc_low(is,1,3,-1) = norm(5)*&
+                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                   (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   (-zz(-n))*(disp_alph*om*(om-Vdrifts)-&
+                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+                   (zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
+
+              !\chi_zx
               susc_low(is,3,1,1) = susc_low(is,1,3,1)
+              susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
 
+              !\chi_yy
               susc_low(is,2,2,1) = norm(2)*&
                    (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                   (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   disp_alph*(om - Vdrifts)*(zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
-                   (1.-disp_alph)*(zz(n)-zz(-n))))
+                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   disp_alph*(om - Vdrifts)*(zz(n)) + (n*disp_mu/(disp_Q))*&
+                   (1.-disp_alph)*(zz(n))))
 
+              susc_low(is,2,2,-1) = norm(2)*&
+                   (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
+                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   disp_alph*(om - Vdrifts)*(zz(-n)) + (n*disp_mu/(disp_Q))*&
+                   (1.-disp_alph)*(-zz(-n))))
+
+              !\chi_yz
               susc_low(is,2,3,1) = norm(6)*&
-                   (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts) &
+                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
                    +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n)+zz(-n))*(disp_alph*om*(om-Vdrifts) -&
+                   (zz(n))*(disp_alph*om*(om-Vdrifts) -&
                    (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                   +(zz(n)-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
+                   +(zz(n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
 
-              susc_low(is,3,2,1) = -susc_low(is,2,3,1)  
+              susc_low(is,2,3,-1) = norm(6)*&
+                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
+                   +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   (zz(-n))*(disp_alph*om*(om-Vdrifts) -&
+                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
+                   +(-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
 
+              !\chi_zy
+              susc_low(is,3,2,1) = -susc_low(is,2,3,1)
+              
+              susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)  
+
+              !\chi_zz
               susc_low(is,3,3,1) = norm(3)*&
                    jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
                    2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
                    +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                   (zz(n)+zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
+                   (zz(n))*(om*om*disp_alph * (om - Vdrifts) &
                    + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
-                   +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*& !changed sign
+                   +(n * disp_mu/disp_Q )*(zz(n))*& !changed sign
                    (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
                    n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
+
+              susc_low(is,3,3,-1) = norm(3)*&
+                   jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
+                   2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
+                   +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
+                   (zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
+                   + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
+                   +(n * disp_mu/disp_Q )*(-zz(-n))*& !changed sign
+                   (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
+                   n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
+              
            endif
 
         enddo
