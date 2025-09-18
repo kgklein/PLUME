@@ -438,15 +438,21 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
-    print("debug ",plume_input.dataname)
+
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
     tempfile = open(rootflnm, "r")
     for line in tempfile:
         parse = line.split()
-        temp_om = float(parse[4])
-        temp_gam = float(parse[5])
+        try:
+            temp_om = float(parse[4])
+        except:
+            temp_om = float(1*10**99.)
+        try:
+            temp_gam = float(parse[5])
+        except:
+            temp_gam = float(1*10**99.)
         roots.append(temp_om+temp_gam*1j)
     tempfile.close()
 
@@ -805,7 +811,7 @@ def loadlinfpccepar(filename,verbose=False):
     delv     = float(line[4])
     resonant_int = omega/math.sqrt(bi) #calc resonant interval
     species = ''
-    if(filename.find('specie02')>=0):
+    if(filename.find('specie02')>=0): #TODO: be  more robust here!
         resonant_int = resonant_int*tau**(.5)*mu**(-.5)
         if(verbose):print("Calculated resonant interval (elec): " + str(resonant_int))
         species = 'elec'
@@ -1149,6 +1155,8 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
 
 def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = False, use_ps_split_new=True):
 
+    #use_ps_split_new is another name for use_new_low_n
+
     #Attempts to figure out what is output based on the number of values in a line-> Technically not possible
     # for all values of nspec given there exists a least common multiple where nspec*(num_additional_elements_if_eigen_is_true_and_new_low_n_is_false) = nspec^prime(num_additional_elements_if_both_are_true)
     # where nspec != nspec^prime
@@ -1156,7 +1164,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
     #verbose is currently not used....
 
     if(use_ps_split_new == False):
-        print("Warning- the most current version of PLUME forces use_ps_split_new=True now!")
+        print("Warning- the most current version of PLUME forces use_ps_split_new=True now! use_ps_split_new=False is not supported by this function at present.")
         return
 
     nspec = int(round(nspec)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
@@ -1198,25 +1206,24 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                 eigen = True
                 heating = False
                 nspec = int(round((nline - 18)/(8+6))) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
-                
                 noutperspec = 8 #note this is the *additional* number of output per spec accounting for the 6 that is always there
 
             elif((nline - 6) % (7+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = False
                 heating = True
-                nspec = int(round(nline - 6)/(7+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 6)  / (7+6)))   # eigen=False, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 7
 
             elif((nline - 18) % (15+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = True
                 heating = True
-                nspec = int(round(nline - 18)/(15+6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 18) / (15+6)))  # eigen=True, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 15
 
             elif((nline - 6) % (6) == 0):
                 eigen = False
                 heating = False
-                nspec = int(round(nline - 6)/(6)) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 6)  / 6))       # eigen=False, heat=False #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 0
 
             else:
@@ -1277,20 +1284,19 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
             plume_sweep["n"+str(_i+1)+"i"] = []
 
     if(heating):
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"ttd_yy"] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"ttd_yz"] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"ld_zy"] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"ld_zz"] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"n_eq_0"] = []
-        for _i in range(0,nspec):
-            plume_sweep["p"+str(_i+1)+"cd_n_pm"] = []
+        # First, all total powers P_j
+        for _i in range(0, nspec):
+            plume_sweep[f"p{_i+1}"] = []
+
+        # Then, for each species j, its 6 sub-terms
+        for _i in range(0, nspec):
+            plume_sweep[f"p{_i+1}ttd_yy"] = []
+            plume_sweep[f"p{_i+1}ttd_yz"] = []
+            plume_sweep[f"p{_i+1}ld_zy"] = []
+            plume_sweep[f"p{_i+1}ld_zz"] = []
+            plume_sweep[f"p{_i+1}n_eq_0"] = []
+            plume_sweep[f"p{_i+1}cd_n_pm"] = []
+
 
     for _i in range(0,nspec):
         plume_sweep["p"+str(_i+1)+"tau"] = []
@@ -1339,21 +1345,28 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                     plume_sweep["n"+str(_i)+"r"].append(float(line[18+6*(nspec)+2*(_i-1)]))
                     plume_sweep["n"+str(_i)+"i"].append(float(line[19+6*(nspec)+2*(_i-1)]))
 
+            # Heating block: P1..Pn, then groups of 6 per species
             if(heating):
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)].append(float(line[17+(8-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"ttd_yy"].append(float(line[17+(9-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"ttd_yz"].append(float(line[17+(10-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"ld_zy"].append(float(line[17+(11-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"ld_zz"].append(float(line[17+(12-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"n_eq_0"].append(float(line[17+(13-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
-                for _i in range(1,nspec+1):
-                    plume_sweep["p"+str(_i)+"cd_n_pm"].append(float(line[17+(14-6*int(not(eigen)))*(nspec)+(_i)-12*int(not(eigen))]))
+                not_eig = int(not(eigen))
+                base = 17
+                # 0-based index of first heating value (P1)
+                H0 = base + 1 + (8 - 6*not_eig)*nspec - 12*not_eig
+
+                # First: total power P for all species (P1..Pn)
+                for _i in range(1, nspec+1):
+                    plume_sweep[f"p{_i}"].append(float(line[H0 + (_i-1)]))
+
+                # Then: for each species, 6 consecutive sub-terms
+                after_p = H0 + nspec
+                for _i in range(1, nspec+1):
+                    b = after_p + 6*(_i-1)
+                    plume_sweep[f"p{_i}ttd_yy"].append(float(line[b + 0]))
+                    plume_sweep[f"p{_i}ttd_yz"].append(float(line[b + 1]))
+                    plume_sweep[f"p{_i}ld_zy"].append(float(line[b + 2]))
+                    plume_sweep[f"p{_i}ld_zz"].append(float(line[b + 3]))
+                    plume_sweep[f"p{_i}n_eq_0"].append(float(line[b + 4]))
+                    plume_sweep[f"p{_i}cd_n_pm"].append(float(line[b + 5]))
+
 
             for _i in range(1,nspec+1):
                 plume_sweep["p"+str(_i)+"tau"].append(float(line[18+noutperspec*nspec+6*(_i-1)-12*int(not(eigen))]))
@@ -1368,8 +1381,237 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
     for key in plume_sweep.keys():
             plume_sweep[key] = np.asarray(plume_sweep[key])
 
+    return plume_sweep
+
+import numpy as np
+
+def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verbose = False, use_ps_split_new=True):
+    """
+    Debug version of load_plume_sweep:
+    - Parses exactly like load_plume_sweep (same autodetection & edge cases)
+    - BUT instead of reading floats, it appends the *column indices* for each field.
+    This lets you verify that your indexing maps to the intended columns.
+    """
+
+    if(use_ps_split_new == False):
+        print("Warning- the most current version of PLUME forces use_ps_split_new=True now! use_ps_split_new=False is not supported by this function at present.")
+        return
+
+    nspec = int(round(nspec))  # robust cast
+
+    if(nspec == 0):
+        f = open(flnm)
+        line = f.readline()
+        nline = len(line.split())
+
+        if(nline > 12):
+            eigen = True
+
+        skipforedgecase = False
+        if(nline == 60):
+            _tol = .000000001
+            if(abs(float(line.split()[43])-1) > _tol):
+                nspec = 2
+                eigen = True
+                heating = True
+                skipforedgecase = True
+                noutperspec = 15
+
+        if(not(skipforedgecase)):
+            if(int((nline - 18) % (8+6) == 0)+int((nline - 6) % (7+6) == 0)+int((nline - 18) % (15+6) == 0)+int((nline - 6) % (6)==0) > 1):
+                print("Could not automatically determine nspec, heating=T/F, and eigen=T/F (as number line elements, which we use to determine these values, could be produced by more than one combination of nspec heating and eigen)")
+                print("Please call this function again and pass as optional paramters nspec=*val*, heating=True/False, eigen=True/False")
+                print('Number of elements in first line: ',nline)
+                print("Possible if Eigen is true and heat is false (bool->1 or 0) | Possible if Eigen is false and heat is true (bool->1 or 0) | Possible if Eigen is true and heat is true (bool->1 or 0)")
+                print("int((nline - 18) % (8+6) == 0):",int((nline - 18) % (8+6) == 0), "    |int((nline - 6) % (7+6) == 0)",int((nline - 6) % (7+6) == 0),"   |int((nline - 6) % (6)==0)",int((nline - 6) % (6)==0))
+                f.close()
+                return
+
+            if((nline - 18) % (8+6) == 0):
+                eigen = True
+                heating = False
+                nspec = int(round((nline - 18)/(8+6)))
+                noutperspec = 8
+
+            elif((nline - 6) % (7+6) == 0):
+                eigen = False
+                heating = True
+                nspec = int(round((nline - 6)  / (7+6)))
+                noutperspec = 7
+
+            elif((nline - 18) % (15+6) == 0):
+                eigen = True
+                heating = True
+                nspec = int(round((nline - 18) / (15+6)))
+                noutperspec = 15
+
+            elif((nline - 6) % (6) == 0):
+                eigen = False
+                heating = False
+                nspec = int(round((nline - 6)  / 6))
+                noutperspec = 0
+
+            else:
+                print("Error, could not determine input format from output! It seems there are not the correct number of elements in a line for any setup...")
+                f.close()
+                return
+
+        f.close()
+
+    else:
+        f = open(flnm)
+        line = f.readline()
+        nline = len(line.split())
+        f.close()
+
+        if(heating == False and eigen == True):
+            noutperspec = 8
+        elif(heating == True and eigen == False):
+            noutperspec = 7
+        elif(heating == True and eigen == True):
+            noutperspec = 15
+        elif(heating == False and eigen == False):
+            noutperspec = 0
+
+    # Build dictionary
+    plume_sweep = {
+            "kperp": [],
+            "kpar": [],
+            "betap": [],
+            "vtp": [],
+            "w": [],
+            "g": []
+        }
+    if(eigen):
+        plume_sweep["bxr"] = []
+        plume_sweep["bxi"] = []
+        plume_sweep["byr"] = []
+        plume_sweep["byi"] = []
+        plume_sweep["bzr"] = []
+        plume_sweep["bzi"] = []
+        plume_sweep["exr"] = []
+        plume_sweep["exi"] = []
+        plume_sweep["eyr"] = []
+        plume_sweep["eyi"] = []
+        plume_sweep["ezr"] = []
+        plume_sweep["ezi"] = []
+        for _i in range(0,nspec):
+            plume_sweep["ux"+str(_i+1)+"r"] = []
+            plume_sweep["ux"+str(_i+1)+"i"] = []
+            plume_sweep["uy"+str(_i+1)+"r"] = []
+            plume_sweep["uy"+str(_i+1)+"i"] = []
+            plume_sweep["uz"+str(_i+1)+"r"] = []
+            plume_sweep["uz"+str(_i+1)+"i"] = []
+
+        for _i in range(0,nspec):
+            plume_sweep["n"+str(_i+1)+"r"] = []
+            plume_sweep["n"+str(_i+1)+"i"] = []
+
+    if(heating):
+        # First, all total powers P_j
+        for _i in range(0, nspec):
+            plume_sweep[f"p{_i+1}"] = []
+
+        # Then, for each species j, its 6 sub-terms
+        for _i in range(0, nspec):
+            plume_sweep[f"p{_i+1}ttd_yy"] = []
+            plume_sweep[f"p{_i+1}ttd_yz"] = []
+            plume_sweep[f"p{_i+1}ld_zy"] = []
+            plume_sweep[f"p{_i+1}ld_zz"] = []
+            plume_sweep[f"p{_i+1}n_eq_0"] = []
+            plume_sweep[f"p{_i+1}cd_n_pm"] = []
+
+
+    for _i in range(0,nspec):
+        plume_sweep["p"+str(_i+1)+"tau"] = []
+        plume_sweep["p"+str(_i+1)+"mu"] = []
+        plume_sweep["p"+str(_i+1)+"alph"] = []
+        plume_sweep["p"+str(_i+1)+"q"] = []
+        plume_sweep["p"+str(_i+1)+"D"] = []
+        plume_sweep["p"+str(_i+1)+"vv"] = []
+
+    # Read file and append *indices* instead of values
+    f = open(flnm)
+    line = f.readline()
+    while (line != ''):
+        line = line.split()
+        if(len(line) > 0):
+            # Base fields
+            plume_sweep["kperp"].append(0)
+            plume_sweep["kpar"].append(1)
+            plume_sweep["betap"].append(2)
+            plume_sweep["vtp"].append(3)
+            plume_sweep["w"].append(4)
+            plume_sweep["g"].append(5)
+
+            # Eigenfields
+            if(eigen):
+                plume_sweep["bxr"].append(6)
+                plume_sweep["bxi"].append(7)
+                plume_sweep["byr"].append(8)
+                plume_sweep["byi"].append(9)
+                plume_sweep["bzr"].append(10)
+                plume_sweep["bzi"].append(11)
+                plume_sweep["exr"].append(12)
+                plume_sweep["exi"].append(13)
+                plume_sweep["eyr"].append(14)
+                plume_sweep["eyi"].append(15)
+                plume_sweep["ezr"].append(16)
+                plume_sweep["ezi"].append(17)
+
+                for _i in range(1,nspec+1):
+                    plume_sweep["ux"+str(_i)+"r"].append(18+6*(_i-1))
+                    plume_sweep["ux"+str(_i)+"i"].append(19+6*(_i-1))
+                    plume_sweep["uy"+str(_i)+"r"].append(20+6*(_i-1))
+                    plume_sweep["uy"+str(_i)+"i"].append(21+6*(_i-1))
+                    plume_sweep["uz"+str(_i)+"r"].append(22+6*(_i-1))
+                    plume_sweep["uz"+str(_i)+"i"].append(23+6*(_i-1))
+
+                for _i in range(1,nspec+1):
+                    plume_sweep["n"+str(_i)+"r"].append(18+6*(nspec)+2*(_i-1))
+                    plume_sweep["n"+str(_i)+"i"].append(19+6*(nspec)+2*(_i-1))
+
+            # Heating block: P1..Pn, then groups of 6 per species
+            if(heating):
+                not_eig = int(not(eigen))
+                base = 17
+                # 0-based index of first heating value (P1)
+                H0 = base + 1 + (8 - 6*not_eig)*nspec - 12*not_eig
+
+                # First: total power P for all species (P1..Pn)
+                for _i in range(1, nspec+1):
+                    plume_sweep["p"+str(_i)].append(H0 + (_i-1))
+
+                # Then: for each species, 6 consecutive sub-terms
+                after_p = H0 + nspec
+                for _i in range(1, nspec+1):
+                    b = after_p + 6*(_i-1)
+                    plume_sweep["p"+str(_i)+"ttd_yy"].append(b + 0)
+                    plume_sweep["p"+str(_i)+"ttd_yz"].append(b + 1)
+                    plume_sweep["p"+str(_i)+"ld_zy"].append(b + 2)
+                    plume_sweep["p"+str(_i)+"ld_zz"].append(b + 3)
+                    plume_sweep["p"+str(_i)+"n_eq_0"].append(b + 4)
+                    plume_sweep["p"+str(_i)+"cd_n_pm"].append(b + 5)
+
+
+
+            # Always-present per-spec trailing quantities (tau, mu, alph, q, D, vv)
+            for _i in range(1,nspec+1):
+                base_tail = 18 + noutperspec*nspec + 6*(_i-1) - 12*int(not(eigen))
+                plume_sweep["p"+str(_i)+"tau"].append(base_tail + 0)
+                plume_sweep["p"+str(_i)+"mu"].append(base_tail + 1)
+                plume_sweep["p"+str(_i)+"alph"].append(base_tail + 2)
+                plume_sweep["p"+str(_i)+"q"].append(base_tail + 3)
+                plume_sweep["p"+str(_i)+"D"].append(base_tail + 4)
+                plume_sweep["p"+str(_i)+"vv"].append(base_tail + 5)
+
+        line = f.readline()
+
+    for key in plume_sweep.keys():
+        plume_sweep[key] = np.asarray(plume_sweep[key])
 
     return plume_sweep
+
 
 
 
@@ -2430,3 +2672,465 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
         sweep[_key] = np.concatenate((sweep1[_key],sweep2[_key],sweep3[_key],sweep4[_key]))
 
     return sweep
+
+def test_disp(om,gam,plume_input,inputflnm,outputname,verbose=False):
+    """
+    Run plume.e test_disp and parse diagnostic outputs
+    """
+    import subprocess, os
+
+    plume_input.guesses=[{}]
+    plume_input.make_guess(om,gam)
+
+    plume_input.params['option'] = -1
+    plume_input.write_input(inputflnm,outputname)
+
+    os.makedirs("data/" + plume_input.dataname, exist_ok=True)
+
+    result = subprocess.run(
+        ["./plume.e", inputflnm + '.in'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"plume.e failed:\n{result.stderr}")
+
+    # Containers for parsed values
+    omega = gamma = None
+    Ds_vtp6_real = Ds_vtp6_imag = None
+    kperp = kpar = None
+
+    ef = []
+    bf = []
+    ns = []
+    Us = []            # nested list: Us[species][3]
+    Ps = []
+    Ps_split = []      # Ps_split[species][4]
+    Ps_split_new = []  # Ps_split_new[species][6]
+
+    current_block = None
+
+    for line in result.stdout.splitlines():
+        # Check for headers like "ef =", "bf =", etc.
+        if line.strip().startswith("ef"):
+            current_block = "ef"; continue
+        elif line.strip().startswith("bf"):
+            current_block = "bf"; continue
+        elif line.strip().startswith("ns"):
+            current_block = "ns"; continue
+        elif line.strip().startswith("Us"):
+            current_block = "Us"; continue
+        elif line.strip().startswith("Ps_split_new"):
+            current_block = "Ps_split_new"; continue
+        elif line.strip().startswith("Ps_split"):
+            current_block = "Ps_split"; continue
+        elif line.strip().startswith("Ps"):
+            current_block = "Ps"; continue
+
+        # Try splitting into floats
+        try:
+            nums = [float(x) for x in line.split()]
+        except ValueError:
+            continue  # skip non-numeric lines
+
+        # Match initial writes
+        if len(nums) == 4 and omega is None:
+            omega, gamma, Ds_vtp6_real, Ds_vtp6_imag = nums
+        elif len(nums) == 2 and kperp is None:
+            kperp, kpar = nums
+        else:
+            # Match block data
+            if current_block == "ef":
+                ef.extend(nums)
+            elif current_block == "bf":
+                bf.extend(nums)
+            elif current_block == "ns":
+                ns.extend(nums)
+            elif current_block == "Us":
+                Us.append(nums)  # 3 entries per species
+            elif current_block == "Ps":
+                Ps.extend(nums)
+            elif current_block == "Ps_split":
+                Ps_split.append(nums)  # 4 entries per species
+            elif current_block == "Ps_split_new":
+                Ps_split_new.append(nums)  # 6 entries per species
+
+    return {
+        "omega": omega,
+        "gamma": gamma,
+        "D_real": Ds_vtp6_real,
+        "D_imag": Ds_vtp6_imag,
+        "kperp": kperp,
+        "kpar": kpar,
+        "ef": ef,
+        "bf": bf,
+        "ns": ns,
+        "Us": Us,
+        "Ps": Ps,
+        "Ps_split": Ps_split,
+        "Ps_split_new": Ps_split_new,
+    }
+
+def _read_header_and_axes_3d(f, filename, idxoffset=0, verbose=False):
+    """
+    Parses the header shared with your earlier writer and returns metadata and axes.
+    Assumes the same first-lines structure you used in loadlinfpccart().
+    """
+    # guard like your original
+    if abs(idxoffset) > 2:
+        if verbose: print("Error! Couldn't load ", filename)
+        return None
+
+    try:
+        if verbose: print("Opening " + filename)
+        line = f.readline()          # (skip) – comment/title
+        line = f.readline()          # params line
+        line = line.split()
+        tau   = float(line[0])
+        bi    = float(line[1])
+        kpar  = float(line[2])  # kpar rho
+        kperp = float(line[3])  # kperp rho
+        vts   = float(line[4])
+        mu    = float(line[5])
+        omega = complex(float(line[6]), float(line[7]))
+
+        line = f.readline()          # (skip) – maybe a label line
+        line = f.readline()
+        line = line.split()
+        vxmin = float(line[0])
+        vxmax = float(line[1])
+        vymin = float(line[2])
+        vymax = float(line[3])
+        vzmin = float(line[4])
+        vzmax = float(line[5])
+        delv  = float(line[6])
+
+        resonant_int = (omega / math.sqrt(bi))
+        species = ''
+        if ('specie02' in filename):
+            resonant_int = resonant_int * (tau**0.5) * (mu**-0.5)
+            if verbose: print("Calculated resonant interval (elec): " + str(resonant_int))
+            species = 'elec'
+        else:
+            if verbose: print("Calculated resonant interval (ion): " + str(resonant_int))
+            species = 'ion'
+        resonant_int = resonant_int.real
+
+        # index bounds like your original
+        ivxmin = int(round(vxmin / delv))
+        ivxmax = int(round(vxmax / delv))
+        ivymin = int(round(vymin / delv))
+        ivymax = int(round(vymax / delv))
+        ivzmin = int(round(vzmin / delv))
+        ivzmax = int(round(vzmax / delv))
+
+        nx = ivxmax - ivxmin + 1 - idxoffset
+        ny = ivymax - ivymin + 1 - idxoffset
+        nz = ivzmax - ivzmin + 1 - idxoffset
+
+        # build axes (like loadlinfpccart)
+        vx = []
+        vy = []
+        vz = []
+        vxindex = vxmin
+        vyindex = vymin
+        vzindex = vzmin
+
+        _i = 0
+        vx.append(float(vxindex))
+        while _i < nx:
+            vxindex += delv
+            vx.append(float(vxindex))
+            _i += 1
+
+        _i = 0
+        vy.append(float(vyindex))
+        while _i < ny:
+            vyindex += delv
+            vy.append(float(vyindex))
+            _i += 1
+
+        _i = 0
+        vz.append(float(vzindex))
+        while _i < nz:
+            vzindex += delv
+            vz.append(float(vzindex))
+            _i += 1
+
+        # lengths are nx+1 etc because we seeded with the first value then advanced nx times.
+        # Match your earlier convention by trimming the last element to keep exact counts.
+        vx = np.asarray(vx[:-1], dtype=float)
+        vy = np.asarray(vy[:-1], dtype=float)
+        vz = np.asarray(vz[:-1], dtype=float)
+
+        meta = {
+            'tau': tau, 'bi': bi, 'kpar': kpar, 'kperp': kperp, 'vts': vts, 'mu': mu, 'omega_sqrtbetap_over_kpar': omega,
+            'vxmin': vxmin, 'vxmax': vxmax, 'vymin': vymin, 'vymax': vymax, 'vzmin': vzmin, 'vzmax': vzmax,
+            'delv': delv, 'species': species, 'resonant_int': resonant_int,
+            'nx': nx, 'ny': ny, 'nz': nz,
+            'vx': vx, 'vy': vy, 'vz': vz
+        }
+        return meta
+    except Exception as e:
+        if verbose: print("Header parse failed, retrying with idxoffset+1. Error:", e)
+        return None
+
+
+def _read_3d_block_into(arr, f, nx, ny, nz,
+                        clamp_small=9.999e-99, clamp_big=9.999e+99):
+    """
+    Fill arr shaped (nz, ny, nx) from the Fortran writer:
+      one line per (ix, iy) containing nz values.
+    """
+    import math
+
+    ix = 0
+    iy = 0
+
+    def _next_data_line():
+        while True:
+            line = f.readline()
+            if not line:
+                return None
+            s = line.strip()
+            if not s:
+                continue
+            if s.startswith('---'):   # terminal marker
+                return '---'
+            return s
+
+    total_lines = nx * ny
+    read_lines = 0
+    while read_lines < total_lines:
+        line = _next_data_line()
+        if line is None:
+            raise EOFError("Unexpected end of file while reading 3D block.")
+        if line == '---':
+            # normal end; if seen early, accept only if we already read what we needed
+            if read_lines != total_lines:
+                raise EOFError("Found '---' before reading all (nx*ny) lines.")
+            break
+
+        toks = line.split()
+        if len(toks) < nz:
+            raise ValueError(f"Expected {nz} columns, got {len(toks)} "
+                             f"on line {read_lines+1}")
+
+        # fill one (ix, iy, :) column along z
+        for iz in range(nz):
+            try:
+                v = float(toks[iz])
+            except ValueError:
+                v = 0.0
+            if math.isnan(v) or abs(v) < clamp_small:
+                v = 0.0
+            elif abs(v) > clamp_big:
+                v = math.copysign(clamp_big, v)
+            arr[iz, iy, ix] = v
+
+        iy += 1
+        if iy >= ny:
+            iy = 0
+            ix += 1
+        read_lines += 1
+
+
+import numpy as np
+import math
+
+def loadlinfpc3d(filename,idxoffset=0,verbose=False):
+    """
+    Loads fpc data for fs1 in cartesian coordintates
+    assumes equal bounds in vx vy and vz direction
+    """
+    if(abs(idxoffset) > 2):
+        print("Error! Couldn't load  ",filename)
+        return
+    try:
+        if(verbose):print("Opening " + filename)
+        try:
+            f = open(filename)
+        except:
+            print("Couldnt open: " + filename)
+            return
+
+        line = f.readline()
+        line = f.readline()
+        line = line.split()
+        tau   = float(line[0]); bi    = float(line[1])
+        kpar  = float(line[2]); kperp = float(line[3])
+        vts   = float(line[4]); mu    = float(line[5])
+        omega = complex(float(line[6]),float(line[7]))
+
+        line = f.readline()
+        line = f.readline()
+        line = line.split()
+        vxmin = float(line[0]); vxmax = float(line[1])
+        vymin = float(line[2]); vymax = float(line[3])
+        vzmin = float(line[4]); vzmax = float(line[5])
+        delv  = float(line[6])
+
+        resonant_int = omega/math.sqrt(bi)
+        species = ''
+        if(filename.find('specie02')>=0 or filename.find('specie03')>=0): #TODO: be more robust! (this happens elsewhere too!)
+            resonant_int = resonant_int*tau**(.5)*mu**(-.5)
+            if(verbose): print("Calculated resonant interval (elec): " + str(resonant_int))
+            species = 'elec'
+        else:
+            if(verbose): print("Calculated resonant interval (ion): " + str(resonant_int))
+            species = 'ion'
+        resonant_int = resonant_int.real
+
+        # skip the dashed separator line under the header
+        _ = f.readline()
+
+        ivxmin=int(round(vxmin/delv)); ivxmax=int(round(vxmax/delv))
+        ivymin=int(round(vymin/delv)); ivymax=int(round(vymax/delv))
+        ivzmin=int(round(vzmin/delv)); ivzmax=int(round(vzmax/delv))
+
+        nx = ivxmax-ivxmin+1-idxoffset
+        ny = ivymax-ivymin+1-idxoffset
+        nz = ivzmax-ivzmin+1-idxoffset
+
+        vx=[]; vy=[]; vz=[]
+        vxindex=vxmin; vyindex=vymin; vzindex=vzmin
+        _i=0; vx.append(float(vxindex))
+        while(_i<nx): vxindex+=delv; vx.append(float(vxindex)); _i+=1
+        _i=0; vy.append(float(vyindex))
+        while(_i<ny): vyindex+=delv; vy.append(float(vyindex)); _i+=1
+        _i=0; vz.append(float(vzindex))
+        while(_i<nz): vzindex+=delv; vz.append(float(vzindex)); _i+=1
+        vx=np.asarray(vx[:-1]); vy=np.asarray(vy[:-1]); vz=np.asarray(vz[:-1])
+
+        arr=np.zeros((len(vz),len(vy),len(vx)))
+        ix=0; iy=0
+
+        line=f.readline()
+        while line:
+            s=line.strip()
+            if s=='':
+                line=f.readline(); continue
+            if s.startswith('---'):   # terminal '---'
+                break
+            vals=s.split()
+            if len(vals)<len(vz):
+                line=f.readline(); continue
+            for iz in range(len(vz)):
+                try: v=float(vals[iz])
+                except: v=0.0
+                if math.isnan(v): v=0.0
+                av=abs(v)
+                if av<9.999E-99: v=0.0
+                elif av>9.999E+99: v=9.999E+99
+                arr[iz,iy,ix]=v
+            iy+=1
+            if iy>=len(vy): iy=0; ix+=1
+            line=f.readline()
+
+        linfpcdata={'fs1':arr,'vx':vx,'vy':vy,'vz':vz,
+                    'resonant_int':resonant_int,'vxmin':vxmin,'vxmax':vxmax,
+                    'vymin':vymin,'vymax':vymax,'vzmin':vzmin,'vzmax':vzmax,
+                    'delv':delv,'species':species,'omega_sqrtbetap_over_kpar':omega}
+        return linfpcdata
+    except:
+        return loadlinfpc3d(filename,idxoffset=idxoffset+1,verbose=verbose)
+
+
+def loadlinfpc3d_dist(filenamereal,filenameimag,idxoffset=0,verbose=False):
+    """
+    Loads fpc data for fs1 in cartesian coordintates
+    """
+    realpartdict = loadlinfpc3d(filenamereal,idxoffset=idxoffset,verbose=verbose)
+    imagpartdict = loadlinfpc3d(filenameimag,idxoffset=idxoffset,verbose=verbose)
+
+    outdict = {}
+    for key in realpartdict.keys():
+        if key != 'fs1':
+            outdict[key] = realpartdict[key]
+
+    outdict['fs1_r'] = realpartdict['fs1']
+    outdict['fs1_i'] = imagpartdict['fs1']
+    return outdict
+
+import numpy as np
+
+def reduce_3d_to_projections(arr3d, vx, vy, vz, keyname, method='mean'):
+    """
+    arr3d shape: (nz, ny, nx) with indices [iz, iy, ix]
+    vx, vy, vz: 1D arrays with lengths nx, ny, nz respectively.
+
+    Returns (same structure you requested):
+      {
+        keyname+'vxvy': Cvxvy, keyname+'vxvz': Cvxvz, keyname+'vyvz': Cvyvz,
+        'vx': vx, 'vy': vy, 'vz': vz,
+        'vx_xy': vx_xy, 'vy_xy': vy_xy,
+        'vx_xz': vx_xz, 'vz_xz': vz_xz,
+        'vy_yz': vy_yz.T, 'vz_yz': vz_yz.T  # preserved to match prior API
+      }
+    """
+    vx = np.asarray(vx, dtype=float)
+    vy = np.asarray(vy, dtype=float)
+    vz = np.asarray(vz, dtype=float)
+
+    # reduce over z → (ny, nx), then transpose → (nx, ny)
+    if method == 'sum':
+        Cvxvy = arr3d.sum(axis=0).T
+        Cvxvz = arr3d.sum(axis=1).T   # (nx, nz)
+        Cvyvz = arr3d.sum(axis=2).T   # (ny, nz)
+    elif method == 'mean':
+        Cvxvy = arr3d.mean(axis=0).T
+        Cvxvz = arr3d.mean(axis=1).T
+        Cvyvz = arr3d.mean(axis=2).T
+    elif method == 'max':
+        Cvxvy = arr3d.max(axis=0).T
+        Cvxvz = arr3d.max(axis=1).T
+        Cvyvz = arr3d.max(axis=2).T
+    elif method == 'absmax':
+        Cvxvy = np.abs(arr3d).max(axis=0).T
+        Cvxvz = np.abs(arr3d).max(axis=1).T
+        Cvyvz = np.abs(arr3d).max(axis=2).T
+    else:
+        raise ValueError("Unknown method: choose from 'sum','mean','max','absmax'.")
+
+    # shapes & sanity
+    nx, ny = Cvxvy.shape
+    nx2, nz = Cvxvz.shape
+    ny2, nz2 = Cvyvz.shape
+    assert nx == len(vx) and ny == len(vy) and nz == len(vz)
+    assert nx == nx2 and ny == ny2 and nz == nz2
+
+    vx_xy = np.zeros((nx, ny), dtype=float)
+    vy_xy = np.zeros((nx, ny), dtype=float)
+    for ix in range(nx):
+        for iy in range(ny):
+            vx_xy[ix, iy] = vx[ix]
+            vy_xy[ix, iy] = vy[iy]
+
+    vx_xz = np.zeros((nx, nz), dtype=float)
+    vz_xz = np.zeros((nx, nz), dtype=float)
+    for ix in range(nx):
+        for iz in range(nz):
+            vx_xz[ix, iz] = vx[ix]
+            vz_xz[ix, iz] = vz[iz]
+
+    vy_yz = np.zeros((ny, nz), dtype=float)
+    vz_yz = np.zeros((ny, nz), dtype=float)
+    for iy in range(ny):
+        for iz in range(nz):
+            vy_yz[iy, iz] = vy[iy]
+            vz_yz[iy, iz] = vz[iz]
+
+    return {
+        keyname+'vxvy': Cvxvy,     # (nx, ny)
+        keyname+'vxvz': Cvxvz,     # (nx, nz)
+        keyname+'vyvz': Cvyvz,     # (ny, nz)
+        'vx': vx, 'vy': vy, 'vz': vz,
+        'vx_xy': vx_xy, 'vy_xy': vy_xy,
+        'vx_xz': vx_xz, 'vz_xz': vz_xz,
+        'vy_yz': vy_yz, 'vz_yz': vz_yz  
+    }
+
+
+

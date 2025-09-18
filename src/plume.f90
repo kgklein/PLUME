@@ -236,7 +236,7 @@ program plume
          call read_guess_input !functions.f90
 
          !Take nroot_max inputs and refine guesses
-         call refine_guess !disprels.f90
+         !call refine_guess !disprels.f90
 
       end if
 

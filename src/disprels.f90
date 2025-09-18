@@ -412,22 +412,88 @@ module disprels
   !-=-=-=-=-
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
-    use vars, only : wroots, nroot_max, writeOut
+    use vars, only : wroots, nroot_max, writeOut, nspec, scan
     use vars, only : kperp, kpar, vtp
+
     implicit none
+
+    !Eigenfunctions
+     complex, dimension(1:3)       :: ef
+     !! Electric Field eigenfluctuation.
+     
+     complex, dimension(1:3)       :: bf
+     !! Magnetic Field eigenfluctuation.
+
+     complex, dimension(1:nspec)     :: ns
+     !! Density eigenfluctuation.
+     
+     complex, dimension(1:3,1:nspec) :: Us
+     !! Velocity eigenfluctuation.
+     
+     !Heating
+     real, dimension(1:nspec) :: Ps
+     !! Power into/out of species/component in one wave period.
+     
+     real, dimension(1:4,1:nspec) :: Ps_split
+     !! Power into/out of species/components, broken into different contributions.
+     !! Deprecated.
+     
+     !>>>GGH: 1/18/23
+     real, dimension(1:6,1:nspec) :: Ps_split_new
+     !!Power into/out of species/componets.
+     !!Corrected LD/TTD calculation (GGH).
+
+    
     
     complex :: omega
     !! Complex Frequency input.
     
     complex :: D
     !! Output of dispersion relation function.
+
+    integer :: i,j
     
+    
+
     omega= cmplx(wroots(1,1),wroots(2,1))
     
     D = disp(omega)
-    
+
     write(*,'(4es14.4)') omega,D*vtp**6.
     write(*,'(2es14.4)')kperp,kpar
+
+    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,&
+                   Ps_split_new,.true.,.true.)
+
+
+    ! --- Print diagnostics ---
+    write(*,*) 'ef ='
+    write(*,'(3(1x,es14.6))') ef
+
+    write(*,*) 'bf ='
+    write(*,'(3(1x,es14.6))') bf
+
+    write(*,*) 'ns ='
+    write(*,'(100(1x,es14.6))') (ns(i), i=1,nspec)
+
+    write(*,*) 'Us ='
+    do i=1,nspec
+       write(*,'(3(1x,es14.6))') (Us(j,i), j=1,3)
+    end do
+
+    write(*,*) 'Ps ='
+    write(*,'(100(1x,es14.6))') (Ps(i), i=1,nspec)
+
+    write(*,*) 'Ps_split ='
+    do i=1,nspec
+       write(*,'(4(1x,es14.6))') (Ps_split(j,i), j=1,4)
+    end do
+
+    write(*,*) 'Ps_split_new ='
+    do i=1,nspec
+       write(*,'(6(1x,es14.6))') (Ps_split_new(j,i), j=1,6)
+    end do
+    
 
   end subroutine test_disp
 

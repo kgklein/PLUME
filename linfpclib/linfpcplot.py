@@ -94,8 +94,8 @@ def plotlinfpc_gyro(linfpcdata,filename='',zoomin=False,vlim=None,plotlog=False,
         print("Changing ylim of plot!!!")
         plt.gca().set_ylim(ylim[0],zlim[1])
     plt.title(plttitle)
-    plt.xlabel('$v_{||}/v_{ts}$')
-    plt.ylabel('$v_{\perp}/v_{ts}$')
+    plt.xlabel(r'$v_{||}/v_{ts}$')
+    plt.ylabel(r'$v_{\perp}/v_{ts}$')
     plt.colorbar()
     plt.grid()
 
@@ -220,9 +220,12 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
         print("Changing ylim of plot!!!")
         plt.gca().set_ylim(ylim[0],zlim[1])
     plt.title(plttitle)
-    plt.xlabel('$v_{||}/v_{ts}$')
-    plt.ylabel('$v_{\perp}/v_{ts}$')
+    plt.xlabel(r'$v_{||}/v_{ts}$')
+    plt.ylabel(r'$v_{\perp}/v_{ts}$')
     plt.colorbar()
+    _cmap = plt.get_cmap("PuOr")
+    zero_color = _cmap(0.5)   # mid-point of the colormap = value 0
+    plt.gca().set_facecolor(zero_color)
     plt.grid()
 
     if(setequal):
@@ -239,7 +242,7 @@ def plotlinfpc_gyro_dist(linfpcdata,filename,plotkey,zoomin=False,vlim=None,plot
     
     plt.show()
 
-def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False, scalevelocity=1):
+def plot_9pan_cart(foldername,filenametag,dataoverwritepar=None,dataoverwriteperp1=None,dataoverwriteperp2=None,flnm='',specnum='01',computeEner=False, scalevelocity=1):
     """
     Makes 3x3 plot of projections of FPC vel signature in cartesian coordinates
 
@@ -257,16 +260,20 @@ def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False
 
     from linfpclib.linfpc import loadlinfpccart
 
-    flnmread = foldername + filenametag +'.cparcart.specie'+specnum+'.mode01'
-    print('Reading: ',flnmread)
-    cartpar = loadlinfpccart(flnmread)
+    if(dataoverwritepar is None):
+        flnmread = foldername + filenametag +'.cparcart.specie'+specnum+'.mode01'
+        print('Reading: ',flnmread)
+        cartpar = loadlinfpccart(flnmread)
 
-    flnmread = foldername + filenametag +'.cperp1.specie'+specnum+'.mode01'
-    cartperp1 = loadlinfpccart(flnmread)
+        flnmread = foldername + filenametag +'.cperp1.specie'+specnum+'.mode01'
+        cartperp1 = loadlinfpccart(flnmread)
 
-    flnmread = foldername + filenametag +'.cperp2.specie'+specnum+'.mode01'
-    cartperp2 = loadlinfpccart(flnmread)
-
+        flnmread = foldername + filenametag +'.cperp2.specie'+specnum+'.mode01'
+        cartperp2 = loadlinfpccart(flnmread)
+    else:
+        cartpar = dataoverwritepar
+        cartperp1 = dataoverwriteperp1
+        cartperp2 = dataoverwriteperp2
 
     fig, axs = plt.subplots(3,3,figsize=(3*5,3*5),sharex=True)
 
@@ -326,7 +333,7 @@ def plot_9pan_cart(foldername,filenametag,flnm='',specnum='01',computeEner=False
 
     plt.show()
 
-def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scalevelocity=1):
+def plot_fs1_re_im_cart(foldername,filenametag,dataoverwritedistfunccart=None,flnm='',specnum='01', scalevelocity=1):
     """
     Makes 2x3 plot of projections of fs1 in cartesian coordinates
 
@@ -344,10 +351,14 @@ def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scaleveloci
 
     from linfpclib.linfpc import loadlinfpccart_dist
 
-    flnmreadimag = foldername + filenametag +'.dfs.imag.specie'+specnum+'.mode01'
-    flnmreadreal = foldername + filenametag +'.dfs.real.specie'+specnum+'.mode01'
+    if(dataoverwritedistfunccart is None):
+        flnmreadimag = foldername + filenametag +'.dfs.imag.specie'+specnum+'.mode01'
+        flnmreadreal = foldername + filenametag +'.dfs.real.specie'+specnum+'.mode01'
 
-    distfunccart = loadlinfpccart_dist(flnmreadreal,flnmreadimag)
+        distfunccart = loadlinfpccart_dist(flnmreadreal,flnmreadimag)
+
+    else:
+        distfunccart = dataoverwritedistfunccart
 
     fig, axs = plt.subplots(2,3,figsize=(3*5,2*5),sharex=True)
 
@@ -377,6 +388,10 @@ def plot_fs1_re_im_cart(foldername,filenametag,flnm='',specnum='01', scaleveloci
             axs[_j,_i].set_ylabel(yaxlabels[_i])
 
             axs[_j,_i].axis('equal')
+
+            _cmap = plt.get_cmap("PuOr")
+            zero_color = _cmap(0.5)   # mid-point of the colormap = value 0
+            axs[_j,_i].set_facecolor(zero_color)
 
             fig.colorbar(_tempim, ax=axs[_j,_i])
             
@@ -590,3 +605,15 @@ def sweep2dplot(sweep2d,xkey,ykey,zkey,xlabel,ylabel,zlabel,flnm = '', xlim=[],y
         plt.savefig(flnm,format='png',dpi=300)
 
     plt.show()
+
+def compute_2d_from_3d_hist(out):
+    #out is data from 3d load for hist/fs1 data
+
+    out2df1ronly = lfpc.reduce_3d_to_projections(out['fs1_r'], out['vx'], out['vy'], out['vz'], 're_f')
+    out2dfironly = lfpc.reduce_3d_to_projections(out['fs1_i'], out['vx'], out['vy'], out['vz'], 'im_f')
+    out2d = out2df1ronly.copy()
+    out2d['im_fvxvy'] = out2dfironly['im_fvxvy'].copy()
+    out2d['im_fvxvz'] = out2dfironly['im_fvxvz'].copy()
+    out2d['im_fvyvz'] = out2dfironly['im_fvyvz'].copy()
+    
+    return out2d

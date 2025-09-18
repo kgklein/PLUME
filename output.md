@@ -110,18 +110,27 @@ where `j` ranges from 1 to `nspec`.
 The normalization follows Eqns. 33-37 in [Klein, K. G., Howes, G. G.,
 and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
-If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `new_low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If eigen is true, this data will start in the 18+8 `nspec`+1st column.
+If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If `eigen` is true, this data will start in the 18+8 `nspec`+1st column.
 
-If `new_low_n` is true, we have
+If `low_n` is true, the ordering is:
+  1) All total powers P_j for j=1..nspec, then
+  2) For each species j, the six sub-terms (yy, yz, zy, zz, n=0, n=±1) consecutively.
 
-- 18+(8-6{!eigen})`nspec`+j. $P_j$
-- 18+(9-6{!eigen})`nspec`+j. $P_j^{yy}$ (Transit Time Damping term 1).
-- 18+(10-6{!eigen})`nspec`+j. $P_j^{yz}$ (Transit Time Damping term 2).
-- 18+(11-6{!eigen})`nspec`+j. $P_j^{zy}$ (Landau Damping term 1).
-- 18+(12-6{!eigen})`nspec`+j. $P_j^{zz}$ (Landau Damping term 2).
-- 18+(13-6{!eigen})`nspec`+j. $P_j^{n=0}$ (sum of Landau and Transit Time Damping).
-- 18+(14-6{!eigen})`nspec`+j. $P_j^{n=\pm 1}$ ($n=\pm 1$ Cyclotron Damping).
-Here, {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+Concretely (1-based column numbers; {!eigen}=1 if eigen is false, else 0):
+
+- P_j: 18 + (8 - 6{!eigen})*nspec + j
+
+Let afterP = 18 + (8 - 6{!eigen})*nspec + nspec.
+Then for species j in {1,..,nspec}:
+
+- P_j^yy:   afterP + 6*(j-1) + 1   (Transit Time Damping term 1)
+- P_j^yz:   afterP + 6*(j-1) + 2   (Transit Time Damping term 2)
+- P_j^zy:   afterP + 6*(j-1) + 3   (Landau Damping term 1)
+- P_j^zz:   afterP + 6*(j-1) + 4   (Landau Damping term 2)
+- P_j^{n=0}: afterP + 6*(j-1) + 5  (sum of Landau and Transit Time Damping)
+- P_j^{n=±1}: afterP + 6*(j-1) + 6 (n=±1 Cyclotron Damping)
+
+Here, {!eigen} (negation of the eigen boolean) equals 1 if eigen is false and 0 if eigen is true.
 
 This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component. 
 - 19+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $T_{ref,\parallel}/T_{j,\parallel}$.
