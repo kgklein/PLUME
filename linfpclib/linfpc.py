@@ -438,10 +438,7 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream/main
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
@@ -1181,7 +1178,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
             eigen = True
 
         skipforedgecase = False
-        if(nline == 60): #Given that having nspec = 2 heating=True and Eigen = True is so common, I manually check \mu_r (mass_ref/mass_ref) in the conflicting case of Eigen = true, heating = False, nspec = 3 (in nspec = 2 case, element 44 (at index 43) is the power absoprtion by p2ld_zz (which is super unlikely to be exactly +1, and in the nspec=3 case, element 44 (at index 43) is mu_r=1 (unless the user creates a bad PLUME input....))
+        if(nline == 62): #Given that having nspec = 2 heating=True and Eigen = True is so common, I manually check \mu_r (mass_ref/mass_ref) in the conflicting case of Eigen = true, heating = False, nspec = 3 (in nspec = 2 case, element 44 (at index 43) is the power absoprtion by p2ld_zz (which is super unlikely to be exactly +1, and in the nspec=3 case, element 44 (at index 43) is mu_r=1 (unless the user creates a bad PLUME input....))
                          #in summary, unless the user has a bad input, it will either correctly load, or ask the user for more input, which is fine.
                          #      if the user has bad input (which we check for!)
             #Add elements where relevant power output should be if nspec=2 heating=True and Eigen=True (very very improbable this equation returns true if this setup is not used and nline=60) <- (fun note: computers assume statistically impossible but technically possible things all the time- for example checksums cryptographic hash collisiones, pseudo random number generators, hardware failure, quantum tunneling....)
@@ -1191,7 +1188,7 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                 eigen = True
                 heating = True
                 skipforedgecase = True #If the above is true, we know what it is and should keep going
-                noutperspec = 15
+                noutperspec = 16
 
         if(not(skipforedgecase)):
             #first check if two of these are true, then we can't determine what the output is given just the number of elements per line (except by checking specific values like if the sum of species power subelements equals total species power (approximately since it's technically missing terms) TODO: see above example and write for more? <- lot of work to not be used often, just the one common edge case is fine for now.)
@@ -1211,17 +1208,17 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                 nspec = int(round((nline - 18)/(8+6))) #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 8 #note this is the *additional* number of output per spec accounting for the 6 that is always there
 
-            elif((nline - 6) % (7+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
+            elif((nline - 6) % (8+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = False
                 heating = True
                 nspec = int(round((nline - 6)  / (7+6)))   # eigen=False, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
-                noutperspec = 7
+                noutperspec = 8
 
-            elif((nline - 18) % (15+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
+            elif((nline - 18) % (16+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = True
                 heating = True
                 nspec = int(round((nline - 18) / (15+6)))  # eigen=True, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
-                noutperspec = 15
+                noutperspec = 16
 
             elif((nline - 6) % (6) == 0):
                 eigen = False
@@ -1246,9 +1243,9 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
         if(heating == False and eigen == True):
             noutperspec = 8
         elif(heating == True and eigen == False):
-            noutperspec = 7
+            noutperspec = 8
         elif(heating == True and eigen == True):
-            noutperspec = 15
+            noutperspec = 16
         elif(heating == False and eigen == False):
             noutperspec = 0
 
@@ -1298,7 +1295,8 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
             plume_sweep[f"p{_i+1}ld_zy"] = []
             plume_sweep[f"p{_i+1}ld_zz"] = []
             plume_sweep[f"p{_i+1}n_eq_0"] = []
-            plume_sweep[f"p{_i+1}cd_n_pm"] = []
+            plume_sweep[f"p{_i+1}cd_n_p"] = []
+            plume_sweep[f"p{_i+1}cd_n_m"] = []
 
 
     for _i in range(0,nspec):
@@ -1368,7 +1366,8 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                     plume_sweep[f"p{_i}ld_zy"].append(float(line[b + 2]))
                     plume_sweep[f"p{_i}ld_zz"].append(float(line[b + 3]))
                     plume_sweep[f"p{_i}n_eq_0"].append(float(line[b + 4]))
-                    plume_sweep[f"p{_i}cd_n_pm"].append(float(line[b + 5]))
+                    plume_sweep[f"p{_i}cd_n_p"].append(float(line[b + 5]))
+                    plume_sweep[f"p{_i}cd_n_m"].append(float(line[b + 6]))
 
 
             for _i in range(1,nspec+1):
@@ -1418,7 +1417,7 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
                 eigen = True
                 heating = True
                 skipforedgecase = True
-                noutperspec = 15
+                noutperspec = 16
 
         if(not(skipforedgecase)):
             if(int((nline - 18) % (8+6) == 0)+int((nline - 6) % (7+6) == 0)+int((nline - 18) % (15+6) == 0)+int((nline - 6) % (6)==0) > 1):
@@ -1436,17 +1435,17 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
                 nspec = int(round((nline - 18)/(8+6)))
                 noutperspec = 8
 
-            elif((nline - 6) % (7+6) == 0):
+            elif((nline - 6) % (8+6) == 0):
                 eigen = False
                 heating = True
                 nspec = int(round((nline - 6)  / (7+6)))
-                noutperspec = 7
+                noutperspec = 8
 
-            elif((nline - 18) % (15+6) == 0):
+            elif((nline - 18) % (16+6) == 0):
                 eigen = True
                 heating = True
                 nspec = int(round((nline - 18) / (15+6)))
-                noutperspec = 15
+                noutperspec = 16
 
             elif((nline - 6) % (6) == 0):
                 eigen = False
@@ -1470,9 +1469,9 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
         if(heating == False and eigen == True):
             noutperspec = 8
         elif(heating == True and eigen == False):
-            noutperspec = 7
+            noutperspec = 8
         elif(heating == True and eigen == True):
-            noutperspec = 15
+            noutperspec = 16
         elif(heating == False and eigen == False):
             noutperspec = 0
 
@@ -1522,7 +1521,8 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
             plume_sweep[f"p{_i+1}ld_zy"] = []
             plume_sweep[f"p{_i+1}ld_zz"] = []
             plume_sweep[f"p{_i+1}n_eq_0"] = []
-            plume_sweep[f"p{_i+1}cd_n_pm"] = []
+            plume_sweep[f"p{_i+1}cd_n_p"] = []
+            plume_sweep[f"p{_i+1}cd_n_m"] = []
 
 
     for _i in range(0,nspec):
@@ -1594,7 +1594,8 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
                     plume_sweep["p"+str(_i)+"ld_zy"].append(b + 2)
                     plume_sweep["p"+str(_i)+"ld_zz"].append(b + 3)
                     plume_sweep["p"+str(_i)+"n_eq_0"].append(b + 4)
-                    plume_sweep["p"+str(_i)+"cd_n_pm"].append(b + 5)
+                    plume_sweep["p"+str(_i)+"cd_n_p"].append(b + 5)
+                    plume_sweep["p"+str(_i)+"cd_n_m"].append(b + 6)
 
 
 
@@ -2675,7 +2676,6 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
         sweep[_key] = np.concatenate((sweep1[_key],sweep2[_key],sweep3[_key],sweep4[_key]))
 
     return sweep
-<<<<<<< HEAD
 
 def test_disp(om,gam,plume_input,inputflnm,outputname,verbose=False):
     """
@@ -3041,7 +3041,6 @@ def loadlinfpc3d(filename,idxoffset=0,verbose=False):
     except:
         return loadlinfpc3d(filename,idxoffset=idxoffset+1,verbose=verbose)
 
-
 def loadlinfpc3d_dist(filenamereal,filenameimag,idxoffset=0,verbose=False):
     """
     Loads fpc data for fs1 in cartesian coordintates
@@ -3135,8 +3134,3 @@ def reduce_3d_to_projections(arr3d, vx, vy, vz, keyname, method='mean'):
         'vx_xz': vx_xz, 'vz_xz': vz_xz,
         'vy_yz': vy_yz, 'vz_yz': vz_yz  
     }
-
-
-
-=======
->>>>>>> upstream/main

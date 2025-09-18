@@ -438,10 +438,6 @@ module disprels
      !! Power into/out of species/components, broken into different contributions.
      !! Deprecated.
      
-     !>>>GGH: 1/18/23
-     real, dimension(1:6,1:nspec) :: Ps_split_new
-     !!Power into/out of species/componets.
-     !!Corrected LD/TTD calculation (GGH).
 
     
     
@@ -462,8 +458,7 @@ module disprels
     write(*,'(4es14.4)') omega,D*vtp**6.
     write(*,'(2es14.4)')kperp,kpar
 
-    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,&
-                   Ps_split_new,.true.,.true.)
+    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.true.)
 
 
     ! --- Print diagnostics ---
@@ -487,11 +482,6 @@ module disprels
     write(*,*) 'Ps_split ='
     do i=1,nspec
        write(*,'(4(1x,es14.6))') (Ps_split(j,i), j=1,4)
-    end do
-
-    write(*,*) 'Ps_split_new ='
-    do i=1,nspec
-       write(*,'(6(1x,es14.6))') (Ps_split_new(j,i), j=1,6)
     end do
     
 
@@ -3444,30 +3434,35 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      if (scan(2)%eigen_s) then
         if (scan(2)%heat_s) then
            if (low_n) then
-              !>>>GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
+              ! eigen + heat + low_n  (MATCH single: 22*nspec)
+              write(fmt,'(a,i0,a)') '(6es15.6e3,12es15.6e3,', 22*nspec, 'es15.6e3)'
            else
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
+              ! eigen + heat (non-low_n)
+              write(fmt,'(a,i0,a)') '(6es15.6e3,12es15.6e3,', 15*nspec, 'es15.6e3,es15.6e3)'
            endif
-           out_type=0
+           out_type = 0
         else
-           write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',14*nspec,'es15.6e3)'
-           out_type=1
+           ! eigen only
+           write(fmt,'(a,i0,a)') '(6es15.6e3,12es15.6e3,', 14*nspec, 'es15.6e3)'
+           out_type = 1
         endif
      else
         if (scan(2)%heat_s) then
            if (low_n) then
-              !>>>GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
+              ! heat only + low_n  (MATCH single: 14*nspec)
+              write(fmt,'(a,i0,a)') '(6es15.6e3,', 14*nspec, 'es15.6e3)'
            else
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3,es15.6e3)'
+              ! heat only (non-low_n)  (remove extra trailing es field)
+              write(fmt,'(a,i0,a)') '(6es15.6e3,', 7*nspec, 'es15.6e3)'
            endif
-           out_type=2
+           out_type = 2
         else
-           write(fmt,'(a,i0,a)')'(6es15.6e3,',6*nspec,'es15.6e3)'
-           out_type=3
+          ! frequency only
+          write(fmt,'(a,i0,a)') '(6es15.6e3,', 6*nspec, 'es15.6e3)'
+          out_type = 3
         endif
      endif
+
 
      if ((scan(1)%tensor_s).and.(scan(2)%tensor_s)) &
           write(fmt_tnsr,'(a,i0,a)')'(4es15.6e3,',18*nspec,'es15.6e3)'
