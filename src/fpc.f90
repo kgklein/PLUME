@@ -254,6 +254,7 @@ contains
 
       real :: fs0val
 
+
       exbar = sqrt(betap)/vtp*(1.0, 0.)
       eeuler = EXP(1.0)
 
@@ -293,6 +294,7 @@ contains
       ! Refine Omega Value
       iflag = 0
       omega = rtsec(disp, om1, om2, tol, iflag)
+      omega = ominit
 
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
@@ -483,6 +485,7 @@ contains
             end do
          end do
       end do
+   
       !=============================================================================
       ! END Calculate 3V CEx, CEy, CEz Correlations
       !=============================================================================
@@ -634,6 +637,64 @@ contains
       !=============================================================================
       ! Output Distributions and Correlations to Files
       !=============================================================================
+      if(1==1) then !write 3d f1 for detailed calcs in post like degenerate entropy modes
+         do is = 1, nspec
+            !make file to store result
+            unit_s = 12 + 5*is !note: unit = 5,6 are reserved by standard fortran for input form keyboard/ writing to screen
+            write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+                 '.dfs3D.real.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+            open (unit=unit_s, file=trim(filename), status='replace')
+
+            write (filename, '(5A,I0.2,1A,I0.2)') 'data/', trim(dataName), '/', trim(outputName), &
+                 '.dfs3D.imag.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
+            open (unit=unit_s + 1, file=trim(filename), status='replace')
+
+            do jj = 0, 1
+               write (unit_s + jj, '(8a22)') 'tau', 'bi', 'kpar', 'kperp', 'vti', 'mu', 'omega.r', 'omega.i'
+               write (unit_s + jj, '(8es22.7)') spec(is)%tau_s, betap, kpar, kperp, vtp, spec(is)%mu_s, &
+                  real(omega*sqrt(betap)/kpar), aimag(omega*sqrt(betap)/kpar)
+               write (unit_s + jj, '(7a22)') 'vxmin', 'vxmax', 'vymin', 'vymax', 'vzmin', 'vzmax', 'delv'
+               write (unit_s + jj, '(7es22.7)') vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv
+               write (unit_s + jj, *) '-------------'
+            end do
+
+            ! fs1(vx,vy,vz) --------------------------------------------------------------
+            do ivx = ivxmin, ivxmax
+               do ivy = ivymin, ivymax
+                  do ivz = ivzmin, ivzmax
+                     if (ABS(real(fs1(ivx, ivy, ivz, is))) .lt. 9.999E-99) then
+                        write (unit_s, '(2es17.5)', advance='no') 0.
+                     else if (ABS(real(fs1(ivx, ivy, ivz, is))) .gt. 9.999E+99) then
+                        write (unit_s, '(2es17.5)', advance='no') 9.999E+99
+                     else
+                        write (unit_s, '(2es17.5)', advance='no') real(fs1(ivx, ivy, ivz, is))
+                     end if
+
+                     if (ABS(aimag(fs1(ivx, ivy, ivz, is))) .lt. 9.999E-99) then
+                        write (unit_s + 1, '(2es17.5)', advance='no') 0.
+                     else if (ABS(aimag(fs1(ivx, ivy, ivz, is))) .gt. 9.999E+99) then
+                        write (unit_s + 1, '(2es17.5)', advance='no') 9.999E+99
+                     else
+                        write (unit_s + 1, '(2es17.5)', advance='no') aimag(fs1(ivx, ivy, ivz, is))
+                     end if
+                  end do
+
+                  ! end a line for this (ivx, ivy) slice
+                  write (unit_s, *)
+                  write (unit_s + 1, *)
+               end do
+
+               ! keep your original row-separators across all units
+               write (unit_s,     *)
+               write (unit_s + 1, *)
+            end do
+            write (unit_s, *) '---'
+            write (unit_s + 1, *) '---'
+
+         end do
+      endif
+
+
       do is = 1, nspec
          call check_nbesmax(MAX(ABS(vxmin), ABS(vxmax), ABS(vymin), ABS(vymax), ABS(vzmin), ABS(vzmax)), &
                             spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s)
@@ -661,7 +722,7 @@ contains
               '.dfs.imag.specie', (is), '.mode', wrootindex !Assumes nspec,nroots < 100 for filename formating
          open (unit=unit_s + 4, file=trim(filename), status='replace')
 
-         write (*, *) 'Calculating fpc for species ', is
+         write (*, *) 'Writing fpc for species ', is
          write (*, *) 'Writing omega/kpar V_a normalization to file...'
 
          !Write header information to output all 4 files
@@ -679,26 +740,40 @@ contains
             do ivy = ivymin, ivymax
                if (ABS(corez_xy(ivx, ivy, is)) .lt. 9.999E-99) then
                   write (unit_s, '(es17.5)', advance='no') 0.
+               else if (ABS(corez_xy(ivx, ivy, is)) .gt. 9.999E+99) then
+                  write (unit_s, '(es17.5)', advance='no') 9.999E+99
                else
                   write (unit_s, '(es17.5)', advance='no') corez_xy(ivx, ivy, is)
                end if
+
                if (ABS(corex_xy(ivx, ivy, is)) .lt. 9.999E-99) then
                   write (unit_s + 1, '(es17.5)', advance='no') 0.
+               else if (ABS(corex_xy(ivx, ivy, is)) .gt. 9.999E+99) then
+                  write (unit_s + 1, '(es17.5)', advance='no') 9.999E+99
                else
                   write (unit_s + 1, '(es17.5)', advance='no') corex_xy(ivx, ivy, is)
                end if
+
                if (ABS(corey_xy(ivx, ivy, is)) .lt. 9.999E-99) then
                   write (unit_s + 2, '(es17.5)', advance='no') 0.
+               else if (ABS(corey_xy(ivx, ivy, is)) .gt. 9.999E+99) then
+                  write (unit_s + 2, '(es17.5)', advance='no') 9.999E+99
                else
                   write (unit_s + 2, '(es17.5)', advance='no') corey_xy(ivx, ivy, is)
                end if
+
                if (ABS(real(fs1_xy(ivx, ivy, is))) .lt. 9.999E-99) then
                   write (unit_s + 3, '(2es17.5)', advance='no') 0.
+               else if (ABS(real(fs1_xy(ivx, ivy, is))) .gt. 9.999E+99) then
+                  write (unit_s + 3, '(2es17.5)', advance='no') 9.999E+99
                else
                   write (unit_s + 3, '(2es17.5)', advance='no') real(fs1_xy(ivx, ivy, is))
                end if
+
                if (ABS(aimag(fs1_xy(ivx, ivy, is))) .lt. 9.999E-99) then
                   write (unit_s + 4, '(2es17.5)', advance='no') 0.
+               else if (ABS(aimag(fs1_xy(ivx, ivy, is))) .gt. 9.999E+99) then
+                  write (unit_s + 4, '(2es17.5)', advance='no') 9.999E+99
                else
                   write (unit_s + 4, '(2es17.5)', advance='no') aimag(fs1_xy(ivx, ivy, is))
                end if
@@ -1149,6 +1224,7 @@ contains
       ! Refine Omega Value
       iflag = 0
       omega = rtsec(disp, om1, om2, tol, iflag)
+      omega = ominit
 
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
