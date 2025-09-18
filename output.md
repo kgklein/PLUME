@@ -128,7 +128,8 @@ Then for species j in {1,..,nspec}:
 - P_j^zy:   afterP + 6*(j-1) + 3   (Landau Damping term 1)
 - P_j^zz:   afterP + 6*(j-1) + 4   (Landau Damping term 2)
 - P_j^{n=0}: afterP + 6*(j-1) + 5  (sum of Landau and Transit Time Damping)
-- P_j^{n=±1}: afterP + 6*(j-1) + 6 (n=±1 Cyclotron Damping)
+- P_j^{n=+1}: afterP + 6*(j-1) + 6 (n=±1 Cyclotron Damping)
+- P_j^{n=-1}: afterP + 7*(j-1) + 7 (n=-1 Cyclotron Damping)
 
 Here, {!eigen} (negation of the eigen boolean) equals 1 if eigen is false and 0 if eigen is true.
 
@@ -140,7 +141,7 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 22+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $q_{ref}/q_{j}$.
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
-Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 8, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=16. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
 For ease of reference, consider the below tables for column numbers for two and three component calculations.
 
