@@ -1,7 +1,0 @@
-# CODEOWNERS
-# This file defines who can approve pull requests for different parts of the repo.
-# Format: file pattern   owner(s)
-
-# --- Default rule ---
-# All files require review/approval from the core development team
-* @kgklein
