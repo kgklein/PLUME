@@ -8,6 +8,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
@@ -52,6 +54,7 @@ jobs:
         fi
         cp PLUME_logo.png docs
         cp qrcode_plume_github.png docs
+        cp Jet-Plume_Logo.svg docs
         ford ford_project.md
 
     - name: Debug documentation files
