@@ -106,10 +106,11 @@ contains
       real, dimension(1:nspec) :: Ps
       !! Power into/out of species
 
-      real, dimension(1:4, 1:nspec) :: Ps_split
+      !real, dimension(1:4, 1:nspec) :: Ps_split
       !! Power into/out of species (Tensor that holds different channels (TTD, LD, CD))
+      !! Deprecated
 
-      real, dimension(1:6, 1:nspec) :: Ps_split_new
+      real, dimension(1:7, 1:nspec) :: Ps_split
       !! Power into/out of species updated by Greg G Howes to include off diagnal components
 
       real :: Ew
@@ -295,7 +296,7 @@ contains
       omega = rtsec(disp, om1, om2, tol, iflag)
       omega = ominit
 
-      call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, Ps_split_new, .true., .true.)
+      call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
          write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler'
@@ -921,33 +922,36 @@ contains
             if (ABS(Ps(is)) .lt. 9.999E-99) then
                Ps(is) = 0.
             end if
-            if (ABS(Ps_split_new(1,is)) .lt. 9.999E-99) then
-               Ps_split_new(1,is) = 0.
+            if (ABS(Ps_split(1,is)) .lt. 9.999E-99) then
+               Ps_split(1,is) = 0.
             end if
-            if (ABS(Ps_split_new(2,is)) .lt. 9.999E-99) then
-               Ps_split_new(2,is) = 0.
+            if (ABS(Ps_split(2,is)) .lt. 9.999E-99) then
+               Ps_split(2,is) = 0.
             end if
-            if (ABS(Ps_split_new(3,is)) .lt. 9.999E-99) then
-               Ps_split_new(3,is) = 0.
+            if (ABS(Ps_split(3,is)) .lt. 9.999E-99) then
+               Ps_split(3,is) = 0.
             end if
-            if (ABS(Ps_split_new(4,is)) .lt. 9.999E-99) then
-               Ps_split_new(4,is) = 0.
+            if (ABS(Ps_split(4,is)) .lt. 9.999E-99) then
+               Ps_split(4,is) = 0.
             end if
-            if (ABS(Ps_split_new(5,is)) .lt. 9.999E-99) then
-               Ps_split_new(5,is) = 0.
+            if (ABS(Ps_split(5,is)) .lt. 9.999E-99) then
+               Ps_split(5,is) = 0.
             end if
-            if (ABS(Ps_split_new(6,is)) .lt. 9.999E-99) then
-               Ps_split_new(6,is) = 0.
+            if (ABS(Ps_split(6,is)) .lt. 9.999E-99) then
+               Ps_split(6,is) = 0.
+            endif
+            if (ABS(Ps_split(7,is)) .lt. 9.999E-99) then
+               Ps_split(7,is) = 0.
             end if
          end do
 
          !Write format (consistent with usual PLUME output)
-         write (fmt, '(a,i0,a)') '(6es15.6,12es15.6,', 15*nspec, 'es15.6)'
+         write (fmt, '(a,i0,a)') '(6es15.6,12es15.6,', 16*nspec, 'es15.6)'
          write (unit_s + 5, fmt) &
             kperp, kpar, betap, vtp, &
             omega, &
             bf(1:3), ef(1:3), Us(1:3, 1:nspec), ns(1:nspec), &
-            Ps(1:nspec), Ps_split_new(1:6, 1:nspec)
+            Ps(1:nspec), Ps_split(1:7, 1:nspec)
          close (unit_s + 5)
 
          !Write Velocity Integrated Moments-------------------------------------------
@@ -1089,10 +1093,11 @@ contains
       real, dimension(1:nspec) :: Ps
       !! Power into/out of species
 
-      real, dimension(1:4, 1:nspec) :: Ps_split
+      !real, dimension(1:4, 1:nspec) :: Ps_split
       !! Power into/out of species
+      !! Deprecated
 
-      real, dimension(1:6, 1:nspec) :: Ps_split_new
+      real, dimension(1:7, 1:nspec) :: Ps_split
       !! Power into/out of species (includes all diagonal terms added by GGH in 2023)
 
       real :: Ew
@@ -1221,7 +1226,7 @@ contains
       omega = rtsec(disp, om1, om2, tol, iflag)
       omega = ominit
 
-      call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, Ps_split_new, .true., .true.)
+      call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
          write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC '

@@ -1,0 +1,17 @@
+set terminal epslatex standalone \
+    linewidth 1.5 \
+    header '\usepackage{amsmath} \usepackage{amssymb} \newcommand{\ft}[0]{\footnotesize}   \usepackage{xcolor}'
+ext=".tex"
+
+set size 0.8
+set mxtics
+set mytics
+set xtics offset 0,0.25
+set ytics offset 0.5
+set xlabel offset 0,-2.
+set key reverse Left
+set bmargin 2.4
+set lmargin 8
+set rmargin 2
+set tmargin 1.75
+dlw=2.0

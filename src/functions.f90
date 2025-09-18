@@ -46,7 +46,7 @@ contains
     !!$ ./plume.e example.in
       use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc, option, writeOut
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
-      use vars, only: low_n, susc_low, new_low_n
+      use vars, only: low_n, susc_low
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
       implicit none
@@ -63,7 +63,7 @@ contains
       !Read in the basic parameter list.
       nameList /params/ &
          betap, kperp, kpar, vtp, nspec, nscan, option, nroot_max, &
-         use_map, low_n, new_low_n, &
+         use_map, low_n, &
          writeOut, dataName, outputName
 
       nameList /fpc/ &
@@ -86,7 +86,7 @@ contains
       !Allocate the susceptibility tensor to have nspec indicies
       allocate (susc(1:nspec, 3, 3))
       if (low_n) &
-         allocate (susc_low(1:nspec, 3, 3, 0:1))
+         allocate (susc_low(1:nspec, 3, 3, -1:1))
 
       !initialized quasineutrality and current conservation check.
       sum_nq = 0.; sum_nqv = 0.
@@ -131,7 +131,7 @@ contains
       !Note if:
       if (spec(1)%vv_s .ne. 0.) &
          write (*, '(a,es11.4)') &
-         'ERROR?/WARNING: Not in refernece species rest frame:    v_par drift ref =', spec(1)%vv_s
+         'ERROR?/WARNING: Not in reference species rest frame:    v_par drift ref =', spec(1)%vv_s
 
       !You always need pi. Always. And sometimes pie too.
       pi = 4.*atan(1.)

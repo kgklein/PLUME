@@ -154,17 +154,17 @@ module disprels
          do is = 1, nspec
             write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
             write(*,'(a,i3)')      'Parameters for Species :',is
-            write(*,'(a,g14.6)')'T_||p/T_||s =    ',spec(is)%tau_s
-            write(*,'(a,g14.6)')'m_p/m_s =        ',spec(is)%mu_s
+            write(*,'(a,g14.6)')'T_||,ref/T_||s =    ',spec(is)%tau_s
+            write(*,'(a,g14.6)')'m_ref/m_s =        ',spec(is)%mu_s
             write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
-            write(*,'(a,g14.6)')'q_p/q_s =        ',spec(is)%Q_s
-            write(*,'(a,g14.6)')'n_s/n_p =        ',spec(is)%D_s
-            write(*,'(a,g14.6)')'v_drift s/c =    ',spec(is)%vv_s
+            write(*,'(a,g14.6)')'q_ref/q_s =        ',spec(is)%Q_s
+            write(*,'(a,g14.6)')'n_s/n_ref =        ',spec(is)%D_s
+            write(*,'(a,g14.6)')'v_drift s/v_A,ref =    ',spec(is)%vv_s
          enddo
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
          write(*,'(a)')'Searching over:'
-         write(*,'(a,es10.3,a,es10.3,a)')'om  \in [',omi,',',omf,']'
-         write(*,'(a,es10.3,a,es10.3,a)')'gam \in [',gami,',',gamf,']'
+         write(*,'(a,es10.3,a,es10.3,a)')'omega/Omega_ref  \in [',omi,',',omf,']'
+         write(*,'(a,es10.3,a,es10.3,a)')'gamma/Omega_ref \in [',gami,',',gamf,']'
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
       endif
     
@@ -709,7 +709,6 @@ subroutine om_scan(is)
   !! Calculate solutions as a function of the variation of
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
-  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use vars, only : kperp,kpar,betap,vtp,spec,writeOut,susc
   use functions, only : get_unused_unit
   
@@ -815,15 +814,12 @@ subroutine om_scan(is)
   !Heating
   real, dimension(1:nspec) :: Ps
   !! Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !! Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -959,15 +955,13 @@ subroutine om_scan(is)
            if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
               val=abs(disp(omega))
               !>>>GGH: 1/18/23
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,&
-                   Ps_split_new,scan(is)%eigen_s,scan(is)%heat_s)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,&
+                   Ps_split,scan(is)%eigen_s,scan(is)%heat_s)
               !<<<GGH: 1/18/23
               omega=omlast(ii)
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
-                 !>>>GGH: 1/18/23
-                 Ps_split_new=-0.1
                  !<<<GGH: 1/18/23
               endif
            endif
@@ -986,25 +980,13 @@ subroutine om_scan(is)
            select case(out_type)
            case(0)!Om, Eigen, Heating
               if (low_n) then
-                               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
+                 !>>>GGH: 1/18/23
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                      Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
-              else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                      Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -1022,22 +1004,11 @@ subroutine om_scan(is)
            case(2) !Om, Heating
               if (low_n) then
                  !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
-                      Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                      Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
-              else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-              !<<<GGH: 1/18/23
-                 write(out_unit(ii),fmt)&
-                      kperp,kpar,betap,vtp,&
-                      omega,&            
-                      Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                      params(1:6,1:nspec)
-              !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
               else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
@@ -1099,7 +1070,6 @@ subroutine om_double_scan
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
-  use vars, only : new_low_n   !>>>GGH: 1/18/23
   use functions, only : get_unused_unit
   implicit none
   
@@ -1165,6 +1135,9 @@ subroutine om_double_scan
 
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
+
+  real :: ktmp
+  !! Temporary value of \( |k| \), for spliting into \( \perp )\ and \( \parallel \) components.
   
   !Frequency
 
@@ -1208,15 +1181,12 @@ subroutine om_double_scan
   !Heating
   real, dimension(1:nspec) :: Ps
   !!Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !!Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -1281,18 +1251,22 @@ subroutine om_double_scan
   do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
      !Advance scanned parameter values
+
+     !Global Two-Component Scans
      if ((scan(1)%style_s)==-1)then
-        if ((scan(1)%type_s)==0) then
+
+        !Scan from (kpar_0;kperp_0) to (kpar_1;kperp_1)
+        if ((scan(1)%type_s)==0) then           
            if (scan(1)%log_scan) then
-              !k0->k1
-              sw=10.**(log10(kperpi)+diff(1,1)*real(kk))    
-              sw2=10.**(log10(kpari)+diff(1,2)*real(kk))    
+              sw=10.**(log10(kperpi)+diff(1,1)*real(kk)) !kperp
+              sw2=10.**(log10(kpari)+diff(1,2)*real(kk)) !kpar
            else
-              sw=(kperpi)+diff(1,1)*real(kk)    
-              sw2=(kpari)+diff(1,2)*real(kk)    
+              sw=(kperpi)+diff(1,1)*real(kk) !kperp
+              sw2=(kpari)+diff(1,2)*real(kk) !kpar
            endif
+
+        !Scan from (theta_0) to (theta_1)
         elseif ((scan(1)%type_s)==1) then
-           !theta_0->theta_1
            if (scan(1)%log_scan) then
               theta_q=10.**(log10((theta))+diff(1,1)*real(kk))    
            else
@@ -1300,16 +1274,19 @@ subroutine om_double_scan
            endif
            sw=(ki*sin(theta_q))!kperp
            sw2=(ki*cos(theta_q))!kpar
+
+        !Scan from (|k_0|) to (|k_1|) at constant theta
         elseif ((scan(1)%type_s)==2) then
-           !k along contant theta
            if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk))    
-              sw2=10.**(log10(ki*cos(theta))+diff(1,1)*real(kk))    
+              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk)) !kperp
+              sw2=10.**(log10(ki*cos(theta))+diff(1,2)*real(kk)) !kpar
            else
-              sw=(ki*sin(theta))+diff(1,1)*real(kk)    
-              sw2=(ki*cos(theta))+diff(1,1)*real(kk)    
+              sw=(ki*sin(theta))+diff(1,1)*real(kk)  !kperp
+              sw2=(ki*cos(theta))+diff(1,2)*real(kk) !kpar
            endif
         endif
+
+     !Single Component Scans
      else
         if (scan(1)%log_scan) then
            sw=10.**(log10(scan(1)%range_i)+diff(1,1)*real(kk))    
@@ -1317,7 +1294,7 @@ subroutine om_double_scan
            sw=(scan(1)%range_i)+diff(1,1)*real(kk)    
         endif
      endif
-
+     
      !Root Scan....
      do ii=1,nroot_max
         !Bracket values for root search
@@ -1336,9 +1313,15 @@ subroutine om_double_scan
 
      !Transition from parameter 1 scan to parameter 2 scan
      if (mod(kk,scan(1)%n_res)==0) then
-        if (writeOut) &
-             write(*,'(a,es11.4)')&
-             'parameter 1: ',sw
+        if (writeOut) then
+           if ((scan(1)%style_s)==-1)then
+              write(*,'(a,2es11.4)')&
+                   '(kperp,kpar): ',sw,sw2
+           else
+              write(*,'(a,es11.4)')&
+                   'Parameter 1: ',sw
+           endif
+        endif
         !Save roots
         do ii = 1,nroot_max
            omSafe(ii) = omlast(ii)
@@ -1348,18 +1331,22 @@ subroutine om_double_scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
            !Advance scanned parameter values
+
+           !Global Two-Component Scans
            if ((scan(2)%style_s)==-1)then
+              
+              !Scan from (kpar_0;kperp_0) to (kpar_1;kperp_1)
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
-                    !k0->k1
-                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj))    
-                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))    
+                    sw3=10.**(log10(kperpi)+diff(2,1)*real(jj)) !kperp
+                    sw4=10.**(log10(kpari)+diff(2,2)*real(jj))  !kpar
                  else
-                    sw3=(kperpi)+diff(2,1)*real(jj)    
-                    sw4=(kpari)+diff(2,2)*real(jj)    
+                    sw3=(kperpi)+diff(2,1)*real(jj) !kperp
+                    sw4=(kpari)+diff(2,2)*real(jj)  !kpar
                  endif
+
+              !Scan from (theta_0) to (theta_1)
               elseif ((scan(2)%type_s)==1) then
-                 !theta_0->theta_1
                  if (scan(2)%log_scan) then
                     theta_q=10.**(log10((theta))+diff(2,1)*real(jj))    
                  else
@@ -1367,16 +1354,25 @@ subroutine om_double_scan
                  endif
                  sw3=(ki*sin(theta_q))!kperp
                  sw4=(ki*cos(theta_q))!kpar
+
+                 !Scan from (|k_0|) to (|k_1|) at constant theta
               elseif ((scan(2)%type_s)==2) then
-                 !k along contant theta
+
                  if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta_q))+diff(2,1)*real(jj))    
-                    sw4=10.**(log10(ki*cos(theta_q))+diff(2,1)*real(jj))    
+                    
+                    ktmp=10.**(log10(ki)+diff(2,1)*real(jj)) !k
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
                  else
-                    sw3=(ki*sin(theta_q))+diff(2,1)*real(jj)    
-                    sw4=(ki*cos(theta_q))+diff(2,1)*real(jj)    
+                                        
+                    ktmp=ki+diff(2,1)*real(jj) !k
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
                  endif
+
               endif
+
+              !Single Component Scans
            else
               if (scan(2)%log_scan) then
                  sw3=10.**(log10(scan(2)%range_i)+diff(2,1)*real(jj))    
@@ -1418,14 +1414,12 @@ subroutine om_double_scan
                  if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
                     val=abs(disp(omega))
                     !>>>GGH: 1/18/23
-                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,scan(2)%eigen_s,scan(2)%heat_s)
+                    call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     !<<<GGH: 1/18/23
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
                        !>>>GGH: 1/18/23
-                       Ps_split_new=1.0
-                       !<<<GGH: 1/18/23
                     endif
 
                  endif
@@ -1434,24 +1428,12 @@ subroutine om_double_scan
                  case(0) !Om, Eigen, Heating                    
                     if (low_n) then
                        !>>>GGH: 1/18/23
-                       if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
                                bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                               Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                               Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
-                       else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
-                          write(out_unit(ii),fmt)&
-                               kperp,kpar,betap,vtp,&
-                               omega,&            
-                               bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                               Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                               params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
-                       endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -1469,22 +1451,11 @@ subroutine om_double_scan
                  case(2) !Om, Heating
                     if (low_n) then
                        !>>>GGH: 1/18/23
-                       if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
                           write(out_unit(ii),fmt)&
                                kperp,kpar,betap,vtp,&
                                omega,&            
-                               Ps(1:nspec),Ps_split_new(1:6,1:nspec),&
+                               Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
-                       else  !Old version of low_n using Stix/Quataert version of LD/TTD 
-                          !<<<GGH: 1/18/23
-                          write(out_unit(ii),fmt)&
-                               kperp,kpar,betap,vtp,&
-                               omega,&            
-                               Ps(1:nspec),Ps_split(1:4,1:nspec),&
-                               params(1:6,1:nspec)
-                          !>>>GGH: 1/18/23
-                       endif
-                       !<<<GGH: 1/18/23
                     else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
@@ -2130,15 +2101,12 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   !Heating
   real, dimension(1:nspec) :: Ps
   !!Power into/out of species/component in one wave period.
-  
-  real, dimension(1:4,1:nspec) :: Ps_split
-  !!Power into/out of species/components, broken into different contributions.
-  !! Deprecated.
-  
+    
   !>>>GGH: 1/18/23
-  real, dimension(1:6,1:nspec) :: Ps_split_new
+  real, dimension(1:7,1:nspec) :: Ps_split
   !!Power into/out of species/componets.
   !!Corrected LD/TTD calculation (GGH).
+  !!Split \pm 1 CD (KGK)
 
   real :: Ew
   !!Wave energy.
@@ -2161,7 +2129,7 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
            !Calculate eigenfunctions and heating rates
            if ((radial_heating).or.(radial_eigen)) then
               val=abs(disp(omega))
-              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,Ps_split_new,radial_eigen,radial_heating)
+              call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,radial_eigen,radial_heating)
            endif
            
            !Output results
@@ -2200,11 +2168,10 @@ end subroutine om_radial
 !------------------------------------------------------------------------------
 !-=-=-=-=-=-
 subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
-     Ps_split,Ps_split_new,eigen_L,heat_L)
+     Ps_split,eigen_L,heat_L)
   !!  Calculates the electric and magnetic fields as well as species
   !!     velocities and density fluctuations for identified wave 
   !!     as well as the power emission or absorption.
-  use vars, only : new_low_n
 !<<<GGH: 1/18/23
   use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
   implicit none
@@ -2240,12 +2207,10 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   real, dimension(1:nspec), intent(out) :: Ps
   !!Power into/out of species/components.
   
-  real, dimension(1:4,1:nspec), intent(out) :: Ps_split
-  !!Power into/out of species
-
-  real, dimension(1:6,1:nspec), intent(out) :: Ps_split_new
+  real, dimension(1:7,1:nspec), intent(out) :: Ps_split
   !!<<<GGH: 1/18/23
   !!Power into/out of species/components from LD, TTD, CD.
+  !!Split \pm 1 CD (KGK)
 
   logical :: eigen_L
   !!Logical for calculating eigenvalues
@@ -2425,7 +2390,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
      !LD, TTD, and CD calculation
      if (low_n) then
      !>>>GGH: 1/18/23
-     if (new_low_n) then  !Greg's New low_n calculation to separate LD/TTD
+     !Greg's New low_n calculation to separate LD/TTD
        !N=0
         do ii = 1, 3 !tensor index
            do j = 1, 3 !tensor index
@@ -2436,23 +2401,23 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
            enddo
         enddo
 
-        !Initialize Ps_split_new
-        Ps_split_new(:,:) = 0.
+        !Initialize Ps_split
+        Ps_split(:,:) = 0.
         
         !chi_yy  (TTD term 1)
-        Ps_split_new(1,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(1,:) =-0.5*cmplx(0.,1.)*&
              conjg(electric(2))*electric(2)* &
              (susc_low(:,2,2,0)-conjg(susc_low(:,2,2,0)))
         !chi_yz  (TTD term 2)
-        Ps_split_new(2,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(2,:) =-0.5*cmplx(0.,1.)*&
              (electric(3)*conjg(electric(2))*susc_low(:,2,3,0) - &
              conjg(electric(3))*electric(2)*conjg(susc_low(:,2,3,0)))
         !chi_zy  (LD term 1)
-        Ps_split_new(3,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(3,:) =-0.5*cmplx(0.,1.)*&
              (electric(2)*conjg(electric(3))*susc_low(:,3,2,0) - &
              conjg(electric(2))*electric(3)*conjg(susc_low(:,3,2,0)))
         !chi_zz  (LD term 2)
-        Ps_split_new(4,:) =-0.5*cmplx(0.,1.)*&
+        Ps_split(4,:) =-0.5*cmplx(0.,1.)*&
              conjg(electric(3))*electric(3)* &
              (susc_low(:,3,3,0)-conjg(susc_low(:,3,3,0)))
 
@@ -2463,9 +2428,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
            enddo
         enddo        
-        Ps_split_new(5,:) = 0.
+        Ps_split(5,:) = 0.
         do jj = 1, nspec
-           Ps_split_new(5,jj) = sum(term(jj,:)*electric(:))
+           Ps_split(5,jj) = sum(term(jj,:)*electric(:))
         enddo
 
         !N=1
@@ -2487,71 +2452,17 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
            enddo
         enddo        
-        Ps_split_new(6,:) = 0.
+        Ps_split(6,:) = 0.
         do jj = 1, nspec
-           Ps_split_new(6,jj) = sum(term(jj,:)*electric_xy(:))
+           Ps_split(6,jj) = sum(term(jj,:)*electric_xy(:))
         enddo
 
-        !Normalization             
-        Ps_split_new = Ps_split_new/ewave
-        
-     else  !Old version of low_n using Stix/Quataert version of LD/TTD separation
-        !<<<GGH: 1/18/23        
-        !N=0
+        !N=-1
         do ii = 1, 3 !tensor index
            do j = 1, 3 !tensor index
               do jj = 1, nspec !species index
                  susca(jj,ii,j) = -0.5*cmplx(0.,1.)* &
-                      (susc_low(jj,ii,j,0) - conjg(susc_low(jj,j,ii,0)))
-              enddo
-           enddo
-        enddo
-        
-        !LANDAU DAMPING
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = conjg(electric(3))*susca(jj,3,ii)
-           enddo
-        enddo        
-        Ps_split(1,:) = 0.
-        do jj = 1, nspec
-           Ps_split(1,jj) = term(jj,3)*electric(3)
-        enddo
-
-        !Transit Time Damping
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = conjg(electric(2))*susca(jj,2,ii)
-           enddo
-        enddo        
-        Ps_split(2,:) = 0.
-        do jj = 1, nspec
-           Ps_split(2,jj) = term(jj,2)*electric(2)
-        enddo
-     
-        !Total n=0 terms
-        term(:,:)=0.
-        term1(:)=0.
-        do ii = 1, 3
-           do jj = 1, nspec
-              term(jj,ii) = sum(conjg(electric(:))*susca(jj,:,ii))     
-           enddo
-        enddo        
-        Ps_split(3,:) = 0.
-        do jj = 1, nspec
-           Ps_split(3,jj) = sum(term(jj,:)*electric(:))
-        enddo
-
-        !N=1
-        do ii = 1, 3 !tensor index
-           do j = 1, 3 !tensor index
-              do jj = 1, nspec !species index
-                 susca(jj,ii,j) = -0.5*cmplx(0.,1.)* &
-                      (susc_low(jj,ii,j,1) - conjg(susc_low(jj,j,ii,1)))
+                      (susc_low(jj,ii,j,-1) - conjg(susc_low(jj,j,ii,-1)))
               enddo
            enddo
         enddo
@@ -2565,17 +2476,14 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
               term(jj,ii) = sum(conjg(electric_xy(:))*susca(jj,:,ii))     
            enddo
         enddo        
-        Ps_split(4,:) = 0.
+        Ps_split(7,:) = 0.
         do jj = 1, nspec
-           Ps_split(4,jj) = sum(term(jj,:)*electric_xy(:))
+           Ps_split(7,jj) = sum(term(jj,:)*electric_xy(:))
         enddo
 
         !Normalization             
         Ps_split = Ps_split/ewave
-
-        !>>>GGH: 1/18/23
-     endif
-     !<<<GGH: 1/18/23
+        
      endif
 
      !EndIf (scan(is)%heat_s) loop
@@ -2828,7 +2736,6 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n
   !>>>GGH: 1/18/23
-  use vars, only : new_low_n
   !<<<GGH: 1/18/23
   implicit none
 
@@ -3133,14 +3040,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   if (scan(is)%eigen_s) then
      if (scan(is)%heat_s) then
         if (low_n) then
-           if (new_low_n) then  !Greg's New low_n calculation
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
-           else  !Old version of low_n 
-              !<<<GGH: 1/18/23
-              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
-              !>>>GGH: 1/18/23
-           endif
-           !<<<GGH: 1/18/23
+              write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',22*nspec,'es15.6e3)'
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
         endif
@@ -3153,14 +3053,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
      if (scan(is)%heat_s) then
         if (low_n) then
            !>>>GGH: 1/18/23
-           if (new_low_n) then  !Greg's New low_n calculation
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
-           else  !Old version of low_n 
-              !<<<GGH: 1/18/23
-              write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
-              !>>>GGH: 1/18/23
-           endif
-           !<<<GGH: 1/18/23
+              write(fmt,'(a,i0,a)')'(6es15.6e3,',14*nspec,'es15.6e3)'
         else
            write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3)'
         endif
@@ -3217,9 +3110,6 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !!Sets I/O strings, step sizes, and formats for [[om_double_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,sw3,sw4,betap,vtp,kperp,kpar, low_n
-  !>>>GGH: 1/18/23
-  use vars, only : new_low_n
-  !<<<GGH: 1/18/23
   implicit none
   !Passed
 
@@ -3281,6 +3171,20 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
      stop
   endif
 
+  if ( ((scan(1)%style_s)==-1).and.&
+       ((scan(2)%style_s)==-1).and.&
+       ((scan(1)%type_s)==2) .and. &
+       ((scan(2)%type_s)==1) &
+       ) then
+     write(*,'(a)')&
+          'For (theta,|k| \rho) double scan, set theta as scan_input_1'
+     write(*,'(a)')&
+          'and |k| as scan_input_2.'
+     write(*,'(a)')&
+          'HALTING...'
+     stop
+  endif
+
   do is=1,2!iterate over first and second scan information
 
      if((scan(is)%style_s).ge.0) then
@@ -3309,7 +3213,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
            endif
            kpari=kpar
            kperpi=kperp
-           if (writeOut) &          
+           if (writeOut) &
                 write(*,'(a,i0,4a,es15.6e3,a,es15.6e3,a,es15.6e3,a,es15.6e3,a)') &
                 'Scan ',is,' over ',trim(param(is)),' from ',&
                 '(kperp,kpar) = (',kperp,',',kpar,') to (',&
@@ -3321,12 +3225,19 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=(log10(scan(is)%range_f)-log10(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Log-spaced scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
+
            else
               !Linear spacing
               diff(is,1)=((scan(is)%range_i)-(kperp))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
               diff(is,2)=((scan(is)%range_f)-(kpar))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+              if (writeOut) &
+                   write(*,'(a,es15.6e3,a,es15.6e3)')&
+                   'Linear scan: d_kperp: ',diff(is,1),' d_kpar: ',diff(is,2)
            endif
                       
         elseif (scan(is)%type_s.eq.1) then
@@ -3353,10 +3264,20 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
               !Log spacing
               diff(is,1)=(log10(pi*(scan(is)%range_i)/180.)-log10(theta))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Log-spaced scan: d_theta: ',diff(is,1)
+              
            else
               !Linear spacing
               diff(is,1)=((pi*(scan(is)%range_i)/180.)-(theta))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
+
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Linear scan: d_theta: ',diff(is,1)
+              
            endif
            
         elseif (scan(is)%type_s.eq.2) then
@@ -3383,16 +3304,22 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
                       
            if (scan(is)%log_scan) then
               !Log spacing
-              diff(is,1)=(log10(sin(theta)*scan(is)%range_f)-log10(kperp))/&
+              diff(is,1)=(log10(scan(is)%range_f)-log10(ki))/&
                    real(scan(is)%n_scan*scan(is)%n_res)
-              diff(is,2)=(log10(cos(theta)*scan(is)%range_f)-log10(kpar))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
+              
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Log-spaced scan: d_|k|: ',diff(is,1)
+              
            else
               !Linear spacing
-              diff(is,1)=((sin(theta)*scan(is)%range_f)-(kperp))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
-              diff(is,2)=((cos(theta)*scan(is)%range_f)-(kpar))/&
-                   real(scan(is)%n_scan*scan(is)%n_res)
+              diff(is,1)=((scan(is)%range_f)-(ki))/&
+                   real(scan(is)%n_scan*scan(is)%n_res)                      
+              
+              if (writeOut) &
+                   write(*,'(a,es15.6e3)')&
+                   'Linear scan: d_|k|: ',diff(is,1)
+              
            endif
            
         endif
@@ -3518,14 +3445,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
         if (scan(2)%heat_s) then
            if (low_n) then
               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',21*nspec,'es15.6e3)'
-              else  !Old version of low_n 
-                 !<<<GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',19*nspec,'es15.6e3)'
-                 !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
            else
               write(fmt,'(a,i0,a)')'(6es15.6e3,12es15.6e3,',15*nspec,'es15.6e3,es15.6e3)'
            endif
@@ -3538,14 +3458,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
         if (scan(2)%heat_s) then
            if (low_n) then
               !>>>GGH: 1/18/23
-              if (new_low_n) then  !Greg's New low_n calculation
                  write(fmt,'(a,i0,a)')'(6es15.6e3,',13*nspec,'es15.6e3)'
-              else  !Old version of low_n 
-                 !<<<GGH: 1/18/23
-                 write(fmt,'(a,i0,a)')'(6es15.6e3,',11*nspec,'es15.6e3)'
-                 !>>>GGH: 1/18/23
-              endif
-              !<<<GGH: 1/18/23
            else
               write(fmt,'(a,i0,a)')'(6es15.6e3,',7*nspec,'es15.6e3,es15.6e3)'
            endif
@@ -3608,9 +3521,6 @@ end subroutine get_double_out_name
      !! and global values of the dimensionless plasma parameters.
      use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
      use vars,  only: low_n, susc_low, pi
-     !>>>GGH: 1/18/23
-     use vars, only : new_low_n
-     !<<<GGH: 1/18/23
      implicit none
      complex :: om
      !!Complex Frequency
@@ -3929,52 +3839,109 @@ end subroutine get_double_out_name
            !-=-=-=-=-=-=-=-=-=-=
            !n=\pm 1 susceptibility
            if ((low_n).and.(n==1)) then
+              
+              !\chi_xx
               susc_low(is,1,1,1) = norm(1)*&
-                   n*n*jn(n,is)*( 2.*(disp_alph-1.) &
+                   n*n*jn(n,is)*( (disp_alph-1.) &
                    + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                   disp_alph* (om - Vdrifts) * (zz(n)+zz(-n)) &
-                   + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+                   disp_alph* (om - Vdrifts) * (zz(n)) &
+                   + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
 
+              susc_low(is,1,1,-1) = norm(1)*&
+                   n*n*jn(n,is)*( (disp_alph-1.) &
+                   + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
+                   disp_alph* (om - Vdrifts) * (zz(-n)) &
+                   + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+
+              !\chi_xy
               susc_low(is,1,2,1) = norm(4)*&
                    n*(jn(n,is)-jpn(n,is))*( &
-                   (zz(n)-zz(-n))*disp_alph*(om-Vdrifts) &
-                   +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+                   (zz(n))*disp_alph*(om-Vdrifts) &
+                   +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
 
+              susc_low(is,1,2,-1) = norm(4)*&
+                   n*(jn(n,is)-jpn(n,is))*( &
+                   (-zz(-n))*disp_alph*(om-Vdrifts) &
+                   +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+
+              !\chi_yx
               susc_low(is,2,1,1) = -susc_low(is,1,2,1)
 
+              susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
+
+              !\chi_xz
               susc_low(is,1,3,1) = norm(5)*&
-                   n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
                    (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n) -zz(-n))*(disp_alph*om*(om-Vdrifts)-&
+                   (zz(n))*(disp_alph*om*(om-Vdrifts)-&
                    (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                   (zz(n) +zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
+                   (zz(n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
 
+              susc_low(is,1,3,-1) = norm(5)*&
+                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                   (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   (-zz(-n))*(disp_alph*om*(om-Vdrifts)-&
+                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+                   (zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
+
+              !\chi_zx
               susc_low(is,3,1,1) = susc_low(is,1,3,1)
+              susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
 
+              !\chi_yy
               susc_low(is,2,2,1) = norm(2)*&
                    (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                   (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   disp_alph*(om - Vdrifts)*(zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
-                   (1.-disp_alph)*(zz(n)-zz(-n))))
+                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   disp_alph*(om - Vdrifts)*(zz(n)) + (n*disp_mu/(disp_Q))*&
+                   (1.-disp_alph)*(zz(n))))
 
+              susc_low(is,2,2,-1) = norm(2)*&
+                   (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
+                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   disp_alph*(om - Vdrifts)*(zz(-n)) + (n*disp_mu/(disp_Q))*&
+                   (1.-disp_alph)*(-zz(-n))))
+
+              !\chi_yz
               susc_low(is,2,3,1) = norm(6)*&
-                   (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts) &
+                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
                    +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n)+zz(-n))*(disp_alph*om*(om-Vdrifts) -&
+                   (zz(n))*(disp_alph*om*(om-Vdrifts) -&
                    (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                   +(zz(n)-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
+                   +(zz(n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
 
-              susc_low(is,3,2,1) = -susc_low(is,2,3,1)  
+              susc_low(is,2,3,-1) = norm(6)*&
+                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
+                   +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                   (zz(-n))*(disp_alph*om*(om-Vdrifts) -&
+                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
+                   +(-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
 
+              !\chi_zy
+              susc_low(is,3,2,1) = -susc_low(is,2,3,1)
+              
+              susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)  
+
+              !\chi_zz
               susc_low(is,3,3,1) = norm(3)*&
                    jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
                    2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
                    +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                   (zz(n)+zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
+                   (zz(n))*(om*om*disp_alph * (om - Vdrifts) &
                    + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
-                   +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*& !changed sign
+                   +(n * disp_mu/disp_Q )*(zz(n))*& !changed sign
                    (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
                    n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
+
+              susc_low(is,3,3,-1) = norm(3)*&
+                   jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
+                   2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
+                   +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
+                   (zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
+                   + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
+                   +(n * disp_mu/disp_Q )*(-zz(-n))*& !changed sign
+                   (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
+                   n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
+              
            endif
 
         enddo

@@ -14,13 +14,15 @@ Gregory Howes      (gregory-howes@uiowa.edu)
 1. Before getting started
 2. Installing PLUME
 3. Running PLUME
+4. Visualizing Results
 
 
 ## 1. Before getting started
 
 Before starting with the steps described in this tutorial, we recommend that you familiarise yourself with the code paper.
 
-*code paper here*
+[Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
 You don't need to go through all details, but it is certainly helpful to know what PLUME does and doesn't calculate.
 The code paper also explains the numerical techniques used in the code.
@@ -41,5 +43,39 @@ These modes will be identified first by a map scan over a prescribed range of co
 ./plume.e inputs/example/example_map_par.in
 ```
 
-*Additional cases go here*
+You can run this entire routine by moving to the
+```
+inputs/example
+```
+subdirectory and running the `run_example.sh` executable.
 
+A similar calculation, with a map scan over a prescribed range of complex frequencies, and then followed along a logirithmic scan of $k_\perp \rho_{ref}$ values, can be performed via
+```
+./plume.e inputs/example/example_map_perp.in
+```
+
+To illustrate a double scan over a plane in $|k| \rho_{ref}$ and $\theta$, run
+```
+./plume.e inputs/example/example_guess_double.in
+```
+which will vary the two parameters in tandem.
+
+## 4. Visualizing Results
+
+Assuming you have gnuplot installed on your computer, move to the
+```
+plotter/example
+```
+subdirectory and run
+```
+./cycle.sh
+```
+which executes a bash script to plot the dispersion surface map and identified solutions from the `example_map_par.in` calculation.
+
+If you would like to see the $k_\parallel \rho_p$ scans of the four identified solutions, 
+uncomment out the
+```
+input='example_kpar'
+```
+line in `cycle.sh` and rerun the script.
+This will construct a plot of $\omega_{r}}/\Omega_p$ (top row), $\gamma/Omega_p$ (second row), $\gamma_p/\omega_{r}$ (third row), $\gamma_e/\omega_{r}$ (fourth row), and the degree of elliptical polarization of the $x$ and $y$ components of the electric field.

@@ -55,11 +55,14 @@ Choice of:
 
 **`low_n`**  
 Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels. *As made redundant by `new_low_n`, slated from removal.*
+characterizing heating channels. Separates Landau, Transit, and Cyclotron damping.
+This follows [Huang et al 2024 JPP](https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/velocityspace-signature-of-transittime-damping/60F34E118AFFC3701071477C52A81174) and is expressed in Sec. 5 of [Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2).
 
 **`new_low_n`**  
-*New* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels; correctly separates Landau, Transit, and Cyclotron damping.
+*Depricated* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
+characterizing heating channels. Previous had multiple versions of the low n susceptability calculation. As we are only using Eqns. 39,40, and 41 from [Klein, K. G., Howes, G. G.,
+and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2), this logical flag is unnecessary.
 
 **`writeOut`**  
 Write or suppress output to screen.
@@ -146,9 +149,21 @@ Inputs for scanning parameter space for $l$th scan.
 Type of parameter scan.
 
 For `scan_style`=-1 (Global Two-Component Scan), options of:
-- 0: Scan from $\textbf{k}_0 \rho_{ref}$ to $\textbf{k}_1 \rho_{ref}$. Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=`swi` and $k_\parallel \rho_{ref}$=`swf`.
-- 1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$. Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$`swi`$)$, with `swi` in degrees.
-- 2: Scan from $|k|_1\rho_{ref}$ to $|k|_1\rho_{ref}$ with a fixed value of $\theta$. Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=`swf` with constant $\theta = \atan (k_\perp/k_\parallel)$.
+
+- 0: Scan from $\textbf{k}_0 \rho_{ref}$ to $\textbf{k}_1 \rho_{ref}$.
+Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=`swi` and $k_\parallel \rho_{ref}$=`swf`.
+- 1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$.
+Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$`swi`$)$, with `swi` in degrees.
+- 2: Scan from $|k|_0 \rho_{ref}$ to $|k|_1 \rho_{ref}$ with a fixed value of $\theta$.
+Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=`swf` with constant $\theta = \atan (k_\perp/k_\parallel)$.
+
+*NOTE:* If you are executing a two-parameter plane scan of $\theta$ and $|k|\rho_{ref}$, $\theta$ (`scan_style`=-1, `scan_type`=1) must be set to `scan_input_1` and $|k| \rho_{ref}|$ (`scan_style`=-1, `scan_type`=2) to `scan_input_2`.
+The opposite order will not properly scan through $|k| \rho_{ref}|$.
+See
+```
+inputs/example/example_map_perp.in
+```
+for an example.
 
 For `scan_style`=0 (Global Scan), options of:
 

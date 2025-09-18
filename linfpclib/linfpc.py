@@ -438,7 +438,10 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
 
     #kperp,kpar,betap,vtp,wroots(1:2,j),params(1:6,1:nspec)
     rootflnm = 'data/'+str(plume_input.dataname)+'/dispersion_'+outputname+'.roots'
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/main
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
@@ -2672,6 +2675,7 @@ def branch_2var_scan_from_root(plume_input,stylenum1,stylenum2,var1key,var1min,v
         sweep[_key] = np.concatenate((sweep1[_key],sweep2[_key],sweep3[_key],sweep4[_key]))
 
     return sweep
+<<<<<<< HEAD
 
 def test_disp(om,gam,plume_input,inputflnm,outputname,verbose=False):
     """
@@ -3134,3 +3138,5 @@ def reduce_3d_to_projections(arr3d, vx, vy, vz, keyname, method='mean'):
 
 
 
+=======
+>>>>>>> upstream/main

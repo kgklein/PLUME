@@ -22,7 +22,6 @@ graph: true
 incl_src: false
 src_dir:  ./src
 favicon: favicon.ico
-preprocess: False
 
 ---
 
@@ -56,6 +55,7 @@ and code paper
 [Klein, K. G., Howes, G. G.,
 and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 
+Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
 
 For first-time users, we recommend working through our [PLUME Tutorial](./page/tutorial.md).
 

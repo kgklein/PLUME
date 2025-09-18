@@ -20,6 +20,8 @@ PACK = Makefile \
 	inputs/example/*.in \
 	include/
 
+MODDIR := include
+
 #FLAGS=
 #NOTE: For Intel Fortran compiler ifort
 ifeq ($(SYSTEM),IFORT)
@@ -30,7 +32,7 @@ endif
 ifeq ($(SYSTEM),GFORT)
 #NOTE	: For gfortran
 #gfortran orders roots a bit differently...
-	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math #
+	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  -I$(MODDIR) -J$(MODDIR) #
 	COMP= gfortran
 endif
 LIBS=
@@ -44,10 +46,8 @@ VPATH= src:include:/usr/include/
 ###############################################################################
 all: heat
 
-heat: $(LFMOD) $(LFX)
+heat: $(MODDIR) $(LFMOD) $(LFX)
 	$(COMP) -o plume.e $(FLAGS) $(LIBS) $(LFMOD) $(LFX)
-	mv *.o include/
-	mv *.mod include/
 
 ###############################################################################
 
@@ -66,14 +66,20 @@ tar:
 	tar -cvf  pack_plume_`date +'%y%m%d'`.tar ${PACK}; gzip pack_plume_`date +'%y%m%d'`.tar
 
 #########Rules
-%.o : %.f90
+%.o : %.f90 | $(MODDIR)
 	$(COMP) -c $(FLAGS) $<
 
 #########Dependencies
-plume.o:	vars.o functions.o fpc.o
+nrutil_trim.o: nrtype.o
 
-functions.o:    vars.o
+vars.o:        nrtype.o
 
-disprels.o:	vars.o bessel.o
+bessel.o:      nrtype.o nrutil_trim.o
 
-bessel.o:	nrtype.o nrutil_trim.o
+disprels.o:    vars.o bessel.o
+
+functions.o:   vars.o
+
+fpc.o:         disprels.o vars.o
+
+plume.o:       vars.o functions.o fpc.o

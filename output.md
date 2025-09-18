@@ -132,6 +132,7 @@ Then for species j in {1,..,nspec}:
 
 Here, {!eigen} (negation of the eigen boolean) equals 1 if eigen is false and 0 if eigen is true.
 
+
 This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component. 
 - 19+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $T_{ref,\parallel}/T_{j,\parallel}$.
 - 20+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $m_{ref}/m_{j}$.
@@ -140,6 +141,12 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 7, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=15. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+
+For ease of reference, consider the below tables for column numbers for two and three component calculations.
+
+![Table for output column numbering for a two-component plasma.](./data/PLUME-Output-Table.svg)
+
+![Table for output column numbering for a three-component plasma.](./data/PLUME-Output-Table-2.svg)
 
 This same data structure is preserved for the output from `om_double_scan`.
 The file naming convention will include a value of *param* from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.
