@@ -1178,13 +1178,23 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
             eigen = True
 
         skipforedgecase = False
-        if(nline == 62): #Given that having nspec = 2 heating=True and Eigen = True is so common, I manually check \mu_r (mass_ref/mass_ref) in the conflicting case of Eigen = true, heating = False, nspec = 3 (in nspec = 2 case, element 44 (at index 43) is the power absoprtion by p2ld_zz (which is super unlikely to be exactly +1, and in the nspec=3 case, element 44 (at index 43) is mu_r=1 (unless the user creates a bad PLUME input....))
+        if(nline == 62): #hard check of most common case
+                         #Given that having nspec = 2 heating=True and Eigen = True is so common, I manually check \mu_r (mass_ref/mass_ref) in the conflicting case of Eigen = true, heating = False, nspec = 3 (in nspec = 2 case, element 44 (at index 43) is the power absoprtion by p2ld_zz (which is super unlikely to be exactly +1, and in the nspec=3 case, element 44 (at index 43) is mu_r=1 (unless the user creates a bad PLUME input....))
                          #in summary, unless the user has a bad input, it will either correctly load, or ask the user for more input, which is fine.
                          #      if the user has bad input (which we check for!)
             #Add elements where relevant power output should be if nspec=2 heating=True and Eigen=True (very very improbable this equation returns true if this setup is not used and nline=60) <- (fun note: computers assume statistically impossible but technically possible things all the time- for example checksums cryptographic hash collisiones, pseudo random number generators, hardware failure, quantum tunneling....)
             _tol = .000000001
-            if(abs(float(line.split()[43])-1) > _tol): #_tol is for small potential floating point rounding error
+            if(abs(float(line.split()[51])-1) < _tol): #(ref mass should be 1) _tol is for small potential floating point rounding error
                 nspec = 2
+                eigen = True
+                heating = True
+                skipforedgecase = True #If the above is true, we know what it is and should keep going
+                noutperspec = 16
+
+        if(nline == 84): #Hard check of second most common case
+            _tol = .000000001
+            if(abs(float(line.split()[67])-1) < _tol): #(ref mass should be 1) _tol is for small potential floating point rounding error
+                nspec = 3
                 eigen = True
                 heating = True
                 skipforedgecase = True #If the above is true, we know what it is and should keep going
@@ -1192,12 +1202,12 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
 
         if(not(skipforedgecase)):
             #first check if two of these are true, then we can't determine what the output is given just the number of elements per line (except by checking specific values like if the sum of species power subelements equals total species power (approximately since it's technically missing terms) TODO: see above example and write for more? <- lot of work to not be used often, just the one common edge case is fine for now.)
-            if(int((nline - 18) % (8+6) == 0)+int((nline - 6) % (7+6) == 0)+int((nline - 18) % (15+6) == 0)+int((nline - 6) % (6)==0) > 1):
+            if(int((nline - 18) % (8+6) == 0)+int((nline - 6) % (8+6) == 0)+int((nline - 18) % (16+6) == 0)+int((nline - 6) % (6)==0) > 1):
                 print("Could not automatically determine nspec, heating=T/F, and eigen=T/F (as number line elements, which we use to determine these values, could be produced by more than one combination of nspec heating and eigen)")
                 print("Please call this function again and pass as optional paramters nspec=*val*, heating=True/False, eigen=True/False")
                 print('Number of elements in first line: ',nline)
                 print("Possible if Eigen is true and heat is false (bool->1 or 0) | Possible if Eigen is false and heat is true (bool->1 or 0) | Possible if Eigen is true and heat is true (bool->1 or 0)")
-                print("int((nline - 18) % (8+6) == 0):",int((nline - 18) % (8+6) == 0), "    |int((nline - 6) % (7+6) == 0)",int((nline - 6) % (7+6) == 0),"   |int((nline - 6) % (6)==0)",int((nline - 6) % (6)==0))
+                print("int((nline - 18) % (8+6) == 0):",int((nline - 18) % (8+6) == 0), "     int((nline - 18) % (16+6) == 0)", int((nline - 18) % (16+6) == 0),"    |int((nline - 6) % (8+6) == 0)",int((nline - 6) % (8+6) == 0),"   |int((nline - 6) % (6)==0)",int((nline - 6) % (6)==0))
                 f.close()
 
                 return
@@ -1211,13 +1221,13 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
             elif((nline - 6) % (8+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = False
                 heating = True
-                nspec = int(round((nline - 6)  / (7+6)))   # eigen=False, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 6)  / (8+6)))   # eigen=False, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 8
 
             elif((nline - 18) % (16+6) == 0): #some outputs at front, 6nspec at end, and the middle is determined by nspec and heating/eigen (if eigen = True then  +8, if heating = True then +7)
                 eigen = True
                 heating = True
-                nspec = int(round((nline - 18) / (15+6)))  # eigen=True, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
+                nspec = int(round((nline - 18) / (16+6)))  # eigen=True, heat=True #note, python truncates when casting to int, which could be an issue if due to floating division if we get something like *.9999999999999, so we round before casting as int
                 noutperspec = 16
 
             elif((nline - 6) % (6) == 0):
