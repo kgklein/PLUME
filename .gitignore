@@ -19,3 +19,5 @@ docs_out
 __pycache__
 # Python virtual environments
 .venv
+.DS_Store
+.ipynb_checkpoints/
