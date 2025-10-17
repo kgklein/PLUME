@@ -41,7 +41,7 @@ yy=0.4
 dy=0.225
 
 base_color='#000000'
-n0_color='#009e73'
+n0_color='#CC79A7'
 n1_color='#e68f00'
 nm1_color='#00f86e'
 
