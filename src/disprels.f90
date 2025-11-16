@@ -1268,11 +1268,13 @@ subroutine om_double_scan
         !Scan from (|k_0|) to (|k_1|) at constant theta
         elseif ((scan(1)%type_s)==2) then
            if (scan(1)%log_scan) then
-              sw=10.**(log10(ki*sin(theta))+diff(1,1)*real(kk)) !kperp
-              sw2=10.**(log10(ki*cos(theta))+diff(1,2)*real(kk)) !kpar
-           else
-              sw=(ki*sin(theta))+diff(1,1)*real(kk)  !kperp
-              sw2=(ki*cos(theta))+diff(1,2)*real(kk) !kpar
+              ktmp=10.**(log10(ki)+diff(1,1)*real(kk)) !k
+              sw= ktmp*sin(theta)!kperp
+              sw2= ktmp*cos(theta)!kpar
+           else                                        
+              ktmp=ki+diff(1,1)*real(kk) !k
+              sw= ktmp*sin(theta)!kperp
+              sw2= ktmp*cos(theta)!kpar
            endif
         endif
 
@@ -1351,13 +1353,13 @@ subroutine om_double_scan
                  if (scan(2)%log_scan) then
                     
                     ktmp=10.**(log10(ki)+diff(2,1)*real(jj)) !k
-                    sw3= ktmp*sin(theta_q)!kperp
-                    sw4= ktmp*cos(theta_q)!kpar
+                    sw3= ktmp*sin(theta)!kperp
+                    sw4= ktmp*cos(theta)!kpar
                  else
                                         
                     ktmp=ki+diff(2,1)*real(jj) !k
-                    sw3= ktmp*sin(theta_q)!kperp
-                    sw4= ktmp*cos(theta_q)!kpar
+                    sw3= ktmp*sin(theta)!kperp
+                    sw4= ktmp*cos(theta)!kpar
                  endif
 
               endif
