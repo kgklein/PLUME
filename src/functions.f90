@@ -517,33 +517,33 @@ end subroutine read_map_input
      call radial_read_6
   end select
 
-      call get_runname(runname)
-      runname = trim(runname)//".in"
+!      call get_runname(runname)
+!      runname = trim(runname)//".in"
 
       !Determine K range which will be explored
-      select case (k_scan)
-      case (0)
-         !simple case of constant kperp, kpar
-         call radial_read_0
-      case (1)
-         !fixed kperp, scan over kpar
-         call radial_read_1
-      case (2)
-         !fixed kpar,  scan over kperp
-         call radial_read_2
-      case (3)
-         !fixed theta, scan over k
-         call radial_read_3
-      case (4)
-         !fixed k, scan over theta
-         call radial_read_4
-      case (5)
-         !plane scan over (kperp, kpar)
-         call radial_read_5
-      case (6)
-         !plane scan over (k, theta)
-         call radial_read_6
-      end select
+!      select case (k_scan)
+!      case (0)
+!         !simple case of constant kperp, kpar
+!         call radial_read_0
+!      case (1)
+!         !fixed kperp, scan over kpar
+!         call radial_read_1
+!      case (2)
+!         !fixed kpar,  scan over kperp
+!         call radial_read_2
+!      case (3)
+!         !fixed theta, scan over k
+!         call radial_read_3
+!      case (4)
+!         !fixed k, scan over theta
+!         call radial_read_4
+!      case (5)
+!         !plane scan over (kperp, kpar)
+!         call radial_read_5
+!      case (6)
+!         !plane scan over (k, theta)
+!         call radial_read_6
+!      end select
 
    end subroutine read_radial_input
 
