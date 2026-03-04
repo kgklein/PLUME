@@ -46,6 +46,7 @@ contains
     !!$ ./plume.e example.in
       use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc, option, writeOut
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
+      use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
@@ -64,6 +65,7 @@ contains
       nameList /params/ &
          betap, kperp, kpar, vtp, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
+         collision_type, Kn, &
          writeOut, dataName, outputName
 
       nameList /fpc/ &

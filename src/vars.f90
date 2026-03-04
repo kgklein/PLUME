@@ -39,8 +39,18 @@ module vars
   !!Number of species/components to be included in calculation.
 
    integer :: nscan = 0
-  !!Number of parameter scans.
+   !!Number of parameter scans.
 
+   integer :: collision_type = 0
+   !! Type of collisions for system.
+   !! 0: no collisions; standard PLUME
+   !! 1: non-conservative krook operator,
+   !!    neutral-charged collisions only.
+
+   real, target :: Kn
+   !! Knudson Number for neutral particles over length $\rho_{ref}$
+   !! Kn^{-1} = n_0 \sigma \rho_{ref}
+   
    public :: specie
    type :: specie
      !!Species Input Parameters
@@ -68,7 +78,19 @@ module vars
       real :: vv_s
      !!Relative Drift, normalized to reference Alfven velocity
      !!\(v_{drift}/v_{A,ref}\)
-     !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
+      !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
+
+      real :: nu_ns
+     !! Neutral-species collision frequency
+      !! \nu_{n,s}/\Omega_{ref} =
+      !! n_0 \sigma \sqrt{T_{\parallel,s}/m_s}/Omega_{ref}
+      !! where we define Kn^{-1}= n_0 \sigma \rho_{ref}
+      !! allowing us to write
+      !! \nu_{n,s}/\Omega_{ref} =
+      !!
+      !! Note: this quantity is derived from
+      !! Kn (a global parameter)
+      !! and the other species parameters.
 
    end type specie
 
@@ -343,5 +365,6 @@ module vars
    public :: elecdircontribution
    public :: computemoment, EpsilonSokhotski_Plemelj, omega_val
    public :: vxshift, vyshift, vzshift
+   public :: collision_type, Kn
 
 end module vars
