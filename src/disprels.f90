@@ -1203,6 +1203,7 @@ subroutine om_double_scan
            !swf ->  theta_1 in degrees
            theta=atan(kperp/kpar)!initial theta value
            ki=kpar/cos(theta)
+           write(*,'(a,2es14.4)')'Initial Value (theta,|k|rho_ref)',theta*180/pi,ki
         elseif ((scan(is)%type_s)==2) then
            !k_0-> k_1 along fixed (current) angle
            !k_0 -> k_1; 
@@ -1349,19 +1350,15 @@ subroutine om_double_scan
 
                  !Scan from (|k_0|) to (|k_1|) at constant theta
               elseif ((scan(2)%type_s)==2) then
-
-                 if (scan(2)%log_scan) then
-                    
+                 if (scan(2)%log_scan) then                    
                     ktmp=10.**(log10(ki)+diff(2,1)*real(jj)) !k
-                    sw3= ktmp*sin(theta)!kperp
-                    sw4= ktmp*cos(theta)!kpar
-                 else
-                                        
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
+                 else                                        
                     ktmp=ki+diff(2,1)*real(jj) !k
-                    sw3= ktmp*sin(theta)!kperp
-                    sw4= ktmp*cos(theta)!kpar
+                    sw3= ktmp*sin(theta_q)!kperp
+                    sw4= ktmp*cos(theta_q)!kpar
                  endif
-
               endif
 
               !Single Component Scans
@@ -1501,14 +1498,23 @@ subroutine om_double_scan
                  sw3=(ki*sin(theta_q))!kperp
                  sw4=(ki*cos(theta_q))!kpar
               elseif ((scan(2)%type_s)==2) then
-                 !k along contant theta
-                 if (scan(2)%log_scan) then
-                    sw3=10.**(log10(ki*sin(theta))+diff(2,1)*real(jj))    
-                    sw4=10.**(log10(ki*cos(theta))+diff(2,1)*real(jj))    
-                 else
-                    sw3=(ki*sin(theta))+diff(2,1)*real(jj)    
-                    sw4=(ki*cos(theta))+diff(2,1)*real(jj)    
+                 if (scan(2)%log_scan) then                    
+                    ktmp=10.**(log10(ki)+diff(2,1)*real(jj)) !k
+                    sw3= ktmp*sin(theta)!kperp
+                    sw4= ktmp*cos(theta)!kpar
+                 else                                        
+                    ktmp=ki+diff(2,1)*real(jj) !k
+                    sw3= ktmp*sin(theta)!kperp
+                    sw4= ktmp*cos(theta)!kpar
                  endif
+                 !k along contant theta
+                 !if (scan(2)%log_scan) then
+                 !   sw3=10.**(log10(ki*sin(theta))+diff(2,1)*real(jj))    
+                 !   sw4=10.**(log10(ki*cos(theta))+diff(2,2)*real(jj))    
+                 !else
+                 !   sw3=(ki*sin(theta))+diff(2,1)*real(jj)    
+                 !   sw4=(ki*cos(theta))+diff(2,2)*real(jj)    
+                 !endif
               endif
            else
               if (scan(2)%log_scan) then
