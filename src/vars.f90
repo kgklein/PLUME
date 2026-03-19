@@ -81,8 +81,8 @@ module vars
       !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
 
       real :: nu_ns
-     !! Neutral-species collision frequency
-      !! \nu_{n,s}/\Omega_{ref} =
+      !! Neutral-species collision frequency
+      !! \nu_{n,s}/Omega_{ref} =
       !! n_0 \sigma \sqrt{T_{\parallel,s}/m_s}/Omega_{ref}
       !! where we define Kn^{-1}= n_0 \sigma \rho_{ref}
       !! allowing us to write
@@ -91,6 +91,7 @@ module vars
       !! Note: this quantity is derived from
       !! Kn (a global parameter)
       !! and the other species parameters.
+      !! The user does not input this value.
 
    end type specie
 

@@ -53,13 +53,13 @@ contains
       implicit none
 
       real :: sum_nq
-    !!For Testing Quasineutrality.
-
+      !!For Testing Quasineutrality.
+      
       real :: sum_nqv
-    !!For zero net current.
+      !!For zero net current.
 
       integer :: is
-    !!Index for scan and species loops.
+      !!Index for scan and species loops.
 
       !Read in the basic parameter list.
       nameList /params/ &
@@ -143,39 +143,39 @@ contains
 !-=-=-=-=-
    subroutine spec_read(is)
     !!Subroutine for reading in species/component parameters.
-      use vars, only: spec
+      use vars, only: spec, Kn
       implicit none
       !Passed
       integer :: is
-    !!Species index.
-
+      !!Species index.
+      
       !Local
       !Dummy values for reading in species parameters
       real :: tauS
-    !!Parallel Temperature Ratio.
-    !!\(T_{ref}/T_{s}|_{\parallel}\)
+      !!Parallel Temperature Ratio.
+      !!\(T_{ref}/T_{s}|_{\parallel}\)
 
       real :: muS
-    !!Mass Ratio.
-    !!\(m_{ref}/m_{s}\)
+      !!Mass Ratio.
+      !!\(m_{ref}/m_{s}\)
 
       real :: alphS
-    !!Temperature Anisotropy.
-    !!\(T_{\perp}/T_{\parallel}_s\)
+      !!Temperature Anisotropy.
+      !!\(T_{\perp}/T_{\parallel}_s\)
 
       real :: Qs
-    !!Relative charge ratio.
-    !!\(q_{ref}/q_{s}\)
+      !!Relative charge ratio.
+      !!\(q_{ref}/q_{s}\)
 
       real :: Ds
-    !!Density Ratio.
-    !!\(n_{s}/n_{ref}\)
+      !!Density Ratio.
+      !!\(n_{s}/n_{ref}\)
 
       real :: vvS
-    !!Relative Drift, normalized to reference Alfven velocity
-    !!\(v_{drift}/v_{A,ref}\)
-    !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
-
+      !!Relative Drift, normalized to reference Alfven velocity
+      !!\(v_{drift}/v_{A,ref}\)
+      !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
+      
       nameList /species/ &
          tauS, muS, alphS, Qs, Ds, vvS
       read (unit=unit, nml=species)
@@ -187,6 +187,10 @@ contains
       spec(is)%Q_s = Qs
       spec(is)%D_s = Ds
       spec(is)%vv_s = vvS
+
+      !calculate neutral-charged collision frequency
+      spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+           sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
 
    end subroutine spec_read
 

@@ -545,10 +545,14 @@ subroutine map_scan
   use vars, only : scan, spec, print_Name, sw, sw2, kperp, kpar
   use vars, only : writeOut, pi
   use vars, only : gami, gamf, omi, omf ,betap
+  use vars, only : collision_type, Kn, nspec
   !Local
 
   integer :: jj
   !! Parameter step index.
+
+  integer :: iq
+  !! species index
   
   character(150) :: outName
   !! String for I/O identification.
@@ -646,6 +650,12 @@ subroutine map_scan
         endif
      endif
 
+     do iq=1, nspec
+        if (collision_type.gt.0) &
+             spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+             sqrt(spec(iq)%mu_s/(spec(iq)%tau_s*spec(1)%alph_s))
+     enddo
+
      if ((scan(1)%style_s)==-1) then
         !Scans with multiple components
         if ((scan(1)%type_s)==0) then
@@ -700,6 +710,7 @@ subroutine om_scan(is)
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
   use vars, only : kperp,kpar,betap,vtp,spec,writeOut,susc
+  use vars, only : collision_type, Kn
   use functions, only : get_unused_unit
   
   implicit none
@@ -913,16 +924,21 @@ subroutine om_scan(is)
      endif
 
      !construct params array for formated output
-     if (mod(jj,scan(is)%n_res)==0) then
-        do ii = 1,nspec
+     do ii = 1,nspec
+        !calculate neutral-charged collision frequency
+        if (collision_type.gt.0) &
+             spec(ii)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+             sqrt(spec(ii)%mu_s/(spec(ii)%tau_s*spec(1)%alph_s))
+        
+        if (mod(jj,scan(is)%n_res)==0) then
            params(1,ii) = spec(ii)%tau_s
            params(2,ii) = spec(ii)%mu_s
            params(3,ii) = spec(ii)%alph_s
            params(4,ii) = spec(ii)%q_s
            params(5,ii) = spec(ii)%D_s
            params(6,ii) = spec(ii)%vv_s
-        enddo
-     endif
+        endif
+     enddo
 
      !Root Scan....
      do ii=1,nroot_max
@@ -1060,6 +1076,7 @@ subroutine om_double_scan
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
+  use vars, only : collision_type, Kn
   use functions, only : get_unused_unit
   implicit none
   
@@ -1078,6 +1095,9 @@ subroutine om_double_scan
 
   integer :: kk
   !! Second Parameter step index.
+
+  integer :: iq
+  !! species index
 
   character(150) :: outName
   !! String for identifying output files.
@@ -1286,6 +1306,13 @@ subroutine om_double_scan
            sw=(scan(1)%range_i)+diff(1,1)*real(kk)    
         endif
      endif
+
+     !calculate neutral-charged collision frequency
+     do iq=1, nspec
+        if (collision_type.gt.0) &
+             spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+             sqrt(spec(iq)%mu_s/(spec(iq)%tau_s*spec(1)%alph_s))
+     enddo
      
      !Root Scan....
      do ii=1,nroot_max
@@ -1374,16 +1401,20 @@ subroutine om_double_scan
            endif
 
            !construct params array for formated output
-           if (mod(jj,scan(2)%n_res)==0) then
-              do ii = 1,nspec
+           do ii = 1,nspec
+              !calculate neutral-charged collision frequency
+              if (collision_type.gt.0) &
+                   spec(ii)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+                   sqrt(spec(ii)%mu_s/(spec(ii)%tau_s*spec(1)%alph_s))
+              if (mod(jj,scan(2)%n_res)==0) then
                  params(1,ii) = spec(ii)%tau_s
                  params(2,ii) = spec(ii)%mu_s
                  params(3,ii) = spec(ii)%alph_s
                  params(4,ii) = spec(ii)%q_s
                  params(5,ii) = spec(ii)%D_s
-                 params(6,ii) = spec(ii)%vv_s
-              enddo
-           endif
+                 params(6,ii) = spec(ii)%vv_s                 
+              endif
+           enddo
            
            !Root Scan....
            do ii=1,nroot_max
@@ -1545,6 +1576,7 @@ subroutine radial_scan
   use vars, only : kperp, kpar, betap, vtp, radial_eigen
   use vars, only : dataName, outputName, radial_heating
   use vars, only : rad_scan, pi
+  use vars, only : collision_type, Kn
   use functions, only : get_unused_unit
   implicit none
   
@@ -1662,6 +1694,10 @@ subroutine radial_scan
         spec(is)%q_s    = rad_spec(is,ir)%q_s
         spec(is)%D_s    = rad_spec(is,ir)%D_s
         spec(is)%vv_s   = rad_spec(is,ir)%vv_s
+
+        if (collision_type.gt.0) &
+             spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+             sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
 
         params(1,is) = spec(is)%tau_s
         params(2,is) = spec(is)%mu_s
@@ -3482,8 +3518,691 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
 
 end subroutine get_double_out_name
 !-=-=-=-
+!Our method for selecting different dispersion relations
+complex function disp(om)
+  use vars, only : collision_type
+  
+  complex :: om
+  !!Complex Frequency
 
+  select case (collision_type)
 
+  case (0)
+     !! Hot, collisionless dispersion relation
+     disp = disp0(om)
+  case (1)
+     !! Hot plasma dispersion relation
+     !! with weak neutral-charged collisions
+     disp = disp1(om)
+  case default
+     write(*,'(a)')'An unknown collision type was selected.'
+     write(*,'(a)')'HALTING...'
+     stop
+  end select
+
+  return
+  
+end function disp
+
+!-=-=-=-=-=-=
+!  The parameters upon which this dispersion relation depends are:
+!   1) betap   = 8nT_parallel ref/B^2
+!   2) kperp   = k_perp rho_ref
+!   3) kpar    = k_parallel rho_ref (allows for +/- k_parallel values)
+!   4) vtp     = v_t,ref,parallel/c
+!
+!  As well as the species dependent ratios, compared to the selected
+!  Reference Species ref:
+!   5) tau_s     = T_ref/T_s(both temperatures parallel)
+!   6) mu_s      = m_ref/m_s
+!   7) alph_s    = T_perp/T_par|_s
+!   8) Q_s       = q_ref/q_s
+!   9) D_s       = n_s/n_ref
+!   10)vv_s      = v_drift s/v_Aref
+!   11)nu_n,s    = nu_ns/Omega_ref
+!
+!   and returns om=omega/Omega_ref
+!!!!
+!NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
+!!!!
+complex function disp1(om)
+  !!Returns Plasma Dispersion Function for input complex frequency
+  !! and global values of the dimensionless plasma parameters.
+  !! updated to include weak neutral-charged collision
+  use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
+  use vars,  only: low_n, susc_low, pi
+  implicit none
+  complex :: om
+  !!Complex Frequency
+
+  complex :: enx2
+  !! \(n_x^2= \left(k_{x} c/\omega \right)^2 \)
+
+  complex :: enz2
+  !! \(n_z^2= \left(k_{z} c/\omega \right)^2 \)
+
+  complex :: enxnz
+  !! \(n_x n_z = k_{x} k_{z}c^2/\omega^2 \)
+
+  complex :: eps_xx
+  !!\(\epsilon_{xx} \) element of dielectric tensor
+  
+  complex :: eps_yy
+  !!\(\epsilon_{yy} \) element of dielectric tensor
+  
+  complex :: eps_zz
+  !!\(\epsilon_{zz} \) element of dielectric tensor
+
+  complex :: eps_xy
+  !!\(\epsilon_{xy} \) element of dielectric tensor
+
+  complex :: eps_xz
+  !!\(\epsilon_{xz} \) element of dielectric tensor
+
+  complex :: eps_yz
+  !!\(\epsilon_{yz} \) element of dielectric tensor
+
+  complex :: eps_xx_t
+  !!Temp. \(\epsilon_{xx} \) element of dielectric tensor
+
+  complex :: eps_yy_t
+  !!Temp. \(\epsilon_{yy} \) element of dielectric tensor
+     
+  complex :: eps_zz_t
+  !!Temp. \(\epsilon_{zz} \) element of dielectric tensor
+
+  complex :: eps_xy_t
+  !!Temp. \(\epsilon_{xy} \) element of dielectric tensor
+
+  complex :: eps_xz_t
+  !!Temp. \(\epsilon_{xz} \) element of dielectric tensor
+
+  complex :: eps_yz_t
+  !!Temp. \(\epsilon_{yz} \) element of dielectric tensor
+     
+  real :: lambdap
+  !! \( \lambda_{ref}=(k_{\perp} \rho_{ref})^2/2 \)
+
+  real :: lambdas
+  !! \( \lambda_{s}=(k_{\perp} \rho_{s})^2/2 \)
+
+  real :: alphp
+  !! \( T_{\perp}/T_{\parallel}_{ref} \)
+
+  real :: Vdrifts
+  !! \( k_\parallel \rho_{ref} \Delta v_s /
+  !! \sqrt{\beta_{parallel,ref} T_{\perp}/T_{\parallel}_{ref}} \)
+
+  !Parameters
+  complex, parameter :: c_i =(0.0,1.0)
+  !!Imaginary unit i
+
+  integer :: n
+  !!Counter for Bessel sums
+     
+  real, allocatable, dimension(:,:), save :: jn
+  !!Modified Bessel functions
+     
+  real, allocatable, dimension(:,:), save :: jpn
+  !!Derivative of Modified Bessel functions
+     
+  complex, dimension(-nbrack:nbrack), save :: tsi
+  !!Argument for Plasma Dispersion Function Z
+     
+  complex, dimension(-nbrack:nbrack), save :: zz
+  !!Value fo Plasma Dispersion Function Z
+     
+  complex, dimension(1:6) :: norm
+  !!normalization for \( \chi_s \)
+  !!1: xx, 2: yy, 3: zz, 4: xy, 5: xz, 6: yz
+     
+  complex, dimension(3,3) :: a
+  !!Temp. Matrix for readability
+     
+  integer :: is
+  !! Species/component index.
+     
+  complex ::temp
+  !! Temp. Scalar for readability.
+
+  !Species Parameters called locally
+
+  real :: disp_tau     
+  !!Relative Temperature ratio.
+  !!\(T_{ref}/T_{s}|_{\parallel}\)
+     
+  real :: disp_mu
+  !!Relative Mass ratio.
+  !!\(m_{ref}/m_{s}\)
+
+  real :: disp_alph
+  !!Temperature Anisotropy.
+  !!\(T_{\perp}/T_{\parallel}_s\)
+
+  real :: disp_Q
+  !!Relative charge ratio.
+  !!\(q_{ref}/q_{s}\)
+
+  real :: disp_D
+  !!Density Ratio.
+  !!\(n_{s}/n_{ref}\)
+
+  real :: disp_v
+  !!Relative Drift, normalized to reference Alfven velocity
+  !!\(v_{drift}/v_{A,ref}\)
+  !! with \(v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}\).
+
+  real :: disp_nuns
+  !! neutral-charged collision frequency
+  !! \(nu_{n,s}/\Omega_{ref}\)
+     
+  !For computational efficiency, save Bessel functions between calls==========
+  real, save :: kperp_last
+  !! Previous value of \(k_{\perp} \rho_{ref} \)
+     
+  real, allocatable, dimension(:), save :: tau_last
+  !!Previous \(T_{ref}/T_{s}|_{\parallel}\) value.
+
+  real, allocatable, dimension(:), save :: alph_last
+  !!Previous set of temperature anisotropies
+  
+  real, allocatable, dimension(:), save :: mu_last
+  !!Previous set of mass ratios
+  
+  real, allocatable, dimension(:), save :: Q_last
+  !!Previous set of charge ratios
+     
+  logical, allocatable, dimension(:) :: reuse_bessel
+  !! Either use previous Bessel array, or recalculate,
+  !! based on if argument for a particular species/component changes.
+
+  if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
+  if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
+  if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
+  if (.not. allocated(alph_last)) allocate(alph_last(nspec))          
+  if (.not. allocated(mu_last)) allocate(mu_last(nspec))          
+  if (.not. allocated(Q_last)) allocate(Q_last(nspec))
+  if (.not. allocated(reuse_bessel)) allocate(reuse_bessel(nspec))
+
+  reuse_bessel=.false.
+  !IF
+  !lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
+  !changes, the bessel functions need to be recalculated...
+  if ((kperp .eq. kperp_last ).and.(spec(1)%alph_s .eq. alph_last(1))) then
+     do is=1, nspec 
+        if ((spec(is)%tau_s .eq. tau_last(is)) .and. &
+             (spec(is)%alph_s .eq. alph_last(is)) .and. &
+             (spec(is)%mu_s .eq. mu_last(is)) .and. &
+             (spec(is)%q_s .eq. q_last(is))) &                
+             reuse_bessel(is)=.true.
+     enddo
+  endif
+
+  !Arguments of Bessel functions for reference species
+  lambdap = kperp**2./2.
+     
+  !temperature anisotropy for reference species
+  alphp = spec(1)%alph_s
+
+  !Indices of refraction from the dispersion relation 
+  !the dispersion relation  is multiplied by [omega/Omega_R]^2
+  !to remove singularities in the function.
+  enx2=((kperp/(om*vtp))**2.)/alphp !n_x^2
+  enz2=((kpar/(om*vtp))**2.)/alphp  !n_z^2
+  enxnz=(kperp*kpar/(om*vtp)**2.)/alphp !n_x n_z
+  
+  !Initialize eps factors
+  eps_xx = cmplx(0.,0.) 
+  eps_yy = cmplx(0.,0.) 
+  eps_zz = cmplx(0.,0.) 
+  eps_xy = cmplx(0.,0.) 
+  eps_xz = cmplx(0.,0.) 
+  eps_yz = cmplx(0.,0.)
+
+  !Calculate the Susceptibility Tensor for Each Species:
+  do is=1,nspec
+     disp_tau  =spec(is)%tau_s
+     disp_mu   =spec(is)%mu_s
+     disp_alph =spec(is)%alph_s
+     disp_Q    =spec(is)%Q_s
+     disp_D    =spec(is)%D_s
+     disp_v    =spec(is)%vv_s
+     disp_nuns =spec(is)%nu_ns
+     
+     !frequently employed v drift normalization
+     Vdrifts = kpar * disp_v / sqrt(betap*alphp)
+     
+     lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
+     
+     !Clear the Temporary Susceptability
+     eps_xx_t = cmplx(0.,0.) 
+     eps_xy_t = cmplx(0.,0.) 
+     eps_xz_t = cmplx(0.,0.) 
+     eps_yy_t = cmplx(0.,0.) 
+     eps_yz_t = cmplx(0.,0.) 
+     eps_zz_t = cmplx(0.,0.)
+
+     !Compute all necessary plasma dispersion functions and bessel functions
+     tsi=0. ;  zz=0. ;
+     if (.not. reuse_bessel(is)) then 
+        do n = -nbrack-1, nbrack+1
+           jn(n,is)=bessel(abs(n),lambdas)
+        enddo
+        do n = -nbrack, nbrack
+           jpn(n,is)=0.5*(jn(n+1,is)+jn(n-1,is))
+        enddo
+     endif
+     
+     do n = -nbrack, nbrack
+        !here, we add i nu_ns/Omega_ref to the numerator
+        tsi(n) = sqrt((alphp * disp_tau)/(disp_mu))*&
+             ( om - Vdrifts - dble(n)* disp_mu/disp_Q + c_i * disp_nuns)/kpar
+        zz(n)=zet_in(kpar,tsi(n))
+     enddo
+
+     !Set normalizations for susceptibilites
+     !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
+     !-=-=-=-=-=-=-=-=-=-=
+     !XX
+     norm(1)=( betap * disp_mu * disp_D  )/&
+          ( om *om * vtp**2. * disp_Q**2. * lambdas  )
+     
+     !-=-=-=-=-=-=-=-=-=-=
+     !XY
+     norm(4)=((-c_i * betap * disp_mu * disp_D  )/&
+          ( om * om* vtp**2. * disp_Q**2. * kpar ))* &
+          sqrt(alphp * disp_tau / disp_mu)
+     
+     !-=-=-=-=-=-=-=-=-=-=
+     !XZ
+     norm(5)=( betap * disp_D * kperp )/&
+          ( om * om *vtp**2. * disp_Q * lambdas * kpar  )
+     
+     !-=-=-=-=-=-=-=-=-=-=
+     !YY
+     norm(2)=( betap * disp_mu * disp_D  )/&
+          ( om * om* vtp**2. * disp_Q**2. * lambdas  )
+     
+     !-=-=-=-=-=-=-=-=-=-=
+     !YZ
+     norm(6)=( c_i * betap * disp_D * kperp )/&
+          ( om * om * vtp**2. * disp_Q * kpar  )
+     
+     !-=-=-=-=-=-=-=-=-=-=
+     !ZZ
+     norm(3)=(2. * betap * alphp* disp_tau  * disp_D)/&
+          ( om * om* vtp**2. * disp_Q**2. * kpar * kpar * disp_alph)
+
+     !Sum over the Susceptibilities
+     do n = 1, nbrack
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !XX
+        !Minimal change; addition of (alph_s-1)*i*\nu_ns
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_xx_t  = eps_xx_t  + &
+             n*n*jn(n,is)*( 2.*(disp_alph-1.) &
+             + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
+             (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
+             (zz(n)+zz(-n)) &
+             + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !YY
+        !Minimal change; addition of (alph_s-1)*i*\nu_ns
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_yy_t = eps_yy_t + &
+             (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
+             (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+             (disp_alph*(om - Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*&
+             (zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
+             (1.-disp_alph)*(zz(n)-zz(-n))))
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !ZZ
+        !A plethora of cross terms added.
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_zz_t = eps_zz_t + &
+             jn(n,is)*(2.*om* &
+             (om*disp_alph - Vdrifts+c_i *disp_nuns*(disp_alph-1.d0)) - &
+             2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
+             +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
+             (zz(n)+zz(-n))*&
+             (om*(om+c_i*disp_nuns)*&
+             (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
+             + n*n*disp_mu**2.*&
+             (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
+             2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
+             +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*&
+             (om*om*(1.d0-3.d0*disp_alph) +&
+             (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
+             (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
+             -c_i*disp_nuns*om*disp_alph)+&
+             n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) 
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !XY
+        !Minimal change; addition of (alph_s-1)*i*\nu_ns
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_xy_t = eps_xy_t + &
+             n*(jn(n,is)-jpn(n,is))*( &
+             (zz(n)-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1)*c_i*disp_nuns)&
+             +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !XZ
+        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_xz_t = eps_xz_t + &
+             n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+             (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+             (zz(n) -zz(-n))*&
+             ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) )-&
+             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+             (zz(n) +zz(-n))*&
+             (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
+             +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !YZ
+        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
+        !-=-=-=-=-=-=-=-=-=-=
+        eps_yz_t = eps_yz_t + &
+             (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)) &
+             +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+             (zz(n)+zz(-n))*&
+             ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
+             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
+             +(zz(n)-zz(-n))*&
+             (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
+             2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+        
+        !-=-=-=-=-=-=-=-=-=-=
+        !n=\pm 1 susceptibility
+        if ((low_n).and.(n==1)) then
+           
+           !\chi_xx
+           susc_low(is,1,1,1) = norm(1)*&
+                n*n*jn(n,is)*( (disp_alph-1.) &
+                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
+                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
+                (zz(n)) &
+                + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+           
+           susc_low(is,1,1,-1) = norm(1)*&
+                n*n*jn(n,is)*( (disp_alph-1.) &
+                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
+                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
+                (zz(-n)) &
+                + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
+
+           !\chi_xy
+           susc_low(is,1,2,1) = norm(4)*&
+                n*(jn(n,is)-jpn(n,is))*( &
+                (zz(n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns)&
+                +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+           
+           susc_low(is,1,2,-1) = norm(4)*&
+                n*(jn(n,is)-jpn(n,is))*( &
+                (-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns) &
+                +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
+
+           !\chi_yx
+           susc_low(is,2,1,1) = -susc_low(is,1,2,1)
+           
+           susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
+
+           !\chi_xz
+           susc_low(is,1,3,1) = norm(5)*&
+                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (zz(n))*&
+                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
+                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+                (zz(n))*&
+                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
+                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+           
+           susc_low(is,1,3,-1) = norm(5)*&
+                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
+                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (-zz(-n))*&
+                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
+                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
+                (zz(-n))*&
+                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
+                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+                           
+           !\chi_zx
+           susc_low(is,3,1,1) = susc_low(is,1,3,1)
+           
+           susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
+           
+           !\chi_yy
+           susc_low(is,2,2,1) = norm(2)*&
+                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
+                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(n)) + &
+                (n*disp_mu/(disp_Q))*&
+                (1.-disp_alph)*(zz(n))))
+           
+           susc_low(is,2,2,-1) = norm(2)*&
+                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
+                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(-n)) + &
+                (n*disp_mu/(disp_Q))*&
+                (1.-disp_alph)*(-zz(-n))))
+
+           !\chi_yz
+           susc_low(is,2,3,1) = norm(6)*&
+                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
+                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (zz(n))*&
+                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
+                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
+                +(zz(n))*&
+                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
+                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+
+           susc_low(is,2,3,-1) = norm(6)*&
+                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
+                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
+                (zz(-n))*&
+                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
+                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
+                +(-zz(-n))*&
+                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
+                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
+           
+           !\chi_zy
+           susc_low(is,3,2,1) = -susc_low(is,2,3,1)
+           
+           susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)
+
+           !\chi_zz
+           susc_low(is,3,3,1) = norm(3)*&
+                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
+                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
+                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
+                (zz(n))*(om*(om+c_i*disp_nuns)*&
+                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
+                + n*n*disp_mu**2.*&
+                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
+                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
+                +(n * disp_mu/disp_Q )*(zz(n))*& 
+                (om*om*(1.d0-3.d0*disp_alph) +&
+                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
+                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
+                -c_i*disp_nuns*om*disp_alph)+&
+                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
+
+           susc_low(is,3,3,1) = norm(3)*&
+                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
+                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
+                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
+                (zz(n))*(om*(om+c_i*disp_nuns)*&
+                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
+                + n*n*disp_mu**2.*&
+                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
+                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
+                +(n * disp_mu/disp_Q )*(-zz(-n))*& 
+                (om*om*(1.d0-3.d0*disp_alph) +&
+                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
+                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
+                -c_i*disp_nuns*om*disp_alph)+&
+                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
+           
+        endif
+           
+     enddo !end n loop
+
+     !Add in the n=zero term
+     
+     !No n=0 XX term
+     
+     !No n=0 XY,YX terms
+     
+     !No n=0 XZ,ZX terms
+     
+     !YY term
+     eps_yy_t = eps_yy_t + &
+          (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
+          ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
+          (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0)))
+
+     !YZ term
+     eps_yz_t = eps_yz_t + &
+          (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
+          zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
+          (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))
+
+     !ZZ term
+     eps_zz_t = eps_zz_t + &
+          jn(0,is)*om*(&
+          om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
+          zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
+          *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) )
+     
+
+     if (low_n) then
+
+        !xx
+        susc_low(is,1,1,0)=cmplx(0.d0,0.d0)
+
+        !yy
+        susc_low(is,2,2,0) =  (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
+             ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
+             (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0))) * norm(2)
+
+        !xy
+        susc_low(is,1,2,0)=cmplx(0.d0,0.d0)
+
+        !yx
+        susc_low(is,2,1,0)=cmplx(0.d0,0.d0)
+
+        !xz
+        susc_low(is,1,3,0)=cmplx(0.d0,0.d0)
+
+        !zx
+        susc_low(is,3,1,0)=cmplx(0.d0,0.d0)
+        
+        !yz
+        susc_low(is,2,3,0) = &
+             (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
+             zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
+             (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))*&
+             norm(6)
+        
+        !zy
+        susc_low(is,3,2,0) = -susc_low(is,2,3,0)
+
+        !zz
+        susc_low(is,3,3,0) = &
+             jn(0,is)*om*(&
+             om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
+             zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
+             *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) ) * norm(3)
+        
+     endif
+
+             !Apply the correct species normalization
+           !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
+        !-=-=-=-=-=-=-=-=-=-=
+        !XX
+        eps_xx_t=eps_xx_t*norm(1)
+        !XY
+        eps_xy_t=eps_xy_t*norm(4)
+        !XZ
+        eps_xz_t=eps_xz_t*norm(5)
+        !YY
+        eps_yy_t=eps_yy_t*norm(2)
+        !YZ
+        eps_yz_t=eps_yz_t*norm(6)
+        !ZZ
+        eps_zz_t=eps_zz_t*norm(3)
+
+        !Add the drift term
+        eps_zz_t = eps_zz_t + &
+             ((2.*disp_v)/(kpar*vtp**2.)) * &
+             (disp_D*disp_tau*sqrt(betap*alphp)/(om*disp_alph*disp_Q**2.))
+
+        !Save the temporary susceptibility to the 'susc' array
+        susc(is,1,1) = eps_xx_t
+        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
+        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
+        susc(is,2,2) = eps_yy_t
+        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
+        susc(is,3,3) = eps_zz_t
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !Add to the total susceptibility
+        eps_xx = eps_xx + eps_xx_t
+        eps_xy = eps_xy + eps_xy_t
+        eps_xz = eps_xz + eps_xz_t
+        eps_yy = eps_yy + eps_yy_t
+        eps_yz = eps_yz + eps_yz_t
+        eps_zz = eps_zz + eps_zz_t
+
+        !-=-=-=-=-=-=-=-=-=-=
+        !Save values of lambda_s components to save on Bessel function calculations
+        tau_last(is) =disp_tau
+        alph_last(is)=disp_alph
+        Q_last(is) =disp_Q
+        mu_last(is)=disp_mu
+     enddo !species loop
+     
+
+     !------------------------------------------------------------------------------
+     !------------------------------------------------------------------------------
+
+     !Assign Values of matrix elements in final wave equation
+     !NORM!
+     a(1,1) = 1. + eps_xx - enz2
+     a(1,2) = eps_xy
+     a(1,3) = eps_xz + enxnz
+     a(2,1) = -a(1,2)
+     a(2,2) = 1. + eps_yy - enx2 - enz2 
+     a(2,3) = eps_yz
+     a(3,1) = a(1,3)
+     a(3,2) = -a(2,3)
+     a(3,3) = 1. + eps_zz - enx2
+
+     !Set matrix elements into public variable
+     lam(:,:)=a(:,:)
+
+     !Calculate the dispersion relation:
+     !------------------------------------------------------------------------------
+     disp1= a(1,1)*( a(2,2)*a(3,3) + a(2,3)**2. ) + &
+          2.*a(1,2)*a(2,3)*a(1,3) - a(1,3)**2.*a(2,2) +a(1,2)**2.*a(3,3)
+
+     !------------------------------------------------------------------------------
+     !Save values of lambda_s components to save on Bessel function calculations
+     kperp_last=kperp
+
+     return
+
+end function disp1
+  
 !THE BEATING HEART OF THE CODE....
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !Collisionless Vlasov-Maxwell Dispersion Relation for an 
@@ -3513,7 +4232,7 @@ end subroutine get_double_out_name
 !!!!
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
-   complex function disp(om)
+   complex function disp0(om)
      !!Returns Plasma Dispersion Function for input complex frequency
      !! and global values of the dimensionless plasma parameters.
      use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
@@ -4049,7 +4768,7 @@ end subroutine get_double_out_name
 
      !Calculate the dispersion relation:
      !------------------------------------------------------------------------------
-     disp= a(1,1)*( a(2,2)*a(3,3) + a(2,3)**2. ) + &
+     disp0= a(1,1)*( a(2,2)*a(3,3) + a(2,3)**2. ) + &
           2.*a(1,2)*a(2,3)*a(1,3) - a(1,3)**2.*a(2,2) +a(1,2)**2.*a(3,3)
 
      !------------------------------------------------------------------------------
@@ -4058,7 +4777,7 @@ end subroutine get_double_out_name
 
      return
 
-   end function disp
+   end function disp0
 
    !------------------------------------------------------------------------------
    !                           Greg Howes, 2005
