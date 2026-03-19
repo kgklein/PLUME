@@ -149,5 +149,7 @@ For ease of reference, consider the below tables for column numbers for two and 
 
 ![Table for output column numbering for a three-component plasma.](./data/PLUME-Output-Table-2.svg)
 
+![Table for output column numbering for a four-component plasma.](./data/PLUME-Output-Table-3.svg)
+
 This same data structure is preserved for the output from `om_double_scan`.
 The file naming convention will include a value of *param* from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.
