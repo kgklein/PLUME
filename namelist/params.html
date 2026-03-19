@@ -126,7 +126,7 @@
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../namelist/params.html#variable-betap">betap</a>
             <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kpar~2">kpar</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
             <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nscan">nscan</a>
@@ -134,6 +134,8 @@
             <a class="list-group-item" href="../namelist/params.html#variable-nroot_max">nroot_max</a>
             <a class="list-group-item" href="../namelist/params.html#variable-use_map">use_map</a>
             <a class="list-group-item" href="../namelist/params.html#variable-low_n">low_n</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-collision_type">collision_type</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kn">Kn</a>
             <a class="list-group-item" href="../namelist/params.html#variable-writeout">writeOut</a>
             <a class="list-group-item" href="../namelist/params.html#variable-dataname">dataName</a>
             <a class="list-group-item" href="../namelist/params.html#variable-outputname">outputName</a>
@@ -194,8 +196,8 @@
 k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
     </tr>
 
-              <tr id="variable-kpar~2">
-      <td><a href="#variable-kpar~2">kpar</a></td>
+              <tr id="variable-kpar">
+      <td><a href="#variable-kpar">kpar</a></td>
       <td>real</td>
       <td>None</td>
       <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
@@ -268,6 +270,24 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td><p>Toggle on low-n susceptibility suplementary calculation.
  25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
  n=0, \pm 1 calculation we wish to perform.</p></td>
+    </tr>
+
+              <tr id="variable-collision_type">
+      <td><a href="#variable-collision_type">collision_type</a></td>
+      <td>integer</td>
+      <td>0</td>
+      <td><p>Type of collisions for system.
+0: no collisions; standard PLUME
+1: non-conservative krook operator,
+   neutral-charged collisions only.</p></td>
+    </tr>
+
+              <tr id="variable-kn">
+      <td><a href="#variable-kn">Kn</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Knudson Number for neutral particles over length $\rho_{ref}$
+Kn^{-1} = n_0 \sigma \rho_{ref}</p></td>
     </tr>
 
               <tr id="variable-writeout">

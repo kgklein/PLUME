@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="48.7% of total for modules and submodules.">2234 statements</a>
+                 title="51.0% of total for modules and submodules.">2454 statements</a>
             </li>
 
         </ul>
@@ -152,6 +152,8 @@
       <div id="funcs-0" class="collapse">
         <div class="list-group list-group-flush">
             <a class="list-group-item" href="../module/disprels.html#proc-disp">disp</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-disp1">disp1</a>
+            <a class="list-group-item" href="../module/disprels.html#proc-disp0">disp0</a>
             <a class="list-group-item" href="../module/disprels.html#proc-rtsec">rtsec</a>
             <a class="list-group-item" href="../module/disprels.html#proc-zet_in">zet_in</a>
             <a class="list-group-item" href="../module/disprels.html#proc-zetout">zetout</a>
@@ -204,6 +206,8 @@
  (Consider reducing scope with submodule or
  other approach- fine for now)</p>
 <p>!!</p>
+<p>!!
+!!</p>
 <p>!!</p>
 <br>      
           <div class="card">
@@ -448,6 +452,100 @@ parameter
 </h3></div>
     <div class="card-body">
           
+  <p>Hot, collisionless dispersion relation
+Hot plasma dispersion relation
+with weak neutral-charged collisions</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-om~2"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>om</strong></td>
+            <td>
+<p>Complex Frequency</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-disp1"></span> <h3>private  function <a href='../proc/disp1.html'>disp1</a>(om)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Returns Plasma Dispersion Function for input complex frequency
+ and global values of the dimensionless plasma parameters.
+ updated to include weak neutral-charged collision</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-om~3"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>om</strong></td>
+            <td>
+<p>Complex Frequency</p>
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h4>
+    Return Value
+    <small>complex</small>
+    </h4>
+    
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-disp0"></span> <h3>private  function <a href='../proc/disp0.html'>disp0</a>(om)  
+</h3></div>
+    <div class="card-body">
+          
   <p>Returns Plasma Dispersion Function for input complex frequency
  and global values of the dimensionless plasma parameters.</p>
 
@@ -464,7 +562,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-om~2"></span>
+              <span class="anchor" id="variable-om~4"></span>
               complex
             </td>
 <td></td>
@@ -615,7 +713,7 @@ parameter
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-kpar"></span>
+              <span class="anchor" id="variable-kpar~2"></span>
               real
             </td>
 <td></td>
@@ -726,7 +824,7 @@ Note that we are determining I_n(x) e^(-x) to avoid large argument errors.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~3"></span>
+              <span class="anchor" id="variable-n~16"></span>
               integer
             </td>
 <td></td>
@@ -741,7 +839,7 @@ Note that we are determining I_n(x) e^(-x) to avoid large argument errors.</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-x~2"></span>
+              <span class="anchor" id="variable-x~17"></span>
               real
             </td>
 <td></td>
@@ -1239,7 +1337,7 @@ k_1|=swf</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~4"></span>
+              <span class="anchor" id="variable-diff~5"></span>
               real
             </td>
 <td></td>
@@ -1389,7 +1487,7 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~5"></span>
+              <span class="anchor" id="variable-diff~6"></span>
               real
             </td>
 <td></td>
@@ -1525,7 +1623,7 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~6"></span>
+              <span class="anchor" id="variable-diff~7"></span>
               real,
             </td>
 <td></td>
@@ -1565,7 +1663,7 @@ calculations.
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-val~5"></span>
+              <span class="anchor" id="variable-val~7"></span>
               real,
             </td>
 <td></td>
@@ -1581,7 +1679,7 @@ Covers 0:nr, 0:ni</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-numroots"></span>
+              <span class="anchor" id="variable-numroots~2"></span>
               integer
             </td>
 <td></td>
@@ -1611,7 +1709,7 @@ Covers 0:nr, 0:ni</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nroots"></span>
+              <span class="anchor" id="variable-nroots~2"></span>
               integer,
             </td>
 <td>intent(out)</td>

@@ -138,6 +138,14 @@ Initial reference parallel thermal velocity, normalized to c $v_{t,ref,\parallel
 Number of plasma species or components.</p>
 <p><strong><code>nscan</code></strong> <br>
 Number parameter or wavevector scans to execute.</p>
+<p><strong><code>collision_type</code></strong> <br>
+Type of collision for the system.
+- 0: no collisions; standard PLUME
+- 1: non-conservative Krook Operator
+     neutral-charged collisions only.</p>
+<p><strong><code>Kn</code></strong> <br>
+Neutral Knudson number over characteristic scale $(n_0 \sigma \rho_{ref})^{-1}$.
+Ignored for <code>collision_type</code>=0 (collisionless evalulation).</p>
 <p><strong><code>option</code></strong> <br>
 Determines set of scans to perform. Choice of:</p>
 <ul>
@@ -225,6 +233,8 @@ Relative charge $q_{ref}/q_{j}$.</p>
 Relative density $n_{j}/n_{ref}$.</p>
 <p><strong><code>vvS</code></strong><br>
 Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity  $v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$</p>
+<p><strong><code>nunS</code></strong><br>
+Neutral-charged species collision frequency, $\nu_{n,s}/\Omega_{ref} = n_0$</p>
 <h3><em>&amp;scan_input_l</em></h3>
 <p>Inputs for scanning parameter space for $l$th scan.  </p>
 <p><strong><code>scan_type</code></strong><br>

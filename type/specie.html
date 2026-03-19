@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="<p>24.2% of total for derived types.</p>Including implementation: 8 statements, 24.2% of total for derived types.">8 statements</a>
+                 title="<p>26.5% of total for derived types.</p>Including implementation: 9 statements, 26.5% of total for derived types.">9 statements</a>
             </li>
 
         </ul>
@@ -135,6 +135,7 @@
             <a class="list-group-item" href="../type/specie.html#variable-q_s">Q_s</a>
             <a class="list-group-item" href="../type/specie.html#variable-d_s">D_s</a>
             <a class="list-group-item" href="../type/specie.html#variable-vv_s">vv_s</a>
+            <a class="list-group-item" href="../type/specie.html#variable-nu_ns">nu_ns</a>
         </div>
       </div>
     </div>
@@ -293,6 +294,32 @@
                 <p>Relative Drift, normalized to reference Alfven velocity
 <script type="math/tex">v_{drift}/v_{A,ref}</script>
  with <script type="math/tex">v_{A,ref} = B/\sqrt{4 \pi n_{ref} m_{ref}}</script>.</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nu_ns"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nu_ns</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                <p>Neutral-species collision frequency
+\nu_{n,s}/Omega_{ref} =
+n_0 \sigma \sqrt{T_{\parallel,s}/m_s}/Omega_{ref}
+where we define Kn^{-1}= n_0 \sigma \rho_{ref}
+allowing us to write
+\nu_{n,s}/\Omega_{ref} =</p>
+<p>Note: this quantity is derived from
+Kn (a global parameter)
+and the other species parameters.
+The user does not input this value.</p>
             </td>
         </tr>
     </tbody>
