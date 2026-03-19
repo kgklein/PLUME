@@ -27,6 +27,16 @@ Number of plasma species or components.
 **`nscan`**   
 Number parameter or wavevector scans to execute.
 
+**`collision_type`**   
+Type of collision for the system.
+- 0: no collisions; standard PLUME
+- 1: non-conservative Krook Operator
+     neutral-charged collisions only.
+
+**`Kn`**   
+Neutral Knudson number over characteristic scale $(n_0 \sigma \rho_{ref})^{-1}$.
+Ignored for `collision_type`=0 (collisionless evalulation).
+
 **`option`**   
 Determines set of scans to perform. Choice of:
 
@@ -140,6 +150,9 @@ Relative density $n_{j}/n_{ref}$.
 
 **`vvS`**  
 Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity  $v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
+
+**`nunS`**  
+Neutral-charged species collision frequency, $\nu_{n,s}/\Omega_{ref} = n_0$
 
 
 ### *&scan_input_l*
