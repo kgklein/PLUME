@@ -374,7 +374,8 @@ contains
                   if (computemoment) then
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                    spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj,spec(is)%nu_ns)
+                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), &
+                                   EpsilonSokhotski_Plemelj,spec(is)%nu_ns)
                      !We fs1_sp to correctly compute jiEi = int CorEi d3v with residual!
                      fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) 
                   else
@@ -1753,7 +1754,8 @@ contains
          !a 'good' eps value depends on the effective grid spacing near the denom.
          !But honestly, its just hard to integrate over a denominator no matter what.
          !Don't expect the best results without tuning eps per generated distribution (but this really only matters when taking moments)
-         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
+         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj_temp*&
+              kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
          vpar_temp = vpar
          vperp_temp = vperp
          ef3 = ef3
@@ -1764,7 +1766,8 @@ contains
          kpar_temp = kpar
          vpar_temp = vpar
          vperp_temp = vperp
-         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj*kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
+         epsSokhotski_Plemelj_temp = epsSokhotski_Plemelj*&
+              kpar_temp*sqrt(mu_s/(tau_s*aleph_r))*delv
          ef3 = ef3
          ef2 = ef2
          ef1 = ef1
@@ -1789,8 +1792,10 @@ contains
       do n = -nbesmax, nbesmax
          !Calculate all parts of solution that dosn't depend on m
          !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
-         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s + (0., 1.) * nu_ns) + (0., 1.)*epsSokhotski_Plemelj_temp
-         Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - 2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
+         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - &
+              n*mu_s/q_s + (0., 1.) * nu_ns) + (0., 1.)*epsSokhotski_Plemelj_temp
+         Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - &
+              2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
          emult = (0., 0.)
         
          !Compute emult = n*jbess(n)*Ubar_s/(b_s)*ef1 with identity if needed to avoid div by small or zero
