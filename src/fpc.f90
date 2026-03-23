@@ -374,13 +374,13 @@ contains
                   if (computemoment) then
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                    spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj)
+                                   (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj,spec(is)%nu_ns)
                      !We fs1_sp to correctly compute jiEi = int CorEi d3v with residual!
                      fs1(ivx, ivy, ivz, is) = fs1_SP(ivx, ivy, ivz, is) 
                   else
                      call calc_fs1(omega, vperp, vvz(ivz), phi, ef, bf, hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                                 spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0.)
+                                (1., 0.), fs0(ivx, ivy, ivz, is), fs1(ivx, ivy, ivz, is), 0.,spec(is)%nu_ns)
                   end if
                end do
             end do
@@ -1308,7 +1308,7 @@ contains
                   call calc_fs1(omega, vvperp(ivperp), vvpar(ivpar), vvphi(ivphi), ef, bf, hatV_s(is),&
                        spec(is)%q_s, spec(is)%alph_s, &
                        spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, &
-                       elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0.)
+                       elecdircontribution, exbar, fs0(ivperp, ivpar, ivphi, is), fs1(ivperp, ivpar, ivphi, is), 0.,spec(is)%nu_ns)
 
                   !compute fs1 at adjacent locations in vperp1/vperp2 direction to take derivatives with later
                   !Note: delv may not be the best choice here when it is large.
@@ -1321,7 +1321,7 @@ contains
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
                        hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                        spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                       exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
+                       exbar, fs0_temp, fs1_plus_delvperp1(ivperp, ivpar, ivphi, is), 0.,spec(is)%nu_ns)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi)) - delv
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi))
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
@@ -1330,7 +1330,7 @@ contains
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
                        hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                        spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                       exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0.)
+                       exbar, fs0_temp, fs1_minus_delvperp1(ivperp, ivpar, ivphi, is), 0.,spec(is)%nu_ns)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) + delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
@@ -1339,7 +1339,7 @@ contains
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
                        hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                        spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                       exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
+                       exbar, fs0_temp, fs1_plus_delvperp2(ivperp, ivpar, ivphi, is), 0.,spec(is)%nu_ns)
                   vperp1_adjacent = vvperp(ivperp)*COS(vvphi(ivphi))
                   vperp2_adjacent = vvperp(ivperp)*SIN(vvphi(ivphi)) - delv
                   phi_adjacent = ATAN2(vperp2_adjacent, vperp1_adjacent)
@@ -1348,7 +1348,7 @@ contains
                   call calc_fs1(omega, vperp_adjacent, vvpar(ivpar), phi_adjacent, ef, bf, &
                        hatV_s(is), spec(is)%q_s, spec(is)%alph_s, &
                        spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, elecdircontribution, &
-                       exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0.)
+                       exbar, fs0_temp, fs1_minus_delvperp2(ivperp, ivpar, ivphi, is), 0.,spec(is)%nu_ns)
                end do
             end do
          end do
@@ -1632,7 +1632,7 @@ contains
    !                           Collin Brown and Greg Howes, 2025
    !------------------------------------------------------------------------------
    subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, &
-        aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)
+        aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj, nu_ns)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
       use vars, only: betap, kperp, kpar, vtp, pi, delv
@@ -1688,6 +1688,9 @@ contains
 
       real, intent(in) :: epsSokhotski_Plemelj
       !! Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1
+
+      real, intent(in) :: nu_ns
+      !! Neutral-species collision frequency (using Krook collision operator)
 
       real             :: epsSokhotski_Plemelj_temp
       !! fixes sign of epsilon
@@ -1786,7 +1789,7 @@ contains
       do n = -nbesmax, nbesmax
          !Calculate all parts of solution that dosn't depend on m
          !epsSokhotski_Plemelj is typically 0 unless using Sokhotski-Plemelj theorem to take moment over this singularity
-         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s) + (0., 1.)*epsSokhotski_Plemelj_temp
+         denom = (omega_temp - kpar_temp*vpar_temp*sqrt(mu_s/(tau_s*aleph_r)) - n*mu_s/q_s + (0., 1.) * nu_ns) + (0., 1.)*epsSokhotski_Plemelj_temp
          Wbar_s = 2.*(n*mu_s/(q_s*(omega_temp)) - 1.)*(vpar_temp - hatV_s) - 2.*(n*mu_s/(q_s*(omega_temp)*aleph_s))*vpar_temp
          emult = (0., 0.)
         
@@ -1969,7 +1972,7 @@ contains
                phi = ATAN2(vvy(ivy), vvx(ivx))
                call calc_fs1(omega, vperp, vvz(ivz), phi, ef, ef, hatV_s, spec(is)%q_s, spec(is)%alph_s, &
                              spec(is)%tau_s, spec(is)%mu_s, spec(1)%alph_s, 1., &
-                             (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj)
+                             (1., 0.), fs0(ivx, ivy, ivz, is), fs1_SP(ivx, ivy, ivz, is), EpsilonSokhotski_Plemelj, spec(is)%nu_ns)
             end do
          end do
       end do
