@@ -74,6 +74,7 @@ contains
 
       !default values
       elecdircontribution = 0.
+      Kn = 1.0e30 !give default value for backwards compat (note large -> collisionless)
 
       call get_unused_unit(input_unit_no)
       call get_runname(runname)
@@ -189,9 +190,12 @@ contains
       spec(is)%vv_s = vvS
 
       !calculate neutral-charged collision frequency
-      spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
-           sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
-
+      if (Kn > 1.0e25) then
+         spec(is)%nu_ns = 0.0 !Treat large default Kn as effectively collisionless (streamlines fpc.f90)
+      else
+          spec(is)%nu_ns = 1.0/(sqrt(2.0)*Kn) * &
+                sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
+      endif
    end subroutine spec_read
 
 !-=-=-=-=

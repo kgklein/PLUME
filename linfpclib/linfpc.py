@@ -26,6 +26,21 @@ def find_nearest(array, value): #random but very useful function
     idx = (np.abs(array - value)).argmin()
     return idx
 
+import math
+
+
+class ParamsDict(dict):
+    def __init__(self, owner, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.owner = owner
+
+    def __setitem__(self, key, value):
+        old_value = self.get(key, None)
+        super().__setitem__(key, value)
+
+        if key == 'Kn' and old_value != value: #works like a setter
+            self.owner.recompute_all_nuns()
+
 class plume_input:
     #class that have dictss with all inputs for each namelist
     #params
@@ -37,11 +52,28 @@ class plume_input:
     def __init__(self,dataname):
         self.dataname = dataname
 
+        # make these instance-level, not shared across all objects
+        self.params = ParamsDict(self)
+        self.fpc = {}
+        self.species = [{}]
+        self.maps = {}
+        self.scan_inputs = [{}]
+        self.guesses = [{}]
+
     def read_input(): #typically load from sample
         pass
 
+    def recompute_all_nuns(self):
+        if len(self.species) == 0:
+            return
+        if len(self.species[0]) == 0:
+            return
+
+        for i in range(len(self.species)):
+            self.species[i]['nu_ns'] = self.get_nuns(self.species[i])
+
     def set_params(self,betap,kperp,kpar,vtp,nspec,nscan,option,\
-                    nroot_max,use_map,writeOut):
+                    nroot_max,use_map,writeOut,collision_type=0,Kn=None):
         use_map_out = '.true.'
         if(not(use_map)):
             use_map_out = '.false.'
@@ -50,7 +82,8 @@ class plume_input:
         if(not(use_map)):
             usewriteOut_out = '.false.'
 
-        self.params = {'betap':betap,
+        self.params = ParamsDict(self, {
+                       'betap':betap,
                        'kperp':kperp,
                        'kpar':kpar,
                        'vtp':vtp,
@@ -59,8 +92,10 @@ class plume_input:
                        'option':int(option),
                        'nroot_max':int(nroot_max),
                        'use_map':use_map_out,
-                       'writeOut':usewriteOut_out
-        }
+                       'writeOut':usewriteOut_out,
+                       'collision_type':int(collision_type),
+                       'Kn':Kn
+        })
 
     def set_fpc(self,vperpmin=0,vperpmax=0,vparmin=0,vparmax=0,delv=0,vxmin=None,vxmax=None,vymin=None,vymax=None,vzmin=None,vzmax=None,elecdircontribution=0.):
         self.fpc = {'vperpmin':vperpmin,
@@ -73,10 +108,10 @@ class plume_input:
         if(vxmin!=None and vxmax!=None and vymin!=None and vymax!=None and vzmin!=None and vzmax!=None):
            self.fpc['vxmin'] = vxmin
            self.fpc['vxmax'] = vxmax
-           self.fpc['vymin'] = vymin 
-           self.fpc['vymax'] = vymax 
-           self.fpc['vzmin'] = vzmin 
-           self.fpc['vzmax'] = vzmax  
+           self.fpc['vymin'] = vymin
+           self.fpc['vymax'] = vymax
+           self.fpc['vzmin'] = vzmin
+           self.fpc['vzmax'] = vzmax
 
     def set_maps(self,loggridw,omi,omf,gami,gamf,positive_roots):
         loggridw_out = '.true.'
@@ -95,18 +130,43 @@ class plume_input:
                      'positive_roots':positive_roots_out
         }
 
+    def get_nuns(self, spec):
+        muS = spec['muS']
+        tauS = spec['tauS']
+
+        # Fortran spec(1)%alph_s -> Python self.species[0]['alphS']
+        # If no species exist yet, assume this spec IS the first/reference species
+        if len(self.species) == 0:
+            alpha1 = spec['alphS']
+        else:
+            alpha1 = self.species[0]['alphS']
+
+        try:
+            Kn = self.params['Kn']
+        except:
+            print("Error with Kn = self.params['Kn'], returning 0 for nu_ns...")
+            return 0.
+
+        if(Kn is None):
+            return None
+
+        nu_ns = 1.0 / (math.sqrt(2.0) * Kn) * math.sqrt(muS / (tauS * alpha1))
+
+        return nu_ns
+
     def make_species(self,tauS, muS, alphS, Qs, Ds, vvS,spec_n=-1):
         tempspecies = {'tauS':tauS,
                        'muS':muS,
                        'alphS':alphS,
                        'Qs':Qs,
                        'Ds':Ds,
-                       'vvS':vvS
+                       'vvS':vvS,
         }
         if(len(self.species[0]) == 0):
             if(spec_n == -1 or spec_n == 1):
                 print("No species found, creating first species...")
                 self.species = [tempspecies]
+                idx = 0
             else:
                 print("Warning: spec_n ==",spec_n,"but there are no species here...")
         else:
@@ -114,12 +174,17 @@ class plume_input:
             if(spec_n == -1 or num_spec+1 == spec_n):
                 print("Appending species to list. Total species is now ",num_spec+1)
                 self.species.append(tempspecies)
+                idx = -1
             elif(num_spec+1 < spec_n):
                 print("Warning: there are only ",num_spec,"species but user requested we create spec number",spec_n)
-                print("Please input a valid spec_n...")
+                print("Please input a valid spec_n... Returning")
+                return
             else:
                 print("Replacing species number",spec_n)
                 self.species[spec_n-1] = tempspecies
+                idx = spec_n - 1
+
+        self.species[idx]['nu_ns'] = self.get_nuns(self.species[idx])
 
     def make_scan(self,scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen):
         swlog_out = '.true.'
@@ -186,7 +251,15 @@ class plume_input:
                 line = str(key)+'='+"'"+str(outputname)+"'"+'\n'
             else:
                 line = str(key)+'='+str(self.params[key])+'\n'
+            if(key == 'Kn'):
+                if(not(self.params['Kn']) is None):
+                    line = str(key)+'='+str(self.params[key])+'\n'
+                else:
+                    continue
             f.write(line)
+
+        if(self.params['Kn'] != None and self.params['collision_type'] == 0):
+            print("Warning, Kn has a finite value but collision_type is 0 (i.e. collisions are off). Was this intentional?")
 
         line = 'dataName'+"='"+str(self.dataname)+"'\n"
         f.write(line)
@@ -203,6 +276,8 @@ class plume_input:
         for spec in self.species:
             f.write('&species_'+str(specidx)+'\n')
             for key in spec.keys():
+                if(key == 'nu_ns'):
+                    continue
                 line = str(key)+'='+str(spec[key])+'\n'
                 f.write(line)
             f.write('/\n\n')
@@ -238,7 +313,7 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','outputName'] #note dataName is missing as that is set by self.dataname and defined at creation
+        paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
@@ -276,7 +351,7 @@ class plume_input:
                                 tempparamdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
 
                     _i += 1
-                self.params = tempparamdict
+                self.params = ParamsDict(self, tempparamdict)
 
 
             if(parse[0] == '&fpc'):
@@ -371,15 +446,6 @@ class plume_input:
             _i += 1
 
 
-    #main dict
-    namelists = {}
-    params = {}
-    fpc = {}
-    species = [{}]
-    maps = {}
-    scan_inputs = [{}]
-    guesses = [{}]
-
     dataname = 'default'
 
 def _replace_input_aux(inputflnm,verbose=False):
@@ -442,19 +508,23 @@ def compute_roots(plume_input,inputflnm,outputname,outlog='outlog',verbose=False
     if(verbose): print("Reading roots from ",rootflnm)
 
     roots = []
-    tempfile = open(rootflnm, "r")
-    for line in tempfile:
-        parse = line.split()
-        try:
-            temp_om = float(parse[4])
-        except:
-            temp_om = float(1*10**99.)
-        try:
-            temp_gam = float(parse[5])
-        except:
-            temp_gam = float(1*10**99.)
-        roots.append(temp_om+temp_gam*1j)
-    tempfile.close()
+    try:
+        tempfile = open(rootflnm, "r")
+        for line in tempfile:
+            parse = line.split()
+            try:
+                temp_om = float(parse[4])
+            except:
+                temp_om = float(1*10**99.)
+            try:
+                temp_gam = float(parse[5])
+            except:
+                temp_gam = float(1*10**99.)
+            roots.append(temp_om+temp_gam*1j)
+    except Exception as e:
+        print(f"Error! Be sure to run the makefile with 'make' to compile PLUME before using this!")
+        raise
+        tempfile.close()
 
     return np.asarray(roots)
     
