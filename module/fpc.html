@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="25.3% of total for modules and submodules.">1217 statements</a>
+                 title="25.3% of total for modules and submodules.">1218 statements</a>
             </li>
 
         </ul>
@@ -474,7 +474,7 @@ modules which it uses.
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-is~20"></span>
+              <span class="anchor" id="variable-is~3"></span>
               integer
             </td>
 <td></td>
@@ -489,7 +489,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ef~8"></span>
+              <span class="anchor" id="variable-ef~4"></span>
               complex,
             </td>
 <td></td>
@@ -602,7 +602,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-calc_fs1"></span> <h3>private  subroutine <a href='../proc/calc_fs1.html'>calc_fs1</a>(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)  
+    <div class="card-header codesum"><span class="anchor" id="proc-calc_fs1"></span> <h3>private  subroutine <a href='../proc/calc_fs1.html'>calc_fs1</a>(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj, nu_ns)  
 </h3></div>
     <div class="card-body">
           
@@ -621,7 +621,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-omega~10"></span>
+              <span class="anchor" id="variable-omega~3"></span>
               complex,
             </td>
 <td>intent(in)</td>
@@ -681,7 +681,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ef~7"></span>
+              <span class="anchor" id="variable-ef~3"></span>
               complex,
             </td>
 <td>intent(in),</td>
@@ -696,7 +696,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bf~7"></span>
+              <span class="anchor" id="variable-bf~3"></span>
               complex,
             </td>
 <td>intent(in),</td>
@@ -756,7 +756,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tau_s~3"></span>
+              <span class="anchor" id="variable-tau_s~2"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -771,7 +771,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mu_s~3"></span>
+              <span class="anchor" id="variable-mu_s~2"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -801,7 +801,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-elecdircontribution~2"></span>
+              <span class="anchor" id="variable-elecdircontribution"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -878,6 +878,21 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
 <p>Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1</p>
             </td>
         </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nu_ns"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nu_ns</strong></td>
+            <td>
+<p>Neutral-species collision frequency (using Krook collision operator)</p>
+            </td>
+        </tr>
     </tbody>
   </table>
 
@@ -905,7 +920,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-omega~12"></span>
+              <span class="anchor" id="variable-omega~5"></span>
               complex,
             </td>
 <td>intent(in)</td>
@@ -935,7 +950,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-is~21"></span>
+              <span class="anchor" id="variable-is~4"></span>
               integer
             </td>
 <td></td>
@@ -950,7 +965,7 @@ response on a square cartesian grid and writes fs1 and FPC to file</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ef~9"></span>
+              <span class="anchor" id="variable-ef~5"></span>
               complex,
             </td>
 <td></td>
@@ -992,7 +1007,7 @@ we just make sure that n is large enough for all b (which is related to vperp) v
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-vperpmax~2"></span>
+              <span class="anchor" id="variable-vperpmax"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -1007,7 +1022,7 @@ we just make sure that n is large enough for all b (which is related to vperp) v
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tau_s~4"></span>
+              <span class="anchor" id="variable-tau_s~3"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -1022,7 +1037,7 @@ we just make sure that n is large enough for all b (which is related to vperp) v
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mu_s~4"></span>
+              <span class="anchor" id="variable-mu_s~3"></span>
               real,
             </td>
 <td>intent(in)</td>

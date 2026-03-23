@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 2.4% of total for procedures.">109 statements</a>
+                 title=" 2.4% of total for procedures.">110 statements</a>
             </li>
 
         </ul>
@@ -148,7 +148,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj)  
+    <h2>private  subroutine calc_fs1(omega, vperp, vpar, phi, ef, bf, hatV_s, q_s, aleph_s, tau_s, mu_s, aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj, nu_ns)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -318,7 +318,7 @@ modules which it uses.
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-omega~10"></span>
+              <span class="anchor" id="variable-omega~3"></span>
               complex,
             </td>
 <td>intent(in)</td>
@@ -378,7 +378,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ef~7"></span>
+              <span class="anchor" id="variable-ef~3"></span>
               complex,
             </td>
 <td>intent(in),</td>
@@ -393,7 +393,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-bf~7"></span>
+              <span class="anchor" id="variable-bf~3"></span>
               complex,
             </td>
 <td>intent(in),</td>
@@ -453,7 +453,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-tau_s~3"></span>
+              <span class="anchor" id="variable-tau_s~2"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -468,7 +468,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mu_s~3"></span>
+              <span class="anchor" id="variable-mu_s~2"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -498,7 +498,7 @@ modules which it uses.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-elecdircontribution~2"></span>
+              <span class="anchor" id="variable-elecdircontribution"></span>
               real,
             </td>
 <td>intent(in)</td>
@@ -573,6 +573,21 @@ modules which it uses.
             <td><strong>epsSokhotski_Plemelj</strong></td>
             <td>
                 <p>Small value for Sokhotski_Plemelj when computing moments of fs1; zero when just computing fs1</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-nu_ns"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>nu_ns</strong></td>
+            <td>
+                <p>Neutral-species collision frequency (using Krook collision operator)</p>
             </td>
         </tr>
     </tbody>
