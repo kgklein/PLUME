@@ -625,12 +625,34 @@ def _add_plot_bounds_with_rho_labels(plotter: Any) -> Any:
     """
     Add visible plot bounds/grid labels in rho_ref-normalized coordinates.
     """
-    rho_ref_label = "ρᴿ"
+    rho_ref_label = "rho_R"
     return plotter.show_grid(
         color="lightgray",
         xtitle=f"x/{rho_ref_label}",
         ytitle=f"y/{rho_ref_label}",
         ztitle=f"z/{rho_ref_label}",
+    )
+
+
+def _add_field_arrow_legend(
+    plotter: Any,
+    glyph_color_b: str,
+    glyph_color_u: str,
+    show_velocity: bool,
+) -> Any:
+    """
+    Add a fixed legend box mapping arrow colors to the plotted fluctuation fields.
+    """
+    legend_entries = [["δB", glyph_color_b]]
+    if show_velocity:
+        legend_entries.append(["δUᴿ", glyph_color_u])
+    return plotter.add_legend(
+        labels=legend_entries,
+        bcolor="white",
+        border=True,
+        face=None,
+        loc="upper right",
+        size=(0.16, 0.14),
     )
 
 
@@ -807,6 +829,12 @@ def create_static_plot(
     plotter.add_mesh(b_glyphs, color=glyph_color_b)
     if u_glyphs is not None:
         plotter.add_mesh(u_glyphs, color=glyph_color_u)
+    _add_field_arrow_legend(
+        plotter,
+        glyph_color_b=glyph_color_b,
+        glyph_color_u=glyph_color_u,
+        show_velocity=u_glyphs is not None,
+    )
     _add_orientation_axes(plotter)
     plotter.set_background("white")
     plotter.camera_position = _default_camera_position(domain)
@@ -888,6 +916,12 @@ def create_animation(
     u_actor = None
     if u_glyphs is not None:
         u_actor = plotter.add_mesh(u_glyphs, color=glyph_color_u)
+    _add_field_arrow_legend(
+        plotter,
+        glyph_color_b=glyph_color_b,
+        glyph_color_u=glyph_color_u,
+        show_velocity=u_glyphs is not None,
+    )
     _add_orientation_axes(plotter)
     plotter.set_background("white")
     plotter.camera_position = _default_camera_position(domain)

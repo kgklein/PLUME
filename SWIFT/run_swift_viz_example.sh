@@ -16,7 +16,8 @@ cd "$SCRIPT_DIR"
 # To use a real PLUME mode file instead, uncomment SWIFT_MODE_FILE and
 # update the path plus SWIFT_ROW_INDEX as needed.
 
-export SWIFT_MODE_FILE="/home/kgklein/Codes/PLUME_git/data/example/map_par_kpar_1_10000.mode1"
+#export SWIFT_MODE_FILE="/home/kgklein/Codes/PLUME_git/data/example/map_par_kpar_1_10000.mode1"
+export SWIFT_MODE_FILE="/home/kgklein/Codes/PLUME/data/example/map_par_kpar_1_10000.mode1"
 export SWIFT_ROW_INDEX=64
 
 export SWIFT_N_WAVELENGTHS_X=1.0
