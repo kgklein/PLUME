@@ -8,7 +8,7 @@ if (version==0){
 data_dir='../../data/example'
 name='map_par_kpar_1_100000'
 file_in(nn)=sprintf('%s/%s.mode%d',data_dir,name,nn)
-file_out=sprintf('example_kpar_v%2.2d.tex',version)
+file_out=sprintf('example_kpar-E_v%2.2d.tex',version)
 #Plasma Parameters
 kperp=0.001
 kpar=0.001
@@ -17,7 +17,7 @@ anip=1.0
 anie=1.0
 tau=1.0
 k_min=1.E-3
-k_max=1.E2
+k_max=3.E1
 
 #Limits
 om_min=2.E-3
@@ -29,8 +29,11 @@ g_max=1.E0
 gam_min=2.E-8
 gam_max=1.E0
 
-E_min=-1.1E0
-E_max=1.1E0
+E_min=3.E-7
+E_max=2.1E0
+
+P_min=-1.1E0
+P_max=1.1E0
 }
 
 #Size and placement of panels
@@ -67,7 +70,7 @@ Ep(Exr,Exi,Eyr,Eyi)=\
 set origin 0,0
 set output file_out
 
-set size 1.5,1.45
+set size 1.5,1.7
 set grid
 #-=-=-=-=-
 
@@ -82,7 +85,7 @@ kx=0
 
 #Real Frequency
 unset label
-ky=4
+ky=5
 set origin kx*dx,ky*dy
 
 set label sprintf('\texttt{PLUME} Dispersion Relation') at graph 0.05,1.75
@@ -106,7 +109,7 @@ file_in(mm) u 2:(-$5) w l lc rgb base_color dt 2 title '$\omega_{\textrm{r}}<0$'
 
 #Total Damping Rate
 unset label
-ky=3
+ky=4
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -121,7 +124,7 @@ file_in(mm) u 2:(-$6) w l lc rgb base_color dt 2 title '$\gamma<0$'
 
 #Proton Damping Rates
 unset label
-ky=2
+ky=3
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -142,7 +145,7 @@ file_in(mm) u 2:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
-ky=1
+ky=2
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -161,6 +164,20 @@ file_in(mm) u 2:($49/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
 file_in(mm) u 2:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
 file_in(mm) u 2:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
+#Electric Field Ratio
+unset label
+ky=1
+set origin kx*dx,ky*dy
+
+set format x ''
+set log y
+set format y '$10^{%L}$'
+set yrange [E_min:E_max]
+set label '$|E_\parallel|/|E|$' at graph -0.3,0.15 rotate by 90
+
+plot \
+file_in(mm) u 2:(($17**2.+$18**2.)**0.5/($13**2.+$14**2.+$15*2.+$16**2.+$17**2.+$18**2.)**0.5) w l lc rgb base_color dt 1 title ''
+
 #Polarization
 unset label
 ky=0
@@ -170,7 +187,7 @@ set format x '$10^{%L}$'
 
 unset log y
 set format y '${%g}$'
-set yrange [E_min:E_max]
+set yrange [P_min:P_max]
 
 set label '$\mathcal{P}_{E}^{xy}$' at graph -0.3,0.35 rotate by 90
 set label '$k_\parallel \rho_p$' at graph 0.5,-0.25
@@ -185,7 +202,7 @@ kx=1
 
 #Real Frequency
 unset label
-ky=4
+ky=5
 set origin kx*dx,ky*dy
 
 set label sprintf('Mode %d',mm) at graph 0.05,1.1
@@ -201,7 +218,7 @@ file_in(mm) u 2:(-$5) w l lc rgb base_color dt 2 title '$\omega_{\textrm{r}}<0$'
 
 #Total Damping Rate
 unset label
-ky=3
+ky=4
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -215,7 +232,7 @@ file_in(mm) u 2:(-$6) w l lc rgb base_color dt 2 title '$\gamma<0$'
 
 #Proton Damping Rates
 unset label
-ky=2
+ky=3
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -235,7 +252,7 @@ file_in(mm) u 2:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
-ky=1
+ky=2
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -253,6 +270,20 @@ file_in(mm) u 2:($49/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
 file_in(mm) u 2:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
 file_in(mm) u 2:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
+#Electric Field Ratio
+unset label
+ky=1
+set origin kx*dx,ky*dy
+
+set format x ''
+set log y
+set format y ''
+set yrange [E_min:E_max]
+
+plot \
+file_in(mm) u 2:(($17**2.+$18**2.)**0.5/($13**2.+$14**2.+$15*2.+$16**2.+$17**2.+$18**2.)**0.5) w l lc rgb base_color dt 1 title ''
+
+
 #Polarization
 unset label
 ky=0
@@ -262,7 +293,7 @@ set format x '$10^{%L}$'
 
 unset log y
 set format y ''
-set yrange [E_min:E_max]
+set yrange [P_min:P_max]
 
 set label '$k_\parallel \rho_p$' at graph 0.5,-0.25
 
@@ -276,7 +307,7 @@ kx=2
 
 #Real Frequency
 unset label
-ky=4
+ky=5
 set origin kx*dx,ky*dy
 
 set label sprintf('Mode %d',mm) at graph 0.05,1.1
@@ -292,7 +323,7 @@ file_in(mm) u 2:(-$5) w l lc rgb base_color dt 2 title '$\omega_{\textrm{r}}<0$'
 
 #Total Damping Rate
 unset label
-ky=3
+ky=4
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -306,7 +337,7 @@ file_in(mm) u 2:(-$6) w l lc rgb base_color dt 2 title '$\gamma<0$'
 
 #Proton Damping Rates
 unset label
-ky=2
+ky=3
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -326,7 +357,7 @@ file_in(mm) u 2:($43/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
 #Electron Damping Rates
 unset label
-ky=1
+ky=2
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -344,6 +375,21 @@ file_in(mm) u 2:($49/sgn($5)) w l lc rgb n1_color dt 2 title '$\gamma_e^{n=+ 1}<
 file_in(mm) u 2:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '' ,\
 file_in(mm) u 2:($50/sgn($5)) w l lc rgb nm1_color dt 2 title ''
 
+#Electric Field Ratio
+unset label
+ky=1
+set origin kx*dx,ky*dy
+
+set format x ''
+set log y
+set format y ''
+set yrange [E_min:E_max]
+
+
+plot \
+file_in(mm) u 2:(($17**2.+$18**2.)**0.5/($13**2.+$14**2.+$15*2.+$16**2.+$17**2.+$18**2.)**0.5) w l lc rgb base_color dt 1 title ''
+
+
 #Polarization
 unset label
 ky=0
@@ -353,7 +399,7 @@ set format x '$10^{%L}$'
 
 unset log y
 set format y ''
-set yrange [E_min:E_max]
+set yrange [P_min:P_max]
 
 set label '$k_\parallel \rho_p$' at graph 0.5,-0.25
 
@@ -367,7 +413,7 @@ kx=3
 
 #Real Frequency
 unset label
-ky=4
+ky=5
 set origin kx*dx,ky*dy
 
 set label sprintf('Mode %d',mm) at graph 0.05,1.1
@@ -383,7 +429,7 @@ file_in(mm) u 2:(-$5) w l lc rgb base_color dt 2 title '$\omega_{\textrm{r}}<0$'
 
 #Total Damping Rate
 unset label
-ky=3
+ky=4
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -397,7 +443,7 @@ file_in(mm) u 2:(-$6) w l lc rgb base_color dt 2 title '$\gamma<0$'
 
 #Proton Damping Rates
 unset label
-ky=2
+ky=3
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -419,7 +465,7 @@ file_in(mm) u 2:($43/sgn($5)) w l lc rgb nm1_color dt 2 title '$\gamma_p^{n=- 1}
 
 #Electron Damping Rates
 unset label
-ky=1
+ky=2
 set origin kx*dx,ky*dy
 
 set format x ''
@@ -437,6 +483,20 @@ file_in(mm) u 2:($49/sgn($5)) w l lc rgb n1_color dt 2 title '' ,\
 file_in(mm) u 2:(-$50/sgn($5)) w l lc rgb nm1_color dt 1 title '$\gamma_e^{n=- 1}>0$' ,\
 file_in(mm) u 2:($50/sgn($5)) w l lc rgb nm1_color dt 2 title '$\gamma_e^{n=- 1}>0$'
 
+#Electric Field Ratio
+unset label
+ky=1
+set origin kx*dx,ky*dy
+
+set format x ''
+set log y
+set format y ''
+set yrange [E_min:E_max]
+
+plot \
+file_in(mm) u 2:(($17**2.+$18**2.)**0.5/($13**2.+$14**2.+$15*2.+$16**2.+$17**2.+$18**2.)**0.5) w l lc rgb base_color dt 1 title ''
+
+
 #Polarization
 unset label
 ky=0
@@ -446,7 +506,7 @@ set format x '$10^{%L}$'
 
 unset log y
 set format y ''
-set yrange [E_min:E_max]
+set yrange [P_min:P_max]
 
 set label '$k_\parallel \rho_p$' at graph 0.5,-0.25
 

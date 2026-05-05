@@ -173,7 +173,7 @@ set format y '${%g}$'
 set yrange [E_min:E_max]
 
 set label '$\mathcal{P}_{E}^{xy}$' at graph -0.3,0.35 rotate by 90
-set label '$k_\perp d_p$' at graph 0.5,-0.25
+set label '$k_\perp \rho_p$' at graph 0.5,-0.25
 
 plot \
 file_in(mm) u ($1):(Ep($13,$14,$15,$16)) \
@@ -264,7 +264,7 @@ unset log y
 set format y ''
 set yrange [E_min:E_max]
 
-set label '$k_\perp d_p$' at graph 0.5,-0.25
+set label '$k_\perp \rho_p$' at graph 0.5,-0.25
 
 plot \
 file_in(mm) u ($1):(Ep($13,$14,$15,$16)) \
@@ -355,7 +355,7 @@ unset log y
 set format y ''
 set yrange [E_min:E_max]
 
-set label '$k_\perp d_p$' at graph 0.5,-0.25
+set label '$k_\perp \rho_p$' at graph 0.5,-0.25
 
 plot \
 file_in(mm) u ($1):(Ep($13,$14,$15,$16)) \
@@ -446,7 +446,7 @@ unset log y
 set format y ''
 set yrange [E_min:E_max]
 
-set label '$k_\perp d_p$' at graph 0.5,-0.25
+set label '$k_\perp \rho_p$' at graph 0.5,-0.25
 
 plot \
 file_in(mm) u ($1):(Ep($13,$14,$15,$16)) \
