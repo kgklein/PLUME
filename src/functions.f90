@@ -30,7 +30,7 @@ module functions
    integer, save ::error_unit_no = stdout_unit
   !! Index for outputing error messages.
 
-   character(50) :: runname
+   character(100) :: runname
   !! String for input file parameters.
 
    public :: read_in_params, read_map_input, read_scan_input, read_guess_input
@@ -383,10 +383,11 @@ end subroutine read_map_input
    subroutine read_radial_input
   !!Read in parameters for radial solar wind model scan.
   !!(in development).
-      use vars, only: nRad, modelName, nspec, rad_spec, radius, pi
-      use vars, only: beta_rad, vtp_rad, radial_heating, radial_eigen
-      use vars, only: betap, vtp, spec, kperp, kpar, k_scan, rad_scan
-      implicit none
+     use vars, only: nRad, nRad_sub
+     use vars, only: modelName, nspec, rad_spec, radius, pi
+     use vars, only: beta_rad, vtp_rad, radial_heating, radial_eigen
+     use vars, only: betap, vtp, spec, kperp, kpar, k_scan, rad_scan
+     implicit none
 
       !Local
       integer :: is
@@ -561,11 +562,12 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine radial_read
   !!Subroutine for reading in radial scan global parameters
-      use vars, only: nRad, modelName, radial_heating, radial_eigen, k_scan
+      use vars, only: nRad, nRad_sub, modelName, radial_heating, radial_eigen, k_scan
       implicit none
 
-  nameList /radial_input/ nRad, modelName, &
+  nameList /radial_input/ nRad, nRad_sub, modelName, &
        radial_heating, radial_eigen, k_scan
+  nRad_sub = 1
   read (unit=unit,nml=radial_input)
 
    end subroutine radial_read
@@ -1022,9 +1024,9 @@ end subroutine read_map_input
       implicit none
       integer       :: l
     !! Length of argument.
-      character(50) :: arg
+      character(100) :: arg
     !! Argument after executable.
-      character(50), intent(out) :: runname
+      character(100), intent(out) :: runname
     !! Argument trimmed of '.in' string.
 
       !Get the first argument of the program execution command
