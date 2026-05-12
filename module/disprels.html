@@ -92,7 +92,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title="50.9% of total for modules and submodules.">2454 statements</a>
+                 title="51.4% of total for modules and submodules.">2512 statements</a>
             </li>
 
         </ul>
@@ -713,7 +713,7 @@ with weak neutral-charged collisions</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-kpar~2"></span>
+              <span class="anchor" id="variable-kpar"></span>
               real
             </td>
 <td></td>
@@ -824,7 +824,7 @@ Note that we are determining I_n(x) e^(-x) to avoid large argument errors.</p>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~17"></span>
+              <span class="anchor" id="variable-n~15"></span>
               integer
             </td>
 <td></td>
@@ -947,7 +947,7 @@ k_1|=swf</p><a href="../proc/om_scan.html" class="pull-right"><emph>Read more&he
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-is~15"></span>
+              <span class="anchor" id="variable-is~14"></span>
               integer
             </td>
 <td></td>
@@ -999,7 +999,7 @@ ADD split power calculations here... (KGK)</p>
   </div>
 
               <div class="card">
-    <div class="card-header codesum"><span class="anchor" id="proc-om_radial"></span> <h3>private  subroutine <a href='../proc/om_radial.html'>om_radial</a>(omlast, params, out_unit, fmt, out_type, ir, mod_write)  
+    <div class="card-header codesum"><span class="anchor" id="proc-om_radial"></span> <h3>private  subroutine <a href='../proc/om_radial.html'>om_radial</a>(omlast, params, out_unit, fmt, out_type, radius_current, mod_write)  
 </h3></div>
     <div class="card-body">
           
@@ -1024,7 +1024,7 @@ Used in conjunction with <a href="../proc/radial_scan.html">radial_scan</a>.</p>
             </td>
 <td></td>
               <td></td>            <td>
-              dimension(1:nspec)
+              dimension(1:nroot_max)
             </td>
             <td>::</td>
             <td><strong>omlast</strong></td>
@@ -1099,17 +1099,17 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ir~4"></span>
-              integer
+              <span class="anchor" id="variable-radius_current~2"></span>
+              real
             </td>
 <td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>ir</strong></td>
+            <td><strong>radius_current</strong></td>
             <td>
-<p>Radial index.</p>
+<p>Current radial position, including interpolated points.</p>
             </td>
         </tr>
         <tr>
@@ -1337,7 +1337,7 @@ k_1|=swf</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~5"></span>
+              <span class="anchor" id="variable-diff~4"></span>
               real
             </td>
 <td></td>
@@ -1472,7 +1472,7 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-is~18"></span>
+              <span class="anchor" id="variable-is~17"></span>
               integer
             </td>
 <td></td>
@@ -1487,7 +1487,7 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~6"></span>
+              <span class="anchor" id="variable-diff~5"></span>
               real
             </td>
 <td></td>
@@ -1623,7 +1623,7 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-diff~7"></span>
+              <span class="anchor" id="variable-diff~6"></span>
               real,
             </td>
 <td></td>
@@ -1663,7 +1663,7 @@ calculations.
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-val~7"></span>
+              <span class="anchor" id="variable-val~5"></span>
               real,
             </td>
 <td></td>
@@ -1679,7 +1679,7 @@ Covers 0:nr, 0:ni</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-numroots~2"></span>
+              <span class="anchor" id="variable-numroots"></span>
               integer
             </td>
 <td></td>
@@ -1709,7 +1709,7 @@ Covers 0:nr, 0:ni</p>
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-nroots~2"></span>
+              <span class="anchor" id="variable-nroots"></span>
               integer,
             </td>
 <td>intent(out)</td>

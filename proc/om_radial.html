@@ -148,7 +148,7 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>private  subroutine om_radial(omlast, params, out_unit, fmt, out_type, ir, mod_write)  
+    <h2>private  subroutine om_radial(omlast, params, out_unit, fmt, out_type, radius_current, mod_write)  
 </h2>
         <div class="card mb-4">
       <h3 class="card-header card-title bg-light">Uses</h3>
@@ -292,7 +292,7 @@ Used in conjunction with <a href="../proc/radial_scan.html">radial_scan</a>.</p>
             </td>
 <td></td>
               <td></td>            <td>
-              dimension(1:nspec)
+              dimension(1:nroot_max)
             </td>
             <td>::</td>
             <td><strong>omlast</strong></td>
@@ -367,17 +367,17 @@ calculations.
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ir~4"></span>
-              integer
+              <span class="anchor" id="variable-radius_current~2"></span>
+              real
             </td>
 <td></td>
               <td></td>            <td>
               
             </td>
             <td>::</td>
-            <td><strong>ir</strong></td>
+            <td><strong>radius_current</strong></td>
             <td>
-                <p>Radial index.</p>
+                <p>Current radial position, including interpolated points.</p>
             </td>
         </tr>
         <tr>
