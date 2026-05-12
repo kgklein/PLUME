@@ -279,7 +279,11 @@ module vars
    !Variables for radial scan of solar wind models: See Option 5.
 
    integer :: nRad
-  !!Number of points to scan in radial models.
+   !!Number of points to scan in radial models.
+
+   integer :: nRad_sub=1
+   !! substepping between nRad points.
+   !! Invoke Linear Interpolation between points
 
    character(100) :: modelName
   !!Input file name for radial model
@@ -358,7 +362,8 @@ module vars
    public :: loggridw, loggridg, omi, omf, gami, gamf, nr, ni, numroots, nroot_max, nbesmax
    public :: nroots, wroots, dataName, outputName, use_map, print_Name
    public :: nscan, scan, sw, sw2, sw3, sw4, k_scan, rad_scan, positive_roots
-   public :: nRad, modelName, rad_spec, radius, beta_rad, vtp_rad
+   public :: nRad, nRad_sub
+   public :: modelName, rad_spec, radius, beta_rad, vtp_rad
    public :: radial_heating, radial_eigen, pi
    public :: low_n, susc_low
    public :: vperpmin, vperpmax, vparmin, vparmax, delv

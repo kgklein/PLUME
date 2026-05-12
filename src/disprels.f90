@@ -1576,7 +1576,7 @@ subroutine radial_scan
   !!Calculates normal modes of the system
   !!for a specified radial solar wind model
   !! (under development)
-  use vars, only : nRad, radius, writeOut, nroot_max
+  use vars, only : nRad, nRad_sub, radius, writeOut, nroot_max
   use vars, only : wroots, spec, rad_spec, nspec, k_scan
   use vars, only : vtp_rad, beta_rad, sw, sw2, sw3, sw4
   use vars, only : kperp, kpar, betap, vtp, radial_eigen
@@ -1589,6 +1589,12 @@ subroutine radial_scan
   !Local
   integer :: ir
   !!Radial index.
+
+  integer :: ir_sub
+  !!Radial substep index.
+
+  integer :: ir_out
+  !!Output radial index, including interpolated points.
   
   integer :: ii
   !!Mode index.
@@ -1640,6 +1646,22 @@ subroutine radial_scan
 
   real :: ki
   !! Current value of \( |k| \).
+
+  real :: frac
+  !! Radial interpolation fraction.
+
+  real :: radius_current
+  !! Current radial position, including interpolated points.
+
+  real :: kperp_start
+  !! Starting perpendicular wavevector for radial continuation.
+
+  real :: kpar_start
+  !! Starting parallel wavevector for radial continuation.
+
+  nRad_sub=max(1,nRad_sub)
+  kperp_start=kperp
+  kpar_start=kpar
   
   !Assign outname
   write(outName,'(4a)')&
@@ -1687,35 +1709,100 @@ subroutine radial_scan
           'Root ',ii,' In: ',wroots(1,ii),wroots(2,ii)
   enddo
 
-  !Scan through radial trajectory in parameter space
-  do ir = 0, nRad-1
-     !Set global parameters
-     betap=beta_rad(ir)
-     vtp=vtp_rad(ir)
-     !Set Species Parameters
-     do is = 1,nspec        
-        spec(is)%tau_s  = rad_spec(is,ir)%tau_s
-        spec(is)%mu_s   = rad_spec(is,ir)%mu_s
-        spec(is)%alph_s = rad_spec(is,ir)%alph_s
-        spec(is)%q_s    = rad_spec(is,ir)%q_s
-        spec(is)%D_s    = rad_spec(is,ir)%D_s
-        spec(is)%vv_s   = rad_spec(is,ir)%vv_s
-
-        if (collision_type.gt.0) &
-             spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
-             sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
-
-        params(1,is) = spec(is)%tau_s
-        params(2,is) = spec(is)%mu_s
-        params(3,is) = spec(is)%alph_s
-        params(4,is) = spec(is)%q_s
-        params(5,is) = spec(is)%D_s
-        params(6,is) = spec(is)%vv_s
+  !Scan through radial trajectory in parameter space.
+  ir_out=0
+  do ir = 0, nRad-2
+     do ir_sub = 0, nRad_sub-1
+        frac=real(ir_sub)/real(nRad_sub)
+        call set_radial_state(ir,ir+1,frac,radius_current)
+        call report_radius(ir_out,radius_current)
+        call run_radial_k_scan(ir_sub==0,radius_current)
+        ir_out=ir_out+1
      enddo
+  enddo
 
-     if (.true.) &
-          write(*,'(a,i0,a,es14.4)')&
-          'Parameter (',ir,') = ',radius(ir)
+  call set_radial_state(nRad-1,nRad-1,0.0,radius_current)
+  call report_radius(ir_out,radius_current)
+  call run_radial_k_scan(.true.,radius_current)
+
+contains
+
+  subroutine set_radial_state(ir0,ir1,frac_in,radius_out)
+    integer, intent(in) :: ir0,ir1
+    real, intent(in) :: frac_in
+    real, intent(out) :: radius_out
+
+    radius_out=(1.-frac_in)*radius(ir0)+frac_in*radius(ir1)
+    betap=(1.-frac_in)*beta_rad(ir0)+frac_in*beta_rad(ir1)
+    vtp=(1.-frac_in)*vtp_rad(ir0)+frac_in*vtp_rad(ir1)
+
+    do is = 1,nspec
+       spec(is)%tau_s  = (1.-frac_in)*rad_spec(is,ir0)%tau_s  + &
+            frac_in*rad_spec(is,ir1)%tau_s
+       spec(is)%mu_s   = (1.-frac_in)*rad_spec(is,ir0)%mu_s   + &
+            frac_in*rad_spec(is,ir1)%mu_s
+       spec(is)%alph_s = (1.-frac_in)*rad_spec(is,ir0)%alph_s + &
+            frac_in*rad_spec(is,ir1)%alph_s
+       spec(is)%q_s    = (1.-frac_in)*rad_spec(is,ir0)%q_s    + &
+            frac_in*rad_spec(is,ir1)%q_s
+       spec(is)%D_s    = (1.-frac_in)*rad_spec(is,ir0)%D_s    + &
+            frac_in*rad_spec(is,ir1)%D_s
+       spec(is)%vv_s   = (1.-frac_in)*rad_spec(is,ir0)%vv_s   + &
+            frac_in*rad_spec(is,ir1)%vv_s
+
+       if (collision_type.gt.0) &
+            spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
+            sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
+
+       params(1,is) = spec(is)%tau_s
+       params(2,is) = spec(is)%mu_s
+       params(3,is) = spec(is)%alph_s
+       params(4,is) = spec(is)%q_s
+       params(5,is) = spec(is)%D_s
+       params(6,is) = spec(is)%vv_s
+    enddo
+  end subroutine set_radial_state
+
+  subroutine report_radius(ir_print,radius_in)
+    integer, intent(in) :: ir_print
+    real, intent(in) :: radius_in
+
+    write(*,'(a,i0,a,es14.4)')&
+         'Parameter (',ir_print,') = ',radius_in
+  end subroutine report_radius
+
+  subroutine set_start_wavevector
+    kperp=kperp_start
+    kpar=kpar_start
+  end subroutine set_start_wavevector
+
+  subroutine save_start_roots
+    do ii=1,nroot_max
+       omSafe(1,ii)=omLast(ii)
+    enddo
+  end subroutine save_start_roots
+
+  subroutine run_start_wavevector(radius_in)
+    real, intent(in) :: radius_in
+
+    call set_start_wavevector
+    do ii = 1,nroot_max
+       omLast(ii)=omSafe(1,ii)
+    enddo
+    call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,.false.)
+    call save_start_roots
+  end subroutine run_start_wavevector
+
+  subroutine run_radial_k_scan(full_scan,radius_in)
+    logical, intent(in) :: full_scan
+    real, intent(in) :: radius_in
+
+    call set_start_wavevector
+
+    if ((.not.full_scan).and.(k_scan.ne.0)) then
+       call run_start_wavevector(radius_in)
+       return
+    endif
 
      !Scan (or don't) through kspace
      select case(k_scan)
@@ -1723,7 +1810,7 @@ subroutine radial_scan
         !simple case of constant kperp, kpar
 
         !Root Finder in separate subroutine
-        call om_radial(omlast,params,out_unit,fmt,out_type,ir,.true.)
+        call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,full_scan)
         
      case(1)
         !fixed kperp, scan over kpar
@@ -1750,7 +1837,7 @@ subroutine radial_scan
            endif
 
            !Root Finder in separate subroutine
-           call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+           call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
            
            if (ij==0) then
               !Save roots for next scan of k
@@ -1791,7 +1878,7 @@ subroutine radial_scan
            endif
 
            !Root Finder in separate subroutine
-           call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+           call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
            
            if (ij==0) then
               !Save roots for next scan of k
@@ -1835,7 +1922,7 @@ subroutine radial_scan
            kpar  = ki*cos(theta)
 
            !Root Finder in separate subroutine
-           call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+           call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
            
            if (ij==0) then
               !Save roots for next scan of k
@@ -1880,7 +1967,7 @@ subroutine radial_scan
            kpar  = ki*cos(theta*pi/180.)
 
            !Root Finder in separate subroutine
-           call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+           call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
            
            if (ij==0) then
               !Save roots for next scan of k
@@ -1941,7 +2028,7 @@ subroutine radial_scan
               endif
 
               !Root Finder in separate subroutine
-              call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+              call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
               
               if ((ij==0).and.(ik==0)) then
                  !Save roots for next scan of kplane
@@ -2018,7 +2105,7 @@ subroutine radial_scan
               endif
 
               !Root Finder in separate subroutine
-              call om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+              call om_radial(omlast,params,out_unit,fmt,out_type,radius_in,mod_write)
               
               if ((ij==0).and.(ik==0)) then
                  !Save roots for next scan of kplane
@@ -2056,21 +2143,20 @@ subroutine radial_scan
         !sw3 => theta_1; sw4 => theta_2
         !Root Finder in separate subroutine
   end select
-
-enddo
+  end subroutine run_radial_k_scan
 
 end subroutine radial_scan
 
 !-=-=-=-=-
 !-=-=-=-=-
-subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
+subroutine om_radial(omlast,params,out_unit,fmt,out_type,radius_current,mod_write)
   !!Scans roots at a given location in parameter space.
   !!Used in conjunction with [[radial_scan(subroutine)]].
   use vars, only: nspec, nroot_max, radial_heating, radial_eigen
-  use vars, only: radius, betap, vtp, kperp, kpar
+  use vars, only: betap, vtp, kperp, kpar
   !Passed
 
-  complex,dimension(1:nspec) :: omlast
+  complex,dimension(1:nroot_max) :: omlast
   !!Arrays with complex frequency for each solution.
 
   real, dimension(1:6,1:nspec) :: params
@@ -2090,8 +2176,8 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
   !! 2: Frequency, Heating.
   !! 3: Frequency.
 
-  integer :: ir
-  !!Radial index.
+  real :: radius_current
+  !!Current radial position, including interpolated points.
 
   logical :: mod_write
   !!For only writing out every n_scan, not n_scan * n_res steps
@@ -2173,24 +2259,24 @@ subroutine om_radial(omlast,params,out_unit,fmt,out_type,ir,mod_write)
                 omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
                 Ps(1:nspec),&
-                params(1:6,1:nspec),Ew, radius(ir)
+                params(1:6,1:nspec),Ew, radius_current
            if (out_type==1) & !Om, Eigen
                 write(out_unit(ii),fmt)&
                 kperp,kpar,betap,vtp,&
                 omega,&            
                 bf(1:3),ef(1:3),Us(1:3,1:nspec),ns(1:nspec),&
-                params(1:6,1:nspec), radius(ir)
+                params(1:6,1:nspec), radius_current
            if (out_type==2) & !Om, Heating
                 write(out_unit(ii),fmt)&
                 kperp,kpar,betap,vtp,&
                 omega,&            
                 Ps(1:nspec),&
-                params(1:6,1:nspec),Ew, radius(ir)
+                params(1:6,1:nspec),Ew, radius_current
            if (out_type==3) & !Om
                 write(out_unit(ii),fmt)&
                 kperp,kpar,betap,vtp,&
                 omega,&            
-                params(1:6,1:nspec),radius(ir)
+                params(1:6,1:nspec),radius_current
         endif
      enddo
 
