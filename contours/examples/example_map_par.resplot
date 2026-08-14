@@ -1,0 +1,28 @@
+# Example resonance plot configuration for PLUME's local example output.
+plume_input_file = ../../inputs/example/example_map_par.in
+plume_output_dir = ../../data/example/map_par_kpar_1_10000.mode1
+figure_output_file = ../figures/example_map_par_resonances.png
+
+selected_kperp = 0.001
+selected_kpar = 0.3
+selected_branch = 1
+x_axis = kpar
+x_scale = log
+
+normalize_velocity_to = vthpar_species1
+vpar_min = -4
+vpar_max = 4
+vperp_min = 0
+vperp_max = 4
+nvpar = 180
+nvperp = 120
+
+contour_quantity = resonance_weight
+use_log_abs_contours = false
+vdf_contour_scale = log10_f
+vdf_contours_per_decade = 3
+include_species = all
+gamma_j_ylim = 1e-9, 1
+output_format = png
+dpi = 300
+show = false
