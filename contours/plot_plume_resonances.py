@@ -32,6 +32,7 @@ class ResConfig:
     plume_input_file: Path
     plume_output_dir: Path
     figure_output_file: Path
+    title: str | None = None
     selected_kperp: float | None = None
     selected_kpar: float | None = None
     selected_branch: int | None = None
@@ -196,6 +197,7 @@ def read_res_file(path: str | Path) -> ResConfig:
         plume_input_file=cfg_path("plume_input_file"),
         plume_output_dir=cfg_path("plume_output_dir"),
         figure_output_file=cfg_path("figure_output_file"),
+        title=_optional_str(values.get("title")),
         selected_kperp=_optional_float(values.get("selected_kperp")),
         selected_kpar=_optional_float(values.get("selected_kpar")),
         selected_branch=_optional_int(values.get("selected_branch")),
@@ -534,13 +536,16 @@ def compute_resonance_curves_or_weights(
     species: SpeciesParams,
     selection: Selection,
     norm_vth_over_ref: float,
+    alpha_ref: float,
 ) -> dict[int, float]:
     if abs(selection.kpar) < 1.0e-12:
         warnings.warn("Selected k_parallel is too close to zero; resonance velocities are undefined.", RuntimeWarning)
         return {}
     curves: dict[int, float] = {}
     for n in (0, 1, -1):
-        v_ref_units = (selection.omega_r - n * species.omega_over_ref) / selection.kpar
+        # PLUME normalizes k_parallel to rho_ref=vth_perp,ref/Omega_ref, while
+        # velocities here are normalized relative to vth_parallel,ref.
+        v_ref_units = math.sqrt(alpha_ref) * (selection.omega_r - n * species.omega_over_ref) / selection.kpar
         curves[n] = v_ref_units / norm_vth_over_ref
     return curves
 
@@ -651,16 +656,29 @@ def make_resonance_figure(
     for row, species_idx in enumerate(species_indices, start=1):
         species = plume_input.species[species_idx - 1]
         ax_v = fig.add_subplot(gs[row, 0])
-        draw_velocity_panel(ax_v, config, species, selection, norm, vpar_grid, vperp_grid, vdf_levels, pol_diag, jet_data)
+        draw_velocity_panel(
+            ax_v,
+            config,
+            species,
+            selection,
+            norm,
+            plume_input.species[0].alpha,
+            vpar_grid,
+            vperp_grid,
+            vdf_levels,
+            pol_diag,
+            jet_data,
+        )
         ax_g = fig.add_subplot(gs[row, 1], sharex=ax_disp)
         draw_gamma_panel(ax_g, config, disp, species, x, selected_x)
 
-    fig.suptitle(
+    diagnostic_title = (
         f"{config.plume_input_file.stem} mode {disp.branch}: "
         rf"$k_\perp\rho_{{ref}}={selection.kperp:.3g}$, "
-        rf"$k_\parallel\rho_{{ref}}={selection.kpar:.3g}$",
-        fontsize=11,
+        rf"$k_\parallel\rho_{{ref}}={selection.kpar:.3g}$"
     )
+    figure_title = f"{config.title}\n{diagnostic_title}" if config.title else diagnostic_title
+    fig.suptitle(figure_title, fontsize=11)
     config.figure_output_file.parent.mkdir(parents=True, exist_ok=True)
     save_kwargs = {"dpi": config.dpi}
     if config.output_format:
@@ -720,6 +738,7 @@ def draw_velocity_panel(
     species: SpeciesParams,
     selection: Selection,
     norm: float,
+    alpha_ref: float,
     vpar_grid: np.ndarray,
     vperp_grid: np.ndarray,
     vdf_levels: np.ndarray,
@@ -747,7 +766,12 @@ def draw_velocity_panel(
         ax.contourf(vpar_grid, vperp_grid, plot_weight, levels=vdf_levels, cmap="Greys", alpha=0.35)
         ax.text(0.02, 0.96, "analytic resonance overlay", transform=ax.transAxes, ha="left", va="top", fontsize=8)
 
-    resonances = compute_resonance_curves_or_weights(species, selection, norm)
+    resonances = compute_resonance_curves_or_weights(
+        species,
+        selection,
+        norm,
+        alpha_ref,
+    )
     resonance_styles = {
         0: ("LD/TTD n=0", CHANNEL_COLORS["LD"]),
         1: ("n=+1", CHANNEL_COLORS["n=+1"]),
