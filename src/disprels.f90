@@ -5149,7 +5149,7 @@ end subroutine find_minima
 97   hold=(0.,0.)
      go to 99
 98   hold=(0.,1.77245385090551603)*cexp(-zsquar)
-99   if (x*x+y*y > 16.) go to 200
+99   if (x*x+y*y > 9.) go to 200
      if (abs(y) >= 1.) go to 300
      realte=-2.*x
      imagte=-2.*y
