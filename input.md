@@ -1,6 +1,42 @@
 # PLUME Input
 
-This is a reference for the key input parameters used by PLUME (currently editing).
+This is a reference for the key input parameters used by PLUME.
+
+## Normalization conventions
+
+`normalization='rho_ref'` is the default and preserves existing inputs.
+`normalization='d_ref'` uses the inertial length of `species_1`. The reference
+species must be first in either convention. The symbols $\mu_s=m_R/m_s$,
+$Q_s=q_R/q_s$ (signed), $D_s=n_s/n_R$, and $\alpha_s=T_{\perp,s}/T_{\parallel,s}$
+have the same meaning in both modes.
+
+| Parameter | `rho_ref` | `d_ref` |
+| --- | --- | --- |
+| `kperp`, `kpar` | $k\rho_R$, $\rho_R=v_{t\perp,R}/|\Omega_R|$ | $kd_R$, $d_R=c/\omega_{pR}$ |
+| `vtp` | $v_{t\parallel,R}/c$ | $v_{A,R}/c$ |
+| `betap` | $8\pi n_RT_{\parallel,R}/B_0^2$ | same, and equals reference `tauS` |
+| `tauS` | $T_{\parallel,R}/T_{\parallel,s}$ | $2T_{\parallel,s}/(m_Rv_{A,R}^2)$ |
+| `muS`, `Qs`, `Ds`, `alphS`, `vvS` | $m_R/m_s$, $q_R/q_s$, $n_s/n_R$, $T_{\perp,s}/T_{\parallel,s}$, $U_s/v_{A,R}$ | same |
+| `Kn` | $(n_0\sigma\rho_R)^{-1}$ | $(n_0\sigma d_R)^{-1}$ |
+
+For $\alpha_R=T_{\perp,R}/T_{\parallel,R}$ and positive reference temperature,
+$k d_R=k\rho_R/\sqrt{\beta_{\parallel,R}\alpha_R}$,
+$v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
+$\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$. In `d_ref`,
+$v_{t\parallel,s}^2/v_{A,R}^2=\mu_s\tau_s^{(d)}$,
+$\beta_{\parallel,s}=D_s\tau_s^{(d)}$,
+$\omega_{ps}^2/\Omega_R^2=D_s\mu_s/[Q_s^2(v_{A,R}/c)^2]$,
+and $\Omega_s/\Omega_R=\mu_s/Q_s$. The signed charge ratio is retained in
+the cyclotron frequency and Doppler shift.
+
+`d_ref` requires `species_1` `tauS=betap`.
+A scan of either reference beta or reference `tauS` updates both.
+Its other inputs remain fixed during that scan;
+this is a different physical scan from changing only `betap` in `rho_ref`.
+Two-dimensional scans cannot vary both redundant quantities independently.
+All kinetic species currently require positive `tauS`;
+`tauS=0` is reserved for a future cold-fluid susceptibility.
+See the matched example files in `inputs/example/normalization_*.in`.
 
 ## Namelists in input files.
 
@@ -9,17 +45,23 @@ The following namelists and associated input parameters are read in by PLUME fro
 ### *&params*  
 General system parameters.
 
+**`normalization`**
+`'rho_ref'` (default) or `'d_ref'`.
+Invalid values stop with a diagnostic.
+
 **`betap`**  
 Initial reference parallel plasma beta $\beta_{ref,\parallel} = 8 \pi n_{ref} T_{ref,\parallel}/B^2$.
 
 **`kperp`**  
-Initial perpendicular wavevector $k_{\perp} \rho_{ref}$.
+Initial perpendicular wavevector $k_{\perp} \rho_{ref}$ or $k_{\perp}d_{ref}$,
+according to `normalization`.
 
 **`kpar`**  
-Initial parallel wavevector $k_{\parallel} \rho_{ref}$.
+Initial parallel wavevector $k_{\parallel} \rho_{ref}$ or $k_{\parallel}d_{ref}$.
 
 **`vtp`**  
-Initial reference parallel thermal velocity, normalized to c $v_{t,ref,\parallel}/c$.
+Initial reference parallel thermal velocity $v_{t,ref,\parallel}/c$ in `rho_ref`,
+or reference Alfvén speed $v_{A,ref}/c$ in `d_ref`.
 
 **`nspec`**   
 Number of plasma species or components.
@@ -35,6 +77,7 @@ Type of collision for the system.
 
 **`Kn`**   
 Neutral Knudson number over characteristic scale $(n_0 \sigma \rho_{ref})^{-1}$.
+or $(n_0 \sigma d_{ref})^{-1}$.
 Ignored for `collision_type`=0 (collisionless evalulation).
 
 **`option`**   
@@ -42,10 +85,10 @@ Determines set of scans to perform. Choice of:
 
 - -1: Calculate the value of the dispersion relation
       at a single $(\omega/\Omega_{ref}, \gamma/\Omega_{ref})$
--  0: Calculate Roots for input plasma parameters.
--  1: Calculate Roots for input plasma parameters or Reads in root value
+-  0: Calculate roots for input plasma parameters.
+-  1: Calculate roots for input plasma parameters or Reads in root value
       and then scan over plasma parameters, with range and type specified in *.in file.
--  2: Calculate Roots for input plasma parameters or Reads in root value
+-  2: Calculate roots for input plasma parameters or Reads in root value
       and then scan over two-dimensional plasma parameters space,
       with range and type specified in *.in file.
 -  3: Deprecated...
@@ -134,7 +177,8 @@ If true, the map routine will only select solutions with $\omega_{|textrm{r}} \g
 Species or component parameters list for distribution $f_{j}$.
 
 **`tauS`**  
-Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$.
+Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$ in `rho_ref`;
+Alfvénic temperature $2T_{j,\parallel}/(m_{ref}v_{A,ref}^2)$ in `d_ref`.
 
 **`muS`**  
 Relative mass $m_{ref}/m_{j}$.
@@ -149,7 +193,8 @@ Relative charge $q_{ref}/q_{j}$.
 Relative density $n_{j}/n_{ref}$.
 
 **`vvS`**  
-Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity  $v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
+Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity
+$v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
 
 **`nunS`**  
 Neutral-charged species collision frequency, $\nu_{n,s}/\Omega_{ref} = n_0$

@@ -73,7 +73,11 @@ class plume_input:
             self.species[i]['nu_ns'] = self.get_nuns(self.species[i])
 
     def set_params(self,betap,kperp,kpar,vtp,nspec,nscan,option,\
-                    nroot_max,use_map,writeOut,collision_type=0,Kn=None):
+                    nroot_max,use_map,writeOut,collision_type=0,Kn=None,
+                    normalization='rho_ref'):
+        """Set PLUME inputs. In d_ref, k uses d_ref, vtp is v_A/c, and tauS is 2T_parallel/(m_ref v_A^2)."""
+        if normalization not in ('rho_ref', 'd_ref'):
+            raise ValueError("normalization must be 'rho_ref' or 'd_ref'")
         use_map_out = '.true.'
         if(not(use_map)):
             use_map_out = '.false.'
@@ -87,6 +91,7 @@ class plume_input:
                        'kperp':kperp,
                        'kpar':kpar,
                        'vtp':vtp,
+                       'normalization':normalization,
                        'nspec':int(nspec),
                        'nscan':int(nscan),
                        'option':int(option),
@@ -150,7 +155,12 @@ class plume_input:
         if(Kn is None):
             return None
 
-        nu_ns = 1.0 / (math.sqrt(2.0) * Kn) * math.sqrt(muS / (tauS * alpha1))
+        if tauS <= 0:
+            raise ValueError('cold-fluid species are not implemented; tauS must be positive')
+        if self.params.get('normalization', 'rho_ref') == 'd_ref':
+            nu_ns = math.sqrt(muS * tauS) / (math.sqrt(2.0) * Kn)
+        else:
+            nu_ns = 1.0 / (math.sqrt(2.0) * Kn) * math.sqrt(muS / (tauS * alpha1))
 
         return nu_ns
 
@@ -228,8 +238,16 @@ class plume_input:
     def check_input_for_errors(self):
         #will not halt things,  but will print warnings
 
-        spec1keysthatshouldbe1 = ['tauS','muS','Qs','Ds']
+        mode = self.params.get('normalization', 'rho_ref')
+        if mode not in ('rho_ref', 'd_ref'):
+            raise ValueError("normalization must be 'rho_ref' or 'd_ref'")
         _tolerance = 0.0001
+        spec1keysthatshouldbe1 = ['muS','Qs','Ds']
+        if mode == 'rho_ref':
+            spec1keysthatshouldbe1.insert(0, 'tauS')
+        elif abs(self.species[0]['tauS'] - self.params['betap']) > _tolerance * max(
+            abs(self.params['betap']), abs(self.species[0]['tauS'])):
+            raise ValueError('d_ref requires reference species tauS = betap')
         for _k in spec1keysthatshouldbe1:
             if(abs(self.species[0][_k]-1.) > _tolerance):
                 print("Warning, reference species should have",_k," = 1")
@@ -247,8 +265,8 @@ class plume_input:
 
         f.write('&params\n')
         for key in self.params.keys():
-            if(key == 'outputName'):
-                line = str(key)+'='+"'"+str(outputname)+"'"+'\n'
+            if(key in ('outputName', 'normalization')):
+                line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
             else:
                 line = str(key)+'='+str(self.params[key])+'\n'
             if(key == 'Kn'):
@@ -313,7 +331,7 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
+        paramkeys = ['betap','kperp','kpar','vtp','normalization','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
@@ -344,6 +362,8 @@ class plume_input:
                     if(parse[0] in paramkeys):
                         if(parse[0] in ['nspec','nscan','option','nroot_max']):
                             tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
+                        elif parse[0] == 'normalization':
+                            tempparamdict[parse[0]] = parse[1].split('!')[0].strip().strip("'\"\n")
                         elif(parse[0] != 'dataName'):#dataname is class level var
                             try:
                                 tempparamdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))

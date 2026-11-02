@@ -96,9 +96,52 @@ The values for the plasma parameters are extracted from *.in file, appended afte
 A tutorial on running PLUME can be found in [`tutorial.md`](./tutorial.md).
 Details on the outputs of the code can be found in [`output.md`](./output.md).
 
+## Reference-length normalization
+
+As of Nov 2, 2026, PLUME accepts `normalization='rho_ref'` or `normalization='d_ref'` in `&params`.
+*Existing input files without `normalization` specified default to `'rho_'ref'`.*
+The reference species is `species_1` regardless of normalization choice.
+The two matched examples are
+[`normalization_rho_ref.in`](inputs/example/normalization_rho_ref.in) and
+[`normalization_d_ref.in`](inputs/example/normalization_d_ref.in).
+
+| Input | `rho_ref` | `d_ref` |
+| --- | --- | --- |
+| `kperp`, `kpar` | $k\rho_R$, $\rho_R=v_{t\perp,R}/|\Omega_R|$ | $kd_R$, $d_R=c/\omega_{pR}$ |
+| `vtp` | $v_{t\parallel,R}/c$ | $v_{A,R}/c$ |
+| `betap` | $\beta_{\parallel,R}$ | $\beta_{\parallel,R}=\tau_R^{(d)}$ |
+| `tauS` | $T_{\parallel,R}/T_{\parallel,s}$ | $2T_{\parallel,s}/(m_Rv_{A,R}^2)$ |
+| `muS` | $m_R/m_s$ | same |
+| `alphS` | $T_{\perp,s}/T_{\parallel,s}$ | same |
+| `Qs` | $q_R/q_s$ (signed) | same |
+| `Ds` | $n_s/n_R$ | same |
+| `vvS` | $U_s/v_{A,R}$ | same |
+| `Kn` | $(n_0\sigma\rho_R)^{-1}$ | $(n_0\sigma d_R)^{-1}$ |
+
+For finite reference temperature,
+$k d_R=k\rho_R/\sqrt{\beta_{\parallel,R}\alpha_R}$,
+$v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
+$\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$.
+The frequency remains $\omega/\Omega_R$.
+`d_ref` permits temperature to be expressed without a reference thermal length.
+A separate future implementation will add cold-fluid susceptibility;
+this release rejects `tauS=0` before kinetic evaluation.
+
+Numeric output columns retain the input convention. `d_ref` runs write
+`data/<dataName>/normalization_<outputName>.txt`
+to identify the convention;
+legacy numeric output files are unchanged.
+See [input.md](input.md) and [output.md](output.md) for scan and column details.
+
 ###  Python wrapper:
 
 The second way is to use the python wrapper, which simply helps one write inputs, call the code using the command line, and load the data into python variables. One way to use the python wrapper is with jupyter notebook (to install, see [here](https://jupyter.org/install)).
+
+For `d_ref`, pass `normalization='d_ref'` to `plume_input.set_params(...)`,
+provide `vtp=v_A,ref/c`, use $kd_R$ for both wavevectors, and set the first
+species `tauS` equal to `betap`. `make_species(...)` continues to take the
+same argument names; `tauS` then means $2T_{\parallel,s}/(m_Rv_{A,R}^2)$.
+The wrapper reads and writes the normalization string in input files.
 
 To do so, call jupyter notebook,
 ```
