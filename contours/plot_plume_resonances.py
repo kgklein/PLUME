@@ -66,6 +66,8 @@ class SpeciesParams:
     charge_ratio: float
     density: float
     drift_va_ref: float
+    beta_ref: float = 1.0
+    normalization: str = 'rho_ref'
 
     @property
     def omega_over_ref(self) -> float:
@@ -74,7 +76,8 @@ class SpeciesParams:
 
     @property
     def vthpar_over_ref(self) -> float:
-        # vth_s/vth_ref = sqrt((T_s/T_ref) / (m_s/m_ref)) = sqrt(muS/tauS).
+        if self.normalization == 'd_ref':
+            return math.sqrt(self.mu * self.tau / self.beta_ref)
         return math.sqrt(self.mu / self.tau)
 
 
@@ -291,6 +294,8 @@ def read_plume_input(path: str | Path) -> PlumeInput:
                     charge_ratio=float(block["qs"]),
                     density=float(block["ds"]),
                     drift_va_ref=float(block.get("vvs", 0.0)),
+                    beta_ref=float(params.get("betap", 1.0)),
+                    normalization=str(params.get("normalization", "rho_ref")),
                 )
             )
         except KeyError as exc:
@@ -545,7 +550,10 @@ def compute_resonance_curves_or_weights(
     for n in (0, 1, -1):
         # PLUME normalizes k_parallel to rho_ref=vth_perp,ref/Omega_ref, while
         # velocities here are normalized relative to vth_parallel,ref.
-        v_ref_units = math.sqrt(alpha_ref) * (selection.omega_r - n * species.omega_over_ref) / selection.kpar
+        if species.normalization == 'd_ref':
+            v_ref_units = (selection.omega_r - n * species.omega_over_ref) / (selection.kpar * math.sqrt(selection.beta_ref))
+        else:
+            v_ref_units = math.sqrt(alpha_ref) * (selection.omega_r - n * species.omega_over_ref) / selection.kpar
         curves[n] = v_ref_units / norm_vth_over_ref
     return curves
 
@@ -620,7 +628,7 @@ def make_resonance_figure(
     ax_disp.axvline(selected_x, color="0.55", linewidth=0.8)
     ax_disp.set_yscale("log")
     apply_x_scale(ax_disp, x, config.x_scale)
-    ax_disp.set_xlabel(x_label(config.x_axis))
+    ax_disp.set_xlabel(x_label(config.x_axis, plume_input.params.get('normalization', 'rho_ref')))
     ax_disp.set_ylabel("absolute value")
     ax_disp.grid(True, which="both", linewidth=0.35, alpha=0.35)
     ax_disp.legend(fontsize=8, frameon=False)
@@ -646,7 +654,7 @@ def make_resonance_figure(
         ax_pol.text(0.5, 0.5, "Eigenfunction columns unavailable", ha="center", va="center", transform=ax_pol.transAxes)
     ax_pol.axvline(selected_x, color="0.55", linewidth=0.8)
     apply_x_scale(ax_pol, x, config.x_scale)
-    ax_pol.set_xlabel(x_label(config.x_axis))
+    ax_pol.set_xlabel(x_label(config.x_axis, plume_input.params.get('normalization', 'rho_ref')))
     ax_pol.grid(True, linewidth=0.35, alpha=0.35)
 
     norm = velocity_normalization(config, plume_input)
@@ -672,10 +680,11 @@ def make_resonance_figure(
         ax_g = fig.add_subplot(gs[row, 1], sharex=ax_disp)
         draw_gamma_panel(ax_g, config, disp, species, x, selected_x)
 
+    length_symbol = 'd' if plume_input.params.get('normalization') == 'd_ref' else '\\rho'
     diagnostic_title = (
         f"{config.plume_input_file.stem} mode {disp.branch}: "
-        rf"$k_\perp\rho_{{ref}}={selection.kperp:.3g}$, "
-        rf"$k_\parallel\rho_{{ref}}={selection.kpar:.3g}$"
+        rf"$k_\perp {length_symbol}_{{ref}}={selection.kperp:.3g}$, "
+        rf"$k_\parallel {length_symbol}_{{ref}}={selection.kpar:.3g}$"
     )
     figure_title = f"{config.title}\n{diagnostic_title}" if config.title else diagnostic_title
     fig.suptitle(figure_title, fontsize=11)
@@ -699,7 +708,9 @@ def resolve_species_indices(config: ResConfig, plume_input: PlumeInput) -> list[
     return indices
 
 
-def x_label(x_axis: str) -> str:
+def x_label(x_axis: str, normalization: str = 'rho_ref') -> str:
+    if normalization == 'd_ref':
+        return {'kperp': r'$k_\perp d_{\rm ref}$', 'kpar': r'$k_\parallel d_{\rm ref}$', 'k': r'$k d_{\rm ref}$'}[x_axis]
     labels = {
         "kperp": r"$k_\perp\rho_{\rm ref}$",
         "kpar": r"$k_\parallel\rho_{\rm ref}$",
@@ -831,7 +842,7 @@ def draw_gamma_panel(ax: plt.Axes, config: ResConfig, disp: DispersionData, spec
     ax.set_yscale("log")
     ax.set_ylim(*config.gamma_j_ylim)
     apply_x_scale(ax, x, config.x_scale)
-    ax.set_xlabel(x_label(config.x_axis))
+    ax.set_xlabel(x_label(config.x_axis, species.normalization))
     ax.set_ylabel("absolute value; dashed is negative")
     ax.grid(True, which="both", linewidth=0.35, alpha=0.35)
     ax.legend(fontsize=7, frameon=False, ncol=2)
@@ -845,6 +856,7 @@ def dry_run_report(config: ResConfig, plume_input: PlumeInput, outputs: OutputFi
     print(f"  file = {plume_input.path}")
     print(f"  outputName = {plume_input.output_name}")
     print(f"  dataName = {plume_input.data_name}")
+    print(f"  normalization = {plume_input.params.get('normalization', 'rho_ref')}")
     print(f"  nspec = {len(plume_input.species)}")
     print(f"  eigen requested = {plume_input.eigen}")
     print(f"  heating requested = {plume_input.heating}")

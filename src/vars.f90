@@ -24,16 +24,23 @@ module vars
   !!8 pi n_ref T_ref,par/B^2
 
    real, target :: kperp
-  !!Wavenumber perpendicular to B0, normalized to reference gyroradius.
-  !!k_perp rho_ref = k_perp w_perp,ref/Omega_ref
+  !!Wavenumber perpendicular to B0, in the selected input length units.
+  !!rho_ref uses v_tperp,ref/|Omega_ref|; d_ref uses c/omega_p,ref.
 
    real, target :: kpar
-  !!Wavenumber parallel to B0, normalized to reference gyroradius.
-  !!k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref
+  !!Wavenumber parallel to B0, in the selected input length units.
 
    real, target :: vtp
-  !!Parallel reference thermal velocity normalized to the speed of light.
-  !!v_t,ref,par/c
+  !!rho_ref: v_t,ref,par/c; d_ref: v_A,ref/c.
+
+   character(16) :: normalization = 'rho_ref'
+   !! Input convention: rho_ref (legacy) or d_ref (inertial length).
+
+   ! Input values above remain in their selected convention. The kinetic
+   ! calculation uses these derived rho_ref values, refreshed before disp().
+   real :: solver_betap, solver_kperp, solver_kpar, solver_vtp
+   integer :: reference_scan_source = 0
+   !! 0: validate reference beta; 1: beta scan; 2: reference tau scan.
 
    integer :: nspec
   !!Number of species/components to be included in calculation.
@@ -56,8 +63,8 @@ module vars
      !!Species Input Parameters
 
       real :: tau_s
-     !!Relative Temperature ratio.
-     !!\(T_{ref}/T_{s}|_{\parallel}\)
+     !!rho_ref: T_parallel,ref/T_parallel,s.
+     !!d_ref: 2*T_parallel,s/(m_ref*v_A,ref^2).
 
       real :: mu_s
      !!Relative Mass ratio.
@@ -97,6 +104,8 @@ module vars
 
    type(specie), dimension(:), allocatable, target :: spec
   !! Dimensionless Species/Component Parameters.
+
+   type(specie), dimension(:), allocatable :: solver_spec
 
    type(specie), dimension(:, :), allocatable, target :: rad_spec
   !! Array for Varying Species/Component Parameters (under development).
@@ -372,5 +381,72 @@ module vars
    public :: computemoment, EpsilonSokhotski_Plemelj, omega_val
    public :: vxshift, vyshift, vzshift
    public :: collision_type, Kn
+   public :: normalization, solver_betap, solver_kperp, solver_kpar
+   public :: solver_vtp, solver_spec, reference_scan_source
+   public :: sync_solver_state, write_normalization_metadata
+
+contains
+
+   subroutine sync_solver_state
+      implicit none
+      integer :: i
+      real :: length_ratio
+
+      if (normalization == 'd_ref') then
+         if (reference_scan_source == 1) spec(1)%tau_s = betap
+         if (reference_scan_source == 2) betap = spec(1)%tau_s
+      endif
+      if (betap <= 0. .or. vtp <= 0.) then
+         write(*,'(a)') 'ERROR: kinetic PLUME requires positive betap and vtp; cold-fluid species are not implemented.'
+         error stop 1
+      endif
+      do i=1,nspec
+         if (spec(i)%tau_s <= 0.) then
+            write(*,'(a,i0,a)') 'ERROR: species ',i,' has nonpositive tauS; cold-fluid species are not implemented.'
+            error stop 1
+         endif
+         if (spec(i)%alph_s <= 0. .or. spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
+            write(*,'(a,i0,a)') 'ERROR: species ',i,' requires positive alphS/muS and nonzero Qs.'
+            error stop 1
+         endif
+      enddo
+      if (normalization == 'd_ref') then
+         if (abs(spec(1)%tau_s-betap) > 1.e-8*max(abs(betap),abs(spec(1)%tau_s))) then
+            write(*,'(a)') 'ERROR: d_ref requires species_1 tauS = betap.'
+            error stop 1
+         endif
+      endif
+      if (.not. allocated(solver_spec)) allocate(solver_spec(nspec))
+      solver_betap = betap
+      solver_spec = spec
+      if (normalization == 'd_ref') then
+         length_ratio = sqrt(betap*spec(1)%alph_s)
+         solver_kperp = kperp*length_ratio
+         solver_kpar = kpar*length_ratio
+         solver_vtp = vtp*sqrt(betap)
+         do i=1,nspec
+            solver_spec(i)%tau_s = betap/spec(i)%tau_s
+            if (collision_type > 0 .and. Kn <= 1.e25) then
+               solver_spec(i)%nu_ns = sqrt(spec(i)%mu_s*spec(i)%tau_s)/(sqrt(2.)*Kn)
+            endif
+         enddo
+      else
+         solver_kperp = kperp
+         solver_kpar = kpar
+         solver_vtp = vtp
+      endif
+   end subroutine sync_solver_state
+
+   subroutine write_normalization_metadata
+      implicit none
+      integer :: unit_no
+      if (normalization /= 'd_ref') return
+      open(newunit=unit_no,file='data/'//trim(dataName)//'/normalization_'//trim(outputName)//'.txt', &
+           status='replace',action='write')
+      write(unit_no,'(a)') 'normalization=d_ref'
+      write(unit_no,'(a)') 'kperp,kpar: k*d_ref; vtp: v_A,ref/c; tauS: 2*T_parallel,s/(m_ref*v_A,ref^2)'
+      write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
+      close(unit_no)
+   end subroutine write_normalization_metadata
 
 end module vars

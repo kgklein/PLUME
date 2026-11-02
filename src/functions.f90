@@ -48,6 +48,7 @@ contains
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
       use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
+      use vars, only: normalization, sync_solver_state, write_normalization_metadata
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
       implicit none
@@ -63,7 +64,7 @@ contains
 
       !Read in the basic parameter list.
       nameList /params/ &
-         betap, kperp, kpar, vtp, nspec, nscan, option, nroot_max, &
+         betap, kperp, kpar, vtp, normalization, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
          collision_type, Kn, &
          writeOut, dataName, outputName
@@ -82,6 +83,10 @@ contains
       unit = input_unit_no
       open (unit=unit, file=runname, status='old', action='read')
       read (unit=unit, nml=params)
+      if (normalization /= 'rho_ref' .and. normalization /= 'd_ref') then
+         write(*,'(3a)') 'ERROR: normalization=',trim(normalization),'; use rho_ref or d_ref.'
+         error stop 1
+      endif
 
       !Allocate the species variable to have nspec indicies
       allocate (spec(1:nspec))
@@ -106,6 +111,8 @@ contains
          sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
          close (unit)
       end do
+      call sync_solver_state
+      call write_normalization_metadata
 
       !Check that ref mass ratio is 1 (in the python wrapper, this is used to help determine the output format to load in sweeps, which is why we check it)
       if (spec(1)%mu_s - 1 > 0.0000001) then
@@ -144,7 +151,7 @@ contains
 !-=-=-=-=-
    subroutine spec_read(is)
     !!Subroutine for reading in species/component parameters.
-      use vars, only: spec, Kn
+      use vars, only: spec, Kn, normalization
       implicit none
       !Passed
       integer :: is
@@ -189,9 +196,20 @@ contains
       spec(is)%D_s = Ds
       spec(is)%vv_s = vvS
 
+      if (tauS <= 0.) then
+         write(*,'(a,i0,a)') 'ERROR: species ',is,' has nonpositive tauS; cold-fluid species are not implemented.'
+         error stop 1
+      endif
+      if (muS <= 0. .or. alphS <= 0. .or. Qs == 0.) then
+         write(*,'(a,i0,a)') 'ERROR: species ',is,' requires positive muS/alphS and nonzero Qs.'
+         error stop 1
+      endif
+
       !calculate neutral-charged collision frequency
       if (Kn > 1.0e25) then
          spec(is)%nu_ns = 0.0 !Treat large default Kn as effectively collisionless (streamlines fpc.f90)
+      else if (normalization == 'd_ref') then
+         spec(is)%nu_ns = sqrt(muS*tauS)/(sqrt(2.)*Kn)
       else
           spec(is)%nu_ns = 1.0/(sqrt(2.0)*Kn) * &
                 sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))

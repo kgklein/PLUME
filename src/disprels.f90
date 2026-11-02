@@ -44,6 +44,7 @@ module disprels
       use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
       use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
       use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
+      use vars, only : normalization
       implicit none
       
       real :: dr
@@ -147,14 +148,27 @@ module disprels
          write(*,'(a)')'Root Search:'
          write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
          write(*,'(a)')      'Global Plasma Parameters:'
-         write(*,'(a,g14.6)')'k_perp rho_ref   = ',kperp
-         write(*,'(a,g14.6)')'k_par  rho_ref   = ',kpar
+         if (normalization == 'd_ref') then
+            write(*,'(a,g14.6)')'k_perp d_ref     = ',kperp
+            write(*,'(a,g14.6)')'k_par  d_ref     = ',kpar
+         else
+            write(*,'(a,g14.6)')'k_perp rho_ref   = ',kperp
+            write(*,'(a,g14.6)')'k_par  rho_ref   = ',kpar
+         endif
          write(*,'(a,g14.6)')'Beta_ref,par         = ',betap
-         write(*,'(a,g14.6)')'v_t,ref,par/c          = ',vtp
+         if (normalization == 'd_ref') then
+            write(*,'(a,g14.6)')'v_A,ref/c            = ',vtp
+         else
+            write(*,'(a,g14.6)')'v_t,ref,par/c          = ',vtp
+         endif
          do is = 1, nspec
             write(*,'(a)')'-=-=-=-=-=-=-=-=-=-'
             write(*,'(a,i3)')      'Parameters for Species :',is
-            write(*,'(a,g14.6)')'T_||,ref/T_||s =    ',spec(is)%tau_s
+            if (normalization == 'd_ref') then
+               write(*,'(a,g14.6)')'2T_||s/(m_ref v_A^2) = ',spec(is)%tau_s
+            else
+               write(*,'(a,g14.6)')'T_||,ref/T_||s =    ',spec(is)%tau_s
+            endif
             write(*,'(a,g14.6)')'m_ref/m_s =        ',spec(is)%mu_s
             write(*,'(a,g14.6)')'T_perp/T_par|s = ',spec(is)%alph_s
             write(*,'(a,g14.6)')'q_ref/q_s =        ',spec(is)%Q_s
@@ -336,6 +350,16 @@ module disprels
                 'dispersion_',trim(outputName),'.roots'
         endif
 
+        if (normalization == 'd_ref' .and. option /= 4) then
+           do ii=1,nspec
+              params(1,ii) = spec(ii)%tau_s
+              params(2,ii) = spec(ii)%mu_s
+              params(3,ii) = spec(ii)%alph_s
+              params(4,ii) = spec(ii)%q_s
+              params(5,ii) = spec(ii)%D_s
+              params(6,ii) = spec(ii)%vv_s
+           enddo
+        endif
         open(unit=21,file=trim(mapName),status='replace')
         do j=1,nroots
            write(21,fmt)&
@@ -413,7 +437,7 @@ module disprels
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
     use vars, only : wroots, nroot_max, writeOut, nspec, scan
-    use vars, only : kperp, kpar, vtp
+    use vars, only : kperp, kpar, solver_vtp
 
     implicit none
 
@@ -455,7 +479,7 @@ module disprels
     
     D = disp(omega)
 
-    write(*,'(4es14.4)') omega,D*vtp**6.
+    write(*,'(4es14.4)') omega,D*solver_vtp**6.
     write(*,'(2es14.4)')kperp,kpar
 
     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.true.)
@@ -545,7 +569,7 @@ subroutine map_scan
   use vars, only : scan, spec, print_Name, sw, sw2, kperp, kpar
   use vars, only : writeOut, pi
   use vars, only : gami, gamf, omi, omf ,betap
-  use vars, only : collision_type, Kn, nspec
+  use vars, only : collision_type, Kn, nspec, normalization, reference_scan_source
   !Local
 
   integer :: jj
@@ -651,7 +675,7 @@ subroutine map_scan
      endif
 
      do iq=1, nspec
-        if (collision_type.gt.0) &
+        if (collision_type.gt.0 .and. normalization=='rho_ref') &
              spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
              sqrt(spec(iq)%mu_s/(spec(iq)%tau_s*spec(1)%alph_s))
      enddo
@@ -691,10 +715,17 @@ subroutine map_scan
      !Will add an improved interface for the future.
      
      write(*,'(a)')'Modifying Span of Complex Frequency Space:'
-     omi=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
-     gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+     if (normalization=='d_ref') then
+        omi=-3.*sqrt(kperp**2.+kpar**2.)*sqrt(spec(1)%alph_s)
+        omf=-omi
+        gami=omi
+        gamf=0.5*sqrt(kperp**2.+kpar**2.)*sqrt(spec(1)%alph_s)
+     else
+        omi=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+        omf=3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+        gami=-3.*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+        gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
+     endif
      
      call map_search
 
@@ -710,7 +741,7 @@ subroutine om_scan(is)
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
   use vars, only : kperp,kpar,betap,vtp,spec,writeOut,susc
-  use vars, only : collision_type, Kn
+  use vars, only : collision_type, Kn, normalization, sync_solver_state
   use functions, only : get_unused_unit
   
   implicit none
@@ -923,10 +954,11 @@ subroutine om_scan(is)
         endif
      endif
 
+     call sync_solver_state
      !construct params array for formated output
      do ii = 1,nspec
         !calculate neutral-charged collision frequency
-        if (collision_type.gt.0) &
+        if (collision_type.gt.0 .and. normalization=='rho_ref') &
              spec(ii)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
              sqrt(spec(ii)%mu_s/(spec(ii)%tau_s*spec(1)%alph_s))
         
@@ -1076,7 +1108,7 @@ subroutine om_double_scan
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
   use vars, only: nroot_max, outputName, wroots, nspec, writeOut, susc, low_n
-  use vars, only : collision_type, Kn
+  use vars, only : collision_type, Kn, normalization, sync_solver_state
   use functions, only : get_unused_unit
   implicit none
   
@@ -1310,7 +1342,7 @@ subroutine om_double_scan
 
      !calculate neutral-charged collision frequency
      do iq=1, nspec
-        if (collision_type.gt.0) &
+        if (collision_type.gt.0 .and. normalization=='rho_ref') &
              spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
              sqrt(spec(iq)%mu_s/(spec(iq)%tau_s*spec(1)%alph_s))
      enddo
@@ -1397,10 +1429,11 @@ subroutine om_double_scan
               endif
            endif
 
+           call sync_solver_state
            !construct params array for formated output
            do ii = 1,nspec
               !calculate neutral-charged collision frequency
-              if (collision_type.gt.0) &
+              if (collision_type.gt.0 .and. normalization=='rho_ref') &
                    spec(ii)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
                    sqrt(spec(ii)%mu_s/(spec(ii)%tau_s*spec(1)%alph_s))
               if (mod(jj,scan(2)%n_res)==0) then
@@ -1582,7 +1615,7 @@ subroutine radial_scan
   use vars, only : kperp, kpar, betap, vtp, radial_eigen
   use vars, only : dataName, outputName, radial_heating
   use vars, only : rad_scan, pi
-  use vars, only : collision_type, Kn
+  use vars, only : collision_type, Kn, normalization, sync_solver_state
   use functions, only : get_unused_unit
   implicit none
   
@@ -1750,7 +1783,7 @@ contains
        spec(is)%vv_s   = (1.-frac_in)*rad_spec(is,ir0)%vv_s   + &
             frac_in*rad_spec(is,ir1)%vv_s
 
-       if (collision_type.gt.0) &
+       if (collision_type.gt.0 .and. normalization=='rho_ref') &
             spec(is)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
             sqrt(spec(is)%mu_s/(spec(is)%tau_s*spec(1)%alph_s))
 
@@ -1761,6 +1794,7 @@ contains
        params(5,is) = spec(is)%D_s
        params(6,is) = spec(is)%vv_s
     enddo
+    call sync_solver_state
   end subroutine set_radial_state
 
   subroutine report_radius(ir_print,radius_in)
@@ -2293,7 +2327,8 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   !!     velocities and density fluctuations for identified wave 
   !!     as well as the power emission or absorption.
 !<<<GGH: 1/18/23
-  use vars, only : spec,betap,vtp,kperp,kpar,nspec,susc,lam,low_n,susc_low
+  use vars, only : spec=>solver_spec,betap=>solver_betap,vtp=>solver_vtp
+  use vars, only : kperp=>solver_kperp,kpar=>solver_kpar,nspec,susc,lam,low_n,susc_low
   implicit none
   !!Passed!!
   complex :: omega
@@ -2616,7 +2651,7 @@ subroutine set_map_pointers(outName,diff,diff2)
   !! Sets step sizes for all classes of parameter scans
   !! called in for [[map_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,pi
-  use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar
+  use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,reference_scan_source
   implicit none
   !Passed
   real :: diff
@@ -2650,6 +2685,10 @@ subroutine set_map_pointers(outName,diff,diff2)
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
   
+  reference_scan_source = 0
+  if (scan(1)%style_s==0 .and. scan(1)%type_s==2) reference_scan_source = 1
+  if (scan(1)%style_s==1 .and. scan(1)%type_s==0) reference_scan_source = 2
+
   if((scan(1)%style_s).ge.0) then
      if (scan(1)%log_scan) then
         !Log spacing
@@ -2854,7 +2893,7 @@ end subroutine set_map_pointers
 subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   !!Sets I/O strings, step sizes, and formats for [[om_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
-  use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n
+  use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n,reference_scan_source
   !>>>GGH: 1/18/23
   !<<<GGH: 1/18/23
   implicit none
@@ -2911,6 +2950,10 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
   
+
+  reference_scan_source = 0
+  if (scan(is)%style_s==0 .and. scan(is)%type_s==2) reference_scan_source = 1
+  if (scan(is)%style_s==1 .and. scan(is)%type_s==0) reference_scan_source = 2
 
   if((scan(is)%style_s).ge.0) then
      if (scan(is)%log_scan) then
@@ -3230,6 +3273,7 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !!Sets I/O strings, step sizes, and formats for [[om_double_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,sw3,sw4,betap,vtp,kperp,kpar, low_n
+  use vars, only : normalization, reference_scan_source
   implicit none
   !Passed
 
@@ -3281,6 +3325,24 @@ subroutine get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   
   integer :: is
   !! Scan index.
+
+  reference_scan_source = 0
+  do is=1,2
+     if (scan(is)%style_s==0 .and. scan(is)%type_s==2) then
+        if (reference_scan_source==2 .and. normalization=='d_ref') then
+           write(*,'(a)') 'ERROR: d_ref cannot scan betap and species_1 tauS independently.'
+           error stop 1
+        endif
+        reference_scan_source=1
+     endif
+     if (scan(is)%style_s==1 .and. scan(is)%type_s==0) then
+        if (reference_scan_source==1 .and. normalization=='d_ref') then
+           write(*,'(a)') 'ERROR: d_ref cannot scan betap and species_1 tauS independently.'
+           error stop 1
+        endif
+        reference_scan_source=2
+     endif
+  enddo
 
   if (((scan(1)%style_s)==(scan(2)%style_s)).and.&
        ((scan(1)%type_s)==(scan(2)%type_s))) then
@@ -3612,11 +3674,12 @@ end subroutine get_double_out_name
 !-=-=-=-
 !Our method for selecting different dispersion relations
 complex function disp(om)
-  use vars, only : collision_type
+  use vars, only : collision_type, sync_solver_state
   
   complex :: om
   !!Complex Frequency
 
+  call sync_solver_state
   select case (collision_type)
 
   case (0)
@@ -3661,7 +3724,8 @@ complex function disp1(om)
   !!Returns Plasma Dispersion Function for input complex frequency
   !! and global values of the dimensionless plasma parameters.
   !! updated to include weak neutral-charged collision
-  use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
+  use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
+  use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
   use vars,  only: low_n, susc_low, pi
   implicit none
   complex :: om
@@ -4327,7 +4391,8 @@ end function disp1
    complex function disp0(om)
      !!Returns Plasma Dispersion Function for input complex frequency
      !! and global values of the dimensionless plasma parameters.
-     use vars,  only: betap,kperp,kpar,vtp,nspec,spec,susc,lam 
+     use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
+     use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
      use vars,  only: low_n, susc_low, pi
      implicit none
      complex :: om

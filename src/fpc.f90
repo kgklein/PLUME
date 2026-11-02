@@ -33,7 +33,8 @@ contains
    subroutine compute_fpc_cart(wrootindex)
       !! Computes the FPC associated with the linear fs1 and eigenfunction
       !! response on a square cartesian grid and writes FPC to file
-      use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc !TODO remove susc (was mfor debug)
+      use vars, only: betap=>solver_betap, kperp=>solver_kperp, kpar=>solver_kpar
+      use vars, only: vtp=>solver_vtp, nspec, spec=>solver_spec, susc
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv, nbesmax
       use vars, only: elecdircontribution
       use vars, only: wroots, nroots
@@ -1021,7 +1022,8 @@ contains
       !! Computes the FPC associated with the linear fs1 and eigenfunction
       !! response on a square cartesian grid and writes fs1 and FPC to file
 
-      use vars, only: betap, kperp, kpar, vtp, nspec, spec
+      use vars, only: betap=>solver_betap, kperp=>solver_kperp, kpar=>solver_kpar
+      use vars, only: vtp=>solver_vtp, nspec, spec=>solver_spec
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv, nbesmax
       use vars, only: elecdircontribution
       use vars, only: wroots, nroots
@@ -1636,7 +1638,8 @@ contains
         aleph_r, elecdircontribution, exbar, fs0, fs1, epsSokhotski_Plemelj, nu_ns)
       !! Determine species perturbed VDF fs1 at given (vperp,vpar,phi)
 
-      use vars, only: betap, kperp, kpar, vtp, pi, delv
+      use vars, only: betap=>solver_betap, kperp=>solver_kperp, kpar=>solver_kpar
+      use vars, only: vtp=>solver_vtp, pi, delv
       use vars, only: nbesmax
       use bessels, only: bessj_s, bess0_s_prime
       USE nrtype, only: SP, I4B
@@ -1827,7 +1830,8 @@ contains
    complex function wparth_from_ratio(is,ef)
       use vars, only: pi
       use disprels, only: bessel, zet_in
-      use vars, only: betap, kperp, kpar, vtp, nspec, spec, susc
+      use vars, only: betap=>solver_betap, kperp=>solver_kperp, kpar=>solver_kpar
+      use vars, only: vtp=>solver_vtp, nspec, spec=>solver_spec, susc
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, delv, nbesmax
       use vars, only: elecdircontribution, EpsilonSokhotski_Plemelj, omega_val
 
@@ -2048,7 +2052,7 @@ contains
 
      !As j_n(b) is small for b<n/2, nbesmax/2 should be greater than or equal to
      !b_s,max = |(kperp*q_s*vperp)/sqrt(mu_s*tau_s*aleph_r)| for all species
-      use vars, only: kperp
+      use vars, only: kperp=>solver_kperp
       use vars, only: nbesmax
 
       real, intent(in)                      :: vperpmax

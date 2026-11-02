@@ -3,11 +3,32 @@
 PLUME writes output solutions to the `/data` directory, to the subdirectory specified by `dataName`.
 All output file names will have the `outputName` string included in the name to distinguish between distinct calculations. 
 
+Numeric output columns contain values in the convention selected by
+the input `normalization` parameter.
+The first four columns of roots, modes, and tensor files are
+`kperp`, `kpar`, `betap`, and `vtp` in **input units**:
+
+- $k\rho_R$ and $v_{t\parallel,R}/c$ for `rho_ref`,
+- or $kd_R$ and $v_{A,R}/c$ for `d_ref`.
+
+Species `tauS` columns likewise contain the selected temperature definition.
+
+The complex frequency always uses $\Omega_R$.
+A `d_ref` run also writes `normalization_<outputName>.txt` beside its numeric outputs;
+its absence in older outputs indicates the legacy `rho_ref` convention.
+Existing numeric file column order and formatting are unchanged.
+
+For the gyrotropic and Cartesian FPC files, velocities and fields continue to
+use the kinetic solver's thermal velocity convention;
+their headers describe those derived quantities.
+The normalization metadata identifies the input convention used to generate the run.
+
 ## dispersion_*outputName*.map
 
 Value of the dispersion tensor $\mathcal{\Lambda}(\omega_{\textrm{r}},\gamma)$ on a defined complex frequency grid.  
 Solutions to the dispersion relation satisfy $|\mathcal{\Lambda}|  =0$.
-This file is generated from the *map_search* subroutine in *disprels.f90*, and invoked when `use_map` =.true. 
+This file is generated from the *map_search* subroutine in *disprels.f90*,
+and invoked when `use_map` =.true. 
 
 The data is ordered in columns as  
 1. $\omega_r$  
@@ -17,8 +38,11 @@ The data is ordered in columns as
 5. Im $[|\mathcal{\Lambda}|]$  
 
 The *&maps* namelist in *filename*.in determines the structure of *filename*.map.  
-The range of $\omega_{\textrm{r}}/\Omega_p$ is from `omi` to `omi` with `nr` steps. Logorithmic or linear spacing is selected with `loggridw`. *`nr` and `ni` are currently hardcoded. Will add as user options.*
-The range of $\gamma_{\textrm{r}}/\Omega_p$ is from `gami` to `gami` with `ni` steps. Logorithmic or linear spacing is selected with `loggridg`.
+The range of $\omega_{\textrm{r}}/\Omega_p$ is from `omi` to `omf` with `nr` steps.
+Logorithmic or linear spacing is selected with `loggridw`.
+The range of $\gamma_{\textrm{r}}/\Omega_p$ is from `gami` to `gamf` with `ni` steps. Logorithmic or linear spacing is selected with `loggridg`.
+`nr` and `ni` are set to 128 as a default which can be replaced by user defined parameters;
+see [input.md].
 
 ## dispersion_*outputName*.roots
 
@@ -74,12 +98,13 @@ The initial and final values of the parameter scanned over will be reflected in 
 
 One file for each mode followed will be produced.
 
-The first six columns are the same regardless of supplemental calculations.
+The first six columns are the same regardless of supplemental calculations,
+normalized to the appropriate convention.
 They are ordered as
-1. $k_\perp \rho_{ref}$
-2. $k_\parallel \rho_{ref}$
+1. $k_\perp L_{ref}$
+2. $k_\parallel L_{ref}$
 3. $\beta_{ref,\parallel}$
-4. $v_{t,ref,\parallel}/c$ (WARNING: prior non-public releases normalized this to the reference Alfven velocity)
+4. $v_{t,ref,\parallel}/c$ or $v_{A,ref}/c$
 5. $\omega_{\textrm{r}}/\Omega_{ref}$   
 6. $\gamma/\Omega_{ref}$
 
@@ -144,7 +169,7 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 8, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=16. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
 For ease of reference, consider the below tables for column numbers for two and three component calculations.
-
+   
 ![Table for output column numbering for a two-component plasma.](./data/PLUME-Output-Table.svg)
 
 ![Table for output column numbering for a three-component plasma.](./data/PLUME-Output-Table-2.svg)
