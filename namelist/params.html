@@ -128,6 +128,7 @@
             <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
             <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
             <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-normalization">normalization</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nscan">nscan</a>
             <a class="list-group-item" href="../namelist/params.html#variable-option">option</a>
@@ -192,24 +193,29 @@
       <td><a href="#variable-kperp">kperp</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Wavenumber perpendicular to B0, normalized to reference gyroradius.
-k_perp rho_ref = k_perp w_perp,ref/Omega_ref</p></td>
+      <td><p>Wavenumber perpendicular to B0, in the selected input length units.
+rho_ref uses v_tperp,ref/|Omega_ref|; d_ref uses c/omega_p,ref.</p></td>
     </tr>
 
               <tr id="variable-kpar">
       <td><a href="#variable-kpar">kpar</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Wavenumber parallel to B0, normalized to reference gyroradius.
-k_perp rho_ref = k_perp w_t,ref,perp/Omega_ref</p></td>
+      <td><p>Wavenumber parallel to B0, in the selected input length units.</p></td>
     </tr>
 
               <tr id="variable-vtp">
       <td><a href="#variable-vtp">vtp</a></td>
       <td>real</td>
       <td>None</td>
-      <td><p>Parallel reference thermal velocity normalized to the speed of light.
-v_t,ref,par/c</p></td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-normalization">
+      <td><a href="#variable-normalization">normalization</a></td>
+      <td>character(len=16)</td>
+      <td>&#39;rho_ref&#39;</td>
+      <td><p>Input convention: rho_ref (legacy) or d_ref (inertial length).</p></td>
     </tr>
 
               <tr id="variable-nspec">

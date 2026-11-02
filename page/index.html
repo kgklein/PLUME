@@ -200,8 +200,94 @@ Details on the input parameters can be found in <a href="./input.html"><code>inp
 
 <p>A tutorial on running PLUME can be found in <a href="./tutorial.html"><code>tutorial.md</code></a>.
 Details on the outputs of the code can be found in <a href="./output.html"><code>output.md</code></a>.</p>
+<h2>Reference-length normalization</h2>
+<p>As of Nov 2, 2026, PLUME accepts <code>normalization='rho_ref'</code> or <code>normalization='d_ref'</code> in <code>&amp;params</code>.
+<em>Existing input files without <code>normalization</code> specified default to <code>'rho_'ref'</code>.</em>
+The reference species is <code>species_1</code> regardless of normalization choice.
+The two matched examples are
+<a href="inputs/example/normalization_rho_ref.in"><code>normalization_rho_ref.in</code></a> and
+<a href="inputs/example/normalization_d_ref.in"><code>normalization_d_ref.in</code></a>.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th><code>rho_ref</code></th>
+<th><code>d_ref</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kperp</code>, <code>kpar</code></td>
+<td>$k\rho_R$, $\rho_R=v_{t\perp,R}/</td>
+<td>\Omega_R</td>
+</tr>
+<tr>
+<td><code>vtp</code></td>
+<td>$v_{t\parallel,R}/c$</td>
+<td>$v_{A,R}/c$</td>
+</tr>
+<tr>
+<td><code>betap</code></td>
+<td>$\beta_{\parallel,R}$</td>
+<td>$\beta_{\parallel,R}=\tau_R^{(d)}$</td>
+</tr>
+<tr>
+<td><code>tauS</code></td>
+<td>$T_{\parallel,R}/T_{\parallel,s}$</td>
+<td>$2T_{\parallel,s}/(m_Rv_{A,R}^2)$</td>
+</tr>
+<tr>
+<td><code>muS</code></td>
+<td>$m_R/m_s$</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>alphS</code></td>
+<td>$T_{\perp,s}/T_{\parallel,s}$</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>Qs</code></td>
+<td>$q_R/q_s$ (signed)</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>Ds</code></td>
+<td>$n_s/n_R$</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>vvS</code></td>
+<td>$U_s/v_{A,R}$</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>Kn</code></td>
+<td>$(n_0\sigma\rho_R)^{-1}$</td>
+<td>$(n_0\sigma d_R)^{-1}$</td>
+</tr>
+</tbody>
+</table>
+<p>For finite reference temperature,
+$k d_R=k\rho_R/\sqrt{\beta_{\parallel,R}\alpha_R}$,
+$v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
+$\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$.
+The frequency remains $\omega/\Omega_R$.
+<code>d_ref</code> permits temperature to be expressed without a reference thermal length.
+A separate future implementation will add cold-fluid susceptibility;
+this release rejects <code>tauS=0</code> before kinetic evaluation.</p>
+<p>Numeric output columns retain the input convention. <code>d_ref</code> runs write
+<code>data/&lt;dataName&gt;/normalization_&lt;outputName&gt;.txt</code>
+to identify the convention;
+legacy numeric output files are unchanged.
+See <a href="input.html">input.md</a> and <a href="output.html">output.md</a> for scan and column details.</p>
 <h3>Python wrapper:</h3>
 <p>The second way is to use the python wrapper, which simply helps one write inputs, call the code using the command line, and load the data into python variables. One way to use the python wrapper is with jupyter notebook (to install, see <a href="https://jupyter.org/install">here</a>).</p>
+<p>For <code>d_ref</code>, pass <code>normalization='d_ref'</code> to <code>plume_input.set_params(...)</code>,
+provide <code>vtp=v_A,ref/c</code>, use $kd_R$ for both wavevectors, and set the first
+species <code>tauS</code> equal to <code>betap</code>. <code>make_species(...)</code> continues to take the
+same argument names; <code>tauS</code> then means $2T_{\parallel,s}/(m_Rv_{A,R}^2)$.
+The wrapper reads and writes the normalization string in input files.</p>
 <p>To do so, call jupyter notebook,</p>
 <div class="codehilite"><pre><span></span><code>jupyter notebook
 </code></pre></div>

@@ -1,0 +1,592 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>sync_solver_state &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>sync_solver_state
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 1.0% of total for procedures.">48 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/vars.html'>vars</a></li>
+            <li class="breadcrumb-item active" aria-current="page">sync_solver_state</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine sync_solver_state()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~sync_solver_state~~CalledByGraph Pages: 1 -->
+<svg id="procsync_solver_stateCalledByGraph" width="641pt" height="348pt"
+ viewBox="0.00 0.00 641.00 348.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~sync_solver_state~~CalledByGraph" class="graph" transform="scale(0.907187 0.907187) rotate(0) translate(4 379.18)">
+<title>proc~~sync_solver_state~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-379.18 702.58,-379.18 702.58,4 -4,4"/>
+<!-- proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node1" class="node">
+<title>proc~sync_solver_state</title>
+<polygon fill="none" stroke="black" points="698.58,-216.21 594.06,-216.21 594.06,-191.94 698.58,-191.94 698.58,-216.21"/>
+<text xml:space="preserve" text-anchor="middle" x="646.32" y="-200.47" font-family="Helvetica,sans-Serif" font-size="10.50">sync_solver_state</text>
+</g>
+<!-- proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node2" class="node">
+<title>proc~disp</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node2"><a xlink:href="../proc/disp.html" xlink:title="disp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="558.06,-216.21 504.06,-216.21 504.06,-191.94 558.06,-191.94 558.06,-216.21"/>
+<text xml:space="preserve" text-anchor="middle" x="531.06" y="-200.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
+</a>
+</g>
+</g>
+<!-- proc~disp&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge1" class="edge">
+<title>proc~disp&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M558.33,-204.07C565.69,-204.07 574.02,-204.07 582.54,-204.07"/>
+<polygon fill="#000000" stroke="#000000" points="582.27,-207.57 592.27,-204.07 582.27,-200.57 582.27,-207.57"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node3" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node3"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.79,-150.21 235.02,-150.21 235.02,-125.94 335.79,-125.94 335.79,-150.21"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-134.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge2" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M336.07,-140.35C372.77,-142.61 423.82,-146.95 468.06,-155.07 512.12,-163.16 561.14,-177.1 596.44,-188.05"/>
+<polygon fill="#000000" stroke="#000000" points="595.36,-191.38 605.95,-191.04 597.45,-184.7 595.36,-191.38"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge8" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M335.98,-149.72C372.63,-158.55 423.66,-171.31 468.06,-184.07 476.13,-186.39 484.74,-189.05 492.89,-191.65"/>
+<polygon fill="#000000" stroke="#000000" points="491.59,-194.91 502.18,-194.67 493.75,-188.26 491.59,-194.91"/>
+</g>
+<!-- proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node7" class="node">
+<title>proc~calc_eigen</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node7"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="454.18,-236.21 385.66,-236.21 385.66,-211.94 454.18,-211.94 454.18,-236.21"/>
+<text xml:space="preserve" text-anchor="middle" x="419.92" y="-220.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge18" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M319.41,-150.68C325,-153.22 330.65,-156.04 335.79,-159.07 357.82,-172.07 380.55,-190.22 396.66,-204.04"/>
+<polygon fill="#000000" stroke="#000000" points="394.35,-206.67 404.18,-210.61 398.95,-201.39 394.35,-206.67"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node4" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node4"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.79,-352.21 256.02,-352.21 256.02,-327.94 314.79,-327.94 314.79,-352.21"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-336.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge3" class="edge">
+<title>proc~om_scan&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M315.26,-338.87C351.83,-336.59 416.32,-330 468.06,-311.07 526.75,-289.61 587.47,-247.95 620.4,-223.43"/>
+<polygon fill="#000000" stroke="#000000" points="622.23,-226.43 628.1,-217.61 618.01,-220.85 622.23,-226.43"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge10" class="edge">
+<title>proc~om_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M315.23,-334.51C352.91,-326.24 419.76,-307.99 468.06,-275.07 487.25,-261.99 504.22,-241.6 515.53,-226.01"/>
+<polygon fill="#000000" stroke="#000000" points="518.38,-228.04 521.24,-217.84 512.65,-224.03 518.38,-228.04"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge20" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M315.26,-330.37C322.31,-327.32 329.6,-323.56 335.79,-319.07 364.01,-298.63 389.24,-266.94 404.31,-245.86"/>
+<polygon fill="#000000" stroke="#000000" points="407.15,-247.9 410,-237.69 401.41,-243.9 407.15,-247.9"/>
+</g>
+<!-- proc~radial_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node5" class="node">
+<title>proc~radial_scan</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node5"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="180.64,-314.21 108.38,-314.21 108.38,-289.94 180.64,-289.94 180.64,-314.21"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-298.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_scan&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge4" class="edge">
+<title>proc~radial_scan&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M158.77,-314.5C175.19,-328.95 204.71,-351.98 235.02,-361.07 334.8,-391 368.91,-368.02 468.06,-336.07 510.07,-322.54 522.1,-319.68 558.06,-294.07 585.79,-274.33 612.21,-245.12 628.57,-225.38"/>
+<polygon fill="#000000" stroke="#000000" points="631.21,-227.67 634.8,-217.7 625.78,-223.26 631.21,-227.67"/>
+</g>
+<!-- proc~om_radial -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node9" class="node">
+<title>proc~om_radial</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node9"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
+<polygon fill="#d9534f" stroke="#d9534f" points="317.79,-310.21 253.02,-310.21 253.02,-285.94 317.79,-285.94 317.79,-310.21"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-294.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
+</a>
+</g>
+</g>
+<!-- proc~radial_scan&#45;&gt;proc~om_radial -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge24" class="edge">
+<title>proc~radial_scan&#45;&gt;proc~om_radial</title>
+<path fill="none" stroke="#000000" d="M180.92,-301.05C199.38,-300.52 222.09,-299.87 241.54,-299.31"/>
+<polygon fill="#000000" stroke="#000000" points="241.44,-302.81 251.34,-299.03 241.24,-295.82 241.44,-302.81"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node6" class="node">
+<title>proc~read_in_params</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node6"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="468.06,-39.21 371.79,-39.21 371.79,-14.94 468.06,-14.94 468.06,-39.21"/>
+<text xml:space="preserve" text-anchor="middle" x="419.92" y="-23.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge5" class="edge">
+<title>proc~read_in_params&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M468.24,-27.73C496.6,-30.26 532.08,-37.4 558.06,-56.07 601.63,-87.39 627.06,-147.79 638.32,-180.92"/>
+<polygon fill="#000000" stroke="#000000" points="634.97,-181.91 641.37,-190.35 641.63,-179.76 634.97,-181.91"/>
+</g>
+<!-- proc~calc_eigen&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge6" class="edge">
+<title>proc~calc_eigen&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M454.56,-217.91C466.52,-215.72 480.06,-213.24 492.34,-210.99"/>
+<polygon fill="#000000" stroke="#000000" points="492.94,-214.43 502.15,-209.19 491.68,-207.55 492.94,-214.43"/>
+</g>
+<!-- proc~map_search -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node8" class="node">
+<title>proc~map_search</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node8"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
+<polygon fill="#d9534f" stroke="#d9534f" points="323.41,-108.21 247.39,-108.21 247.39,-83.94 323.41,-83.94 323.41,-108.21"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-92.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
+</a>
+</g>
+</g>
+<!-- proc~map_search&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge7" class="edge">
+<title>proc~map_search&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M323.79,-104.09C361.65,-113.15 421.14,-129.96 468.06,-155.07 482.76,-162.94 497.47,-174.38 508.88,-184.23"/>
+<polygon fill="#000000" stroke="#000000" points="506.32,-186.64 516.12,-190.68 510.98,-181.41 506.32,-186.64"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge9" class="edge">
+<title>proc~om_radial&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M317.96,-291.89C355.03,-283.95 417.84,-268.35 468.06,-245.07 480.79,-239.17 493.89,-230.89 504.75,-223.31"/>
+<polygon fill="#000000" stroke="#000000" points="506.72,-226.21 512.79,-217.52 502.63,-220.53 506.72,-226.21"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge19" class="edge">
+<title>proc~om_radial&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M310.94,-285.55C318.92,-281.37 327.79,-276.62 335.79,-272.07 352.09,-262.81 355.58,-259.49 371.79,-250.07 376.27,-247.47 381.03,-244.77 385.73,-242.14"/>
+<polygon fill="#000000" stroke="#000000" points="387.42,-245.21 394.47,-237.3 384.03,-239.08 387.42,-245.21"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node10" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node10"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.41,-192.21 256.39,-192.21 256.39,-167.94 314.41,-167.94 314.41,-192.21"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-176.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge11" class="edge">
+<title>proc~test_disp&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M314.83,-182.87C358.79,-187.2 443.28,-195.53 492.3,-200.35"/>
+<polygon fill="#000000" stroke="#000000" points="491.87,-203.83 502.16,-201.33 492.55,-196.86 491.87,-203.83"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge21" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M314.83,-189.51C332.21,-195.28 354.8,-202.78 374.49,-209.32"/>
+<polygon fill="#000000" stroke="#000000" points="373.36,-212.63 383.95,-212.46 375.56,-205.99 373.36,-212.63"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node11" class="node">
+<title>program~plume</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node11"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-190.21 0,-190.21 0,-165.94 54,-165.94 54,-190.21"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-174.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge12" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M54.47,-173.94C94.13,-167.76 170.04,-155.91 223.77,-147.53"/>
+<polygon fill="#000000" stroke="#000000" points="224.05,-151.03 233.39,-146.03 222.97,-144.12 224.05,-151.03"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge13" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M29.13,-190.38C32.5,-219.11 45.21,-290.63 90,-323.07 134.89,-355.6 201.81,-353.49 244.26,-347.74"/>
+<polygon fill="#000000" stroke="#000000" points="244.68,-351.21 254.05,-346.27 243.65,-344.29 244.68,-351.21"/>
+</g>
+<!-- program~plume&#45;&gt;proc~radial_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge14" class="edge">
+<title>program~plume&#45;&gt;proc~radial_scan</title>
+<path fill="none" stroke="#000000" d="M32.45,-190.65C40.64,-212.07 60.03,-255.75 90,-281.07 92.47,-283.16 95.16,-285.05 97.99,-286.76"/>
+<polygon fill="#000000" stroke="#000000" points="96.15,-289.75 106.64,-291.25 99.37,-283.54 96.15,-289.75"/>
+</g>
+<!-- program~plume&#45;&gt;proc~read_in_params -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge15" class="edge">
+<title>program~plume&#45;&gt;proc~read_in_params</title>
+<path fill="none" stroke="#000000" d="M29.39,-165.47C33.23,-137.48 46.74,-70.3 90,-41.07 170.81,13.52 290.01,1.56 360.54,-12.49"/>
+<polygon fill="#000000" stroke="#000000" points="359.44,-15.84 369.94,-14.44 360.86,-8.98 359.44,-15.84"/>
+</g>
+<!-- program~plume&#45;&gt;proc~map_search -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge23" class="edge">
+<title>program~plume&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M51.39,-165.46C62.81,-159.64 76.89,-152.95 90,-148.07 138.69,-129.97 196.39,-115.36 236.22,-106.28"/>
+<polygon fill="#000000" stroke="#000000" points="236.74,-109.75 245.73,-104.15 235.21,-102.92 236.74,-109.75"/>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge25" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M54.47,-178.28C99.68,-178.63 191.97,-179.35 244.85,-179.77"/>
+<polygon fill="#000000" stroke="#000000" points="244.59,-183.26 254.62,-179.84 244.65,-176.26 244.59,-183.26"/>
+</g>
+<!-- proc~compute_fpc_cart -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node12" class="node">
+<title>proc~compute_fpc_cart</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node12"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="197.89,-272.21 91.12,-272.21 91.12,-247.94 197.89,-247.94 197.89,-272.21"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-256.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_cart -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge26" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_cart</title>
+<path fill="none" stroke="#000000" d="M37.8,-190.33C49.15,-203.83 68.97,-225.43 90,-239.07 91.82,-240.26 93.72,-241.39 95.67,-242.47"/>
+<polygon fill="#000000" stroke="#000000" points="93.84,-245.47 104.35,-246.8 96.96,-239.21 93.84,-245.47"/>
+</g>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node13" class="node">
+<title>proc~compute_fpc_gyro</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node13"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.02,-230.21 90,-230.21 90,-205.94 199.02,-205.94 199.02,-230.21"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-214.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_gyro -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge27" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_gyro</title>
+<path fill="none" stroke="#000000" d="M54.21,-187.15C66.73,-191.49 82.1,-196.81 96.54,-201.81"/>
+<polygon fill="#000000" stroke="#000000" points="95.31,-205.09 105.9,-205.05 97.6,-198.47 95.31,-205.09"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_node14" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~sync_solver_state~~CalledByGraph_node14"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="177.27,-74.21 111.75,-74.21 111.75,-49.94 177.27,-49.94 177.27,-74.21"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-58.47" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge28" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M33.98,-165.5C43.52,-146.57 63.81,-110.58 90,-88.07 93.52,-85.04 97.46,-82.28 101.56,-79.77"/>
+<polygon fill="#000000" stroke="#000000" points="102.9,-83.03 109.97,-75.14 99.52,-76.9 102.9,-83.03"/>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge16" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M198.01,-253.19C236.22,-248.17 289.21,-241.21 335.79,-235.07 348.28,-233.43 361.82,-231.64 374.28,-229.99"/>
+<polygon fill="#000000" stroke="#000000" points="374.4,-233.5 383.85,-228.72 373.48,-226.56 374.4,-233.5"/>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge17" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M199.2,-219.25C250.21,-220.37 326.02,-222.03 373.94,-223.09"/>
+<polygon fill="#000000" stroke="#000000" points="373.6,-226.58 383.68,-223.3 373.75,-219.58 373.6,-226.58"/>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~map_search -->
+<g id="proc~~sync_solver_state~~CalledByGraph_edge22" class="edge">
+<title>proc~map_scan&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M177.72,-69.96C195.01,-74.19 216.66,-79.49 235.93,-84.21"/>
+<polygon fill="#000000" stroke="#000000" points="234.94,-87.57 245.49,-86.55 236.6,-80.77 234.94,-87.57"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocsync_solver_stateCalledByGraph = svgPanZoom('#procsync_solver_stateCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
