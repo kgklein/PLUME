@@ -16,6 +16,7 @@ Species `tauS` columns likewise contain the selected temperature definition.
 The complex frequency always uses $\Omega_R$.
 A `d_ref` run also writes `normalization_<outputName>.txt` beside its numeric outputs;
 its absence in older outputs indicates the legacy `rho_ref` convention.
+Reusing an output name with `rho_ref` removes a stale `d_ref` metadata file.
 Existing numeric file column order and formatting are unchanged.
 
 For the gyrotropic and Cartesian FPC files, velocities and fields continue to

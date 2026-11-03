@@ -440,12 +440,25 @@ contains
    subroutine write_normalization_metadata
       implicit none
       integer :: unit_no
-      if (normalization /= 'd_ref') return
-      open(newunit=unit_no,file='data/'//trim(dataName)//'/normalization_'//trim(outputName)//'.txt', &
+      logical :: exists
+      character(240) :: metadata_file
+      metadata_file = 'data/'//trim(dataName)//'/normalization_'//trim(outputName)//'.txt'
+      if (normalization /= 'd_ref') then
+         ! Reusing an output name must not leave a d_ref label on rho_ref data.
+         inquire(file=trim(metadata_file),exist=exists)
+         if (exists) then
+            open(newunit=unit_no,file=trim(metadata_file),status='old')
+            close(unit_no,status='delete')
+         endif
+         return
+      endif
+      open(newunit=unit_no,file=trim(metadata_file), &
            status='replace',action='write')
       write(unit_no,'(a)') 'normalization=d_ref'
       write(unit_no,'(a)') 'kperp,kpar: k*d_ref; vtp: v_A,ref/c; tauS: 2*T_parallel,s/(m_ref*v_A,ref^2)'
       write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
+      write(unit_no,'(a)') 'reference_species=1; rho_ref=v_t_perp,ref/abs(Omega_ref)'
+      write(unit_no,'(a)') 'FPC file headers and velocity grids retain the derived rho_ref solver convention.'
       close(unit_no)
    end subroutine write_normalization_metadata
 

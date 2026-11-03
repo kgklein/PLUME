@@ -99,7 +99,7 @@ Details on the outputs of the code can be found in [`output.md`](./output.md).
 ## Reference-length normalization
 
 As of Nov 2, 2026, PLUME accepts `normalization='rho_ref'` or `normalization='d_ref'` in `&params`.
-*Existing input files without `normalization` specified default to `'rho_'ref'`.*
+*Existing input files without `normalization` specified default to `'rho_ref'`.*
 The reference species is `species_1` regardless of normalization choice.
 The two matched examples are
 [`normalization_rho_ref.in`](inputs/example/normalization_rho_ref.in) and
@@ -127,11 +127,14 @@ The frequency remains $\omega/\Omega_R$.
 A separate future implementation will add cold-fluid susceptibility;
 this release rejects `tauS=0` before kinetic evaluation.
 
-Numeric output columns retain the input convention. `d_ref` runs write
+Roots, modes, and susceptibility-tensor output columns retain the input convention.
+FPC headers and grids retain the derived thermal solver convention. `d_ref` runs write
 `data/<dataName>/normalization_<outputName>.txt`
 to identify the convention;
 legacy numeric output files are unchanged.
 See [input.md](input.md) and [output.md](output.md) for scan and column details.
+The [source audit and implementation report](normalization.md) records the
+architecture choice, validation results, and remaining cold-fluid work.
 
 ###  Python wrapper:
 

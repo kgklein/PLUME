@@ -74,7 +74,17 @@ To execute a small set of tests, navigate to `inputs/example/` and execute the f
 ```
 This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.
 
-**More example cases will be added.**
+To run the automated dual-normalization suite (requires Python, NumPy, and
+Matplotlib as well as gfortran), run from the repository root:
+
+```sh
+make -j2
+MPLCONFIGDIR=/tmp/plume-mpl python3 -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+The legacy regression comparison needs the pre-normalization commit
+`c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20` in the local Git history.
+See [normalization.md](normalization.md) for coverage and tolerances.
 
 
 

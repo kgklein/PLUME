@@ -458,9 +458,9 @@ module disprels
      real, dimension(1:nspec) :: Ps
      !! Power into/out of species/component in one wave period.
      
-     real, dimension(1:4,1:nspec) :: Ps_split
+     real, dimension(1:7,1:nspec) :: Ps_split
      !! Power into/out of species/components, broken into different contributions.
-     !! Deprecated.
+     !! calc_eigen writes all seven channels; retain the first four in stdout.
      
 
     

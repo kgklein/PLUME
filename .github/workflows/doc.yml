@@ -45,6 +45,8 @@ jobs:
         cat input.md >> docs/input.md
         echo 'title: PLUME Output' > docs/output.md
         cat output.md >> docs/output.md
+        echo 'title: Dual Normalization Audit' > docs/normalization.md
+        cat normalization.md >> docs/normalization.md
         if [ "$ADS_API_TOKEN" != "" ]; then
             python .github/scripts/print_bib_markdown.py > docs/citingpapers.md
         else

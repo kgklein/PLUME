@@ -12,6 +12,7 @@ ordered_subpage: INSTALL.md
                  tutorial.md
                  input.md
                  output.md
+                 normalization.md
                  citingpapers.md
                  READ
 display: public

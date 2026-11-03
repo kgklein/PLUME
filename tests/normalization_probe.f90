@@ -21,6 +21,9 @@ program normalization_probe
      enddo
   enddo
   call calc_eigen(omega,ef,bf,velocity,density,heating,split,.true.,.true.)
+  write(*,'(a,2es25.16)') 'POL ', &
+       2.*aimag(ef(1)*conjg(ef(2)))/(abs(ef(1))**2+abs(ef(2))**2), &
+       abs(ef(3))/sqrt(sum(abs(ef)**2))
   do j=1,3
      write(*,'(a,i4,4es25.16)') 'FIELD ',j,real(ef(j)),aimag(ef(j)),real(bf(j)),aimag(bf(j))
   enddo
@@ -36,4 +39,6 @@ program normalization_probe
   enddo
   root=rtsec(disp,cmplx(0.01,-0.001),cmplx(0.011,-0.001),1.e-13,iflag)
   write(*,'(a,2es25.16,i5)') 'ROOT ',real(root),aimag(root),iflag
+  determinant=disp(root)
+  write(*,'(a,es25.16)') 'RESID ',abs(determinant)/maxval(abs(lam))**3
 end program normalization_probe

@@ -245,7 +245,7 @@ class plume_input:
         spec1keysthatshouldbe1 = ['muS','Qs','Ds']
         if mode == 'rho_ref':
             spec1keysthatshouldbe1.insert(0, 'tauS')
-        elif abs(self.species[0]['tauS'] - self.params['betap']) > _tolerance * max(
+        elif abs(self.species[0]['tauS'] - self.params['betap']) > 1e-8 * max(
             abs(self.params['betap']), abs(self.species[0]['tauS'])):
             raise ValueError('d_ref requires reference species tauS = betap')
         for _k in spec1keysthatshouldbe1:
