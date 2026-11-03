@@ -1,0 +1,309 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Dual Normalization Audit &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Dual Normalization Audit</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Readme</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Dual Normalization Audit</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Readme</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
+              <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
+              <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link active disabled" href="normalization.html">Dual Normalization Audit</a>
+              <a class="nav-link" href="output.html">PLUME Output</a>
+              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <h1>Dual normalization: source audit and implementation report</h1>
+<p>PLUME accepts <code>rho_ref</code> and <code>d_ref</code> inputs while retaining the finite-temperature
+kinetic calculation in its existing variables. The parameter definitions and a
+matched input pair are documented in <a href="README.html">README.md</a> and <a href="input.html">input.md</a>.</p>
+<h2>Source audit</h2>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Findings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameter storage and input</td>
+<td><code>src/vars.f90</code> declares global parameters, the <code>specie</code> type, and scan state. <code>read_in_params</code> and <code>spec_read</code> in <code>src/functions.f90</code> read <code>&amp;params</code> and indexed species namelists. Validation precedes kinetic evaluation.</td>
+</tr>
+<tr>
+<td>Reference species</td>
+<td>Species 1 supplies the reference anisotropy and reference frame checks. The Python wrapper likewise assumes species 1 is the reference. No new reference selector was introduced.</td>
+</tr>
+<tr>
+<td>Susceptibility</td>
+<td><code>disp0</code> and <code>disp1</code> in <code>src/disprels.f90</code> implement collisionless and weakly collisional kinetic responses. Both use <code>betap/vtp**2</code> for the plasma-frequency scale, signed <code>muS/Qs</code> for gyrofrequency, thermal Bessel arguments, and thermal resonance arguments.</td>
+</tr>
+<tr>
+<td>Dispersion and roots</td>
+<td><code>disp</code> dispatches the susceptibility calculation. <code>map_search</code>, <code>refine_guess</code>, and <code>rtsec</code> use dimensionless frequency <code>omega/Omega_R</code>. The determinant and susceptibility are identical for physically equivalent inputs.</td>
+</tr>
+<tr>
+<td>Eigenfunctions and heating</td>
+<td><code>calc_eigen</code> uses the wave tensor, susceptibility, and derived thermal state for fields, density, velocity, total heating, and seven resonance heating channels. Its finite-frequency derivative calculation is unchanged.</td>
+</tr>
+<tr>
+<td>Diagnostics</td>
+<td><code>src/fpc.f90</code> uses thermal velocities for gyrotropic and Cartesian distributions and correlations. Its file headers describe derived legacy parameters even for a <code>d_ref</code> input. The public single-frequency diagnostic uses the same derived state.</td>
+</tr>
+<tr>
+<td>Scans</td>
+<td><code>om_scan</code>, <code>om_double_scan</code>, and <code>map_scan</code> mutate input parameters through scan pointers. Their setup helpers cover both wavevectors, magnitude/angle, beta, global velocity, and all six species parameters. <code>read_radial_input</code> reads <code>.rad</code> tables; <code>radial_scan</code> interpolates their values and continues roots through wavevector scans.</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>linfpclib/linfpc.py</code> constructs and reads namelists, computes collision frequencies, and loads numeric outputs. <code>contours/plot_plume_resonances.py</code> interprets temperature widths, drift/resonance velocities, and wavevector labels.</td>
+</tr>
+</tbody>
+</table>
+<p>The existing gyroradius is <strong>perpendicular</strong>:
+<code>rho_R = v_tperp,R / abs(Omega_R)</code>. For an anisotropic reference,</p>
+<p>
+<script type="math/tex; mode=display">
+k d_R=\frac{k\rho_R}{\sqrt{\beta_{\parallel,R}\alpha_R}},\qquad
+\alpha_R=T_{\perp,R}/T_{\parallel,R}.
+</script>
+</p>
+<p>Omitting the anisotropy factor changes the physical system when <code>alphS</code> for
+species 1 differs from unity. The sign of <code>Qs</code> is retained in cyclotron terms;
+plasma-frequency magnitudes use <code>Qs**2</code>.</p>
+<p>Temperature-sensitive expressions include the Bessel argument proportional to
+<code>1/tauS</code>, the thermal resonance argument, the drift factor
+<code>kpar*vvS/sqrt(betap*alpha_R)</code>, eigenfunction factors <code>vtp**2/betap</code>, and FPC
+factors containing <code>sqrt(tauS/(muS*betap))</code>. None is a cold susceptibility.
+Zero and negative kinetic temperatures are rejected before evaluating them.</p>
+<h2>Architecture and scan semantics</h2>
+<p>Approach A was selected for this stage. It requires fewer changes than
+rewriting both susceptibility kernels and their diagnostics in inertial units,
+and retains the legacy floating-point expressions. Approach B would avoid a
+thermal adapter at very small beta and offer a more direct cold-reference path,
+but would change substantially more numerical code.</p>
+<p>The public globals remain the authoritative input state in the chosen
+convention. <code>sync_solver_state</code> derives <code>solver_*</code> values before every <code>disp</code>
+evaluation. Susceptibility, eigenfunction, and FPC routines read that derived
+state. In <code>rho_ref</code>, the adapter copies inputs without changing their values.
+In <code>d_ref</code>, it uses</p>
+<p>
+<script type="math/tex; mode=display">
+k\rho_R=(kd_R)\sqrt{\beta_R\alpha_R},\qquad
+v_{t\parallel,R}/c=\sqrt{\beta_R}\,(v_{A,R}/c),\qquad
+\tau_s^{(\rho)}=\beta_R/\tau_s^{(d)}.
+</script>
+</p>
+<p>The input state can represent zero temperature independently of a thermal
+reference length. This release's kinetic adapter deliberately rejects it. A
+future cold-reference calculation must dispatch before this adapter rather than
+create a fictitious reference temperature. Extremely small positive beta still
+inherits the conditioning limits of the legacy thermal calculation.</p>
+<p><code>d_ref</code> beta scans and species-1 temperature scans update both redundant
+parameters. Other input values stay fixed. Scanning both independently in a
+two-dimensional run is rejected. A legacy beta scan instead holds its legacy
+wavevectors, thermal velocity, and temperature ratios fixed. To compare those
+physical paths, convert <strong>every point</strong>, including all affected inputs.
+Radial tables use the selected input convention; linear interpolation of
+reciprocal temperatures in one convention generally differs from linear
+interpolation in the other. Matching endpoints alone does not establish an
+identical interpolated physical path.</p>
+<p><code>Kn</code> uses the selected length. With
+<code>Kn_d = Kn_rho * sqrt(beta_R*alpha_R)</code>, the equivalent collision frequency is
+<code>sqrt(muS*tauS_d)/(sqrt(2)*Kn_d)</code>. Numeric scan output remains in input units.
+FPC output retains its documented derived thermal units. Reusing an output name
+for a legacy run removes a stale <code>d_ref</code> metadata file.</p>
+<h2>Verification</h2>
+<p>Run the available automated suite with:</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>-j2
+<span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>tests<span class="w"> </span>-p<span class="w"> </span><span class="s1">'test_*.py'</span><span class="w"> </span>-v
+</code></pre></div>
+
+<p>The suite compares raw complex determinants, every susceptibility element,
+electric/magnetic fields, polarization, density/velocity fluctuations, heating
+and all seven heating channels, and converged complex roots. Cases include
+isotropic and anisotropic proton/electron plasmas, electron drift, drifting
+alpha particles, oblique propagation, and reference beta 1, 0.3, and 0.02.
+Root checks also require convergence before the secant iteration limit and a
+scaled determinant below <code>1e-8</code>.</p>
+<p>Integration checks cover parallel/perpendicular wavevector scans,
+two-dimensional scans, frequency maps, beta scans converted point by point,
+velocity and species-temperature scans, radial interpolation, both FPC
+coordinate systems, weak collisions, example inputs, Python round trips, input
+validation, and metadata when an output name is reused.</p>
+<p>High-precision comparisons use <code>1e-10 + 5e-8*max(abs(a),abs(b))</code>. Rounded mode
+files use <code>1e-4*max(1,abs(a),abs(b))</code>; FPC files use their printed precision.
+The existing map fixtures contain singular grid points, so the map comparison
+requires finite values in its nonsingular test grid.</p>
+<p>The completed automated run passes <strong>15 tests</strong>. Across the high-precision
+equivalence cases, the maximum <code>abs(a-b)/max(1,abs(a),abs(b))</code> is <code>4.668e-13</code>;
+the maximum absolute difference in a frequency component is <code>6.939e-18</code>.
+The legacy probe comparison is exact. Python compilation and <code>git diff --check</code>
+also pass. FORD is not installed in the local environment, so its rendered
+documentation build was not run locally; the report is included in the existing
+documentation workflow.</p>
+<p>Legacy regression builds commit
+<code>c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20</code>, the last pre-normalization revision,
+and requires exact probe records for two existing input files. The reference
+commit is pinned so merging this feature cannot turn the test into a comparison
+against itself. Existing expected data files are not modified.</p>
+<p>The full-resolution <code>example_map_par.in</code> was also run in isolation during the
+initial implementation: its dispersion map and all four mode files matched the
+pre-change build byte for byte. The first six <code>.roots</code> columns matched exactly.
+Some remaining legacy <code>.roots</code> species columns differ because the old
+non-map-scan path writes an uninitialized parameter array. The new <code>d_ref</code> path
+initializes those columns. The tracked golden files additionally correspond to
+older input ranges and do not reproduce the current example; they were retained.</p>
+<h2>Modified files and future cold-fluid requirements</h2>
+<p>The initial implementation changed <code>src/vars.f90</code>, <code>src/functions.f90</code>,
+<code>src/disprels.f90</code>, <code>src/fpc.f90</code>, <code>linfpclib/linfpc.py</code>, and
+<code>contours/plot_plume_resonances.py</code>. It added the Fortran probe, Python test suite,
+and matched example pair, and updated README, input/output documentation, FORD
+source comments, and <code>.gitignore</code>. This follow-up pins the regression baseline,
+extends path coverage, fixes the single-frequency heating array allocation,
+aligns Python's beta/temperature tolerance with Fortran, and completes this
+report.</p>
+<p>The future cold-fluid stage must:</p>
+<ul>
+<li>Add cold susceptibility and dispatch each species to its kinetic or fluid response.</li>
+<li>Permit <code>tauS=0</code> and <code>betap=0</code> through a path independent of the thermal adapter,
+  including a fully cold proton/electron plasma.</li>
+<li>Define cold-species eigenfunction, heating, collision, and FPC behavior;
+  thermal distributions and temperature anisotropy are undefined for a cold species.</li>
+<li>Extend scan, diagnostic, and limiting-case tests across mixed kinetic/fluid
+  systems and cold reference species without adding an artificial temperature.</li>
+</ul>
+<p>No cold susceptibility has been added in this stage.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

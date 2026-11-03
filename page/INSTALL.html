@@ -113,6 +113,7 @@
               <a class="nav-link active disabled" href="INSTALL.html">Installing PLUME</a>
               <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
               <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link" href="normalization.html">Dual Normalization Audit</a>
               <a class="nav-link" href="output.html">PLUME Output</a>
               <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
           </nav>
@@ -176,7 +177,15 @@ To execute a small set of tests, navigate to <code>inputs/example/</code> and ex
 </code></pre></div>
 
 <p>This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.</p>
-<p><strong>More example cases will be added.</strong></p>
+<p>To run the automated dual-normalization suite (requires Python, NumPy, and
+Matplotlib as well as gfortran), run from the repository root:</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>-j2
+<span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>tests<span class="w"> </span>-p<span class="w"> </span><span class="s1">'test_*.py'</span><span class="w"> </span>-v
+</code></pre></div>
+
+<p>The legacy regression comparison needs the pre-normalization commit
+<code>c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20</code> in the local Git history.
+See <a href="normalization.html">normalization.md</a> for coverage and tolerances.</p>
 <h2>Building the documentation</h2>
 <p>PLUME uses <a href="https://forddocs.readthedocs.io/en/latest/">Ford</a> to build its documentation. The documentation is automatically built and deployed to <a href="https://kgklein.github.io/PLUME/">github.io</a> by the <a href="https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml">doc workflow</a>. To build the documentation locally, follow the <a href="https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow, summarized here:
 1. Install <code>ford</code> by e.g. <code>pip install ford</code>. See <a href="https://forddocs.readthedocs.io/en/latest/">Ford documentation</a> for details

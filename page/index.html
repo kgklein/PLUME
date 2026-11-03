@@ -112,6 +112,7 @@
               <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
               <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
               <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link" href="normalization.html">Dual Normalization Audit</a>
               <a class="nav-link" href="output.html">PLUME Output</a>
               <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
           </nav>
@@ -202,7 +203,7 @@ Details on the input parameters can be found in <a href="./input.html"><code>inp
 Details on the outputs of the code can be found in <a href="./output.html"><code>output.md</code></a>.</p>
 <h2>Reference-length normalization</h2>
 <p>As of Nov 2, 2026, PLUME accepts <code>normalization='rho_ref'</code> or <code>normalization='d_ref'</code> in <code>&amp;params</code>.
-<em>Existing input files without <code>normalization</code> specified default to <code>'rho_'ref'</code>.</em>
+<em>Existing input files without <code>normalization</code> specified default to <code>'rho_ref'</code>.</em>
 The reference species is <code>species_1</code> regardless of normalization choice.
 The two matched examples are
 <a href="inputs/example/normalization_rho_ref.in"><code>normalization_rho_ref.in</code></a> and
@@ -276,11 +277,14 @@ The frequency remains $\omega/\Omega_R$.
 <code>d_ref</code> permits temperature to be expressed without a reference thermal length.
 A separate future implementation will add cold-fluid susceptibility;
 this release rejects <code>tauS=0</code> before kinetic evaluation.</p>
-<p>Numeric output columns retain the input convention. <code>d_ref</code> runs write
+<p>Roots, modes, and susceptibility-tensor output columns retain the input convention.
+FPC headers and grids retain the derived thermal solver convention. <code>d_ref</code> runs write
 <code>data/&lt;dataName&gt;/normalization_&lt;outputName&gt;.txt</code>
 to identify the convention;
 legacy numeric output files are unchanged.
-See <a href="input.html">input.md</a> and <a href="output.html">output.md</a> for scan and column details.</p>
+See <a href="input.html">input.md</a> and <a href="output.html">output.md</a> for scan and column details.
+The <a href="normalization.html">source audit and implementation report</a> records the
+architecture choice, validation results, and remaining cold-fluid work.</p>
 <h3>Python wrapper:</h3>
 <p>The second way is to use the python wrapper, which simply helps one write inputs, call the code using the command line, and load the data into python variables. One way to use the python wrapper is with jupyter notebook (to install, see <a href="https://jupyter.org/install">here</a>).</p>
 <p>For <code>d_ref</code>, pass <code>normalization='d_ref'</code> to <code>plume_input.set_params(...)</code>,

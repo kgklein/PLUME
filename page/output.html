@@ -113,6 +113,7 @@
               <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
               <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
               <a class="nav-link" href="input.html">PLUME Input</a>
+              <a class="nav-link" href="normalization.html">Dual Normalization Audit</a>
               <a class="nav-link active disabled" href="output.html">PLUME Output</a>
               <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
           </nav>
@@ -135,6 +136,7 @@ The first four columns of roots, modes, and tensor files are
 <p>The complex frequency always uses $\Omega_R$.
 A <code>d_ref</code> run also writes <code>normalization_&lt;outputName&gt;.txt</code> beside its numeric outputs;
 its absence in older outputs indicates the legacy <code>rho_ref</code> convention.
+Reusing an output name with <code>rho_ref</code> removes a stale <code>d_ref</code> metadata file.
 Existing numeric file column order and formatting are unchanged.</p>
 <p>For the gyrotropic and Cartesian FPC files, velocities and fields continue to
 use the kinetic solver's thermal velocity convention;
