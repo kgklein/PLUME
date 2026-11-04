@@ -13,6 +13,7 @@ ordered_subpage: INSTALL.md
                  input.md
                  output.md
                  normalization.md
+                 MIXED_DISPERSION_REPORT.md
                  citingpapers.md
                  READ
 display: public

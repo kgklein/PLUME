@@ -1,5 +1,11 @@
 # Dual normalization: source audit and implementation report
 
+This report records the original dual-normalization stage. Stage 2 now permits
+non-reference cold species in collisionless `d_ref` dispersion calculations;
+the adapter skips their zero temperatures. See the current [input guide](input.md)
+and [mixed-dispersion report](tests/MIXED_DISPERSION_REPORT.md) for supported
+functionality. The original validation results below remain historical records.
+
 PLUME accepts `rho_ref` and `d_ref` inputs while retaining the finite-temperature
 kinetic calculation in its existing variables. The parameter definitions and a
 matched input pair are documented in [README.md](README.md) and [input.md](input.md).

@@ -44,7 +44,8 @@ module disprels
       use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
       use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
       use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
-      use vars, only : normalization
+      use vars, only : normalization, has_cold_species, dispersion_status
+      use cold_susceptibility, only : finite_complex, invalid_complex
       implicit none
       
       real :: dr
@@ -98,6 +99,7 @@ module disprels
       integer :: is
       !! Species/component index.
 
+      integer :: invalid_points = 0
       integer :: ir
       !! Real Frequency Index.
 
@@ -184,6 +186,7 @@ module disprels
     
     write(fmt,'(a,i0,a)')'(6es14.4,',6*nspec,'es14.4)'
 
+    invalid_points = 0
     !Determine spacing in complex omega space (Normal or log)
     if (loggridw) then
        dr=(log10(omf)-log10(omi))/real(nr)
@@ -216,10 +219,16 @@ module disprels
            om(ir,ii)=omega
            
            dal(ir,ii)=disp(omega)
-           val(ir,ii)=abs(dal(ir,ii))           
+           val(ir,ii)=abs(dal(ir,ii))
+           if (has_cold_species() .and. dispersion_status /= 0) then
+              val(ir,ii)=huge(1.) ! Search mask, never a substitute tensor/determinant.
+              invalid_points=invalid_points+1
+           endif
         enddo
      enddo
 
+     if (invalid_points > 0) write(*,'(a,i0,a)') &
+          'WARNING: excluded ',invalid_points,' singular/nonfinite mixed map points from root search.'
      write(*,*)'finding minima'
      
      !Find Local minima (roots) in map
@@ -255,16 +264,17 @@ module disprels
               om2=omega*(1.+prec)
               
               omega=rtsec(disp,om1,om2,tol,iflag)
+              if (has_cold_species() .and. iflag < 0) cycle
               
               !check to see if the found root is already
               !an identified solution
-              if (j.eq.1) then
+              if ((j.eq.1 .and. .not. has_cold_species()) .or. (has_cold_species() .and. k==0)) then
                  k=k+1
                  wroots(1,k)=real(omega)
                  wroots(2,k)=aimag(omega)
               else
                  unique_root=.true.
-                 do ig=1,j-1 !loop through previous solutions
+                 do ig=1,merge(k,j-1,has_cold_species()) ! Accepted mixed roots; legacy behavior otherwise.
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
                        unique_root=.false.
@@ -279,6 +289,7 @@ module disprels
              endif !
           endif !end omega !=0 loop
        enddo !end nroots loop
+       if (has_cold_species()) nroots=k
     endif !end refine loop
 
     !Eliminate all roots with a (LARGE) positive damping rate
@@ -327,6 +338,9 @@ module disprels
           do ii=0,ni
              !kgk 250108: change in output format: supressing indices,
              !and outputting val and dal directly
+             if (has_cold_species()) then
+                if (.not. finite_complex(dal(ir,ii))) val(ir,ii)=real(invalid_complex())
+             endif
              write(21,'(3es14.6,2es14.4)')&
                   om(ir,ii),log10(val(ir,ii)),&                  
                   dal(ir,ii)
@@ -424,7 +438,7 @@ module disprels
     if (writeOut) then
        !WRITE out roots 
        write(*,'(a)')'Dispersion Solutions '
-       do is = 1,nroot_max
+       do is = 1,merge(nroots,nroot_max,has_cold_species())
           write(*,'(i3,2es14.4)')is,wroots(1:2,is)
        enddo
     endif
@@ -437,7 +451,7 @@ module disprels
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
     use vars, only : wroots, nroot_max, writeOut, nspec, scan
-    use vars, only : kperp, kpar, solver_vtp
+    use vars, only : kperp, kpar, solver_vtp, has_cold_species, dispersion_status
 
     implicit none
 
@@ -482,6 +496,11 @@ module disprels
     write(*,'(4es14.4)') omega,D*solver_vtp**6.
     write(*,'(2es14.4)')kperp,kpar
 
+    if (has_cold_species()) then
+       write(*,'(a,i0)') 'Mixed dispersion status (0=valid, 1=input, 2-4=pole, 5=numerical): ',dispersion_status
+       write(*,'(a)') 'Cold-fluid eigenfunctions/heating unavailable; determinant only.'
+       return
+    endif
     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.true.)
 
 
@@ -516,7 +535,7 @@ module disprels
 !-=-=-=-=-
 subroutine refine_guess
   !!Refine solutions for roots of dispersion relation.
-  use vars, only : wroots, nroot_max, writeOut
+  use vars, only : wroots, nroot_max, writeOut, has_cold_species
   implicit none
   
   complex :: omega
@@ -535,6 +554,8 @@ subroutine refine_guess
   !!Solution index.
 
   do j=1,nroot_max
+     if (has_cold_species() .and. all(wroots(1:2,j)==0.)) &
+          error stop 'ERROR: mixed root guess is at the zero-frequency pole.'
      if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
         
         omega=cmplx(wroots(1,j),wroots(2,j))
@@ -543,7 +564,9 @@ subroutine refine_guess
         om2=omega*(1.+prec)
         
         omega=rtsec(disp,om1,om2,tol,iflag)
-        
+        if (has_cold_species() .and. iflag < 0) &
+             error stop 'ERROR: mixed root refinement failed: singular/nonfinite trial or iteration limit.'
+
         wroots(1,j)=real(omega)
         wroots(2,j)=aimag(omega)
         
@@ -2329,6 +2352,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
 !<<<GGH: 1/18/23
   use vars, only : spec=>solver_spec,betap=>solver_betap,vtp=>solver_vtp
   use vars, only : kperp=>solver_kperp,kpar=>solver_kpar,nspec,susc,lam,low_n,susc_low
+  use vars, only : has_cold_species
   implicit none
   !!Passed!!
   complex :: omega
@@ -2409,6 +2433,9 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
 
   real :: ewave
   !! Wave Energy.
+
+  if (has_cold_species()) &
+       error stop 'ERROR: cold-fluid eigenfunctions and heating diagnostics are unavailable in Stage 2.'
 
   !CALCULATE FIELDS FLUCTUATIONS==========================================
   !Calculate Electric Fields
@@ -3674,12 +3701,17 @@ end subroutine get_double_out_name
 !-=-=-=-
 !Our method for selecting different dispersion relations
 complex function disp(om)
-  use vars, only : collision_type, sync_solver_state
+  use vars, only : collision_type, sync_solver_state, has_cold_species, dispersion_status
   
   complex :: om
   !!Complex Frequency
 
   call sync_solver_state
+  dispersion_status = 0
+  if (has_cold_species()) then
+     disp = disp_mixed(om)
+     return
+  endif
   select case (collision_type)
 
   case (0)
@@ -3698,6 +3730,109 @@ complex function disp(om)
   return
   
 end function disp
+
+complex function disp_mixed(om)
+  !! Keep mixed-only checks outside disp to preserve legacy optimizer behavior.
+  use vars, only : has_cold_species, dispersion_status
+  use vars, only : nspec, spec, kpar, kperp, vtp, susc, lam, low_n, susc_low
+  use cold_susceptibility, only : calc_chi_cold, finite_complex, invalid_complex
+
+  complex :: om
+  !!Complex Frequency
+  integer :: is, row, column
+  complex :: cold_chi(3,3)
+
+  dispersion_status = 0
+  if (has_cold_species()) then
+     ! Preflight all cold components BEFORE any warm thermal or wave expression.
+     ! Inputs here are native d_ref; disp0 uses the derived warm rho_ref state.
+     if (.not. finite_complex(om)) then
+        dispersion_status = 1
+     else if (om == cmplx(0.,0.)) then
+        dispersion_status = 2
+     else
+        do is=1,nspec
+           if (spec(is)%tau_s /= 0.) cycle
+           call calc_chi_cold(spec(is),om,kpar,kperp,vtp,cold_chi,dispersion_status)
+           susc(is,:,:) = cold_chi
+           if (dispersion_status /= 0) exit
+           if (low_n) susc_low(is,:,:,:) = invalid_complex()
+        enddo
+     endif
+     if (dispersion_status /= 0) then
+        susc = invalid_complex()
+        lam = invalid_complex()
+        if (low_n) susc_low = invalid_complex()
+        disp_mixed = invalid_complex()
+        return
+     endif
+  endif
+  if (kperp == 0.) then
+     disp_mixed = disp_mixed_parallel(om)
+  else
+     disp_mixed = disp0(om)
+  endif
+
+  if (has_cold_species()) then
+     if (.not. finite_complex(disp_mixed)) dispersion_status = 5
+     do row=1,3
+        do column=1,3
+           if (.not. finite_complex(lam(row,column))) dispersion_status = 5
+        enddo
+     enddo
+     if (dispersion_status /= 0) then
+        susc = invalid_complex()
+        lam = invalid_complex()
+        if (low_n) susc_low = invalid_complex()
+        disp_mixed = invalid_complex()
+     endif
+  endif
+  return
+
+end function disp_mixed
+
+complex function disp_mixed_parallel(om)
+  !! Exact kperp=0 limit of the same bi-Maxwellian harmonic sum, mixed runs only.
+  !! Only n=+/-1 contributes transversely; n=0 gives the longitudinal response.
+  !! Cold susceptibilities were evaluated by disp_mixed in native d_ref units.
+  use vars, only: nspec, spec, kpar, vtp, susc, lam, low_n, susc_low
+  use cold_susceptibility, only: invalid_complex
+  implicit none
+  complex, intent(in) :: om
+  complex :: delta, zeta, response, nz2
+  complex, parameter :: imaginary=(0.,1.)
+  real :: gyro, plasma, thermal
+  integer :: is, n, j
+
+  do is=1,nspec
+     if (spec(is)%tau_s == 0.) cycle
+     thermal=sqrt(spec(is)%mu_s*spec(is)%tau_s)
+     gyro=spec(is)%mu_s/spec(is)%Q_s
+     plasma=spec(is)%D_s*spec(is)%mu_s/(spec(is)%Q_s**2*vtp**2)
+     delta=om-kpar*spec(is)%vv_s
+     susc(is,:,:)=cmplx(0.,0.)
+     do n=-1,1,2
+        zeta=(delta-n*gyro)/(kpar*thermal)
+        response=spec(is)%alph_s-1. + &
+             (spec(is)%alph_s*delta+(1.-spec(is)%alph_s)*n*gyro)*zet_in(kpar,zeta)/(kpar*thermal)
+        susc(is,1,1)=susc(is,1,1)+plasma*response/(2.*om**2)
+        susc(is,1,2)=susc(is,1,2)+imaginary*n*plasma*response/(2.*om**2)
+     enddo
+     susc(is,2,2)=susc(is,1,1)
+     susc(is,2,1)=-susc(is,1,2)
+     zeta=delta/(kpar*thermal)
+     susc(is,3,3)=2.*plasma*(1.+zeta*zet_in(kpar,zeta))/(kpar*thermal)**2
+  enddo
+  if (low_n) susc_low=invalid_complex() ! Resonance heating is unavailable for mixtures.
+  lam=sum(susc,dim=1)
+  do j=1,3
+     lam(j,j)=lam(j,j)+1.
+  enddo
+  nz2=(kpar/(vtp*om))**2
+  lam(1,1)=lam(1,1)-nz2
+  lam(2,2)=lam(2,2)-nz2
+  disp_mixed_parallel=(lam(1,1)*lam(2,2)+lam(1,2)**2)*lam(3,3)
+end function disp_mixed_parallel
 
 !-=-=-=-=-=-=
 !  The parameters upon which this dispersion relation depends are:
@@ -4545,7 +4680,8 @@ end function disp1
      !lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
      !changes, the bessel functions need to be recalculated...
      if ((kperp .eq. kperp_last ).and.(spec(1)%alph_s .eq. alph_last(1))) then
-        do is=1, nspec 
+        do is=1, nspec
+           if (spec(is)%tau_s == 0.) cycle
            if ((spec(is)%tau_s .eq. tau_last(is)) .and. &
                (spec(is)%alph_s .eq. alph_last(is)) .and. &
                (spec(is)%mu_s .eq. mu_last(is)) .and. &
@@ -4577,6 +4713,16 @@ end function disp1
 
      !Calculate the Susceptibility Tensor for Each Species:
      do is=1,nspec
+        if (spec(is)%tau_s == 0.) then
+           ! Ordinary chi_s precomputed in disp(); no thermal conversion/Bessel/Z.
+           eps_xx = eps_xx + susc(is,1,1)
+           eps_xy = eps_xy + susc(is,1,2)
+           eps_xz = eps_xz + susc(is,1,3)
+           eps_yy = eps_yy + susc(is,2,2)
+           eps_yz = eps_yz + susc(is,2,3)
+           eps_zz = eps_zz + susc(is,3,3)
+           cycle
+        endif
         disp_tau  =spec(is)%tau_s
         disp_mu   =spec(is)%mu_s
         disp_alph =spec(is)%alph_s
@@ -4942,6 +5088,8 @@ end function disp1
    !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
      !!Secant routine to find minimum value of dispersion relation function.
+     use vars, only : has_cold_species, lam
+     use cold_susceptibility, only : finite_complex, invalid_complex
      integer, parameter :: maxit=75
      !!Maximum number of iterations.
      
@@ -4994,7 +5142,21 @@ end function disp1
      endif
      
      fl=func(x1)
+     if (has_cold_species()) then
+        if (.not. finite_complex(fl)) then
+           iflag=-1
+           rtsec=invalid_complex()
+           return
+        endif
+     endif
      f=func(x2)
+     if (has_cold_species()) then
+        if (.not. finite_complex(f)) then
+           iflag=-1
+           rtsec=invalid_complex()
+           return
+        endif
+     endif
           
      if(abs(fl).lt.abs(f))then
         rtsec=x1
@@ -5030,8 +5192,23 @@ end function disp1
 
         f=func(rtsec)
 
-        if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
+        if (has_cold_species()) then
+           if (.not. finite_complex(f)) then
+              iflag=-1
+              rtsec=invalid_complex()
+              return
+           endif
+           if (abs(dx)<xacc .or. abs(f)==0.) then
+              if (abs(f)/maxval(abs(lam))**3 < 1.e-8) return
+           endif
+        else
+           if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
+        endif
      enddo
+     if (has_cold_species()) then
+        iflag=-2
+        rtsec=invalid_complex()
+     endif
      return
    end function rtsec
 !------------------------------------------------------------------------------

@@ -1,5 +1,27 @@
 # PLUME Output
 
+## Mixed kinetic/cold output (Stage 2)
+
+Mixed `d_ref` runs retain the frequency normalization `omega/Omega_R` and
+ordinary species susceptibility `chi_s`. Supplied-guess runs (`option=1`,
+`nscan=0`) print roots when `writeOut=.true.`. Frequency maps retain their numeric
+layout and normalization sidecar. Singular/nonfinite map samples have NaN
+determinant and log-magnitude fields, are excluded from root selection, and
+produce a summary warning. Failed candidate refinements are omitted.
+
+Direct evaluation (`option=-1`) retains the legacy printed determinant scaling
+`det(Lambda)*solver_vtp**6` and adds a mixed status line: 0 valid, 1 invalid input,
+2 zero frequency, 3 zero Doppler frequency, 4 cyclotron pole, 5 nonfinite numerical
+result. The Fortran `disp` API returns the unscaled determinant; inspect
+`vars::dispersion_status` before using its tensor arrays after a mixed call.
+Failure invalidates `susc`, `lam`, and resonance arrays rather than leaving
+stale values. A subsequent valid evaluation recomputes the physical response.
+
+Mixed eigenfunctions, heating and FPC are unavailable; the direct evaluator
+prints an explicit omission notice, and dedicated diagnostic requests fail.
+Cold resonance-resolved susceptibility entries (`susc_low`) are undefined/NaN,
+not fictitious heating contributions. See the [Stage 2 report](tests/MIXED_DISPERSION_REPORT.md).
+
 PLUME writes output solutions to the `/data` directory, to the subdirectory specified by `dataName`.
 All output file names will have the `outputName` string included in the name to distinguish between distinct calculations. 
 

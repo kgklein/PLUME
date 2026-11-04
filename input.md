@@ -34,9 +34,43 @@ A scan of either reference beta or reference `tauS` updates both.
 Its other inputs remain fixed during that scan;
 this is a different physical scan from changing only `betap` in `rho_ref`.
 Two-dimensional scans cannot vary both redundant quantities independently.
-All kinetic species currently require positive `tauS`;
-`tauS=0` is reserved for a future cold-fluid susceptibility.
+Positive `tauS` selects a kinetic species. In collisionless `d_ref` runs,
+exactly zero `tauS` selects a cold-fluid species (Stage 2); negative temperatures
+are invalid. Species 1 must remain warm with `tauS=betap>0`.
 See the matched example files in `inputs/example/normalization_*.in`.
+
+### Mixed kinetic/cold calculations (Stage 2)
+
+Use `normalization='d_ref'`, `collision_type=0`, a warm first species, and
+`nscan=0`. Additional species may have exactly `tauS=0`; every positive
+temperature, however small, remains kinetic. Cold `alphS` is ignored (zero is
+allowed). Density, signed charge, mass and parallel drift retain their definitions.
+No cold temperature is replaced by a numerical floor.
+Parallel (`kperp=0`) and oblique propagation are supported. Mixed runs require
+nonzero `kpar`: the warm susceptibility's exact perpendicular limit is not
+implemented. No small nonzero wavevector is substituted automatically.
+
+- `option=-1` evaluates the determinant and reports its status. For mixed runs
+  it explicitly omits the usual supplementary eigenfunction/heating output.
+- `option=1`, `use_map=.false.` refines supplied `&guess_N` values with the
+  existing secant method. Set `writeOut=.true.` to print the solutions.
+- `option=0` searches a frequency map. Singular samples remain NaN in map
+  output and are excluded from root selection; failed refinements are skipped.
+- Cold-containing parameter/radial scans, eigenfunctions, heating, and FPC
+  are unavailable. Requests fail clearly; temperature scans that reach or leave
+  zero are also rejected. All-kinetic scan and diagnostic behavior is retained.
+
+Cold species with `rho_ref`, a cold reference species, and cold-containing
+collisional configurations are unsupported. The kernel's zero-frequency,
+Doppler and cyclotron poles are not regularized. A supplied guess that reaches
+a pole or fails to converge reports an error rather than a fabricated solution.
+
+Charge neutrality and zero equilibrium current are **warning-only** checks,
+emitted during input reading. Densities/drifts are never adjusted. Nonstandard
+homogeneous equilibria may require external forces or currents to maintain them.
+
+See `inputs/example/mixed_warm_protons_cold_electrons.in` and the
+[Stage 2 implementation report](tests/MIXED_DISPERSION_REPORT.md).
 
 ## Namelists in input files.
 
@@ -179,6 +213,8 @@ Species or component parameters list for distribution $f_{j}$.
 **`tauS`**  
 Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$ in `rho_ref`;
 Alfvénic temperature $2T_{j,\parallel}/(m_{ref}v_{A,ref}^2)$ in `d_ref`.
+Exactly zero selects cold-fluid susceptibility under the Stage 2 restrictions
+above; it is not a valid legacy inverse-temperature ratio.
 
 **`muS`**  
 Relative mass $m_{ref}/m_{j}$.

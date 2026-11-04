@@ -2,18 +2,31 @@ module cold_susceptibility
   !! Standalone, single-species cold-fluid susceptibility in inertial units.
   !! Independently implements Verscharen & Chandran, ApJ 764, 88 (2013),
   !! equations (5)-(9). See tests/COLD_SUSCEPTIBILITY_DESIGN.md for conventions.
-  !! This module is not called by the production dispersion solver.
+  !! Called before thermal evaluation for cold components in Stage 2.
   use nrtype, only: SP, SPC
   use vars, only: specie
   use, intrinsic :: ieee_arithmetic, only: ieee_is_finite, ieee_value, ieee_quiet_nan
   implicit none
   private
   public :: calc_chi_cold
+  public :: finite_complex, invalid_complex
   integer, parameter, public :: cold_ok = 0, cold_invalid_input = 1
   integer, parameter, public :: cold_zero_frequency = 2, cold_zero_doppler = 3
   integer, parameter, public :: cold_cyclotron_pole = 4
 
 contains
+
+  logical function finite_complex(value)
+    !! Keep IEEE checks outside fast-math compilation units.
+    complex(SPC), value, intent(in) :: value
+    finite_complex = ieee_is_finite(real(value,SP)) .and. ieee_is_finite(aimag(value))
+  end function finite_complex
+
+  complex(SPC) function invalid_complex()
+    real(SP) :: nan
+    nan = ieee_value(0.0_SP, ieee_quiet_nan)
+    invalid_complex = cmplx(nan,nan,kind=SPC)
+  end function invalid_complex
 
   subroutine calc_chi_cold(species, omega, kpar_d, kperp_d, va_ref_c, chi, ierr)
     !! Return ordinary chi_s, without identity or wave-matrix terms.

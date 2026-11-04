@@ -41,6 +41,8 @@ module vars
    real :: solver_betap, solver_kperp, solver_kpar, solver_vtp
    integer :: reference_scan_source = 0
    !! 0: validate reference beta; 1: beta scan; 2: reference tau scan.
+   integer :: dispersion_status = 0
+   !! Last mixed dispersion evaluation: cold kernel codes 1-4, 5=nonfinite arithmetic.
 
    integer :: nspec
   !!Number of species/components to be included in calculation.
@@ -384,8 +386,14 @@ module vars
    public :: normalization, solver_betap, solver_kperp, solver_kpar
    public :: solver_vtp, solver_spec, reference_scan_source
    public :: sync_solver_state, write_normalization_metadata
+   public :: has_cold_species, dispersion_status
 
 contains
+
+   logical function has_cold_species()
+      has_cold_species = .false.
+      if (allocated(spec)) has_cold_species = any(spec%tau_s == 0.)
+   end function has_cold_species
 
    subroutine sync_solver_state
       implicit none
@@ -397,19 +405,38 @@ contains
          if (reference_scan_source == 2) betap = spec(1)%tau_s
       endif
       if (betap <= 0. .or. vtp <= 0.) then
-         write(*,'(a)') 'ERROR: kinetic PLUME requires positive betap and vtp; cold-fluid species are not implemented.'
+         write(*,'(a)') 'ERROR: positive betap and vtp are required; a cold-fluid reference is not supported in Stage 2.'
          error stop 1
       endif
       do i=1,nspec
-         if (spec(i)%tau_s <= 0.) then
-            write(*,'(a,i0,a)') 'ERROR: species ',i,' has nonpositive tauS; cold-fluid species are not implemented.'
+         if (spec(i)%tau_s < 0.) then
+            write(*,'(a,i0,a)') 'ERROR: species ',i,' has negative tauS; use positive temperature or zero for cold-fluid.'
             error stop 1
          endif
-         if (spec(i)%alph_s <= 0. .or. spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
+         if ((spec(i)%tau_s > 0. .and. spec(i)%alph_s <= 0.) .or. &
+              spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
             write(*,'(a,i0,a)') 'ERROR: species ',i,' requires positive alphS/muS and nonzero Qs.'
             error stop 1
          endif
+         if (spec(i)%tau_s == 0. .and. spec(i)%D_s < 0.) &
+              error stop 'ERROR: cold-fluid species require nonnegative density Ds.'
       enddo
+      if (has_cold_species()) then
+         if (normalization /= 'd_ref') &
+              error stop 'ERROR: cold-fluid species require normalization=d_ref in Stage 2.'
+         if (spec(1)%tau_s == 0.) &
+              error stop 'ERROR: cold-fluid reference species unsupported; species_1 must have positive tauS.'
+         if (collision_type /= 0) &
+              error stop 'ERROR: cold-fluid mixtures require collision_type=0; cold collisions are unsupported.'
+         if (option == 6 .or. option == 7) &
+              error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
+         if (option == 5 .or. nscan > 0) &
+              error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred beyond Stage 2.'
+         if (option /= -1 .and. option /= 0 .and. option /= 1) &
+              error stop 'ERROR: mixed Stage 2 supports only option=-1, 0, or 1 without parameter scans.'
+         if (kpar == 0.) &
+              error stop 'ERROR: mixed calculations require nonzero kpar; the warm perpendicular limit is not implemented.'
+      endif
       if (normalization == 'd_ref') then
          if (abs(spec(1)%tau_s-betap) > 1.e-8*max(abs(betap),abs(spec(1)%tau_s))) then
             write(*,'(a)') 'ERROR: d_ref requires species_1 tauS = betap.'
@@ -425,6 +452,7 @@ contains
          solver_kpar = kpar*length_ratio
          solver_vtp = vtp*sqrt(betap)
          do i=1,nspec
+            if (spec(i)%tau_s == 0.) cycle ! Never convert a cold temperature.
             solver_spec(i)%tau_s = betap/spec(i)%tau_s
             if (collision_type > 0 .and. Kn <= 1.e25) then
                solver_spec(i)%nu_ns = sqrt(spec(i)%mu_s*spec(i)%tau_s)/(sqrt(2.)*Kn)

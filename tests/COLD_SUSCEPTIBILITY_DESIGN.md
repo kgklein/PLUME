@@ -1,5 +1,9 @@
 # Cold susceptibility: stages 0 and 1
 
+Historical Stage 0/1 audit and validation. Production integration was added in
+[Stage 2](MIXED_DISPERSION_REPORT.md); the cold kernel equations and numerical
+contract below remain unchanged.
+
 ## Audit completed before implementation
 
 The audit uses the normalization report and input documentation, and the

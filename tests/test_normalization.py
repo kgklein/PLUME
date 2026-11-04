@@ -83,7 +83,7 @@ class NormalizationTests(unittest.TestCase):
         cls.probe = Path(cls.tempdir.name) / 'probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
                         '-o', str(cls.probe), str(PROBE), 'nrtype.o', 'nrutil_trim.o',
-                        'vars.o', 'functions.o', 'bessel.o', 'disprels.o', 'fpc.o'],
+                        'vars.o', 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'disprels.o', 'fpc.o'],
                        cwd=ROOT, check=True, capture_output=True)
 
     @classmethod

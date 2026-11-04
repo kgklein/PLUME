@@ -132,11 +132,11 @@ contains
       !Notify if not Quasineutral,
       if (abs(sum_nq) .ge. 1.E-6) &
          write (*, '(a,es11.4)') &
-         'ERROR: Plasma not quasineutral:     Sum [n_s Q_s] =', sum_nq
+         'WARNING: Plasma not charge neutral:     Sum [D_s/Q_s] =', sum_nq
       !or not Current-free (not strictly required by linear theory but plasma is likely unstable and thus likely poorly described by linear theory)
       if (abs(sum_nqv) .ge. 1.E-6) &
          write (*, '(a,es11.4)') &
-         'ERROR?/WARNING: Non zero Current:        Sum [n_s q_s V_s] =', sum_nqv
+         'WARNING: Nonzero equilibrium current:    Sum [D_s*vv_s/Q_s] =', sum_nqv
       !Take note User: Make sure the above sums are zero.
       !Note if:
       if (spec(1)%vv_s .ne. 0.) &
@@ -196,17 +196,17 @@ contains
       spec(is)%D_s = Ds
       spec(is)%vv_s = vvS
 
-      if (tauS <= 0.) then
-         write(*,'(a,i0,a)') 'ERROR: species ',is,' has nonpositive tauS; cold-fluid species are not implemented.'
+      if (tauS < 0.) then
+         write(*,'(a,i0,a)') 'ERROR: species ',is,' has negative tauS; use positive temperature or zero for cold-fluid.'
          error stop 1
       endif
-      if (muS <= 0. .or. alphS <= 0. .or. Qs == 0.) then
+      if (muS <= 0. .or. (tauS > 0. .and. alphS <= 0.) .or. Qs == 0.) then
          write(*,'(a,i0,a)') 'ERROR: species ',is,' requires positive muS/alphS and nonzero Qs.'
          error stop 1
       endif
 
       !calculate neutral-charged collision frequency
-      if (Kn > 1.0e25) then
+      if (tauS == 0. .or. Kn > 1.0e25) then
          spec(is)%nu_ns = 0.0 !Treat large default Kn as effectively collisionless (streamlines fpc.f90)
       else if (normalization == 'd_ref') then
          spec(is)%nu_ns = sqrt(muS*tauS)/(sqrt(2.)*Kn)
@@ -286,7 +286,7 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine scan_read(is)
   !!Subroutine for reading in scan parameters.
-      use vars, only: scan
+      use vars, only: scan, spec
       implicit none
       !Passed
       integer :: is
@@ -327,6 +327,11 @@ end subroutine read_map_input
          scan_type, swi, swf, swlog, scan_style, ns, nres, &
          heating, eigen, tensor
       read (unit=unit, nml=scan_input)
+
+      if (scan_style > 0 .and. scan_type == 0) then
+         if (swi <= 0. .or. swf <= 0. .or. spec(scan_style)%tau_s == 0.) &
+              error stop 'ERROR: temperature scans reaching or leaving cold-fluid tauS=0 are unsupported in Stage 2.'
+      endif
 
       !Assign dummy values to scan array.
       scan(is)%range_i = swi

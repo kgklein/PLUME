@@ -124,8 +124,13 @@ $v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
 $\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$.
 The frequency remains $\omega/\Omega_R$.
 `d_ref` permits temperature to be expressed without a reference thermal length.
-A separate future implementation will add cold-fluid susceptibility;
-this release rejects `tauS=0` before kinetic evaluation.
+Stage 2 supports collisionless mixed kinetic/cold dispersion calculations:
+in `d_ref`, `tauS=0` selects a cold-fluid species while species 1 must remain
+warm. Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses,
+or `option=-1` for determinant evaluation. Frequency maps are also supported.
+Mixed eigenfunctions, heating, FPC, collisions, and parameter scans are deferred.
+See the [input restrictions](input.md) and the working example
+[`mixed_warm_protons_cold_electrons.in`](inputs/example/mixed_warm_protons_cold_electrons.in).
 
 Roots, modes, and susceptibility-tensor output columns retain the input convention.
 FPC headers and grids retain the derived thermal solver convention. `d_ref` runs write

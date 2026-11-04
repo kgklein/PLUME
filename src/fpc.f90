@@ -41,6 +41,7 @@ contains
       use vars, only: outputName, dataName
       use vars, only: computemoment, EpsilonSokhotski_Plemelj, vxshift, vyshift, vzshift
 
+      use vars, only: has_cold_species
       use disprels, only: calc_eigen, rtsec, disp
 
       integer, intent(in) :: wrootindex
@@ -255,6 +256,8 @@ contains
 
       real :: fs0val
 
+
+      if (has_cold_species()) error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
 
       exbar = sqrt(betap)/vtp*(1.0, 0.)
       eeuler = EXP(1.0)
@@ -1030,6 +1033,7 @@ contains
       use vars, only: outputName, dataName
       use vars, only: computemoment
 
+      use vars, only: has_cold_species
       use disprels, only: calc_eigen, rtsec, disp
 
       integer, intent(in) :: wrootindex
@@ -1182,6 +1186,8 @@ contains
 
       complex    :: exbar
       !! amplitude factor of fs1 which is \propto Ex/B0 (B0 is external B)
+
+      if (has_cold_species()) error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
 
       exbar = (1.0, 0.) !assume a default value...
 

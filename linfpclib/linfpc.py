@@ -152,11 +152,14 @@ class plume_input:
             print("Error with Kn = self.params['Kn'], returning 0 for nu_ns...")
             return 0.
 
+        if tauS < 0:
+            raise ValueError('tauS must be nonnegative')
+        if tauS == 0:
+            if self.params.get('normalization', 'rho_ref') != 'd_ref' or self.params['collision_type'] != 0:
+                raise ValueError('cold-fluid species require collisionless d_ref inputs')
+            return 0.0
         if(Kn is None):
             return None
-
-        if tauS <= 0:
-            raise ValueError('cold-fluid species are not implemented; tauS must be positive')
         if self.params.get('normalization', 'rho_ref') == 'd_ref':
             nu_ns = math.sqrt(muS * tauS) / (math.sqrt(2.0) * Kn)
         else:
@@ -241,6 +244,19 @@ class plume_input:
         mode = self.params.get('normalization', 'rho_ref')
         if mode not in ('rho_ref', 'd_ref'):
             raise ValueError("normalization must be 'rho_ref' or 'd_ref'")
+        if any(s['tauS'] < 0 for s in self.species):
+            raise ValueError('tauS must be nonnegative')
+        if any(s['tauS'] == 0 for s in self.species):
+            if mode != 'd_ref' or self.species[0]['tauS'] <= 0:
+                raise ValueError('cold-fluid mixtures require d_ref and a warm reference species')
+            if self.params['collision_type'] != 0:
+                raise ValueError('cold-fluid mixtures require collision_type=0')
+            if self.params['option'] in (5, 6, 7) or self.params['nscan'] > 0:
+                raise ValueError('cold-fluid scans, eigenfunctions/heating and FPC are deferred beyond Stage 2')
+            if self.params['option'] not in (-1, 0, 1):
+                raise ValueError('mixed Stage 2 supports only option=-1, 0, or 1 without parameter scans')
+            if self.params['kpar'] == 0:
+                raise ValueError('mixed calculations require nonzero kpar')
         _tolerance = 0.0001
         spec1keysthatshouldbe1 = ['muS','Qs','Ds']
         if mode == 'rho_ref':

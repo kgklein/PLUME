@@ -83,7 +83,7 @@ cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
 
 bessel.o:      nrtype.o nrutil_trim.o
 
-disprels.o:    vars.o bessel.o
+disprels.o:    vars.o bessel.o cold_susceptibility.o
 
 functions.o:   vars.o
 
