@@ -43,7 +43,7 @@ class FullyColdDispersionTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         cls.probes = {}
-        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','functions','bessel','disprels')
+        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization','kinetic_core','cold_reference','functions','bessel','disprels')
         for checked in (False, True):
             directory = Path(cls.temp.name)/str(checked)
             directory.mkdir()
@@ -222,7 +222,7 @@ class FullyColdDispersionTests(unittest.TestCase):
         source=input_text([P,E])
         bad=[(source.replace("'d_ref'","'rho_ref'"),'require normalization=d_ref'),
              (source.replace('betap=0','betap=0.2'),'betap=0'),
-             (input_text([P,replace_species(E,tau=.1)]),'Stage 3B'),
+             (input_text([P,replace_species(E,tau=.1)],kpar=0.),'nonzero kpar'),
              (input_text([P,replace_species(E,tau=-.1)]),'negative tauS'),
              (input_text([P,E],extra='collision_type=1'),'collision_type=0'),
              (input_text([P,E],option=6),'FPC'),(input_text([P,E],option=7),'FPC'),
@@ -283,7 +283,8 @@ class FullyColdDispersionTests(unittest.TestCase):
             result,_=run(ROOT/'plume.e',Path(name+'.in').read_text())
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         wrapped.species[1]['tauS']=.1
-        with self.assertRaisesRegex(ValueError,'Stage 3B'):
+        # A warm perpendicular species remains unsupported after Stage 3B.2.
+        with self.assertRaisesRegex(ValueError,'nonzero kpar'):
             wrapped.check_input_for_errors()
 
 

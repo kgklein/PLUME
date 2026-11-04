@@ -15,6 +15,7 @@ ordered_subpage: INSTALL.md
                  normalization.md
                  MIXED_DISPERSION_REPORT.md
                  FULLY_COLD_DISPERSION_REPORT.md
+                 COLD_REFERENCE_MIXED_REPORT.md
                  citingpapers.md
                  READ
 display: public

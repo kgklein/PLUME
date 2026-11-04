@@ -1,5 +1,8 @@
 # Dual normalization: source audit and implementation report
 
+Historical report. [Stage 3B.2](tests/COLD_REFERENCE_MIXED_REPORT.md) now supports cold-reference
+mixtures containing warm species; historical measurements below are retained.
+
 This report records the original dual-normalization stage. Stage 2 now permits
 non-reference cold species in collisionless `d_ref` dispersion calculations;
 the adapter skips their zero temperatures. See the current [input guide](input.md)

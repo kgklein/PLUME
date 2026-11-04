@@ -36,7 +36,7 @@ this is a different physical scan from changing only `betap` in `rho_ref`.
 Two-dimensional scans cannot vary both redundant quantities independently.
 Positive `tauS` selects a kinetic species. In collisionless `d_ref` runs,
 exactly zero `tauS` selects a cold-fluid species; negative temperatures
-are invalid. The reference must be warm unless **all** species are cold.
+are invalid. A cold reference requires `betap=0`; additional species may be warm or cold.
 See the matched example files in `inputs/example/normalization_*.in`.
 
 ### Mixed kinetic/cold calculations (Stage 2)
@@ -60,8 +60,8 @@ implemented. No small nonzero wavevector is substituted automatically.
   are unavailable. Requests fail clearly; temperature scans that reach or leave
   zero are also rejected. All-kinetic scan and diagnostic behavior is retained.
 
-Cold species with `rho_ref`, a cold reference with any warm species, and
-cold-containing collisional configurations are unsupported. The kernel's zero-frequency,
+Cold species with `rho_ref` and cold-containing collisional configurations
+are unsupported. The kernel's zero-frequency,
 Doppler and cyclotron poles are not regularized. A supplied guess that reaches
 a pole or fails to converge reports an error rather than a fabricated solution.
 
@@ -85,7 +85,7 @@ zero, unity, or other finite placeholders give identical results.
 | --- | --- |
 | `d_ref`, all species cold, `betap=0` | Yes, Stage 3A |
 | `d_ref`, warm reference, other warm/cold species | Yes, Stage 2 |
-| `d_ref`, cold reference with any warm species | No, deferred to Stage 3B |
+| `d_ref`, cold reference, warm/cold additional species, `betap=0` | Yes, Stage 3B.2 |
 | `rho_ref`, all species warm | Yes, unchanged legacy calculation |
 | `rho_ref`, any cold species | No |
 
@@ -113,6 +113,54 @@ The Python wrapper accepts the same inputs through
 `set_params(..., normalization='d_ref')` and `make_species(tauS=0, ...)`.
 See the [Stage 3A implementation report](tests/FULLY_COLD_DISPERSION_REPORT.md)
 for tensor, root, singularity and regression validation.
+
+### Cold-reference mixtures with warm species (Stage 3B.2)
+
+Use `normalization='d_ref'`, `betap=0`, `tauS=0` for species 1,
+`collision_type=0`, and `nscan=0`. Additional species use exactly zero `tauS`
+for cold-fluid response or positive `tauS` for kinetic response; negative values
+are invalid. No temperature threshold is used. Supply positive `vtp=v_A,ref/c`.
+The physical reference mass, signed charge, density, gyrofrequency, Alfvén
+speed and inertial length stay fixed, as do species order and equilibrium drifts.
+Cold anisotropy placeholders are ignored; warm anisotropies remain physical.
+
+For oblique warm responses, PLUME selects the first warm species `j` and sets
+`b_star=tauS(j)`. This internal numerical policy adds no required input parameter.
+It constructs `V=vtp*sqrt(b_star)`, `K=k*d_ref*sqrt(b_star)` and inverse ratios
+`t_s=b_star/tauS(s)`, with a separate normalization anisotropy of unity.
+The validated kinetic expressions then give the same physical susceptibility,
+independent of this arbitrary scale up to finite-precision conditioning.
+Neither the physical reference temperature nor any species temperature is
+replaced: `betap` and reference `tauS` remain exactly zero. No fictitious
+population, reference thermal speed or gyroradius is introduced.
+
+Exact parallel (`kperp=0`) propagation uses the existing analytical kinetic
+limit with `v_t,s/v_A=sqrt(muS*tauS)`. Oblique propagation, either sign of `kpar`,
+parallel drifts of warm/cold species, and complex frequencies in either
+half-plane are supported. **Exact `kpar=0` with any warm species is unsupported.**
+Use `option=-1` for direct evaluation, `option=1`, `use_map=.false.` for supplied
+guesses, or `option=0`/`use_map=.true.` for supported frequency-map searches.
+Set `writeOut=.true.` to print roots. The existing secant method is unchanged;
+nearby branch-specific guesses are useful when several physical modes coexist.
+
+Extreme temperature spreads or auxiliary scales can produce unrepresentable
+intermediate kinetic products even though the normalization is algebraically
+invariant. Invalid or nonfinite evaluations return the existing failure status
+and NaN tensors, with no added damping or floors. A subsequent valid trial is
+recomputed. The first-warm-species policy is provisional, not an optimized
+conditioning guarantee. Species reordering can change that scale but must not
+change the physical result beyond the documented numerical tolerance.
+
+Cold-containing eigenfunctions, heating, harmonic heating, FPC, collisions,
+parameter/radial scans and model-transition scans remain unavailable. Charge
+neutrality and current balance remain warning-only checks made at input reading;
+nonstandard homogeneous equilibria may require external currents or forces.
+
+Run `./plume.e inputs/example/mixed_cold_protons_warm_electrons.in` from the
+repository root for an oblique damped mode with cold protons and warm electrons.
+The Python wrapper accepts the same convention and restrictions. See the
+[Stage 3B.2 implementation report](tests/COLD_REFERENCE_MIXED_REPORT.md) for
+interfaces, cache behavior, independent benchmarks and numerical limits.
 
 ## Namelists in input files.
 
@@ -255,7 +303,7 @@ Species or component parameters list for distribution $f_{j}$.
 **`tauS`**  
 Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$ in `rho_ref`;
 Alfvénic temperature $2T_{j,\parallel}/(m_{ref}v_{A,ref}^2)$ in `d_ref`.
-Exactly zero selects cold-fluid susceptibility under the Stage 2/3A restrictions
+Exactly zero selects cold-fluid susceptibility under the Stage 2/3A/3B.2 restrictions
 above; it is not a valid legacy inverse-temperature ratio.
 
 **`muS`**  

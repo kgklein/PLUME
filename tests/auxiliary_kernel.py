@@ -13,6 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def experimental_kernel():
     source = (ROOT/'src/disprels.f90').read_text()
+    # Resolve shared Fortran text just as the compiler does; prototype edits
+    # and all numerical comparisons remain unchanged.
+    source = re.sub(r"^[ \t]*include '([^']+)'[^\n]*\n",
+                    lambda m: (ROOT/'src'/m[1]).read_text(), source, flags=re.M)
     start = source.index('   complex function disp0(om)')
     end = source.index('   end function disp0', start)+len('   end function disp0')
     body = source[start:end]

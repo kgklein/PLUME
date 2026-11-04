@@ -250,10 +250,8 @@ class plume_input:
             all_cold = all(s['tauS'] == 0 for s in self.species)
             if mode != 'd_ref':
                 raise ValueError('cold-fluid calculations require d_ref')
-            if not all_cold and self.species[0]['tauS'] == 0:
-                raise ValueError('cold-fluid reference with warm species is unsupported until Stage 3B')
-            if all_cold and self.params['betap'] != 0:
-                raise ValueError('all-cold d_ref requires betap=0')
+            if self.species[0]['tauS'] == 0 and self.params['betap'] != 0:
+                raise ValueError('cold-reference d_ref requires betap=0')
             if not np.isfinite(self.params['vtp']) or self.params['vtp'] <= 0:
                 raise ValueError('cold-fluid calculations require positive finite vtp=v_A,ref/c')
             if self.params['collision_type'] != 0:

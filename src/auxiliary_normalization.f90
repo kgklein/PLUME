@@ -1,5 +1,5 @@
 module auxiliary_normalization
-  !! Stage 3B.1 isolated adapter, not linked or called by production PLUME.
+  !! Auxiliary thermal adapter, validated in Stage 3B.1 and integrated in 3B.2.
   !! Native d_ref inputs retain the physical reference mass/charge/density.
   !! No plasma globals, reference temperature, or reference anisotropy are read.
   use nrtype, only: SP

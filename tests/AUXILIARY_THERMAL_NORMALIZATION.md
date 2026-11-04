@@ -1,5 +1,8 @@
 # Stage 3B.1: auxiliary thermal normalization
 
+Historical report. [Stage 3B.2](COLD_REFERENCE_MIXED_REPORT.md) now supports cold-reference
+mixtures containing warm species; historical measurements below are retained.
+
 ## Audit and mathematical decision (before prototype implementation)
 
 The auxiliary approach is mathematically valid for the collisionless kinetic

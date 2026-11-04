@@ -1,4 +1,4 @@
-"""Stage 3B.1 isolated normalization experiment; production dispatch stays closed."""
+"""Stage 3B.1 independent prototype, with current production isolation checks."""
 from pathlib import Path
 import subprocess
 import tempfile
@@ -27,7 +27,7 @@ class AuxiliaryNormalizationTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         cls.probes = {}
-        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','functions','bessel','disprels')
+        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization','kinetic_core','cold_reference','functions','bessel','disprels')
         for checked in (False,True):
             directory = Path(cls.temp.name)/str(checked)
             directory.mkdir()
@@ -47,7 +47,7 @@ class AuxiliaryNormalizationTests(unittest.TestCase):
                            cwd=directory,check=True,capture_output=True)
             executable = directory/'probe'
             subprocess.run(base+flags+[str(directory/'kernel.f90'),str(ROOT/'tests/auxiliary_probe.f90'),
-                           str(directory/'auxiliary_normalization.o'),*objects,'-o',str(executable)],
+                           *objects,'-o',str(executable)],
                            cwd=directory,check=True,capture_output=True)
             cls.probes[checked] = executable
 
@@ -227,15 +227,15 @@ class AuxiliaryNormalizationTests(unittest.TestCase):
             for warm in (replace_species(E,tau=-1.),replace_species(E,alpha=0.),replace_species(E,mu=0.)):
                 self.assertEqual(self.evaluate([COLD_P,warm],[(w,1.,0)],checked=checked)[0]['status'],1)
 
-    def test_production_remains_closed(self):
+    def test_production_uses_core_not_extraction(self):
         # This is the actual input path; no experimental build is involved.
         species=[replace_species(COLD_P,alpha=1.),E]
         result,_=run(ROOT/'plume.e',input_text(species))
-        self.assertNotEqual(result.returncode,0)
-        self.assertIn('Stage 3B',result.stdout+result.stderr)
-        # The adapter and generated kernel must not be in the production build.
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        # The validated adapter/core are production code; extraction remains test-only.
         symbols=subprocess.run(['nm',str(ROOT/'plume.e')],check=True,capture_output=True,text=True).stdout
-        self.assertNotIn('__auxiliary_normalization',symbols)
+        self.assertIn('__auxiliary_normalization',symbols)
+        self.assertIn('__kinetic_core',symbols)
         self.assertNotIn('__auxiliary_kinetic_kernel',symbols)
 
 

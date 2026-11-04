@@ -1,5 +1,8 @@
 # Stage 3A: fully cold plasma dispersion
 
+Historical report. [Stage 3B.2](COLD_REFERENCE_MIXED_REPORT.md) now supports cold-reference
+mixtures containing warm species; historical measurements below are retained.
+
 ## Audit and implementation choice
 
 The Stage 2 tensor and cold-kernel conventions are compatible without any

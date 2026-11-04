@@ -71,7 +71,7 @@ class MixedDispersionTests(unittest.TestCase):
         cls.probe = Path(cls.temp.name)/'mixed_probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
                         'tests/mixed_probe.f90', 'nrtype.o', 'nrutil_trim.o', 'vars.o',
-                        'functions.o', 'cold_susceptibility.o', 'bessel.o', 'disprels.o',
+                        'functions.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'cold_reference.o', 'bessel.o', 'disprels.o',
                         '-o', str(cls.probe)], cwd=ROOT, check=True, capture_output=True)
         checked = Path(cls.temp.name)/'checked'
         checked.mkdir()
@@ -79,7 +79,7 @@ class MixedDispersionTests(unittest.TestCase):
         subprocess.run(['gfortran', '-O0', '-g', '-fdefault-real-8', '-fcheck=all',
                         '-ffpe-trap=invalid,zero,overflow', '-I', str(checked), '-J', str(checked),
                         *[str(ROOT/'src'/name) for name in ('nrtype.f90', 'nrutil_trim.f90',
-                          'vars.f90', 'cold_susceptibility.f90', 'functions.f90', 'bessel.f90', 'disprels.f90')],
+                          'vars.f90', 'cold_susceptibility.f90', 'auxiliary_normalization.f90', 'kinetic_core.f90', 'cold_reference.f90', 'functions.f90', 'bessel.f90', 'disprels.f90')],
                         str(ROOT/'tests/mixed_probe.f90'), '-o', str(cls.checked_probe)],
                        cwd=checked, check=True, capture_output=True)
 
@@ -268,7 +268,7 @@ class MixedDispersionTests(unittest.TestCase):
             self.assertIn('determinant only' if option == -1 else 'Dispersion Solutions', result.stdout)
         source = input_text(species)
         bad_cases = [(source.replace("'d_ref'", "'rho_ref'"), 'require normalization=d_ref'),
-                     (input_text([replace_species(PROTON,tau=0),ELECTRON]), 'cold-fluid reference'),
+                     (input_text([replace_species(PROTON,tau=0),ELECTRON],kpar=0), 'nonzero kpar'),
                      (input_text([PROTON,replace_species(COLD_E,tau=-1)]), 'negative tauS'),
                      (input_text(species,extra='collision_type=1'), 'collision_type=0'),
                      (input_text(species,option=6), 'FPC'), (input_text(species,option=7), 'FPC'),

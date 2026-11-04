@@ -125,20 +125,25 @@ $\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$.
 The frequency remains $\omega/\Omega_R$.
 `d_ref` permits temperature to be expressed without a reference thermal length.
 Collisionless `d_ref` dispersion calculations support both warm-reference
-kinetic/cold mixtures (Stage 2) and fully cold plasmas (Stage 3A). Exactly
+kinetic/cold mixtures (Stage 2), fully cold plasmas (Stage 3A), and
+cold-reference mixtures with warm species (Stage 3B.2). Exactly
 `tauS=0` selects a cold species. For a fully cold plasma set **every** species'
 `tauS=0` and `betap=0`; `vtp` remains the positive Alfvén speed divided by `c`.
 Cold `alphS` placeholders are ignored. All-cold runs support exact parallel,
 exact perpendicular, and oblique propagation, with signed parallel drifts.
-A cold reference with any warm species remains unsupported until Stage 3B.
+Cold-reference mixtures require `betap=0`. Warm responses use an auxiliary
+thermal scale selected from the first warm species, preserving the physical
+reference and every species temperature. Exact parallel and oblique propagation
+are supported; exact perpendicular propagation with warm species is deferred.
 
 Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses, or
 `option=-1` for determinant evaluation. Frequency maps are also supported.
 Cold-containing eigenfunctions, heating, FPC, collisions, and parameter scans
 are unavailable. Charge and current balance are warning-only conditions.
-See the [input restrictions](input.md), [Stage 3A report](tests/FULLY_COLD_DISPERSION_REPORT.md),
+See the [input restrictions](input.md), [cold-reference report](tests/COLD_REFERENCE_MIXED_REPORT.md),
 and examples:
 
+- [Cold protons/warm electrons](inputs/example/mixed_cold_protons_warm_electrons.in).
 - [Warm protons/cold electrons](inputs/example/mixed_warm_protons_cold_electrons.in).
 - [Fully cold parallel L mode](inputs/example/cold_proton_electron.in).
 - [Fully cold perpendicular X mode](inputs/example/cold_proton_electron_perpendicular.in).

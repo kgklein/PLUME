@@ -28,3 +28,4 @@ __pycache__
 *.log
 #bare scripts
 *.sh
+!inputs/example/mixed_cold_protons_warm_electrons.in

@@ -16,6 +16,7 @@ SYSTEM=GFORT
 
 PACK = Makefile \
 	src/*.f90 \
+	src/*.inc \
 	*.md \
 	inputs/example/*.in \
 	include/
@@ -39,7 +40,7 @@ ifeq ($(SYSTEM),GFORT)
 endif
 LIBS=
 
-LFMOD=	nrtype.o nrutil_trim.o vars.o cold_susceptibility.o functions.o bessel.o disprels.o fpc.o
+LFMOD=	nrtype.o nrutil_trim.o vars.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o cold_reference.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -83,10 +84,19 @@ cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
 
 bessel.o:      nrtype.o nrutil_trim.o
 
-disprels.o:    vars.o bessel.o cold_susceptibility.o
+disprels.o:    vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_harmonics.inc
 
 functions.o:   vars.o
 
 fpc.o:         disprels.o vars.o
 
 plume.o:       vars.o functions.o fpc.o
+
+# Compile the explicit auxiliary core separately; preserve IEEE failure checks.
+auxiliary_normalization.o: src/auxiliary_normalization.f90 vars.o nrtype.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+kinetic_core.o: src/kinetic_core.f90 vars.o nrtype.o src/kinetic_species.inc src/kinetic_harmonics.inc | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+cold_reference.o: auxiliary_normalization.o kinetic_core.o vars.o

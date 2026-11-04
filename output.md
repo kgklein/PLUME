@@ -1,5 +1,21 @@
 # PLUME Output
 
+## Cold-reference mixed output (Stage 3B.2)
+
+Supplied roots and frequency maps retain `omega/Omega_ref` and native `d_ref`
+input units. The direct evaluator prints raw `det(Lambda)`, as for fully cold
+runs. The normalization sidecar also records `auxiliary_first_warm_species`
+and `b_star`, selected from its physical temperature; the exact-parallel limit
+uses physical species thermal speeds directly. This metadata is not a change
+to any physical input or a new user parameter.
+
+`susc` stores the ordinary response for each species and `lam` stores the
+complete wave matrix. Status 5 denotes unrepresentable/nonfinite arithmetic,
+including auxiliary conversion or kinetic intermediates. Failure invalidates
+all response arrays; isolated failed map samples stay NaN and are excluded from
+candidate selection. No heating or eigenfunction values are fabricated.
+See the [cold-reference report](tests/COLD_REFERENCE_MIXED_REPORT.md).
+
 ## Fully cold output (Stage 3A)
 
 Fully cold `d_ref` runs use the same root/map layouts, frequency units,
