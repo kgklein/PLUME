@@ -27,6 +27,7 @@ MODDIR := include
 ifeq ($(SYSTEM),IFORT)
 	FLAGS=  -O3 -r8 -double-size 128
 	COMP=   ifort
+	COLD_FLAGS= -fp-model precise
 endif
 
 ifeq ($(SYSTEM),GFORT)
@@ -34,10 +35,11 @@ ifeq ($(SYSTEM),GFORT)
 #gfortran orders roots a bit differently...
 	FLAGS=  -O3 -DDOUBLE -fdefault-real-8 -funroll-loops -ffast-math  -I$(MODDIR) -J$(MODDIR) #
 	COMP= gfortran
+	COLD_FLAGS= -fno-fast-math
 endif
 LIBS=
 
-LFMOD=	nrtype.o nrutil_trim.o vars.o functions.o bessel.o disprels.o fpc.o
+LFMOD=	nrtype.o nrutil_trim.o vars.o cold_susceptibility.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -73,6 +75,11 @@ tar:
 nrutil_trim.o: nrtype.o
 
 vars.o:        nrtype.o
+
+# Preserve IEEE validation only in the standalone cold kernel. Kinetic flags
+# remain unchanged; in particular, -ffast-math must not remove finite checks.
+cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
 
 bessel.o:      nrtype.o nrutil_trim.o
 
