@@ -1,5 +1,16 @@
 # PLUME Output
 
+## Fully cold output (Stage 3A)
+
+Fully cold `d_ref` runs use the same root/map layouts, frequency units,
+status codes and failure recovery described below. The direct evaluator
+(`option=-1`) prints **raw `det(Lambda)`**, explicitly labeled, because the
+legacy thermal output scale is undefined at zero reference temperature.
+The normalization sidecar records this distinction and the absence of thermal
+reference scales. The Fortran `disp` API always returns the raw determinant.
+Cold-containing diagnostic limitations apply to fully cold runs too.
+See the [Stage 3A report](tests/FULLY_COLD_DISPERSION_REPORT.md).
+
 ## Mixed kinetic/cold output (Stage 2)
 
 Mixed `d_ref` runs retain the frequency normalization `omega/Omega_R` and

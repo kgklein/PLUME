@@ -268,7 +268,7 @@ class MixedDispersionTests(unittest.TestCase):
             self.assertIn('determinant only' if option == -1 else 'Dispersion Solutions', result.stdout)
         source = input_text(species)
         bad_cases = [(source.replace("'d_ref'", "'rho_ref'"), 'require normalization=d_ref'),
-                     (input_text([replace_species(PROTON,tau=0),COLD_E]), 'cold-fluid reference'),
+                     (input_text([replace_species(PROTON,tau=0),ELECTRON]), 'cold-fluid reference'),
                      (input_text([PROTON,replace_species(COLD_E,tau=-1)]), 'negative tauS'),
                      (input_text(species,extra='collision_type=1'), 'collision_type=0'),
                      (input_text(species,option=6), 'FPC'), (input_text(species,option=7), 'FPC'),

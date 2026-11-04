@@ -6,6 +6,11 @@ the adapter skips their zero temperatures. See the current [input guide](input.m
 and [mixed-dispersion report](tests/MIXED_DISPERSION_REPORT.md) for supported
 functionality. The original validation results below remain historical records.
 
+Stage 3A adds a fully cold path that bypasses the adapter altogether, using
+`d_ref` with `betap=0`. Its scope and tests are recorded in the
+[fully cold report](tests/FULLY_COLD_DISPERSION_REPORT.md); cold-reference
+mixtures containing warm species remain deferred to Stage 3B.
+
 PLUME accepts `rho_ref` and `d_ref` inputs while retaining the finite-temperature
 kinetic calculation in its existing variables. The parameter definitions and a
 matched input pair are documented in [README.md](README.md) and [input.md](input.md).

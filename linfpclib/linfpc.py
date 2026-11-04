@@ -247,15 +247,22 @@ class plume_input:
         if any(s['tauS'] < 0 for s in self.species):
             raise ValueError('tauS must be nonnegative')
         if any(s['tauS'] == 0 for s in self.species):
-            if mode != 'd_ref' or self.species[0]['tauS'] <= 0:
-                raise ValueError('cold-fluid mixtures require d_ref and a warm reference species')
+            all_cold = all(s['tauS'] == 0 for s in self.species)
+            if mode != 'd_ref':
+                raise ValueError('cold-fluid calculations require d_ref')
+            if not all_cold and self.species[0]['tauS'] == 0:
+                raise ValueError('cold-fluid reference with warm species is unsupported until Stage 3B')
+            if all_cold and self.params['betap'] != 0:
+                raise ValueError('all-cold d_ref requires betap=0')
+            if not np.isfinite(self.params['vtp']) or self.params['vtp'] <= 0:
+                raise ValueError('cold-fluid calculations require positive finite vtp=v_A,ref/c')
             if self.params['collision_type'] != 0:
                 raise ValueError('cold-fluid mixtures require collision_type=0')
             if self.params['option'] in (5, 6, 7) or self.params['nscan'] > 0:
                 raise ValueError('cold-fluid scans, eigenfunctions/heating and FPC are deferred beyond Stage 2')
             if self.params['option'] not in (-1, 0, 1):
                 raise ValueError('mixed Stage 2 supports only option=-1, 0, or 1 without parameter scans')
-            if self.params['kpar'] == 0:
+            if not all_cold and self.params['kpar'] == 0:
                 raise ValueError('mixed calculations require nonzero kpar')
         _tolerance = 0.0001
         spec1keysthatshouldbe1 = ['muS','Qs','Ds']

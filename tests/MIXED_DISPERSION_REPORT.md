@@ -1,5 +1,8 @@
 # Stage 2: mixed kinetic/cold dispersion relations
 
+Historical Stage 2 report. [Stage 3A](FULLY_COLD_DISPERSION_REPORT.md) adds
+fully cold reference species without changing the warm-reference paths below.
+
 ## Audit and implementation
 
 Input reading (`functions::read_in_params`, `spec_read`) leads through

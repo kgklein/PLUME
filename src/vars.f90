@@ -37,12 +37,12 @@ module vars
    !! Input convention: rho_ref (legacy) or d_ref (inertial length).
 
    ! Input values above remain in their selected convention. The kinetic
-   ! calculation uses these derived rho_ref values, refreshed before disp().
+   ! calculation uses these derived rho_ref values; fully cold runs bypass them.
    real :: solver_betap, solver_kperp, solver_kpar, solver_vtp
    integer :: reference_scan_source = 0
    !! 0: validate reference beta; 1: beta scan; 2: reference tau scan.
    integer :: dispersion_status = 0
-   !! Last mixed dispersion evaluation: cold kernel codes 1-4, 5=nonfinite arithmetic.
+   !! Last cold-containing dispersion evaluation: cold kernel codes 1-4, 5=nonfinite arithmetic.
 
    integer :: nspec
   !!Number of species/components to be included in calculation.
@@ -386,7 +386,7 @@ module vars
    public :: normalization, solver_betap, solver_kperp, solver_kpar
    public :: solver_vtp, solver_spec, reference_scan_source
    public :: sync_solver_state, write_normalization_metadata
-   public :: has_cold_species, dispersion_status
+   public :: has_cold_species, all_species_cold, validate_all_cold, dispersion_status
 
 contains
 
@@ -394,6 +394,36 @@ contains
       has_cold_species = .false.
       if (allocated(spec)) has_cold_species = any(spec%tau_s == 0.)
    end function has_cold_species
+
+   logical function all_species_cold()
+      all_species_cold = .false.
+      if (allocated(spec)) all_species_cold = size(spec) > 0 .and. all(spec%tau_s == 0.)
+   end function all_species_cold
+
+   subroutine validate_all_cold
+      !! Native inertial state: never construct or allocate thermal solver state.
+      implicit none
+      integer :: i
+      if (normalization /= 'd_ref') &
+           error stop 'ERROR: cold-fluid species require normalization=d_ref.'
+      if (betap /= 0.) &
+           error stop 'ERROR: all-cold d_ref requires betap=0, equal to species_1 tauS.'
+      if (vtp <= 0.) error stop 'ERROR: all-cold d_ref requires positive vtp=v_A,ref/c.'
+      do i=1,nspec
+         if (spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) &
+              error stop 'ERROR: cold-fluid species require positive muS and nonzero Qs.'
+         if (spec(i)%D_s < 0.) &
+              error stop 'ERROR: cold-fluid species require nonnegative density Ds.'
+      enddo
+      if (collision_type /= 0) &
+           error stop 'ERROR: cold-fluid calculations require collision_type=0; cold collisions are unsupported.'
+      if (option == 6 .or. option == 7) &
+           error stop 'ERROR: cold-fluid FPC diagnostics are unavailable.'
+      if (option == 5 .or. nscan > 0) &
+           error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred.'
+      if (option /= -1 .and. option /= 0 .and. option /= 1) &
+           error stop 'ERROR: cold-fluid calculations support only option=-1, 0, or 1 without parameter scans.'
+   end subroutine validate_all_cold
 
    subroutine sync_solver_state
       implicit none
@@ -404,8 +434,10 @@ contains
          if (reference_scan_source == 1) spec(1)%tau_s = betap
          if (reference_scan_source == 2) betap = spec(1)%tau_s
       endif
+      if (normalization == 'd_ref' .and. spec(1)%tau_s == 0.) &
+           error stop 'ERROR: cold-fluid reference with warm species is unsupported until Stage 3B.'
       if (betap <= 0. .or. vtp <= 0.) then
-         write(*,'(a)') 'ERROR: positive betap and vtp are required; a cold-fluid reference is not supported in Stage 2.'
+         write(*,'(a)') 'ERROR: positive betap and vtp are required by the thermal adapter; cold-fluid runs must bypass it.'
          error stop 1
       endif
       do i=1,nspec
@@ -485,8 +517,13 @@ contains
       write(unit_no,'(a)') 'normalization=d_ref'
       write(unit_no,'(a)') 'kperp,kpar: k*d_ref; vtp: v_A,ref/c; tauS: 2*T_parallel,s/(m_ref*v_A,ref^2)'
       write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
-      write(unit_no,'(a)') 'reference_species=1; rho_ref=v_t_perp,ref/abs(Omega_ref)'
-      write(unit_no,'(a)') 'FPC file headers and velocity grids retain the derived rho_ref solver convention.'
+      if (all_species_cold()) then
+         write(unit_no,'(a)') 'reference_species=1; all species cold; no thermal reference scale is constructed.'
+         write(unit_no,'(a)') 'Direct evaluation prints raw det(Lambda); thermal diagnostics are unavailable.'
+      else
+         write(unit_no,'(a)') 'reference_species=1; rho_ref=v_t_perp,ref/abs(Omega_ref)'
+         write(unit_no,'(a)') 'FPC file headers and velocity grids retain the derived rho_ref solver convention.'
+      endif
       close(unit_no)
    end subroutine write_normalization_metadata
 

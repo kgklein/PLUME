@@ -35,8 +35,8 @@ Its other inputs remain fixed during that scan;
 this is a different physical scan from changing only `betap` in `rho_ref`.
 Two-dimensional scans cannot vary both redundant quantities independently.
 Positive `tauS` selects a kinetic species. In collisionless `d_ref` runs,
-exactly zero `tauS` selects a cold-fluid species (Stage 2); negative temperatures
-are invalid. Species 1 must remain warm with `tauS=betap>0`.
+exactly zero `tauS` selects a cold-fluid species; negative temperatures
+are invalid. The reference must be warm unless **all** species are cold.
 See the matched example files in `inputs/example/normalization_*.in`.
 
 ### Mixed kinetic/cold calculations (Stage 2)
@@ -60,8 +60,8 @@ implemented. No small nonzero wavevector is substituted automatically.
   are unavailable. Requests fail clearly; temperature scans that reach or leave
   zero are also rejected. All-kinetic scan and diagnostic behavior is retained.
 
-Cold species with `rho_ref`, a cold reference species, and cold-containing
-collisional configurations are unsupported. The kernel's zero-frequency,
+Cold species with `rho_ref`, a cold reference with any warm species, and
+cold-containing collisional configurations are unsupported. The kernel's zero-frequency,
 Doppler and cyclotron poles are not regularized. A supplied guess that reaches
 a pole or fails to converge reports an error rather than a fabricated solution.
 
@@ -71,6 +71,48 @@ homogeneous equilibria may require external forces or currents to maintain them.
 
 See `inputs/example/mixed_warm_protons_cold_electrons.in` and the
 [Stage 2 implementation report](tests/MIXED_DISPERSION_REPORT.md).
+
+### Fully cold calculations (Stage 3A)
+
+Set `normalization='d_ref'`, `collision_type=0`, `betap=0`, and `tauS=0`
+for **every** species, including species 1. Supply positive `vtp=v_A,ref/c`.
+The inertial length `d_ref=c/omega_p,ref` remains finite at zero temperature;
+no thermal speed or gyroradius is constructed. Thus `rho_ref` cannot be used
+for this configuration. Cold `alphS` has no physical meaning and is ignored:
+zero, unity, or other finite placeholders give identical results.
+
+| Configuration | Supported |
+| --- | --- |
+| `d_ref`, all species cold, `betap=0` | Yes, Stage 3A |
+| `d_ref`, warm reference, other warm/cold species | Yes, Stage 2 |
+| `d_ref`, cold reference with any warm species | No, deferred to Stage 3B |
+| `rho_ref`, all species warm | Yes, unchanged legacy calculation |
+| `rho_ref`, any cold species | No |
+
+Fully cold runs accept exact `kperp=0`, exact `kpar=0`, oblique wavevectors,
+and arbitrary signed parallel drifts `vvS`. The mixed-run restriction on exact
+perpendicular propagation does not apply. Frequencies remain `omega/Omega_ref`;
+positive imaginary frequency means growth. No small wavevector, temperature,
+frequency offset, or artificial damping is inserted.
+
+Use the same `option=-1`, `0`, or `1` root/determinant workflows described above,
+with `nscan=0`. The existing secant and map search are reused. Root guesses
+select branches and must avoid exact poles; map resolution must resolve the
+branch being sought. Eigenfunctions, heating (including harmonic-resolved
+heating), FPC, collisions, and parameter/radial scans remain unavailable.
+Warning-only charge/current checks and their external-maintenance caveat apply
+also to fully cold equilibria.
+
+Run `./plume.e inputs/example/cold_proton_electron.in` from the repository root.
+This example selects the parallel L (Alfvén/ion-cyclotron) branch at
+`kpar*d_ref=0.06`. The companion
+`inputs/example/cold_proton_electron_perpendicular.in` selects the low-frequency
+X (fast magnetosonic) branch at exactly `kpar=0`, `kperp*d_ref=0.2`.
+Both retain finite electron mass and print their roots to stdout.
+The Python wrapper accepts the same inputs through
+`set_params(..., normalization='d_ref')` and `make_species(tauS=0, ...)`.
+See the [Stage 3A implementation report](tests/FULLY_COLD_DISPERSION_REPORT.md)
+for tensor, root, singularity and regression validation.
 
 ## Namelists in input files.
 
@@ -213,14 +255,14 @@ Species or component parameters list for distribution $f_{j}$.
 **`tauS`**  
 Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$ in `rho_ref`;
 Alfvénic temperature $2T_{j,\parallel}/(m_{ref}v_{A,ref}^2)$ in `d_ref`.
-Exactly zero selects cold-fluid susceptibility under the Stage 2 restrictions
+Exactly zero selects cold-fluid susceptibility under the Stage 2/3A restrictions
 above; it is not a valid legacy inverse-temperature ratio.
 
 **`muS`**  
 Relative mass $m_{ref}/m_{j}$.
 
 **`alphS`**  
-Temperature anisotropy $T_{j,\perp}/T_{j,\parallel}$.
+Temperature anisotropy $T_{j,\perp}/T_{j,\parallel}$; ignored for cold species.
 
 **`Qs`**  
 Relative charge $q_{ref}/q_{j}$.

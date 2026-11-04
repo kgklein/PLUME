@@ -451,7 +451,7 @@ module disprels
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
     use vars, only : wroots, nroot_max, writeOut, nspec, scan
-    use vars, only : kperp, kpar, solver_vtp, has_cold_species, dispersion_status
+    use vars, only : kperp, kpar, solver_vtp, has_cold_species, all_species_cold, dispersion_status
 
     implicit none
 
@@ -493,7 +493,12 @@ module disprels
     
     D = disp(omega)
 
-    write(*,'(4es14.4)') omega,D*solver_vtp**6.
+    if (all_species_cold()) then
+       write(*,'(a)') 'All-cold: omega and raw det(Lambda)'
+       write(*,'(4es14.4)') omega,D
+    else
+       write(*,'(4es14.4)') omega,D*solver_vtp**6.
+    endif
     write(*,'(2es14.4)')kperp,kpar
 
     if (has_cold_species()) then
@@ -3702,10 +3707,16 @@ end subroutine get_double_out_name
 !Our method for selecting different dispersion relations
 complex function disp(om)
   use vars, only : collision_type, sync_solver_state, has_cold_species, dispersion_status
+  use vars, only : all_species_cold, validate_all_cold
   
   complex :: om
   !!Complex Frequency
 
+  if (all_species_cold()) then
+     call validate_all_cold
+     disp = disp_mixed(om)
+     return
+  endif
   call sync_solver_state
   dispersion_status = 0
   if (has_cold_species()) then
@@ -3732,8 +3743,8 @@ complex function disp(om)
 end function disp
 
 complex function disp_mixed(om)
-  !! Keep mixed-only checks outside disp to preserve legacy optimizer behavior.
-  use vars, only : has_cold_species, dispersion_status
+  !! Shared cold preflight/status handling; keep outside disp for legacy numerics.
+  use vars, only : has_cold_species, all_species_cold, dispersion_status
   use vars, only : nspec, spec, kpar, kperp, vtp, susc, lam, low_n, susc_low
   use cold_susceptibility, only : calc_chi_cold, finite_complex, invalid_complex
 
@@ -3767,7 +3778,9 @@ complex function disp_mixed(om)
         return
      endif
   endif
-  if (kperp == 0.) then
+  if (all_species_cold()) then
+     disp_mixed = disp_all_cold(om)
+  else if (kperp == 0.) then
      disp_mixed = disp_mixed_parallel(om)
   else
      disp_mixed = disp0(om)
@@ -3790,6 +3803,30 @@ complex function disp_mixed(om)
   return
 
 end function disp_mixed
+
+complex function disp_all_cold(om)
+  !! Cold susceptibilities have passed disp_mixed preflight in native d_ref units.
+  !! No beta, anisotropy, solver_* state or thermal functions are accessed here.
+  use vars, only: kpar, kperp, vtp, susc, lam
+  implicit none
+  complex, intent(in) :: om
+  complex :: nx, nz
+  integer :: j
+  lam=sum(susc,dim=1)
+  do j=1,3
+     lam(j,j)=lam(j,j)+1.
+  enddo
+  nx=kperp/(vtp*om)
+  nz=kpar/(vtp*om)
+  lam(1,1)=lam(1,1)-nz**2
+  lam(2,2)=lam(2,2)-nx**2-nz**2
+  lam(3,3)=lam(3,3)-nx**2
+  lam(1,3)=lam(1,3)+nx*nz
+  lam(3,1)=lam(3,1)+nx*nz
+  ! Same Cartesian determinant convention as disp0; transpose, not conjugate.
+  disp_all_cold=lam(1,1)*(lam(2,2)*lam(3,3)+lam(2,3)**2) &
+       +2.*lam(1,2)*lam(2,3)*lam(1,3)-lam(1,3)**2*lam(2,2)+lam(1,2)**2*lam(3,3)
+end function disp_all_cold
 
 complex function disp_mixed_parallel(om)
   !! Exact kperp=0 limit of the same bi-Maxwellian harmonic sum, mixed runs only.

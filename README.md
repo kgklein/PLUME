@@ -124,13 +124,24 @@ $v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
 $\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$.
 The frequency remains $\omega/\Omega_R$.
 `d_ref` permits temperature to be expressed without a reference thermal length.
-Stage 2 supports collisionless mixed kinetic/cold dispersion calculations:
-in `d_ref`, `tauS=0` selects a cold-fluid species while species 1 must remain
-warm. Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses,
-or `option=-1` for determinant evaluation. Frequency maps are also supported.
-Mixed eigenfunctions, heating, FPC, collisions, and parameter scans are deferred.
-See the [input restrictions](input.md) and the working example
-[`mixed_warm_protons_cold_electrons.in`](inputs/example/mixed_warm_protons_cold_electrons.in).
+Collisionless `d_ref` dispersion calculations support both warm-reference
+kinetic/cold mixtures (Stage 2) and fully cold plasmas (Stage 3A). Exactly
+`tauS=0` selects a cold species. For a fully cold plasma set **every** species'
+`tauS=0` and `betap=0`; `vtp` remains the positive Alfvén speed divided by `c`.
+Cold `alphS` placeholders are ignored. All-cold runs support exact parallel,
+exact perpendicular, and oblique propagation, with signed parallel drifts.
+A cold reference with any warm species remains unsupported until Stage 3B.
+
+Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses, or
+`option=-1` for determinant evaluation. Frequency maps are also supported.
+Cold-containing eigenfunctions, heating, FPC, collisions, and parameter scans
+are unavailable. Charge and current balance are warning-only conditions.
+See the [input restrictions](input.md), [Stage 3A report](tests/FULLY_COLD_DISPERSION_REPORT.md),
+and examples:
+
+- [Warm protons/cold electrons](inputs/example/mixed_warm_protons_cold_electrons.in).
+- [Fully cold parallel L mode](inputs/example/cold_proton_electron.in).
+- [Fully cold perpendicular X mode](inputs/example/cold_proton_electron_perpendicular.in).
 
 Roots, modes, and susceptibility-tensor output columns retain the input convention.
 FPC headers and grids retain the derived thermal solver convention. `d_ref` runs write

@@ -49,6 +49,7 @@ contains
       use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
       use vars, only: normalization, sync_solver_state, write_normalization_metadata
+      use vars, only: all_species_cold, validate_all_cold
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
       implicit none
@@ -111,7 +112,11 @@ contains
          sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
          close (unit)
       end do
-      call sync_solver_state
+      if (all_species_cold()) then
+         call validate_all_cold
+      else
+         call sync_solver_state
+      endif
       call write_normalization_metadata
 
       !Check that ref mass ratio is 1 (in the python wrapper, this is used to help determine the output format to load in sweeps, which is why we check it)
