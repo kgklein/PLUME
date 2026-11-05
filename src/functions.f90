@@ -213,9 +213,15 @@ contains
          write(*,'(a,i0,a)') 'ERROR: species ',is,' has negative tauS; use positive temperature or zero for cold-fluid.'
          error stop 1
       endif
-      if (muS <= 0. .or. (tauS > 0. .and. alphS <= 0.) .or. Qs == 0.) then
+      if (muS <= 0. .or. Qs == 0.) then
          write(*,'(a,i0,a)') 'ERROR: species ',is,' requires positive muS/alphS and nonzero Qs.'
          error stop 1
+      endif
+
+      ! Fortran does not promise short-circuit evaluation: an undefined cold
+      ! anisotropy must not be compared even when tauS>0 is false.
+      if (tauS>0.) then
+         if (alphS<=0.) error stop 'ERROR: warm species require positive alphS.'
       endif
 
       !calculate neutral-charged collision frequency
@@ -273,6 +279,7 @@ end subroutine read_map_input
   !!Read in limits for scans in plasma parameter space.
   !! Invokes [[scan_read(subroutine)]].
       use vars, only: nscan, scan
+      use scan_support, only: validate_scan_inputs
       implicit none
       integer :: is
   !!Scan index.
@@ -292,6 +299,7 @@ end subroutine read_map_input
          close (unit)
       end do
       close (input_unit_no)
+      call validate_scan_inputs()
 
    end subroutine read_scan_input
 
@@ -339,6 +347,7 @@ end subroutine read_map_input
       nameList /scan_input/ &
          scan_type, swi, swf, swlog, scan_style, ns, nres, &
          heating, eigen, tensor
+      heating=.false.; eigen=.false.; tensor=.false.
       read (unit=unit, nml=scan_input)
 
       if (scan_style > 0 .and. scan_type == 0) then

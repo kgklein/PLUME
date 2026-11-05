@@ -38,6 +38,7 @@ jobs:
         for fn in $(ls *.md); do sed -i 's@tests/FULLY_COLD_DISPERSION_REPORT.html@FULLY_COLD_DISPERSION_REPORT.html@g' $fn; done
         for fn in $(ls *.md); do sed -i 's@tests/COLD_REFERENCE_MIXED_REPORT.html@COLD_REFERENCE_MIXED_REPORT.html@g' $fn; done
         for fn in $(ls *.md); do sed -i 's@tests/ADAPTIVE_BESSEL_CACHE_REPORT.html@ADAPTIVE_BESSEL_CACHE_REPORT.html@g' $fn; done
+        for fn in $(ls *.md); do sed -i 's@tests/MIXED_EIGENFUNCTION_REPORT.html@MIXED_EIGENFUNCTION_REPORT.html@g' $fn; done
         # Ford will grab files from docs to build into the documentation
         mkdir docs
         # Ford expects a title: line on top of each file, add it before building
@@ -57,6 +58,10 @@ jobs:
         cat tests/MIXED_DISPERSION_REPORT.md >> docs/MIXED_DISPERSION_REPORT.md
         echo 'title: Fully Cold Dispersion' > docs/FULLY_COLD_DISPERSION_REPORT.md
         cat tests/FULLY_COLD_DISPERSION_REPORT.md >> docs/FULLY_COLD_DISPERSION_REPORT.md
+        echo 'title: Mixed Electromagnetic Eigenfunctions' > docs/MIXED_EIGENFUNCTION_REPORT.md
+        cat tests/MIXED_EIGENFUNCTION_REPORT.md >> docs/MIXED_EIGENFUNCTION_REPORT.md
+        echo 'title: Mixed Wavevector Scans' > docs/MIXED_SCAN_REPORT.md
+        cat tests/MIXED_SCAN_REPORT.md >> docs/MIXED_SCAN_REPORT.md
         echo 'title: Faddeeva Plasma Dispersion Backend' > docs/FADDEEVA_BACKEND_REPORT.md
         cat tests/FADDEEVA_BACKEND_REPORT.md >> docs/FADDEEVA_BACKEND_REPORT.md
         echo 'title: Adaptive Bessel Harmonics and Cache' > docs/ADAPTIVE_BESSEL_CACHE_REPORT.md

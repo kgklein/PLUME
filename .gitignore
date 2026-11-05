@@ -34,3 +34,9 @@ __pycache__
 
 !inputs/example/faddeeva_accuracy.in
 !inputs/example/legacy_numerics.in
+
+!inputs/example/mixed_scan_*.in
+!inputs/example/fully_cold_scan.in
+
+!inputs/example/mixed_fields_*.in
+!inputs/example/cold_fields_*.in

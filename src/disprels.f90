@@ -462,6 +462,7 @@ module disprels
     use vars, only : wroots, nroot_max, writeOut, nspec, scan
     use vars, only : kperp, kpar, solver_vtp, has_cold_species, has_cold_reference, dispersion_status,z_backend
 
+    use electromagnetic_fields, only: calc_em_eigen
     implicit none
 
     !Eigenfunctions
@@ -494,7 +495,7 @@ module disprels
     complex :: D
     !! Output of dispersion relation function.
 
-    integer :: i,j
+    integer :: i,j,em_status
     
     
 
@@ -512,7 +513,16 @@ module disprels
 
     if (has_cold_species()) then
        write(*,'(a,i0)') 'Mixed dispersion status (0=valid, 1=input, 2-4=pole, 5=numerical): ',dispersion_status
-       write(*,'(a)') 'Cold-fluid eigenfunctions/heating unavailable; determinant only.'
+       call calc_em_eigen(omega,ef,bf,em_status,disp)
+       if (em_status==0) then
+          write(*,*) 'ef ='
+          write(*,'(3(1x,es14.6))') ef
+          write(*,*) 'bf ='
+          write(*,'(3(1x,es14.6))') bf
+          write(*,'(a)') 'Electromagnetic fields only; species moments, wave energy, heating and FPC unavailable.'
+       else
+          write(*,'(a,i0)') 'Electromagnetic eigenfunction unavailable; determinant only. Field status: ',em_status
+       endif
        return
     endif
     if (z_backend=='faddeeva' .and. dispersion_status/=0) then
@@ -604,6 +614,10 @@ end subroutine refine_guess
 !-=-=-=-=-
 !-=-=-=-=-=
 subroutine map_scan
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate complex frequency maps for scanned parameters.
   !! Intervatively calls [[map_search(subroutine)]]
   !! over a fixed range of parameters.
@@ -643,6 +657,8 @@ subroutine map_scan
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
 
+  type(scan_frame) :: geometry
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call set_map_pointers(outName,diff,diff2)
   !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
@@ -677,6 +693,9 @@ subroutine map_scan
   !%n_res should be set to 1 for these type of runs, as there
   !is no information passed between each map calculation.
   do jj = 0, (scan(1)%n_scan*scan(1)%n_res) 
+     if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(1),jj,kperp,kpar)
+     else
      !Advance scanned parameter values
      if ((scan(1)%style_s)==-1)then
         if ((scan(1)%type_s)==0) then
@@ -715,6 +734,8 @@ subroutine map_scan
         endif
      endif
 
+     endif
+     if (wavevector_scan(scan(1))) call check_scan_kpar()
      do iq=1, nspec
         if (collision_type.gt.0 .and. normalization=='rho_ref') &
              spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
@@ -727,8 +748,10 @@ subroutine map_scan
            !k_0 -> k_1; 
            !k_0= current k
            !kperp_1 = range_i, kpar_1 = range_f
-           kpari=kpar
-           kperpi=kperp
+           if (.not.has_cold_species()) then
+              kpari=kpar
+              kperpi=kperp
+           endif
            write(print_Name,'(a,i0,a,i0)')&
                 trim(outName),int(10000*sw),&
                 '_',int(10000*sw2)
@@ -744,7 +767,7 @@ subroutine map_scan
            !k_0= current k
            !|k_1|=swf
            write(print_Name,'(a,i0)')&
-                trim(outName),int(10000*sw/sin(theta))
+                trim(outName),int(10000*sign(sqrt(kperp**2+kpar**2),kpar))
         endif
      else
         write(print_Name,'(a,i0)')&
@@ -755,6 +778,7 @@ subroutine map_scan
      !Edit map span. Hard code in the desired range.
      !Will add an improved interface for the future.
      
+     if (.not.has_cold_species()) then
      write(*,'(a)')'Modifying Span of Complex Frequency Space:'
      if (normalization=='d_ref') then
         omi=-3.*sqrt(kperp**2.+kpar**2.)*sqrt(spec(1)%alph_s)
@@ -768,6 +792,7 @@ subroutine map_scan
         gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      endif
      
+     endif
      call map_search
 
   enddo  
@@ -778,6 +803,11 @@ end subroutine map_scan
 !-=-=-=-=-=
 !-=-=-=-=-=
 subroutine om_scan(is)
+  use electromagnetic_fields, only: calc_mixed_eigen
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate solutions as a function of the variation of
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
@@ -868,6 +898,8 @@ subroutine om_scan(is)
   real    :: val
   !!Dispersion Relation Value
   
+  logical :: root_valid
+  integer :: em_status
   integer :: iflag
   !!Flag for Root search
 
@@ -900,6 +932,8 @@ subroutine om_scan(is)
   real, dimension(1:6,1:nspec) :: params
   !!Species parameters:
 
+  type(scan_frame) :: geometry
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
@@ -957,6 +991,9 @@ subroutine om_scan(is)
 
   !Output %n_scan steps, with %n_res steps inbetween each output
   do jj = 0, (scan(is)%n_scan*scan(is)%n_res) 
+     if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(is),jj,kperp,kpar)
+     else
      !Advance scanned parameter values
      if ((scan(is)%style_s)==-1)then
         if ((scan(is)%type_s)==0) then
@@ -995,7 +1032,9 @@ subroutine om_scan(is)
         endif
      endif
 
-     call sync_solver_state
+     endif
+     if (wavevector_scan(scan(is))) call check_scan_kpar()
+     if (.not.has_cold_reference()) call sync_solver_state
      !construct params array for formated output
      do ii = 1,nspec
         !calculate neutral-charged collision frequency
@@ -1022,30 +1061,43 @@ subroutine om_scan(is)
 
         iflag=0
         !Find New Omega Value
-        omega=rtsec(disp,om1,om2,tol,iflag)
+        call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+        root_valid=iflag>0
+        if (.not.root_valid) then
+           ef=omega;bf=omega;ns=omega;Us=omega
+           Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+        endif
         
         !Save Root
-        omlast(ii)=omega        
+        if (root_valid) omlast(ii)=omega
         
         !Output value every %n_res steps
         if (mod(jj,scan(is)%n_res)==0) then
            !Calculate eigenfns, heating only every %n_res steps
            
-           if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
-              val=abs(disp(omega))
+           if (root_valid .and. (scan(is)%eigen_s.or.scan(is)%heat_s)) then
+              if (root_valid) val=abs(disp(omega))
               !>>>GGH: 1/18/23
+              if (has_cold_species()) then
+                 call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(is)%heat_s,em_status,disp)
+              else
               call calc_eigen(omega,ef,bf,Us,ns,Ps,&
                    Ps_split,scan(is)%eigen_s,scan(is)%heat_s)
+              endif
               !<<<GGH: 1/18/23
               omega=omlast(ii)
+              if (.not.has_cold_species()) then
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
                  !<<<GGH: 1/18/23
               endif
+              endif
            endif
 
-           if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+           if (root_valid) then
+              if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+           endif
 
            !1, 2, 3, 4
 
@@ -1106,7 +1158,7 @@ subroutine om_scan(is)
               stop
            end select
            if (scan(is)%tensor_s) then
-              val=abs(disp(omega))
+              if (root_valid) val=abs(disp(omega))
               write(out_unit_2(ii),fmt_tnsr)&
                    kperp,kpar,betap,vtp,&
                    susc(1:nspec,1,1),susc(1:nspec,1,2),susc(1:nspec,1,3),&
@@ -1122,8 +1174,8 @@ subroutine om_scan(is)
 
         !Save Roots for further scans:        
         if (jj==scan(is)%n_scan*scan(is)%n_res) then
-           wroots(1,ii)=real(omega)
-           wroots(2,ii)=aimag(omega)
+           wroots(1,ii)=real(omlast(ii))
+           wroots(2,ii)=aimag(omlast(ii))
            if (writeOut) &
                 write(*,'(a,i3,a,2es14.4)')&
                 'Root ',ii,' Out: ',wroots(1,ii),wroots(2,ii)
@@ -1145,6 +1197,11 @@ end subroutine om_scan
 
 !-=-=-=-=-
 subroutine om_double_scan
+  use electromagnetic_fields, only: calc_mixed_eigen
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate solutions as a function of the variation of
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
@@ -1242,6 +1299,8 @@ subroutine om_double_scan
   real    :: val
   !!Dispersion Relation Value
   
+  logical :: root_valid
+  integer :: em_status
   integer :: iflag
   !!Flag for Root search
   
@@ -1277,6 +1336,8 @@ subroutine om_double_scan
   real, dimension(1:6,1:nspec) :: params
   !!Species parameters:
   
+  type(scan_frame) :: geometry
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME 
@@ -1334,6 +1395,9 @@ subroutine om_double_scan
   !Output %n_scan steps, with %n_res steps inbetween each output
   do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
+     if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
+     else
      !Advance scanned parameter values
 
      !Global Two-Component Scans
@@ -1381,6 +1445,8 @@ subroutine om_double_scan
         endif
      endif
 
+     endif
+     if (wavevector_scan(scan(1))) call check_scan_kpar()
      !calculate neutral-charged collision frequency
      do iq=1, nspec
         if (collision_type.gt.0 .and. normalization=='rho_ref') &
@@ -1397,10 +1463,15 @@ subroutine om_double_scan
 
         iflag=0
         !Find New Omega Value
-        omega=rtsec(disp,om1,om2,tol,iflag)
+        call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+        root_valid=iflag>0
+        if (.not.root_valid) then
+           ef=omega;bf=omega;ns=omega;Us=omega
+           Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+        endif
         
         !Save Root
-        omlast(ii)=omega      
+        if (root_valid) omlast(ii)=omega
 
      enddo
 
@@ -1423,6 +1494,9 @@ subroutine om_double_scan
         !Parameter 2 scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
+           if (has_cold_species()) then
+              call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),jj)
+           else
            !Advance scanned parameter values
 
            !Global Two-Component Scans
@@ -1470,7 +1544,9 @@ subroutine om_double_scan
               endif
            endif
 
-           call sync_solver_state
+           endif
+           if (wavevector_scan(scan(2))) call check_scan_kpar()
+           if (.not.has_cold_reference()) call sync_solver_state
            !construct params array for formated output
            do ii = 1,nspec
               !calculate neutral-charged collision frequency
@@ -1496,24 +1572,35 @@ subroutine om_double_scan
               
               iflag=0
               !Find New Omega Value
-              omega=rtsec(disp,om1,om2,tol,iflag)
+              call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+              root_valid=iflag>0
+              if (.not.root_valid) then
+                 ef=omega;bf=omega;ns=omega;Us=omega
+                 Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+              endif
               
               !Save Root
-              omlast(ii)=omega        
+              if (root_valid) omlast(ii)=omega
               
               !Output value every %n_res steps
               if (mod(jj,scan(2)%n_res)==0) then
                  !Calculate eigenfns, heating only every %n_res steps
                  
-                 if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
-                    val=abs(disp(omega))
+                 if (root_valid .and. (scan(2)%eigen_s.or.scan(2)%heat_s)) then
+                    if (root_valid) val=abs(disp(omega))
                     !>>>GGH: 1/18/23
+                    if (has_cold_species()) then
+                       call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%heat_s,em_status,disp)
+                    else
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
+                    endif
                     !<<<GGH: 1/18/23
+                    if (.not.has_cold_species()) then
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
                        !>>>GGH: 1/18/23
+                    endif
                     endif
 
                  endif
@@ -1566,7 +1653,7 @@ subroutine om_double_scan
               endif
 
               if ((scan(1)%tensor_s).and.(scan(2)%tensor_s)) then
-                 val=abs(disp(omega))
+                 if (root_valid) val=abs(disp(omega))
                  write(out_unit_2(ii),fmt_tnsr)&
                       kperp,kpar,betap,vtp,&
                       susc(1:nspec,1,1),susc(1:nspec,1,2),susc(1:nspec,1,3),&
@@ -1583,6 +1670,9 @@ subroutine om_double_scan
         enddo     !End Parameter 2 Scan
         jj=0
         !Return scanned parameter 2 value
+           if (has_cold_species()) then
+              call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
+           else
            if ((scan(2)%style_s)==-1)then
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
@@ -1627,6 +1717,7 @@ subroutine om_double_scan
               else
                  sw3=(scan(2)%range_i)+diff(2,1)*real(jj)    
               endif
+           endif
            endif
            !Recall Saved roots
            do ii = 1,nroot_max
@@ -2458,11 +2549,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   !CALCULATE FIELDS FLUCTUATIONS==========================================
   !Calculate Electric Fields
   !This seems to be correct --GGH 20 JUN 2008
-  electric(1) = cmplx(1.,0.)
-  electric(3)=-electric(1)*(lam(2,1)*lam(3,2)-lam(3,1)*lam(2,2))
-  electric(3)= electric(3)/(lam(2,3)*lam(3,2)-lam(3,3)*lam(2,2))
-  electric(2) = -electric(3)*lam(3,3) - electric(1)*lam(3,1)
-  electric(2) = electric(2)/lam(3,2)
+  include 'electromagnetic_electric.inc'
 
   !Calculate Magnetic Fields
   !NOTE: There appears to be an overall sign error here --GGH 20 JUN 2008
@@ -2693,6 +2780,7 @@ end subroutine calc_eigen
 !-=-=-=-=-=-
 !-=-=-=-=-=-
 subroutine set_map_pointers(outName,diff,diff2)
+  use vars, only: has_cold_species
   !! Sets step sizes for all classes of parameter scans
   !! called in for [[map_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,pi
@@ -2820,6 +2908,9 @@ subroutine set_map_pointers(outName,diff,diff2)
              '|k| = ',ki,' to ',scan(1)%range_f,&
              ' at fixed theta = ',theta * 180./pi
 
+        if (has_cold_species()) then
+           diff=0.;diff2=0. ! Computed by the native coordinate frame instead.
+        else
         if (scan(1)%log_scan) then
            !Log spacing
            diff=(log10(sin(theta)*scan(1)%range_f)-log10(kperp))/&
@@ -2832,6 +2923,7 @@ subroutine set_map_pointers(outName,diff,diff2)
                 real(scan(1)%n_scan*scan(1)%n_res)
            diff2=((cos(theta)*scan(1)%range_f)-(kpar))/&
                 real(scan(1)%n_scan*scan(1)%n_res)
+        endif
         endif
 
      endif
@@ -2936,6 +3028,7 @@ end subroutine set_map_pointers
 
 !-=-=-=-=-=-
 subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
+  use vars, only: has_cold_species
   !!Sets I/O strings, step sizes, and formats for [[om_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n,reference_scan_source
@@ -3135,6 +3228,9 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
                 int(1000 * theta * 180./pi)
         endif
 
+        if (has_cold_species()) then
+           diff=0.;diff2=0. ! Computed by the native coordinate frame instead.
+        else
         if (scan(is)%log_scan) then
            !Log spacing
            diff=(log10(sin(theta)*scan(is)%range_f)-log10(kperp))/&
@@ -3147,6 +3243,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
                 real(scan(is)%n_scan*scan(is)%n_res)
            diff2=((cos(theta)*scan(is)%range_f)-(kpar))/&
                 real(scan(is)%n_scan*scan(is)%n_res)
+        endif
         endif
 
      endif

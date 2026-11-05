@@ -131,7 +131,7 @@ See the matched example files in `inputs/example/normalization_*.in`.
 ### Mixed kinetic/cold calculations (Stage 2)
 
 Use `normalization='d_ref'`, `collision_type=0`, a warm first species, and
-`nscan=0`. Additional species may have exactly `tauS=0`; every positive
+`nscan=0` for single-wavevector runs (wavevector scans are described below). Additional species may have exactly `tauS=0`; every positive
 temperature, however small, remains kinetic. Cold `alphS` is ignored (zero is
 allowed). Density, signed charge, mass and parallel drift retain their definitions.
 No cold temperature is replaced by a numerical floor.
@@ -140,13 +140,14 @@ nonzero `kpar`: the warm susceptibility's exact perpendicular limit is not
 implemented. No small nonzero wavevector is substituted automatically.
 
 - `option=-1` evaluates the determinant and reports its status. For mixed runs
-  it explicitly omits the usual supplementary eigenfunction/heating output.
+  Stage 4B.1 also prints E/B at a validated eigenfrequency; species moments,
+  wave energy, heating and FPC remain explicitly unavailable.
 - `option=1`, `use_map=.false.` refines supplied `&guess_N` values with the
   existing secant method. Set `writeOut=.true.` to print the solutions.
 - `option=0` searches a frequency map. Singular samples remain NaN in map
   output and are excluded from root selection; failed refinements are skipped.
-- Cold-containing parameter/radial scans, eigenfunctions, heating, and FPC
-  are unavailable. Requests fail clearly; temperature scans that reach or leave
+- Cold-containing plasma-parameter/radial scans, species moments, heating, and FPC
+  are unavailable; collisionless wavevector scans are supported in Stage 4A. Requests fail clearly; temperature scans that reach or leave
   zero are also rejected. All-kinetic scan and diagnostic behavior is retained.
 
 Cold species with `rho_ref` and cold-containing collisional configurations
@@ -185,10 +186,10 @@ positive imaginary frequency means growth. No small wavevector, temperature,
 frequency offset, or artificial damping is inserted.
 
 Use the same `option=-1`, `0`, or `1` root/determinant workflows described above,
-with `nscan=0`. The existing secant and map search are reused. Root guesses
+with `nscan=0` for a single wavevector, or Stage 4A wavevector scans below. The existing secant and map search are reused. Root guesses
 select branches and must avoid exact poles; map resolution must resolve the
-branch being sought. Eigenfunctions, heating (including harmonic-resolved
-heating), FPC, collisions, and parameter/radial scans remain unavailable.
+branch being sought. Species moments, wave energy, heating (including harmonic-resolved
+heating), FPC, collisions, and plasma-parameter/radial scans remain unavailable.
 Warning-only charge/current checks and their external-maintenance caveat apply
 also to fully cold equilibria.
 
@@ -206,7 +207,7 @@ for tensor, root, singularity and regression validation.
 ### Cold-reference mixtures with warm species (Stage 3B.2)
 
 Use `normalization='d_ref'`, `betap=0`, `tauS=0` for species 1,
-`collision_type=0`, and `nscan=0`. Additional species use exactly zero `tauS`
+`collision_type=0`, and `nscan=0` for single-wavevector runs (wavevector scans are described below). Additional species use exactly zero `tauS`
 for cold-fluid response or positive `tauS` for kinetic response; negative values
 are invalid. No temperature threshold is used. Supply positive `vtp=v_A,ref/c`.
 The physical reference mass, signed charge, density, gyrofrequency, Alfvén
@@ -240,8 +241,9 @@ recomputed. The first-warm-species policy is provisional, not an optimized
 conditioning guarantee. Species reordering can change that scale but must not
 change the physical result beyond the documented numerical tolerance.
 
-Cold-containing eigenfunctions, heating, harmonic heating, FPC, collisions,
-parameter/radial scans and model-transition scans remain unavailable. Charge
+Cold-containing species moments, heating, harmonic heating, FPC, collisions,
+plasma-parameter/radial scans and model-transition scans remain unavailable.
+Wavevector scans are supported as described below. Charge
 neutrality and current balance remain warning-only checks made at input reading;
 nonstandard homogeneous equilibria may require external currents or forces.
 
@@ -415,6 +417,153 @@ $v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
 Neutral-charged species collision frequency, $\nu_{n,s}/\Omega_{ref} = n_0$
 
 
+## Mixed wavevector scans (Stage 4A)
+
+All supported compositions use the existing scan framework and `disp/rtsec`:
+all kinetic (`rho_ref` or `d_ref`), fully cold (`d_ref`), warm-reference mixed
+(`d_ref`), and cold-reference mixed (`d_ref`, `betap=0`). Any number of supported
+warm and cold species, parallel drifts and signed nonzero `kpar` are permitted.
+Cold-containing scans must be collisionless. No species can change model.
+
+| Workflow | Inputs | Traversal |
+| --- | --- | --- |
+| Serial continuation | `option=1`, `nscan>=1` | Each scan starts from the preceding scan's final valid root. |
+| Two-dimensional grid | `option=2`, `nscan=2` | Outer-axis continuation; each inner traversal starts from its saved row-start seed. |
+| Repeated frequency maps | `option=4`, `nscan=1` | Independent existing map search at each point; no branch association between maps. |
+
+Wavevector coordinates use the existing namelists:
+
+| `scan_style` | `scan_type` | Existing interpretation |
+| ---: | ---: | --- |
+| 0 | 0 | `kperp`, from `swi` to `swf` |
+| 0 | 1 | `kpar`, from `swi` to `swf` |
+| -1 | 0 | Current vector to `(kperp,kpar)=(swi,swf)` |
+| -1 | 1 | Current `atan(kperp/kpar)` to `swi` degrees, fixed signed magnitude; `swf` unused |
+| -1 | 2 | Current signed magnitude to `swf`, fixed angle; `swi` unused |
+
+The historical signed magnitude is `kpar/cos(atan(kperp/kpar))`; for negative
+`kpar`, use a negative target `swf` to retain that propagation direction.
+Logarithmic scans require positive scanned coordinates; use linear scans for
+negative parallel coordinates/signed magnitudes. Exact parallel `kperp=0`
+uses the existing mixed/cold dispersion limits. Geometry support never extends
+a susceptibility limit that the single-point evaluator does not implement.
+
+Two-dimensional wavevector grids support distinct Cartesian `kperp/kpar` axes,
+or ordered angle (`scan_input_1`) and magnitude (`scan_input_2`) axes. Overlapping
+coordinate definitions are rejected. Existing all-kinetic plasma-parameter
+scans are retained, but no plasma-parameter or radial scans are enabled for
+cold-containing configurations in Stage 4A.
+
+Require positive `ns` and `nres`; the existing scan takes `ns*nres` continuation
+steps and writes `ns+1` rows. Input bounds must be finite. Scans are preflighted
+before root initialization. If **any** sampled point has `kpar=0`, including a
+90-degree angle endpoint, the run stops with a Stage 4A diagnostic. No epsilon
+wavevector is inserted. This restriction includes fully cold scans but does
+not change fully cold single-wavevector perpendicular calculations.
+
+Cold-containing runs initialize their roots at the actual first scan point.
+Their physical plasma parameters and reference definition are fixed throughout:
+wavevectors are `k*d_ref`, frequencies are `omega/Omega_ref`, and `vtp=v_A/c`.
+Warm-reference `d_ref` conversions retain `sqrt(betap*alphS_ref)`; cold-reference
+runs bypass the thermal adapter and retain `b_star=tauS(first warm species)`.
+Changing only `kpar` reuses Bessel coefficients; changing `kperp` updates/resizes
+the existing cache using the physical argument. Z/Bessel backend choices remain
+independent and unchanged.
+
+For cold-containing scans set `heating=.false.`; `eigen=.true.` now enables
+E/B fields with unavailable moment slots marked NaN. Both flags default false.
+Heating requests are rejected before root evaluation.
+Optional `tensor=.true.` uses the existing susceptibility output and introduces
+no fluid perturbation diagnostics. Heating/FPC for mixed plasmas remain outside
+this stage, including the agreed later policy for kinetic species. Cold values
+are unavailable, not physical zeros. All-kinetic diagnostics remain available.
+
+A failed root is written as NaN in the existing frequency columns; tensor and
+requested all-kinetic diagnostic slots are invalidated as well. A warning gives
+the wavevector and failure flag. Only successful roots update the continuation
+seed. Later points retry from the last valid seed. An intermediate point hidden
+by `nres` can fail and warn even if no NaN output row is scheduled there.
+No branch tracker is introduced: reduce steps and inspect crossings, poles,
+strong damping and recovery after failures. Cold-containing map scans retain
+the supplied `&maps` frequency bounds, avoiding undefined cold anisotropy;
+legacy all-kinetic map-span behavior is unchanged.
+
+Examples: [warm reference](inputs/example/mixed_scan_warm_reference.in),
+[cold reference](inputs/example/mixed_scan_cold_reference.in), and
+[fully cold](inputs/example/fully_cold_scan.in). The Python wrapper accepts the
+same wavevector scans through `make_scan`; its cold-containing writer validation
+rejects parameter scans and mixed heating/FPC requests.
+
+## Electromagnetic eigenfunctions (Stage 4B.1)
+
+Supported fields use the complete production `lam` matrix, retaining each
+species contribution in `susc(species,row,column)`. Existing kinetic susceptibility,
+cold susceptibility, auxiliary normalization and numerical backend selections
+are unchanged. Eigenfunctions are right nullvectors of the ordinary complex
+wave matrix, not Hermitian eigenvectors at complex frequency.
+
+For cold/mixed scans use `eigen=.true., heating=.false.`. Serial and 2D Stage 4A
+workflows and both signs of nonzero kpar are supported. Option 2 retains its
+existing rule that **scan_input_2 selects the output diagnostics**. Species
+velocity/density slots remain present but contain NaN for every species in a
+cold-containing run. All-kinetic calculations retain their full existing
+moments/heating behavior. Heating/FPC availability for kinetic species within
+mixtures remains deferred to Stage 4B.3, and cold moments to Stage 4B.2.
+
+`option=-1` prints fields for a cold-containing input only when the supplied
+frequency has a validated electromagnetic nullvector. It prints an unavailable
+status for off-mode or invalid frequencies. Root-only `option=1, nscan=0`
+retains its existing root-only output; use a known root with option=-1, an
+existing fixed-endpoint eigen scan, or the Fortran API for fields.
+
+The amplitude/phase gauge is Ex=1+0i. The fields are `(Ex,Ey,Ez)` and `(Bx,By,Bz)`
+with B0 along z and k=(kperp,0,kpar). The Fourier convention is exp(i*k.r-i*omega*t).
+No handedness or component ordering changes. In Gaussian field units both E
+and B outputs are divided by the physical deltaEx amplitude. To convert B to
+units of B0, multiply by deltaEx/B0. These are not unit-energy eigenfunctions.
+
+Faraday in PLUME's normalized inputs is
+
+- `omega_hat * B = cross(k_rho/(vtp*sqrt(alphS_ref)), E)` for rho_ref;
+- `omega_hat * B = cross(k_d/vtp, E)` for d_ref, where vtp=v_A/c.
+
+The frequency is full complex omega/Omega_ref, including damping/growth, and
+not just its real part. The anisotropic rho_ref conversion gives
+`k_rho/(vtp_solver*sqrt(alphS_ref))=k_d/(v_A/c)`. No beta or auxiliary b_star
+factor remains. Cold-reference fields never require a reference thermal speed.
+
+The existing two-row cofactor elimination is reused. Equivalent row-pair
+cofactors handle zero fixed divisors, including exact parallel mixed/cold
+propagation. No LAPACK/general eigensolver or regularization is introduced.
+Numerically rank-deficient matrices and modes with vanishing/unresolvable Ex
+are unavailable in this gauge. The exactly perpendicular cold O mode is one
+such case; the perpendicular X mode has a valid Ex gauge and is supported for
+single-wavevector calls. Stage 4A still rejects perpendicular scan points.
+Existing all-kinetic propagation limits are unchanged.
+
+Field-only Fortran interfaces in `electromagnetic_fields`:
+
+```fortran
+! Refresh the total production matrix through the existing callback:
+call calc_em_eigen(omega, electric, magnetic, ierr, disp)
+! Or calculate from an explicit complete matrix, without global state:
+call calc_em_fields(matrix, omega, kpar, kperp, vtp, normalization, &
+                    alpha_ref, electric, magnetic, ierr)
+```
+
+Status 0 means success, 1 invalid inputs/evaluation, 2 degenerate/ill-conditioned
+rank, 3 unavailable Ex gauge, 4 no acceptable nullvector at this frequency,
+and 5 nonfinite arithmetic. Failed fields contain assigned quiet NaNs.
+Field failure does not turn a valid dispersion matrix into an invalid root.
+The direct matrix API accepts native input units and ignores alpha_ref for d_ref.
+The historical `disprels::calc_eigen` remains the all-kinetic moment/heating API.
+
+No new total/species energy output is enabled. The historical heating normalizer
+uses a real-frequency derivative of the Hermitian susceptibility, and the old
+caller `Ew` slots do not reliably export it. These require separate definition
+and validation before any cold/mixed use; they are not exact conserved energies
+for arbitrary growing/damped modes. See the [audit](tests/MIXED_EIGENFUNCTION_REPORT.md).
+
 ### *&scan_input_l*
 Inputs for scanning parameter space for $l$th scan.  
 
@@ -484,7 +633,8 @@ Resolution between output scan values.
 Calculates heating rates if true.
 
 **`eigen`**  
-Calculates eigenfunctions if true.
+Calculates eigenfunctions if true. In cold-containing runs, Stage 4B.1 supplies
+only E/B fields; existing species moment slots are unavailable (NaN).
 
 **`tensor`**  
 Outputs susceptibility tensor if true.     

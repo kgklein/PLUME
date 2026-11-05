@@ -426,6 +426,8 @@ contains
       if (betap /= 0.) &
            error stop 'ERROR: cold-fluid reference d_ref requires betap=0, equal to species_1 tauS.'
       if (vtp <= 0.) error stop 'ERROR: cold-fluid reference d_ref requires positive vtp=v_A,ref/c.'
+      if (nscan>0 .and. kpar==0.) &
+           error stop 'ERROR: k_parallel=0: exact perpendicular scans are outside Stage 4A.'
       if (.not. all_species_cold() .and. kpar==0.) &
            error stop 'ERROR: warm-species calculations require nonzero kpar; the warm perpendicular limit is deferred.'
       do i=1,nspec
@@ -442,9 +444,10 @@ contains
            error stop 'ERROR: cold-fluid calculations require collision_type=0; cold collisions are unsupported.'
       if (option == 6 .or. option == 7) &
            error stop 'ERROR: cold-fluid FPC diagnostics are unavailable.'
-      if (option == 5 .or. nscan > 0) &
+      if (option == 5 .or. (nscan > 0 .and. option/=1 .and. option/=2 .and. option/=4)) &
            error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred.'
-      if (option /= -1 .and. option /= 0 .and. option /= 1) &
+      if (option /= -1 .and. option /= 0 .and. option /= 1 .and. &
+           .not.(nscan>0 .and. (option==2 .or. option==4))) &
            error stop 'ERROR: cold-fluid calculations support only option=-1, 0, or 1 without parameter scans.'
    end subroutine validate_cold_reference
 
@@ -468,10 +471,12 @@ contains
             write(*,'(a,i0,a)') 'ERROR: species ',i,' has negative tauS; use positive temperature or zero for cold-fluid.'
             error stop 1
          endif
-         if ((spec(i)%tau_s > 0. .and. spec(i)%alph_s <= 0.) .or. &
-              spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
+         if (spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
             write(*,'(a,i0,a)') 'ERROR: species ',i,' requires positive alphS/muS and nonzero Qs.'
             error stop 1
+         endif
+         if (spec(i)%tau_s>0.) then
+            if (spec(i)%alph_s<=0.) error stop 'ERROR: warm species require positive alphS.'
          endif
          if (spec(i)%tau_s == 0. .and. spec(i)%D_s < 0.) &
               error stop 'ERROR: cold-fluid species require nonnegative density Ds.'
@@ -485,10 +490,13 @@ contains
               error stop 'ERROR: cold-fluid mixtures require collision_type=0; cold collisions are unsupported.'
          if (option == 6 .or. option == 7) &
               error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
-         if (option == 5 .or. nscan > 0) &
+         if (option == 5 .or. (nscan > 0 .and. option/=1 .and. option/=2 .and. option/=4)) &
               error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred beyond Stage 2.'
-         if (option /= -1 .and. option /= 0 .and. option /= 1) &
+         if (option /= -1 .and. option /= 0 .and. option /= 1 .and. &
+           .not.(nscan>0 .and. (option==2 .or. option==4))) &
               error stop 'ERROR: mixed Stage 2 supports only option=-1, 0, or 1 without parameter scans.'
+         if (nscan>0 .and. kpar==0.) &
+              error stop 'ERROR: k_parallel=0: exact perpendicular scans are outside Stage 4A.'
          if (kpar == 0.) &
               error stop 'ERROR: mixed calculations require nonzero kpar; the warm perpendicular limit is not implemented.'
       endif
@@ -540,6 +548,10 @@ contains
       write(unit_no,'(a)') 'normalization=d_ref'
       write(unit_no,'(a)') 'kperp,kpar: k*d_ref; vtp: v_A,ref/c; tauS: 2*T_parallel,s/(m_ref*v_A,ref^2)'
       write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
+      if (has_cold_species()) then
+         write(unit_no,'(a)') 'EM fields: Ex=1; omega*B=(k_d/(v_A/c)) cross E where the gauge is available.'
+         write(unit_no,'(a)') 'Species moments/energy/heating/FPC unavailable; eigen moment slots contain NaN.'
+      endif
       if (has_cold_reference()) then
          write(unit_no,'(a)') 'reference_species=1; cold reference; no thermal reference scale is constructed.'
          write(unit_no,'(a)') 'Direct evaluation prints raw det(Lambda); thermal diagnostics are unavailable.'

@@ -18,6 +18,7 @@
 
 program plume
   use adaptive_kinetic, only: finish_bessel_diagnostics
+  use scan_support, only: prepare_scan_start
   use vars, only: option,nscan,use_map,nroot_max,wroots,writeOut,scan
   use functions, only: read_in_params,read_map_input,read_scan_input
   use functions, only: read_guess_input,read_radial_input
@@ -74,6 +75,9 @@ program plume
      ! THEN
      !Scan over plasma parameters, with range and type specified in *.in file
 
+     call read_scan_input
+     call prepare_scan_start()
+
      if (use_map) then        
         !Read in root mapping bounds        
         call read_map_input !functions.f90
@@ -93,7 +97,7 @@ program plume
      endif
      
      !Read in parameter scan bounds
-     call read_scan_input !functions.f90
+
 
      !Proceed serially through nscan parameter or wavevector scans.
      do is =1,nscan 
@@ -109,6 +113,9 @@ program plume
      !     with range and type specified in *.in file
      !Stored in a single file
 
+
+     call read_scan_input
+     call prepare_scan_start()
 
      if (use_map) then
         !Read in root mapping bounds
@@ -128,7 +135,7 @@ program plume
      endif
      
      !Read in parameter scan bounds
-     call read_scan_input !functions.f90
+
           
      !Scan over two parameters, read from scan_input_1 and scan_input_2 namelists.
      call om_double_scan !disprels.f90     

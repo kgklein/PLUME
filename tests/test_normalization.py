@@ -84,7 +84,7 @@ class NormalizationTests(unittest.TestCase):
         cls.probe = Path(cls.tempdir.name) / 'probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
                         '-o', str(cls.probe), str(PROBE), 'nrtype.o', 'nrutil_trim.o',
-                        'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT), 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o', 'disprels.o', 'fpc.o'],
+                        'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT), 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o','electromagnetic_fields.o','scan_support.o', 'disprels.o', 'fpc.o'],
                        cwd=ROOT, check=True, capture_output=True)
 
     @classmethod

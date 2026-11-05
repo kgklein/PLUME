@@ -13,7 +13,7 @@ to any physical input or a new user parameter.
 complete wave matrix. Status 5 denotes unrepresentable/nonfinite arithmetic,
 including auxiliary conversion or kinetic intermediates. Failure invalidates
 all response arrays; isolated failed map samples stay NaN and are excluded from
-candidate selection. No heating or eigenfunction values are fabricated.
+candidate selection. No heating or species-moment values are fabricated. Stage 4B.1 now supplies electromagnetic fields.
 See the [cold-reference report](tests/COLD_REFERENCE_MIXED_REPORT.md).
 
 ## Fully cold output (Stage 3A)
@@ -44,8 +44,9 @@ result. The Fortran `disp` API returns the unscaled determinant; inspect
 Failure invalidates `susc`, `lam`, and resonance arrays rather than leaving
 stale values. A subsequent valid evaluation recomputes the physical response.
 
-Mixed eigenfunctions, heating and FPC are unavailable; the direct evaluator
-prints an explicit omission notice, and dedicated diagnostic requests fail.
+Mixed electromagnetic fields are available in Stage 4B.1. Species moments,
+wave energy, heating and FPC remain unavailable; the direct evaluator labels
+those omissions and incompatible requests fail.
 Cold resonance-resolved susceptibility entries (`susc_low`) are undefined/NaN,
 not fictitious heating contributions. See the [Stage 2 report](tests/MIXED_DISPERSION_REPORT.md).
 
@@ -289,3 +290,70 @@ can succeed normally. Direct single-frequency failures skip supplementary
 diagnostics. Compatibility mode preserves historical Z failure behavior.
 See [backend selection](input.md#plasma-dispersion-function-backend) and the
 [validation report](tests/FADDEEVA_BACKEND_REPORT.md).
+
+
+## Mixed wavevector scan output (Stage 4A)
+
+The existing `.modeN` and optional susceptibility-tensor layouts are unchanged.
+Root-only rows are `kperp, kpar, betap, vtp, omega_r, omega_i`, followed by
+`tauS, muS, alphS, Qs, Ds, vvS` for each species in input order (6+6*nspec
+real columns). The coordinate and parameter values use the selected input
+normalization. Frequencies remain `omega/Omega_ref`. Existing mode files retain
+six decimal places in scientific mantissas; `.roots` maps retain their existing
+lower precision. No columns are reordered, added, or silently repurposed.
+
+Failure rows contain NaN frequencies and invalid tensor/diagnostic values rather
+than stale results. The physical coordinate/parameter columns remain present.
+Warnings identify failed attempts, including intermediate steps suppressed by
+`nres`. The next point uses the last successful seed. A recovery can land on a
+different branch after a large gap; a finite residual alone does not identify
+the branch. Inspect frequency continuity and refine steps where necessary.
+
+`option=2` retains blank-line grid separators. `option=4` retains one `.map` and
+`.roots` pair per wavevector, with independent root selection. Cold-containing
+maps use the supplied frequency bounds. Existing normalization and Bessel cache
+metadata remain available, with their established Z/backend labels. No new columns are introduced. Stage 4B.1 fills the existing electromagnetic
+field columns while density/velocity slots remain NaN for cold-containing runs.
+
+See the [scan input guide](input.md#mixed-wavevector-scans-stage-4a) and
+[validation report](tests/MIXED_SCAN_REPORT.md).
+
+
+## Electromagnetic eigenfunction conventions (Stage 4B.1)
+
+The existing eigen layout and scientific precision are preserved. Columns 7–12
+are complex Bx,By,Bz, and 13–18 are complex Ex,Ey,Ez, with real/imaginary pairs.
+The first six root/input columns and trailing six species parameters per species
+retain their meanings. Eigen-only files have `18+14*nspec` real columns.
+
+For cold-containing runs only the 12 electromagnetic values are enabled.
+The intervening `8*nspec` velocity/density values (starting at column 19) are
+NaN for **every** species. These are explicitly unavailable, not zero fluid
+perturbations, and do not implement Stage 4B.2 or 4B.3. Existing all-kinetic
+moments and heating layouts/calculations are unchanged. Python `load_plume_sweep`
+reads these files using `eigen=True, heating=False`; NaNs are retained.
+
+The gauge is Ex=1+0i. E and B are divided by the same physical deltaEx amplitude
+in Gaussian units. Hence omega_hat*B=(k_d/(v_A/c)) cross E in d_ref, and
+omega_hat*B=(k_rho/(vtp*sqrt(alpha_ref))) cross E in rho_ref. Auxiliary b_star
+is absent from physical polarization and amplitudes. The complex frequency,
+not only its real part, enters this relation. For component ratios compare
+complex Ey/Ex, Ez/Ex or B ratios; a common phase/amplitude must be removed when
+comparing to independently normalized eigenvectors. For example the derived
+transverse circular-polarization measure
+`2*Im(Ex*conjg(Ey))/(abs(Ex)**2+abs(Ey)**2)` keeps its existing sign convention;
+Ey=-i Ex gives +1. No new scalar polarization columns are added.
+
+A failed or unavailable field solution fills all E/B slots with NaN and emits
+a status warning; root and species susceptibility information remain usable
+when the dispersion evaluation itself succeeded. In particular Ex=0 modes
+cannot be represented without changing the historical gauge. Degenerate
+polarizations are not assigned an arbitrary vector. No numerical floor is
+used to replace zero wavevector components or normalize a zero Ex.
+
+The single-point cold/mixed evaluator prints the existing `ef`/`bf` blocks at
+a valid mode, and a status/omission notice elsewhere. It does not print fabricated
+species moments or energies. The normalization sidecar identifies the new
+field normalization and unavailable diagnostics. Read the
+[implementation/validation report](tests/MIXED_EIGENFUNCTION_REPORT.md) for
+cofactor pivoting, failure statuses, tolerances, and the energy assessment.

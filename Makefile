@@ -44,7 +44,7 @@ CC ?= cc
 FADDEEVA_CFLAGS = -O3 -std=c99 -fno-fast-math
 LIBS= -lm
 
-LFMOD=	faddeeva_bridge.o faddeeva.o plasma_z_faddeeva.o nrtype.o nrutil_trim.o vars.o plasma_z_legacy.o plasma_z_backend.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o harmonic_selection.o bessel_cache.o adaptive_kinetic.o cold_reference.o functions.o bessel.o disprels.o fpc.o
+LFMOD=	faddeeva_bridge.o faddeeva.o plasma_z_faddeeva.o nrtype.o nrutil_trim.o vars.o plasma_z_legacy.o plasma_z_backend.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o harmonic_selection.o bessel_cache.o adaptive_kinetic.o cold_reference.o electromagnetic_fields.o scan_support.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -89,9 +89,9 @@ cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
 
 bessel.o:      nrtype.o nrutil_trim.o
 
-disprels.o:    plasma_z_backend.o vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_collisional_species.inc src/kinetic_harmonics.inc
+disprels.o:    electromagnetic_fields.o scan_support.o plasma_z_backend.o vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_collisional_species.inc src/kinetic_harmonics.inc src/electromagnetic_electric.inc
 
-functions.o:   vars.o adaptive_kinetic.o
+functions.o:   vars.o adaptive_kinetic.o scan_support.o
 
 fpc.o:         disprels.o vars.o
 
@@ -127,4 +127,10 @@ $(MODDIR):
 	mkdir -p $@
 
 plasma_z_backend.o: src/plasma_z_backend.f90 vars.o plasma_z_faddeeva.o plasma_z_legacy.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+scan_support.o: src/scan_support.f90 vars.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+electromagnetic_fields.o: src/electromagnetic_fields.f90 src/electromagnetic_electric.inc vars.o | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<

@@ -14,7 +14,7 @@ import test_mixed_dispersion as mixed
 from mixed_reference import species_tensor,wave_matrix
 ROOT=mixed.ROOT
 MODULES=('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization',
-         'kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference',
+         'kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','electromagnetic_fields','scan_support',
          'functions','bessel','disprels')
 
 class AdaptiveDispersionTests(unittest.TestCase):

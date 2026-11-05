@@ -138,8 +138,9 @@ are supported; exact perpendicular propagation with warm species is deferred.
 
 Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses, or
 `option=-1` for determinant evaluation. Frequency maps are also supported.
-Cold-containing eigenfunctions, heating, FPC, collisions, and parameter scans
-are unavailable. Charge and current balance are warning-only conditions.
+Cold-containing electromagnetic fields are available in Stage 4B.1; species
+moments, heating, FPC, energy, collisions and plasma-parameter/radial scans remain unavailable. Stage 4A enables collisionless **wavevector** scans,
+including cold-reference mixtures, using the existing continuation framework. Charge and current balance are warning-only conditions.
 See the [input restrictions](input.md), [cold-reference report](tests/COLD_REFERENCE_MIXED_REPORT.md),
 and examples:
 
@@ -173,6 +174,66 @@ jupyter notebook
 ```
 and navigate to and open the [`examplelinfpc.ipynb`](./examplelinfpc.ipynb) notebook. This notebook shows how to use the main functions of both PLUME and JET-PLUME. 
 
+
+### Mixed cold/kinetic wavevector scans (Stage 4A)
+
+Use the existing `&scan_input_N` inputs with `option=1` for serial continuation,
+`option=2` for two-dimensional grids, or `option=4` for independent frequency
+maps. Cold-containing runs require collisionless `d_ref` and `heating=.false.`;
+`eigen=.true.` enables electromagnetic fields with unavailable species moments
+marked NaN. All-kinetic scans retain their existing normalization and
+diagnostic support. Both signs of **nonzero** `kpar` are supported. Stage 4A
+rejects perpendicular scan points; fully cold single-wavevector perpendicular
+calculations remain supported.
+
+Supported coordinates are `kpar`, `kperp`, vector endpoints, angle at fixed
+magnitude, and magnitude at fixed angle. Grids use distinct `kpar/kperp` axes or
+ordered `(theta,magnitude)` axes. Species temperatures, beta, Alfvén speed and
+drifts stay fixed. Cold-reference mixtures keep the same first-warm-species
+auxiliary scale. Failed continuation points produce NaN rows and retain the
+last valid seed; inspect warnings and reduce the wavevector step near crossings
+or poles. There is no new branch tracker.
+
+Working examples (run from the repository root):
+
+```bash
+./plume.e inputs/example/mixed_scan_warm_reference.in
+./plume.e inputs/example/mixed_scan_cold_reference.in
+./plume.e inputs/example/fully_cold_scan.in
+```
+
+See the [scan input details](input.md#mixed-wavevector-scans-stage-4a),
+[output conventions](output.md#mixed-wavevector-scan-output-stage-4a), and
+[implementation/validation report](tests/MIXED_SCAN_REPORT.md).
+
+### Electromagnetic eigenfunctions (Stage 4B.1)
+
+The existing cofactor method now supplies E/B polarization for cold and mixed
+plasmas, including cold references. It retains Cartesian x/y/z ordering and the
+historical **Ex=1** amplitude/phase convention. Magnetic fields follow Faraday's
+law with native physical wavevector normalization; auxiliary temperatures do
+not set field amplitudes. Existing all-kinetic eigenfunction/moment/heating
+calculations remain unchanged.
+
+Use `eigen=.true., heating=.false.` in existing serial or 2D scan inputs.
+Fields retain the existing columns. For a cold-containing run, all density and
+velocity slots are NaN, including warm-species slots; they are deferred diagnostics,
+not physical zeros. No new mixed heating, FPC or wave energy is enabled.
+At a known single-wavevector eigenfrequency, `option=-1` prints E/B; the field-only
+Fortran API is also available. Arbitrary off-mode frequencies do not have a
+validated eigenfunction. Modes with Ex=0 cannot use the historical gauge and
+report unavailable rather than adopting a different normalization.
+
+```bash
+./plume.e inputs/example/mixed_fields_warm_reference.in
+./plume.e inputs/example/mixed_fields_cold_reference.in
+./plume.e inputs/example/cold_fields_parallel.in
+./plume.e inputs/example/cold_fields_single.in
+```
+
+See [conventions and API](input.md#electromagnetic-eigenfunctions-stage-4b1),
+[field columns](output.md#electromagnetic-eigenfunction-conventions-stage-4b1),
+and the [audit and independent validation report](tests/MIXED_EIGENFUNCTION_REPORT.md).
 
 ### Plasma dispersion function backend
 
