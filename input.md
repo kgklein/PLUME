@@ -2,6 +2,95 @@
 
 This is a reference for the key input parameters used by PLUME.
 
+## Plasma dispersion function backend
+
+`&params` accepts `z_backend='faddeeva'` (default) or `z_backend='legacy'`.
+Other values fail input validation. Old inputs without this setting select the
+new accurate default; to reproduce historical collisionless results explicitly
+select **both** `z_backend='legacy'` and `bessel_mode='fixed128'` (or
+`bessel_mode='fixed', bessel_nfixed=128`). All Z/Bessel combinations are supported.
+The previous collisional `zz` physics correction remains active in either mode.
+
+The accurate backend evaluates $Z(\zeta)=i\sqrt{\pi}w(\zeta)$ with the Landau
+analytic continuation. The public `zet_in(kpar,zin)` convention is unchanged:
+positive `kpar` returns $Z(zin)$; negative `kpar` returns $-Z(-zin)$.
+Kinetic-only, warm-reference mixed, auxiliary-normalized cold-reference mixed,
+and weakly collisional calculations share this choice. Fully cold calculations
+do not evaluate Z. This setting changes no normalization or harmonic cutoff.
+
+The historical approximation has an accuracy defect near $|\zeta|=3$ that
+cannot be repaired by tightening its iteration tolerance. Faddeeva removes that
+defect but can cost more CPU time; compiled benchmarks and residual accuracy
+limits are in the [backend report](tests/FADDEEVA_BACKEND_REPORT.md).
+Bessel approximation, truncation and cancellation remain separate error sources.
+
+For the accurate backend, nonfinite arguments, `kpar=0` calls, nonrepresentable
+outputs and numerical failures produce assigned quiet NaNs. Dispersion guards
+mark the evaluation invalid; root refinement rejects it and frequency maps mask
+isolated invalid points. There are no floors, damping offsets, clamping or
+fallback to legacy. A later valid evaluation resets the failure state.
+In particular $\zeta=-14i$ is representable, whereas $\zeta=-30i$ exceeds
+binary64 range. The standalone API distinguishes invalid input (1), zero `kpar`
+(2), output range (3), and numerical failure (4), with 0 meaning success.
+Production dispersion status retains existing conventions: 1 invalid frequency,
+2 zero frequency, cold poles 2–4, and 5 nonfinite numerical response. The legacy
+backend retains its historical failure behavior for reproducibility.
+
+The Python wrapper's `set_params(..., z_backend='faddeeva')` reads/writes the
+same setting; use `z_backend='legacy', bessel_mode='fixed128'` for compatibility.
+See [accurate input](inputs/example/faddeeva_accuracy.in) and
+[historical numerical input](inputs/example/legacy_numerics.in).
+
+## Bessel harmonic controls
+
+These optional `&params` settings apply to warm kinetic species in either
+normalization, including warm-reference and auxiliary-normalized cold-reference
+mixtures and the existing weakly collisional all-kinetic calculation.
+
+| Input | Default | Meaning |
+| --- | --- | --- |
+| `bessel_mode` | `'adaptive'` | `'adaptive'` selects each species' cutoff; `'fixed'` uses `bessel_nfixed`; `'fixed128'` is an alias requiring `bessel_nfixed=128`. |
+| `bessel_tol` | `1.e-10` | Positive ordinary and quadratic-weighted Bessel-tail bounds must both be below this value. Require finite `0 < bessel_tol < 1`. |
+| `bessel_nmax` | `512` | Adaptive cutoff cap, independently applied to each warm species. |
+| `bessel_nfixed` | `128` | Fixed maximum **absolute** harmonic order: sum `-N..N`, including zero. |
+| `bessel_diagnostics` | `.false.` | Write per-species cache statistics to the `.bessel` sidecar. |
+
+Both counts must be positive integers. The current 32-bit harmonic arithmetic
+requires counts at most 46338 to avoid integer overflow in the existing `n*n`
+expressions. Fixed mode is not limited by `bessel_nmax`. Adjacent coefficients
+through `N+1` are stored separately; they do not add another susceptibility
+harmonic. Exact parallel limits already supported by PLUME remain analytical.
+No wavevector component or temperature is replaced by a floor.
+
+The physical argument is
+`lambda_s=(kperp*d_ref)^2*Qs^2*alphS*tauS_d/(2*muS)`.
+In `rho_ref` it is `kperp_rho^2*Qs^2*alphS/(2*muS*tauS_rho*alphS_ref)`.
+Thus different species generally require different cutoffs. The reference
+anisotropy in the historical gyroradius is retained. Auxiliary normalization
+changes neither this argument nor the physical input state.
+
+Reaching `bessel_nmax` without satisfying both bounds **warns and continues**
+at that cutoff. The warning identifies species, argument, tolerance, cap and
+bounds. Identical repeated frequency evaluations do not repeat it. Metadata
+retains unresolved-point history even if a subsequent scan point converges.
+Nonfinite Bessel arithmetic or allocation/range failure is a numerical failure,
+not a successful capped approximation.
+
+`bessel_tol` bounds omitted Bessel weights, not the full susceptibility error:
+resonances, cancellation, Bessel-coefficient accuracy, and (with legacy Z)
+historical plasma-dispersion-function errors can dominate. Check each observable by tightening the tolerance and increasing
+the cap; a substantially higher fixed count is another useful check. Fixed 128
+is part of historical compatibility (also select `z_backend='legacy'`),
+not an accuracy reference at large arguments. It keeps
+the historical Bessel evaluator and compiler path; other counts use the new
+vector Bessel calculation. Consequently differences from fixed 128 can also
+include improvements in coefficient accuracy.
+
+The Python wrapper's `set_params` accepts the same optional keyword arguments,
+including `bessel_diagnostics=True`, and reads/writes them in input files.
+See [the example](inputs/example/adaptive_bessel.in) and
+[the technical report](tests/ADAPTIVE_BESSEL_CACHE_REPORT.md).
+
 ## Normalization conventions
 
 `normalization='rho_ref'` is the default and preserves existing inputs.

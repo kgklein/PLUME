@@ -16,6 +16,8 @@ ordered_subpage: INSTALL.md
                  MIXED_DISPERSION_REPORT.md
                  FULLY_COLD_DISPERSION_REPORT.md
                  COLD_REFERENCE_MIXED_REPORT.md
+                 ADAPTIVE_BESSEL_CACHE_REPORT.md
+                 FADDEEVA_BACKEND_REPORT.md
                  citingpapers.md
                  READ
 display: public

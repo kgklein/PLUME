@@ -10,6 +10,7 @@
 !=============================================================================!
 !=============================================================================!
 module disprels
+  use plasma_z_backend, only: zetout
   !! Dispersion relation function and associated eigenfunction and minimization
   !! calculations.
   implicit none
@@ -44,7 +45,7 @@ module disprels
       use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
       use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
       use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
-      use vars, only : normalization, has_cold_species, dispersion_status
+      use vars, only : normalization, has_cold_species, dispersion_status,z_backend
       use cold_susceptibility, only : finite_complex, invalid_complex
       implicit none
       
@@ -220,15 +221,22 @@ module disprels
            
            dal(ir,ii)=disp(omega)
            val(ir,ii)=abs(dal(ir,ii))
-           if (has_cold_species() .and. dispersion_status /= 0) then
+           if ((has_cold_species() .or. z_backend=='faddeeva') .and. dispersion_status /= 0) then
               val(ir,ii)=huge(1.) ! Search mask, never a substitute tensor/determinant.
               invalid_points=invalid_points+1
            endif
         enddo
      enddo
 
-     if (invalid_points > 0) write(*,'(a,i0,a)') &
-          'WARNING: excluded ',invalid_points,' singular/nonfinite mixed map points from root search.'
+     if (invalid_points > 0) then
+        if (has_cold_species()) then
+           write(*,'(a,i0,a)') &
+                'WARNING: excluded ',invalid_points,' singular/nonfinite mixed map points from root search.'
+        else
+           write(*,'(a,i0,a)') &
+                'WARNING: excluded ',invalid_points,' singular/nonfinite map points from root search.'
+        endif
+     endif
      write(*,*)'finding minima'
      
      !Find Local minima (roots) in map
@@ -264,17 +272,18 @@ module disprels
               om2=omega*(1.+prec)
               
               omega=rtsec(disp,om1,om2,tol,iflag)
-              if (has_cold_species() .and. iflag < 0) cycle
+              if ((has_cold_species() .or. z_backend=='faddeeva') .and. iflag < 0) cycle
               
               !check to see if the found root is already
               !an identified solution
-              if ((j.eq.1 .and. .not. has_cold_species()) .or. (has_cold_species() .and. k==0)) then
+              if ((j.eq.1 .and. .not. (has_cold_species() .or. z_backend=='faddeeva')) .or. &
+                   ((has_cold_species() .or. z_backend=='faddeeva') .and. k==0)) then
                  k=k+1
                  wroots(1,k)=real(omega)
                  wroots(2,k)=aimag(omega)
               else
                  unique_root=.true.
-                 do ig=1,merge(k,j-1,has_cold_species()) ! Accepted mixed roots; legacy behavior otherwise.
+                 do ig=1,merge(k,j-1,(has_cold_species() .or. z_backend=='faddeeva')) ! Accepted mixed roots; legacy behavior otherwise.
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
                        unique_root=.false.
@@ -289,7 +298,7 @@ module disprels
              endif !
           endif !end omega !=0 loop
        enddo !end nroots loop
-       if (has_cold_species()) nroots=k
+       if ((has_cold_species() .or. z_backend=='faddeeva')) nroots=k
     endif !end refine loop
 
     !Eliminate all roots with a (LARGE) positive damping rate
@@ -338,7 +347,7 @@ module disprels
           do ii=0,ni
              !kgk 250108: change in output format: supressing indices,
              !and outputting val and dal directly
-             if (has_cold_species()) then
+             if ((has_cold_species() .or. z_backend=='faddeeva')) then
                 if (.not. finite_complex(dal(ir,ii))) val(ir,ii)=real(invalid_complex())
              endif
              write(21,'(3es14.6,2es14.4)')&
@@ -438,7 +447,7 @@ module disprels
     if (writeOut) then
        !WRITE out roots 
        write(*,'(a)')'Dispersion Solutions '
-       do is = 1,merge(nroots,nroot_max,has_cold_species())
+       do is = 1,merge(nroots,nroot_max,(has_cold_species() .or. z_backend=='faddeeva'))
           write(*,'(i3,2es14.4)')is,wroots(1:2,is)
        enddo
     endif
@@ -451,7 +460,7 @@ module disprels
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
     use vars, only : wroots, nroot_max, writeOut, nspec, scan
-    use vars, only : kperp, kpar, solver_vtp, has_cold_species, has_cold_reference, dispersion_status
+    use vars, only : kperp, kpar, solver_vtp, has_cold_species, has_cold_reference, dispersion_status,z_backend
 
     implicit none
 
@@ -506,6 +515,10 @@ module disprels
        write(*,'(a)') 'Cold-fluid eigenfunctions/heating unavailable; determinant only.'
        return
     endif
+    if (z_backend=='faddeeva' .and. dispersion_status/=0) then
+       write(*,'(a,i0)') 'Dispersion evaluation failed; diagnostics unavailable. Status: ',dispersion_status
+       return
+    endif
     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.true.)
 
 
@@ -540,7 +553,7 @@ module disprels
 !-=-=-=-=-
 subroutine refine_guess
   !!Refine solutions for roots of dispersion relation.
-  use vars, only : wroots, nroot_max, writeOut, has_cold_species
+  use vars, only : wroots, nroot_max, writeOut, has_cold_species,z_backend
   implicit none
   
   complex :: omega
@@ -559,8 +572,8 @@ subroutine refine_guess
   !!Solution index.
 
   do j=1,nroot_max
-     if (has_cold_species() .and. all(wroots(1:2,j)==0.)) &
-          error stop 'ERROR: mixed root guess is at the zero-frequency pole.'
+     if ((has_cold_species() .or. z_backend=='faddeeva') .and. all(wroots(1:2,j)==0.)) &
+          error stop 'ERROR: root guess is at the zero-frequency pole.'
      if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
         
         omega=cmplx(wroots(1,j),wroots(2,j))
@@ -569,8 +582,8 @@ subroutine refine_guess
         om2=omega*(1.+prec)
         
         omega=rtsec(disp,om1,om2,tol,iflag)
-        if (has_cold_species() .and. iflag < 0) &
-             error stop 'ERROR: mixed root refinement failed: singular/nonfinite trial or iteration limit.'
+        if ((has_cold_species() .or. z_backend=='faddeeva') .and. iflag < 0) &
+             error stop 'ERROR: root refinement failed: singular/nonfinite trial or iteration limit.'
 
         wroots(1,j)=real(omega)
         wroots(2,j)=aimag(omega)
@@ -3744,7 +3757,8 @@ end function disp
 
 complex function disp_mixed(om)
   !! Shared cold preflight/status handling; keep outside disp for legacy numerics.
-  use vars, only : has_cold_species, all_species_cold, has_cold_reference, dispersion_status
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
+  use vars, only : has_cold_species, all_species_cold, has_cold_reference, dispersion_status,z_backend
   use cold_reference, only : calc_warm_auxiliary
   use kinetic_core, only : guarded_parallel
   use vars, only : nspec, spec, kpar, kperp, vtp, susc, lam, low_n, susc_low
@@ -3755,6 +3769,11 @@ complex function disp_mixed(om)
   integer :: is, row, column
   complex :: cold_chi(3,3)
 
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp_mixed,z_reject)
+  if (z_reject) return
   dispersion_status = 0
   if (has_cold_species()) then
      ! Preflight all cold components BEFORE any warm thermal or wave expression.
@@ -3777,6 +3796,7 @@ complex function disp_mixed(om)
         lam = invalid_complex()
         if (low_n) susc_low = invalid_complex()
         disp_mixed = invalid_complex()
+        call end_z_evaluation(z_guard,disp_mixed)
         return
      endif
   endif
@@ -3816,6 +3836,7 @@ complex function disp_mixed(om)
         disp_mixed = invalid_complex()
      endif
   endif
+  call end_z_evaluation(z_guard,disp_mixed)
   return
 
 end function disp_mixed
@@ -3909,9 +3930,11 @@ end function disp_mixed_parallel
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
 complex function disp1(om)
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
   !!Returns Plasma Dispersion Function for input complex frequency
   !! and global values of the dimensionless plasma parameters.
   !! updated to include weak neutral-charged collision
+  use adaptive_kinetic, only : dynamic_harmonics, disp_adaptive
   use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
   use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
   use vars,  only: low_n, susc_low, pi
@@ -4060,7 +4083,18 @@ complex function disp1(om)
   !! Either use previous Bessel array, or recalculate,
   !! based on if argument for a particular species/component changes.
 
-  if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
+
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp1,z_reject)
+  if (z_reject) return
+  if (dynamic_harmonics()) then
+     disp1=disp_adaptive(om,bessel,zet_in)
+     call end_z_evaluation(z_guard,disp1)
+     return
+  endif
+  if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))
   if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
   if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
   if (.not. allocated(alph_last)) allocate(alph_last(nspec))          
@@ -4113,390 +4147,7 @@ complex function disp1(om)
      disp_v    =spec(is)%vv_s
      disp_nuns =spec(is)%nu_ns
      
-     !frequently employed v drift normalization
-     Vdrifts = kpar * disp_v / sqrt(betap*alphp)
-     
-     lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
-     
-     !Clear the Temporary Susceptability
-     eps_xx_t = cmplx(0.,0.) 
-     eps_xy_t = cmplx(0.,0.) 
-     eps_xz_t = cmplx(0.,0.) 
-     eps_yy_t = cmplx(0.,0.) 
-     eps_yz_t = cmplx(0.,0.) 
-     eps_zz_t = cmplx(0.,0.)
-
-     !Compute all necessary plasma dispersion functions and bessel functions
-     tsi=0. ;  zz=0. ;
-     if (.not. reuse_bessel(is)) then 
-        do n = -nbrack-1, nbrack+1
-           jn(n,is)=bessel(abs(n),lambdas)
-        enddo
-        do n = -nbrack, nbrack
-           jpn(n,is)=0.5*(jn(n+1,is)+jn(n-1,is))
-        enddo
-     endif
-     
-     do n = -nbrack, nbrack
-        !here, we add i nu_ns/Omega_ref to the numerator
-        tsi(n) = sqrt((alphp * disp_tau)/(disp_mu))*&
-             ( om - Vdrifts - dble(n)* disp_mu/disp_Q + c_i * disp_nuns)/kpar
-        zz(n)=zet_in(kpar,tsi(n))
-     enddo
-
-     !Set normalizations for susceptibilites
-     !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-     !-=-=-=-=-=-=-=-=-=-=
-     !XX
-     norm(1)=( betap * disp_mu * disp_D  )/&
-          ( om *om * vtp**2. * disp_Q**2. * lambdas  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !XY
-     norm(4)=((-c_i * betap * disp_mu * disp_D  )/&
-          ( om * om* vtp**2. * disp_Q**2. * kpar ))* &
-          sqrt(alphp * disp_tau / disp_mu)
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !XZ
-     norm(5)=( betap * disp_D * kperp )/&
-          ( om * om *vtp**2. * disp_Q * lambdas * kpar  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !YY
-     norm(2)=( betap * disp_mu * disp_D  )/&
-          ( om * om* vtp**2. * disp_Q**2. * lambdas  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !YZ
-     norm(6)=( c_i * betap * disp_D * kperp )/&
-          ( om * om * vtp**2. * disp_Q * kpar  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !ZZ
-     norm(3)=(2. * betap * alphp* disp_tau  * disp_D)/&
-          ( om * om* vtp**2. * disp_Q**2. * kpar * kpar * disp_alph)
-
-     !Sum over the Susceptibilities
-     do n = 1, nbrack
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xx_t  = eps_xx_t  + &
-             n*n*jn(n,is)*( 2.*(disp_alph-1.) &
-             + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-             (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-             (zz(n)+zz(-n)) &
-             + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YY
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_yy_t = eps_yy_t + &
-             (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-             (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (disp_alph*(om - Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*&
-             (zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
-             (1.-disp_alph)*(zz(n)-zz(-n))))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !ZZ
-        !A plethora of cross terms added.
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_zz_t = eps_zz_t + &
-             jn(n,is)*(2.*om* &
-             (om*disp_alph - Vdrifts+c_i *disp_nuns*(disp_alph-1.d0)) - &
-             2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-             +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-             (zz(n)+zz(-n))*&
-             (om*(om+c_i*disp_nuns)*&
-             (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-             + n*n*disp_mu**2.*&
-             (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-             2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-             +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*&
-             (om*om*(1.d0-3.d0*disp_alph) +&
-             (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-             (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-             -c_i*disp_nuns*om*disp_alph)+&
-             n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) 
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XY
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xy_t = eps_xy_t + &
-             n*(jn(n,is)-jpn(n,is))*( &
-             (zz(n)-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1)*c_i*disp_nuns)&
-             +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XZ
-        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xz_t = eps_xz_t + &
-             n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-             (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (zz(n) -zz(-n))*&
-             ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) )-&
-             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-             (zz(n) +zz(-n))*&
-             (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-             +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YZ
-        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_yz_t = eps_yz_t + &
-             (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)) &
-             +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (zz(n)+zz(-n))*&
-             ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-             +(zz(n)-zz(-n))*&
-             (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-             2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-        
-        !-=-=-=-=-=-=-=-=-=-=
-        !n=\pm 1 susceptibility
-        if ((low_n).and.(n==1)) then
-           
-           !\chi_xx
-           susc_low(is,1,1,1) = norm(1)*&
-                n*n*jn(n,is)*( (disp_alph-1.) &
-                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-                (zz(n)) &
-                + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-           
-           susc_low(is,1,1,-1) = norm(1)*&
-                n*n*jn(n,is)*( (disp_alph-1.) &
-                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-                (zz(-n)) &
-                + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-           !\chi_xy
-           susc_low(is,1,2,1) = norm(4)*&
-                n*(jn(n,is)-jpn(n,is))*( &
-                (zz(n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns)&
-                +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-           
-           susc_low(is,1,2,-1) = norm(4)*&
-                n*(jn(n,is)-jpn(n,is))*( &
-                (-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns) &
-                +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-           !\chi_yx
-           susc_low(is,2,1,1) = -susc_low(is,1,2,1)
-           
-           susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
-
-           !\chi_xz
-           susc_low(is,1,3,1) = norm(5)*&
-                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n))*&
-                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                (zz(n))*&
-                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-           
-           susc_low(is,1,3,-1) = norm(5)*&
-                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (-zz(-n))*&
-                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                (zz(-n))*&
-                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-                           
-           !\chi_zx
-           susc_low(is,3,1,1) = susc_low(is,1,3,1)
-           
-           susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
-           
-           !\chi_yy
-           susc_low(is,2,2,1) = norm(2)*&
-                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(n)) + &
-                (n*disp_mu/(disp_Q))*&
-                (1.-disp_alph)*(zz(n))))
-           
-           susc_low(is,2,2,-1) = norm(2)*&
-                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(-n)) + &
-                (n*disp_mu/(disp_Q))*&
-                (1.-disp_alph)*(-zz(-n))))
-
-           !\chi_yz
-           susc_low(is,2,3,1) = norm(6)*&
-                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n))*&
-                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-                +(zz(n))*&
-                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-
-           susc_low(is,2,3,-1) = norm(6)*&
-                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(-n))*&
-                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-                +(-zz(-n))*&
-                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-           
-           !\chi_zy
-           susc_low(is,3,2,1) = -susc_low(is,2,3,1)
-           
-           susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)
-
-           !\chi_zz
-           susc_low(is,3,3,1) = norm(3)*&
-                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                (zz(n))*(om*(om+c_i*disp_nuns)*&
-                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-                + n*n*disp_mu**2.*&
-                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-                +(n * disp_mu/disp_Q )*(zz(n))*& 
-                (om*om*(1.d0-3.d0*disp_alph) +&
-                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-                -c_i*disp_nuns*om*disp_alph)+&
-                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
-
-           susc_low(is,3,3,1) = norm(3)*&
-                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                (zz(n))*(om*(om+c_i*disp_nuns)*&
-                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-                + n*n*disp_mu**2.*&
-                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-                +(n * disp_mu/disp_Q )*(-zz(-n))*& 
-                (om*om*(1.d0-3.d0*disp_alph) +&
-                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-                -c_i*disp_nuns*om*disp_alph)+&
-                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
-           
-        endif
-           
-     enddo !end n loop
-
-     !Add in the n=zero term
-     
-     !No n=0 XX term
-     
-     !No n=0 XY,YX terms
-     
-     !No n=0 XZ,ZX terms
-     
-     !YY term
-     eps_yy_t = eps_yy_t + &
-          (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-          ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-          (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0)))
-
-     !YZ term
-     eps_yz_t = eps_yz_t + &
-          (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
-          zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-          (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))
-
-     !ZZ term
-     eps_zz_t = eps_zz_t + &
-          jn(0,is)*om*(&
-          om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
-          zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-          *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) )
-     
-
-     if (low_n) then
-
-        !xx
-        susc_low(is,1,1,0)=cmplx(0.d0,0.d0)
-
-        !yy
-        susc_low(is,2,2,0) =  (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-             ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-             (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0))) * norm(2)
-
-        !xy
-        susc_low(is,1,2,0)=cmplx(0.d0,0.d0)
-
-        !yx
-        susc_low(is,2,1,0)=cmplx(0.d0,0.d0)
-
-        !xz
-        susc_low(is,1,3,0)=cmplx(0.d0,0.d0)
-
-        !zx
-        susc_low(is,3,1,0)=cmplx(0.d0,0.d0)
-        
-        !yz
-        susc_low(is,2,3,0) = &
-             (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
-             zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-             (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))*&
-             norm(6)
-        
-        !zy
-        susc_low(is,3,2,0) = -susc_low(is,2,3,0)
-
-        !zz
-        susc_low(is,3,3,0) = &
-             jn(0,is)*om*(&
-             om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
-             zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-             *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) ) * norm(3)
-        
-     endif
-
-             !Apply the correct species normalization
-           !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        eps_xx_t=eps_xx_t*norm(1)
-        !XY
-        eps_xy_t=eps_xy_t*norm(4)
-        !XZ
-        eps_xz_t=eps_xz_t*norm(5)
-        !YY
-        eps_yy_t=eps_yy_t*norm(2)
-        !YZ
-        eps_yz_t=eps_yz_t*norm(6)
-        !ZZ
-        eps_zz_t=eps_zz_t*norm(3)
-
-        !Add the drift term
-        eps_zz_t = eps_zz_t + &
-             ((2.*disp_v)/(kpar*vtp**2.)) * &
-             (disp_D*disp_tau*sqrt(betap*alphp)/(om*disp_alph*disp_Q**2.))
-
-        !Save the temporary susceptibility to the 'susc' array
-        susc(is,1,1) = eps_xx_t
-        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
-        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
-        susc(is,2,2) = eps_yy_t
-        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
-        susc(is,3,3) = eps_zz_t
+     include 'kinetic_collisional_species.inc'
 
         !-=-=-=-=-=-=-=-=-=-=
         !Add to the total susceptibility
@@ -4543,8 +4194,9 @@ complex function disp1(om)
      !Save values of lambda_s components to save on Bessel function calculations
      kperp_last=kperp
 
-     return
+     call end_z_evaluation(z_guard,disp1)
 
+     return
 end function disp1
   
 !THE BEATING HEART OF THE CODE....
@@ -4577,8 +4229,10 @@ end function disp1
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
    complex function disp0(om)
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
      !!Returns Plasma Dispersion Function for input complex frequency
      !! and global values of the dimensionless plasma parameters.
+  use adaptive_kinetic, only : dynamic_harmonics, disp_adaptive
      use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
      use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
      use vars,  only: low_n, susc_low, pi
@@ -4720,6 +4374,17 @@ end function disp1
      !! Either use previous Bessel array, or recalculate,
      !! based on if argument for a particular species/component changes.
 
+
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp0,z_reject)
+  if (z_reject) return
+     if (dynamic_harmonics()) then
+       disp0=disp_adaptive(om,bessel,zet_in)
+       call end_z_evaluation(z_guard,disp0)
+       return
+     endif
      if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
      if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
      if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
@@ -4829,8 +4494,9 @@ end function disp1
      !Save values of lambda_s components to save on Bessel function calculations
      kperp_last=kperp
 
-     return
+     call end_z_evaluation(z_guard,disp0)
 
+     return
    end function disp0
 
    !------------------------------------------------------------------------------
@@ -4839,7 +4505,7 @@ end function disp1
    !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
      !!Secant routine to find minimum value of dispersion relation function.
-     use vars, only : has_cold_species, lam
+     use vars, only : has_cold_species, lam,z_backend
      use cold_susceptibility, only : finite_complex, invalid_complex
      integer, parameter :: maxit=75
      !!Maximum number of iterations.
@@ -4893,7 +4559,7 @@ end function disp1
      endif
      
      fl=func(x1)
-     if (has_cold_species()) then
+     if (has_cold_species() .or. z_backend=='faddeeva') then
         if (.not. finite_complex(fl)) then
            iflag=-1
            rtsec=invalid_complex()
@@ -4901,7 +4567,7 @@ end function disp1
         endif
      endif
      f=func(x2)
-     if (has_cold_species()) then
+     if (has_cold_species() .or. z_backend=='faddeeva') then
         if (.not. finite_complex(f)) then
            iflag=-1
            rtsec=invalid_complex()
@@ -4943,12 +4609,14 @@ end function disp1
 
         f=func(rtsec)
 
-        if (has_cold_species()) then
+        if (has_cold_species() .or. z_backend=='faddeeva') then
            if (.not. finite_complex(f)) then
               iflag=-1
               rtsec=invalid_complex()
               return
            endif
+        endif
+        if (has_cold_species()) then
            if (abs(dx)<xacc .or. abs(f)==0.) then
               if (abs(f)/maxval(abs(lam))**3 < 1.e-8) return
            endif
@@ -4956,7 +4624,7 @@ end function disp1
            if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
         endif
      enddo
-     if (has_cold_species()) then
+     if (has_cold_species() .or. z_backend=='faddeeva') then
         iflag=-2
         rtsec=invalid_complex()
      endif
@@ -5096,7 +4764,11 @@ end subroutine find_minima
 !-------------------------------------------------------------------------------
    function zet_in(kpar,zin)
      !!Evaluate Plasma Dispersion Function (Z) for kparallel >/< 0
-     !! Calls [[zetout(function)]] with appropriate argument.
+     !! Default: binary64 Faddeeva Landau continuation; legacy is selectable.
+     !! kpar<0 returns -Z(-zin); failed accurate calls return assigned quiet NaNs.
+     !! Evaluation guards mark a nonfinite susceptibility/determinant as failed.
+     use vars, only: z_backend
+     use plasma_z_faddeeva, only: z_faddeeva_value
      implicit none
      !passed
      real :: kpar
@@ -5108,6 +4780,10 @@ end subroutine find_minima
      complex :: zet_in
      !! Value of plasma dispersion function.
      
+     if (z_backend=='faddeeva') then
+        zet_in=z_faddeeva_value(kpar,zin)
+        return
+     endif
      if (kpar.gt.0.) zet_in=zetout(zin)
      if (kpar.lt.0.) zet_in=-zetout(-zin)
      return
@@ -5116,105 +4792,7 @@ end subroutine find_minima
 
 !------------------------------------------------------------------------------
 !Greg Howes, 2004
-   complex function zetout(zin)
-     !! This is the subroutine used by Linsker to evaluate his Z-function.
-     complex :: z,dzetaz,term,fmult,terme,an1,bn1,zsquar
-     complex :: hold,temp1,temp2,ddzeta,dddzet,zin,zetaoz
-     real :: imagte,imagmu,imagse,imagsu
-     real :: error,x,y,fn,realte,realmu,realsu,realse
-     logical :: fail
-     integer :: n
 
-     error=1.e-7
-     z=zin
-     zsquar=z*z
-     x=real(z)
-     y=aimag(z)
-     fn=real(zsquar)
-     if (y.gt.0.) go to 99
-     if (abs(fn) < 174. .and. abs(aimag(zsquar)) < 5.e4) go to 98
-     if (fn.gt.0.) go to 97
-11    format (' argument wp of subroutine zetvec has too large a negative imaginary part, wp = '/2e14.7)
-! GGH: Modification to return with a fail=.true.
-     fail=.true.
-     return
-
-97   hold=(0.,0.)
-     go to 99
-98   hold=(0.,1.77245385090551603)*cexp(-zsquar)
-99   if (x*x+y*y > 9.) go to 200
-     if (abs(y) >= 1.) go to 300
-     realte=-2.*x
-     imagte=-2.*y
-     realmu=.5*(imagte*imagte-realte*realte)
-     imagmu=-imagte*realte
-     realsu=realte
-     imagsu=imagte
-     if (x == 0. .and. y == 0.) go to 103
-     fn=3.
-100  realse=realte
-     imagse=imagte
-     realte=(realse*realmu-imagse*imagmu)/fn
-     imagte=(realse*imagmu+imagse*realmu)/fn
-     realse=realsu
-     imagse=imagsu
-     realsu=realsu+realte
-     imagsu=imagsu+imagte
-     fn=fn+2.
-     if (abs(realse-realsu) > error .or. abs(imagse-imagsu) > error) go to 100
-103  x=realsu
-     fn=imagsu
-     if (y > 0.) hold=(0.,1.77245385090551603)*cexp(-zsquar)
-     zetaoz=cmplx(x,fn)+hold
-     go to 401
-200  fn=5.
-     dddzet=6.
-     term=dddzet
-     fmult=.5/zsquar
-201  terme=term
-     term=term*fmult*fn*(fn-1.)/(fn-3.)
-     zetaoz=term/terme
-     if (abs(real(zetaoz))+abs(aimag(zetaoz)) > 1.) go to 250
-     zetaoz=dddzet
-     dddzet=dddzet+term
-     fn=fn+2.
-     if (cabs(zetaoz-dddzet) > error) go to 201
-250  dddzet=dddzet/(zsquar*zsquar)
-     if (y > 0.) go to 260
-     fn=1.
-     if (y < 0.) fn=2.
-     dddzet=dddzet-4.*fn*hold*z*(2.*zsquar-3.)
-260  ddzeta=-(4.+(zsquar-.5)*dddzet)/(z*(2.*zsquar-3.))
-     dzetaz=(2.-z*ddzeta)/(2.*zsquar-1.)
-     zetaoz=-(1.+.5*dzetaz)/z
-     go to 401
-300  if (y < 0.) z=conjg(z)
-     terme=(1.,0.)
-     term=(0.,0.)
-     dzetaz=term
-     fmult=terme
-     n=0
-     an1=z
-     bn1=-z*z+.5
-301  temp1=bn1*term+an1*terme
-     temp2=bn1*fmult+an1*dzetaz
-     zetaoz=temp1/temp2
-     dzetaz=(zetaoz-term/fmult)/zetaoz
-     if (abs(real(dzetaz)) < error .and. abs(aimag(dzetaz)) < error) go to 302
-     bn1=bn1+2.
-     n=n+1
-     an1=-.5*float(n*(n+n-1))
-     terme=term
-     dzetaz=fmult
-     term=temp1
-     fmult=temp2
-     if (n < 30) go to 301
-302  if (y >= 0.) go to 401
-     zetaoz=conjg(zetaoz)+2.*hold
-401  zetout=zetaoz
-9999 continue
-
-   end function zetout
 
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006

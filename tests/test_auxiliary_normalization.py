@@ -1,3 +1,4 @@
+from faddeeva_build import compile_c,c_objects
 """Stage 3B.1 independent prototype, with current production isolation checks."""
 from pathlib import Path
 import subprocess
@@ -27,13 +28,14 @@ class AuxiliaryNormalizationTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         cls.probes = {}
-        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization','kinetic_core','cold_reference','functions','bessel','disprels')
+        modules = ('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization','kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','functions','bessel','disprels')
         for checked in (False,True):
             directory = Path(cls.temp.name)/str(checked)
             directory.mkdir()
             (directory/'kernel.f90').write_text(experimental_kernel())
             base = ['gfortran','-fdefault-real-8','-I',str(directory),'-J',str(directory)]
             if checked:
+                compile_c(directory)
                 flags = ['-O0','-g','-fcheck=all','-ffpe-trap=invalid,zero,overflow']
                 command = base+flags+['-c',*[str(ROOT/'src'/f'{m}.f90') for m in modules]]
                 subprocess.run(command,cwd=directory,check=True,capture_output=True)
@@ -47,7 +49,7 @@ class AuxiliaryNormalizationTests(unittest.TestCase):
                            cwd=directory,check=True,capture_output=True)
             executable = directory/'probe'
             subprocess.run(base+flags+[str(directory/'kernel.f90'),str(ROOT/'tests/auxiliary_probe.f90'),
-                           *objects,'-o',str(executable)],
+                           *objects,*c_objects(directory if checked else ROOT),'-o',str(executable)],
                            cwd=directory,check=True,capture_output=True)
             cls.probes[checked] = executable
 

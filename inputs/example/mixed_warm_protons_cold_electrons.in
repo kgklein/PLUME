@@ -1,0 +1,39 @@
+! Stage 2: warm reference protons and cold electrons; collisionless d_ref.
+! Run from the repository root: ./plume.e inputs/example/mixed_warm_protons_cold_electrons.in
+! Roots are printed to stdout. No supplementary diagnostics or parameter scans.
+&params
+normalization='d_ref'
+betap=0.4
+kperp=0.01
+kpar=0.06
+vtp=0.001
+nspec=2
+nscan=0
+option=1
+nroot_max=1
+use_map=.false.
+writeOut=.true.
+collision_type=0
+dataName='example'
+outputName='mixed_warm_protons_cold_electrons'
+/
+&species_1
+tauS=0.4
+muS=1
+alphS=1.3
+Qs=1
+Ds=1
+vvS=0
+/
+&species_2
+tauS=0
+muS=1836
+alphS=0
+Qs=-1
+Ds=1
+vvS=0
+/
+&guess_1
+g_om=0.05
+g_gam=-0.001
+/

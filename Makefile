@@ -17,6 +17,8 @@ SYSTEM=GFORT
 PACK = Makefile \
 	src/*.f90 \
 	src/*.inc \
+	src/*.c \
+	third_party/faddeeva/* \
 	*.md \
 	inputs/example/*.in \
 	include/
@@ -38,9 +40,11 @@ ifeq ($(SYSTEM),GFORT)
 	COMP= gfortran
 	COLD_FLAGS= -fno-fast-math
 endif
-LIBS=
+CC ?= cc
+FADDEEVA_CFLAGS = -O3 -std=c99 -fno-fast-math
+LIBS= -lm
 
-LFMOD=	nrtype.o nrutil_trim.o vars.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o cold_reference.o functions.o bessel.o disprels.o fpc.o
+LFMOD=	faddeeva_bridge.o faddeeva.o plasma_z_faddeeva.o nrtype.o nrutil_trim.o vars.o plasma_z_legacy.o plasma_z_backend.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o harmonic_selection.o bessel_cache.o adaptive_kinetic.o cold_reference.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -50,7 +54,7 @@ VPATH= src:include:/usr/include/
 all: heat
 
 heat: $(MODDIR) $(LFMOD) $(LFX)
-	$(COMP) -o plume.e $(FLAGS) $(LIBS) $(LFMOD) $(LFX)
+	$(COMP) -o plume.e $(FLAGS) $(LFMOD) $(LFX) $(LIBS)
 
 ###############################################################################
 
@@ -61,6 +65,7 @@ tidyup:
 	mv *.mod include/
 
 clean:
+	rm -f $(LFMOD) $(LFX)
 	rm -f include/*.o
 	rm -f include/*.mod
 	rm -f plume*.e
@@ -84,9 +89,9 @@ cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
 
 bessel.o:      nrtype.o nrutil_trim.o
 
-disprels.o:    vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_harmonics.inc
+disprels.o:    plasma_z_backend.o vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_collisional_species.inc src/kinetic_harmonics.inc
 
-functions.o:   vars.o
+functions.o:   vars.o adaptive_kinetic.o
 
 fpc.o:         disprels.o vars.o
 
@@ -99,4 +104,27 @@ auxiliary_normalization.o: src/auxiliary_normalization.f90 vars.o nrtype.o | $(M
 kinetic_core.o: src/kinetic_core.f90 vars.o nrtype.o src/kinetic_species.inc src/kinetic_harmonics.inc | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
 
-cold_reference.o: auxiliary_normalization.o kinetic_core.o vars.o
+cold_reference.o: auxiliary_normalization.o kinetic_core.o adaptive_kinetic.o vars.o
+
+# Selection/cache checks require IEEE semantics, including in optimized builds.
+harmonic_selection.o: src/harmonic_selection.f90 | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+bessel_cache.o: src/bessel_cache.f90 harmonic_selection.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+adaptive_kinetic.o: src/adaptive_kinetic.f90 vars.o kinetic_core.o bessel_cache.o src/kinetic_species.inc src/kinetic_collisional_species.inc | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+# Johnson's dual C/C++ source is compiled as ordinary C99; upstream is unedited.
+faddeeva.o: third_party/faddeeva/Faddeeva.cc third_party/faddeeva/Faddeeva.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(FADDEEVA_CFLAGS) -x c -c $< -o $@
+plasma_z_faddeeva.o: src/plasma_z_faddeeva.f90 | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+faddeeva_bridge.o: src/faddeeva_bridge.c third_party/faddeeva/Faddeeva.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(FADDEEVA_CFLAGS) -Ithird_party/faddeeva -c $< -o $@
+
+$(MODDIR):
+	mkdir -p $@
+
+plasma_z_backend.o: src/plasma_z_backend.f90 vars.o plasma_z_faddeeva.o plasma_z_legacy.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<

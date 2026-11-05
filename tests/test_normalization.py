@@ -1,3 +1,4 @@
+from faddeeva_build import c_objects
 """Finite-temperature equivalence tests for PLUME's two input conventions."""
 
 import math
@@ -25,7 +26,7 @@ def input_text(mode, beta, alpha_ref, kperp_d, kpar_d, species, scan=None):
         kperp, kpar, vtp = kperp_d, kpar_d, 1e-4
     option = 1 if scan else -1
     lines = [
-        '&params', f"normalization='{mode}'", f'betap={beta:.17g}',
+        '&params', "z_backend='legacy'", "bessel_mode='fixed'", f"normalization='{mode}'", f'betap={beta:.17g}',
         f'kperp={kperp:.17g}', f'kpar={kpar:.17g}', f'vtp={vtp:.17g}',
         f'nspec={len(species)}', f'nscan={1 if scan else 0}', f'option={option}',
         'nroot_max=1', 'use_map=.false.', 'writeOut=.false.',
@@ -83,7 +84,7 @@ class NormalizationTests(unittest.TestCase):
         cls.probe = Path(cls.tempdir.name) / 'probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
                         '-o', str(cls.probe), str(PROBE), 'nrtype.o', 'nrutil_trim.o',
-                        'vars.o', 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'cold_reference.o', 'disprels.o', 'fpc.o'],
+                        'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT), 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o', 'disprels.o', 'fpc.o'],
                        cwd=ROOT, check=True, capture_output=True)
 
     @classmethod
@@ -330,7 +331,7 @@ class NormalizationTests(unittest.TestCase):
             for relative in ('inputs/example/example_map_par.in', 'tests/drift_cbe_test.in'):
                 source = (ROOT / relative).read_text()
                 old = run_case(old_probe, source)[0]
-                new = run_case(self.probe, source)[0]
+                new = run_case(self.probe, source.replace('&params', "&params\nz_backend='legacy'\nbessel_mode='fixed128'", 1))[0]
                 self.assertEqual(old.returncode, 0, old.stderr + old.stdout)
                 self.assertEqual(new.returncode, 0, new.stderr + new.stdout)
                 self.assertEqual(numeric_records(old.stdout), numeric_records(new.stdout))
@@ -469,7 +470,7 @@ class NormalizationTests(unittest.TestCase):
                     # Cartesian projections. Moment integration is a debug path.
                     outputs.append({name: text for name, text in files.items()
                                     if name.startswith('equivalence.') and '.mom.' not in name
-                                    and '.eigen.' not in name})
+                                    and '.eigen.' not in name and not name.endswith('.bessel')})
                 self.assertTrue(outputs[0])
                 self.assertEqual(outputs[0].keys(), outputs[1].keys())
                 for name in outputs[0]:

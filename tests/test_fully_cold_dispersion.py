@@ -1,3 +1,4 @@
+from faddeeva_build import compile_c,c_objects
 """Stage 3A: native cold-reference assembly and existing production root finder.
 
 Oracles use the Stage 1 momentum/continuity solve and literal circular response,
@@ -43,12 +44,13 @@ class FullyColdDispersionTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory()
         cls.addClassCleanup(cls.temp.cleanup)
         cls.probes = {}
-        modules = ('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization','kinetic_core','cold_reference','functions','bessel','disprels')
+        modules = ('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization','kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','functions','bessel','disprels')
         for checked in (False, True):
             directory = Path(cls.temp.name)/str(checked)
             directory.mkdir()
             exe = directory/'probe'
             if checked:
+                compile_c(directory)
                 command = ['gfortran','-O0','-g','-fdefault-real-8','-fcheck=all',
                            '-ffpe-trap=invalid,zero,overflow','-J',str(directory),'-I',str(directory),
                            *[str(ROOT/'src'/f'{name}.f90') for name in modules],
@@ -57,7 +59,7 @@ class FullyColdDispersionTests(unittest.TestCase):
                 command = ['gfortran','-O3','-fdefault-real-8','-I',str(ROOT/'include'),
                            str(ROOT/'tests/fully_cold_probe.f90'),
                            *[str(ROOT/f'{name}.o') for name in modules]]
-            subprocess.run(command+['-o',str(exe)], cwd=directory, check=True, capture_output=True)
+            subprocess.run(command+c_objects(directory if checked else ROOT)+['-o',str(exe)], cwd=directory, check=True, capture_output=True)
             cls.probes[checked] = exe
 
     @classmethod

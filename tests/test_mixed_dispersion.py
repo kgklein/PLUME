@@ -1,3 +1,4 @@
+from faddeeva_build import compile_c,c_objects
 """Stage 2 production assembly, roots, boundaries and kinetic-to-cold limits."""
 from pathlib import Path
 import subprocess
@@ -17,7 +18,7 @@ COLD_ALPHA = (0., .25, 0., .5, .05, .3)
 
 
 def input_text(species, kpar=.06, kperp=.05, va=1e-3, option=-1, extra='', guess=.06-.0001j):
-    lines = ['&params', "normalization='d_ref'", f'betap={species[0][0]:.17g}',
+    lines = ['&params', "z_backend='legacy'", "bessel_mode='fixed'", "normalization='d_ref'", f'betap={species[0][0]:.17g}',
              f'kpar={kpar:.17g}', f'kperp={kperp:.17g}', f'vtp={va:.17g}',
              f'nspec={len(species)}', 'nscan=0', f'option={option}',
              'nroot_max=1', 'use_map=.false.', 'writeOut=.true.',
@@ -70,17 +71,18 @@ class MixedDispersionTests(unittest.TestCase):
         cls.addClassCleanup(cls.temp.cleanup)
         cls.probe = Path(cls.temp.name)/'mixed_probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
-                        'tests/mixed_probe.f90', 'nrtype.o', 'nrutil_trim.o', 'vars.o',
-                        'functions.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'cold_reference.o', 'bessel.o', 'disprels.o',
+                        'tests/mixed_probe.f90', 'nrtype.o', 'nrutil_trim.o', 'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT),
+                        'functions.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o', 'bessel.o', 'disprels.o',
                         '-o', str(cls.probe)], cwd=ROOT, check=True, capture_output=True)
         checked = Path(cls.temp.name)/'checked'
         checked.mkdir()
+        compile_c(checked)
         cls.checked_probe = checked/'mixed_probe'
         subprocess.run(['gfortran', '-O0', '-g', '-fdefault-real-8', '-fcheck=all',
                         '-ffpe-trap=invalid,zero,overflow', '-I', str(checked), '-J', str(checked),
                         *[str(ROOT/'src'/name) for name in ('nrtype.f90', 'nrutil_trim.f90',
-                          'vars.f90', 'cold_susceptibility.f90', 'auxiliary_normalization.f90', 'kinetic_core.f90', 'cold_reference.f90', 'functions.f90', 'bessel.f90', 'disprels.f90')],
-                        str(ROOT/'tests/mixed_probe.f90'), '-o', str(cls.checked_probe)],
+                          'vars.f90', 'plasma_z_faddeeva.f90', 'plasma_z_legacy.f90', 'plasma_z_backend.f90', 'cold_susceptibility.f90', 'auxiliary_normalization.f90', 'kinetic_core.f90', 'harmonic_selection.f90', 'bessel_cache.f90', 'adaptive_kinetic.f90', 'cold_reference.f90', 'functions.f90', 'bessel.f90', 'disprels.f90')],
+                        str(ROOT/'tests/mixed_probe.f90'), *c_objects(checked), '-o', str(cls.checked_probe)],
                        cwd=checked, check=True, capture_output=True)
 
     @classmethod

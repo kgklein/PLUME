@@ -3,6 +3,7 @@ module cold_reference
   !! handling remain in disprels. No authoritative input or solver_* state changes.
   use vars, only: specie
   use auxiliary_normalization
+  use adaptive_kinetic, only: dynamic_harmonics, calc_chi_adaptive, physical_bessel_argument
   use kinetic_core
   implicit none
   private
@@ -27,7 +28,8 @@ contains
     type(auxiliary_scale) :: scale
     type(kinetic_normalization) :: state
     type(specie) :: kinetic
-    complex :: response(3,3)
+    complex :: response(3,3),low(3,3,-1:1)
+    real :: argument
     integer :: j,first_warm
     first_warm=0
     do j=1,size(spec)
@@ -51,7 +53,13 @@ contains
           if (ierr==auxiliary_range) ierr=5
           return
        endif
-       call calc_chi_kinetic(kinetic,omega,state,response,ierr,bessel,zet_in)
+       if (dynamic_harmonics()) then
+          argument=physical_bessel_argument(spec(j),kperp,1.,.true.)
+          call calc_chi_adaptive(kinetic,omega,state,argument,j,size(spec),0,.false., &
+               response,low,ierr,bessel,zet_in)
+       else
+          call calc_chi_kinetic(kinetic,omega,state,response,ierr,bessel,zet_in)
+       endif
        if (ierr/=0) return
        chi(j,:,:)=response
     enddo

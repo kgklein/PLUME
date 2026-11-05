@@ -1,0 +1,39 @@
+! Fully cold proton/electron plasma: parallel L (ion-cyclotron/Alfven) branch.
+! ./plume.e inputs/example/cold_proton_electron.in
+! vtp means v_A,ref/c. Cold alphS placeholders have no effect.
+&params
+normalization='d_ref'
+betap=0
+kperp=0
+kpar=0.06
+vtp=0.001
+nspec=2
+nscan=0
+option=1
+nroot_max=1
+use_map=.false.
+writeOut=.true.
+collision_type=0
+dataName='example'
+outputName='cold_proton_electron'
+/
+&species_1
+tauS=0
+muS=1
+alphS=1
+Qs=1
+Ds=1
+vvS=0
+/
+&species_2
+tauS=0
+muS=1836.15267343
+alphS=0
+Qs=-1
+Ds=1
+vvS=0
+/
+&guess_1
+g_om=0.05
+g_gam=-0.001
+/

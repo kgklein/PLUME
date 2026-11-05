@@ -1,3 +1,4 @@
+from faddeeva_build import compile_c,c_objects
 """Milestone B: native cold-reference dispatch, independent tensors and roots."""
 from pathlib import Path
 import subprocess
@@ -28,13 +29,13 @@ class ColdReferenceMixedTests(unittest.TestCase):
         cls.probes={False:mixed.MixedDispersionTests.probe,True:mixed.MixedDispersionTests.checked_probe}
         # Poison thermal globals and assert that solver_spec is never allocated.
         cls.native_probe=cls.probes[True].parent/'native_probe'
-        modules=('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization',
-                 'kinetic_core','cold_reference','functions','bessel','disprels')
+        modules=('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization',
+                 'kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','functions','bessel','disprels')
         directory=cls.probes[True].parent
         subprocess.run(['gfortran','-O0','-g','-fdefault-real-8','-fcheck=all','-ffpe-trap=invalid,zero,overflow',
                         '-I',str(directory),'-J',str(directory),
                         *[str(mixed.ROOT/'src'/f'{m}.f90') for m in modules],
-                        str(mixed.ROOT/'tests/fully_cold_probe.f90'),'-o',str(cls.native_probe)],
+                        str(mixed.ROOT/'tests/fully_cold_probe.f90'),*c_objects(directory),'-o',str(cls.native_probe)],
                        cwd=directory,check=True,capture_output=True)
 
     @classmethod

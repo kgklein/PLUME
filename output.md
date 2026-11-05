@@ -228,3 +228,64 @@ For ease of reference, consider the below tables for column numbers for two and 
 
 This same data structure is preserved for the output from `om_double_scan`.
 The file naming convention will include a value of *param* from both of the two parameters scanned, and the code will not output information about the range of parameters in the file name.
+
+
+## Bessel harmonic metadata
+
+Normal executable completion writes
+`data/<dataName>/<outputName>.bessel`, without changing numeric mode, root,
+tensor, heating or FPC file layouts. It records harmonic mode, tolerance,
+adaptive maximum, fixed count, and whether unresolved truncation was encountered.
+With `bessel_diagnostics=.true.`, or whenever an unresolved adaptive sum occurred,
+it includes:
+
+- Species index and physical Bessel argument.
+- Active maximum absolute harmonic order and allocated capacity (which can be larger).
+- Convergence status and upper bounds for ordinary and quadratic-weighted tails.
+- Cache hits, misses and coefficient-array evaluations, counted per species slot.
+- History of capped adaptive requests, including those preceding a later resolved point.
+
+A miss can require selection only: a changed tolerance may reuse previously
+computed coefficients. An array evaluation calculates all required Bessel
+coefficients together, not one coefficient. Density, drift, parallel wavevector,
+frequency and auxiliary scale do not enter the physical cache key. Exact argument
+matching is used; no approximate matching tolerance is applied. A species-count
+change preserves surviving slots, while a different argument in a reordered slot
+requires recalculation. No on-disk cache is read.
+
+Fixed 128 preserves its historical evaluators and caches; detailed hit/miss
+instrumentation is unavailable for that compatibility path and is labeled as
+such. Its final-point tail bounds still determine the `unresolved` flag.
+Analytical parallel and fully cold paths allocate no adaptive Bessel arrays.
+`unresolved=F` describes truncation only, not a bound on total numerical error.
+For standalone library/probe callers, `finish_bessel_diagnostics()` writes the
+sidecar and `bessel_cache::write_bessel_stats(unit)` provides the table directly.
+
+
+## Collisional longitudinal diagnostics
+
+The collisional `zz` susceptibility and its `susc_low` entries for n=0,+1,-1
+now use the corrected longitudinal Krook response. Collisional roots, fields
+and heating derived from that response can change. The correction is independent of the selected Z backend.
+The signed `zz` diagnostics contain each harmonic's full nonresonant terms;
+the bulk sum separately regroups the drift contribution. For a truncated sum,
+reconstruction must include the drift remainder proportional to
+`1-Gamma_0-2*sum(Gamma_n)`, rather than adding another full drift term.
+See the [derivation and validation report](tests/COLLISIONAL_ZZ_CORRECTION.md).
+
+
+## Plasma dispersion backend metadata and failures
+
+With `writeOut=.true.`, input validation prints `Z backend: faddeeva` or
+`Z backend: legacy` once. Bessel sidecars append `# z_backend=<mode>` without
+changing the existing numerical table rows. No new columns are added to numeric
+root, tensor, eigenfunction or heating output files.
+
+The accurate backend returns invalid determinants/tensors on nonfinite or
+out-of-range evaluation, with the existing dispersion failure status. Failed
+root trials are rejected; isolated invalid map points are excluded from minima
+searches and retained as invalid values in map output. A subsequent valid trial
+can succeed normally. Direct single-frequency failures skip supplementary
+diagnostics. Compatibility mode preserves historical Z failure behavior.
+See [backend selection](input.md#plasma-dispersion-function-backend) and the
+[validation report](tests/FADDEEVA_BACKEND_REPORT.md).

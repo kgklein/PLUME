@@ -1,0 +1,44 @@
+! Damped first ion-Bernstein branch, finite electron mass, lambda_p=1250.
+! Expected root ~1.01053715134 - 0.00569319626 i.
+! Default tolerance selects +/-263 proton and +/-7 electron harmonics.
+! Compare bessel_tol=1e-13 or bessel_mode='fixed', bessel_nfixed=1024.
+&params
+normalization='d_ref'
+bessel_mode='adaptive'
+bessel_tol=1.e-10
+bessel_nmax=512
+bessel_diagnostics=.true.
+betap=1.
+kpar=0.01
+kperp=50.
+vtp=0.02
+nspec=2
+nscan=0
+option=1
+nroot_max=1
+use_map=.false.
+writeOut=.true.
+collision_type=0
+dataName='example'
+outputName='adaptive_bessel'
+/
+&species_1
+tauS=1.
+muS=1.
+alphS=1.
+Qs=1.
+Ds=1.
+vvS=0.
+/
+&species_2
+tauS=0.2
+muS=1836.
+alphS=1.
+Qs=-1.
+Ds=1.
+vvS=0.
+/
+&guess_1
+g_om=1.01
+g_gam=-0.005
+/

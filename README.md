@@ -174,6 +174,58 @@ jupyter notebook
 and navigate to and open the [`examplelinfpc.ipynb`](./examplelinfpc.ipynb) notebook. This notebook shows how to use the main functions of both PLUME and JET-PLUME. 
 
 
+### Plasma dispersion function backend
+
+PLUME evaluates the Landau plasma dispersion function
+$Z(\zeta)=i\sqrt{\pi}\,w(\zeta)$ using Steven G. Johnson's bundled
+[Faddeeva implementation](third_party/faddeeva/README.md). The default
+`z_backend='faddeeva'` fixes the historical evaluator's accuracy loss near
+$|\zeta|=3$ and its unassigned-result failures. It requires only an ordinary
+C compiler in addition to Fortran; no library installation or Python runtime
+is needed. The upstream MIT license and attribution are bundled with the source.
+
+These settings are independent:
+
+```fortran
+! Recommended defaults
+z_backend = 'faddeeva'
+bessel_mode = 'adaptive'
+
+! Historical compatibility (select these instead)
+! z_backend = 'legacy'
+! bessel_mode = 'fixed128'
+```
+
+Fixed harmonics alone do not restore the old Z evaluator. The retained legacy
+backend reproduces its historical approximations and failure behavior. Accurate
+Z does not remove Bessel approximation errors or cancellation in kinetic sums.
+Invalid or unrepresentable accurate evaluations return an invalid dispersion
+status and cannot be accepted as roots. See the [input reference](input.md#plasma-dispersion-function-backend),
+[working examples](inputs/example/faddeeva_accuracy.in), and
+[accuracy, performance and compatibility report](tests/FADDEEVA_BACKEND_REPORT.md).
+
+### Adaptive kinetic harmonics
+
+Kinetic calculations now select a separate symmetric harmonic range for each
+warm species. The defaults in `&params` are `bessel_mode='adaptive'`,
+`bessel_tol=1.e-10`, and `bessel_nmax=512`. Cold species need no Bessel arrays.
+Repeated frequency evaluations reuse coefficients at the same physical
+perpendicular Bessel argument, including with auxiliary normalization.
+
+Use `z_backend='legacy'` together with `bessel_mode='fixed128'` to
+reproduce historical collisionless numerical results exactly with the tested
+GNU toolchain. `bessel_mode='fixed', bessel_nfixed=128` is an equivalent spelling. Other fixed counts are available for convergence studies.
+A Bessel-tail tolerance controls truncation, **not total susceptibility or root
+error**. Tighten the tolerance and increase the maximum to check a result.
+Reaching the adaptive maximum emits a warning and continues; unresolved points
+are recorded in the `.bessel` sidecar. Set `bessel_diagnostics=.true.` for cache
+statistics and species cutoffs.
+
+The [large-argument example](inputs/example/adaptive_bessel.in) demonstrates a
+mode requiring more than 128 harmonics. See the [input controls](input.md#bessel-harmonic-controls),
+[metadata description](output.md#bessel-harmonic-metadata), and
+[implementation and validation report](tests/ADAPTIVE_BESSEL_CACHE_REPORT.md).
+
 ## 5. JET-PLUME
 
 <img src="./Jet-Plume_Logo.svg" alt="JetPlumeLogdrawing" width="200"/>

@@ -74,10 +74,27 @@ class plume_input:
 
     def set_params(self,betap,kperp,kpar,vtp,nspec,nscan,option,\
                     nroot_max,use_map,writeOut,collision_type=0,Kn=None,
-                    normalization='rho_ref'):
-        """Set PLUME inputs. In d_ref, k uses d_ref, vtp is v_A/c, and tauS is 2T_parallel/(m_ref v_A^2)."""
+                    normalization='rho_ref', bessel_mode='adaptive', bessel_tol=1e-10,
+                    bessel_nmax=512, bessel_nfixed=128, bessel_diagnostics=False, z_backend='faddeeva'):
+        """Set PLUME inputs; adaptive Bessel harmonics are the default.
+
+        In d_ref, k uses d_ref, vtp is v_A/c, and tauS is 2T_parallel/(m_ref*v_A^2).
+        bessel_tol bounds harmonic tails, not the full susceptibility error.
+        Use z_backend='legacy' and bessel_mode='fixed128' for historical reproduction.
+        """
+        if z_backend not in ('faddeeva', 'legacy'):
+            raise ValueError("z_backend must be 'faddeeva' or 'legacy'")
         if normalization not in ('rho_ref', 'd_ref'):
             raise ValueError("normalization must be 'rho_ref' or 'd_ref'")
+        if bessel_mode not in ('adaptive', 'fixed', 'fixed128'):
+            raise ValueError("bessel_mode must be 'adaptive', 'fixed', or 'fixed128'")
+        if not np.isfinite(bessel_tol) or not 0 < bessel_tol < 1:
+            raise ValueError("bessel_tol must be finite and between zero and one")
+        for count in (bessel_nmax, bessel_nfixed):
+            if int(count) != count or not 1 <= count <= 46338:
+                raise ValueError("Bessel harmonic counts must be integers in 1..46338")
+        if bessel_mode == 'fixed128' and bessel_nfixed != 128:
+            raise ValueError('fixed128 requires bessel_nfixed=128')
         use_map_out = '.true.'
         if(not(use_map)):
             use_map_out = '.false.'
@@ -92,6 +109,12 @@ class plume_input:
                        'kpar':kpar,
                        'vtp':vtp,
                        'normalization':normalization,
+                       'z_backend':z_backend,
+                       'bessel_mode':bessel_mode,
+                       'bessel_tol':bessel_tol,
+                       'bessel_nmax':int(bessel_nmax),
+                       'bessel_nfixed':int(bessel_nfixed),
+                       'bessel_diagnostics':'.true.' if bessel_diagnostics else '.false.',
                        'nspec':int(nspec),
                        'nscan':int(nscan),
                        'option':int(option),
@@ -286,7 +309,7 @@ class plume_input:
 
         f.write('&params\n')
         for key in self.params.keys():
-            if(key in ('outputName', 'normalization')):
+            if(key in ('outputName', 'normalization', 'bessel_mode', 'z_backend')):
                 line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
             else:
                 line = str(key)+'='+str(self.params[key])+'\n'
@@ -352,7 +375,7 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','normalization','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
+        paramkeys = ['betap','kperp','kpar','vtp','normalization','bessel_mode','z_backend','bessel_tol','bessel_nmax','bessel_nfixed','bessel_diagnostics','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
@@ -381,9 +404,9 @@ class plume_input:
                     if(parse[0]=='/\n'):
                         break
                     if(parse[0] in paramkeys):
-                        if(parse[0] in ['nspec','nscan','option','nroot_max']):
+                        if(parse[0] in ['nspec','nscan','option','nroot_max','bessel_nmax','bessel_nfixed']):
                             tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
-                        elif parse[0] == 'normalization':
+                        elif parse[0] in ('normalization','bessel_mode','z_backend'):
                             tempparamdict[parse[0]] = parse[1].split('!')[0].strip().strip("'\"\n")
                         elif(parse[0] != 'dataName'):#dataname is class level var
                             try:

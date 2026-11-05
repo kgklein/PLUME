@@ -29,3 +29,8 @@ __pycache__
 #bare scripts
 *.sh
 !inputs/example/mixed_cold_protons_warm_electrons.in
+
+!inputs/example/adaptive_bessel.in
+
+!inputs/example/faddeeva_accuracy.in
+!inputs/example/legacy_numerics.in

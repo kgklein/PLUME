@@ -33,6 +33,16 @@ module vars
    real, target :: vtp
   !!rho_ref: v_t,ref,par/c; d_ref: v_A,ref/c.
 
+   character(16) :: z_backend = 'faddeeva'
+   !! Independent Z evaluator: faddeeva (default) or legacy.
+   public :: z_backend
+
+   character(16) :: bessel_mode = 'adaptive'
+   real :: bessel_tol = 1.e-10
+   integer :: bessel_nmax = 512, bessel_nfixed = 128
+   logical :: bessel_diagnostics = .false.
+   public :: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
+
    character(16) :: normalization = 'rho_ref'
    !! Input convention: rho_ref (legacy) or d_ref (inertial length).
 

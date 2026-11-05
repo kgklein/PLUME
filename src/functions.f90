@@ -48,6 +48,9 @@ contains
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
       use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
+      use vars, only: z_backend
+      use vars, only: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
+      use adaptive_kinetic, only: validate_bessel_input
       use vars, only: normalization, sync_solver_state, write_normalization_metadata
       use vars, only: has_cold_reference, validate_cold_reference
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
@@ -65,6 +68,7 @@ contains
 
       !Read in the basic parameter list.
       nameList /params/ &
+         z_backend,bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics, &
          betap, kperp, kpar, vtp, normalization, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
          collision_type, Kn, &
@@ -84,6 +88,10 @@ contains
       unit = input_unit_no
       open (unit=unit, file=runname, status='old', action='read')
       read (unit=unit, nml=params)
+      if (z_backend/='faddeeva' .and. z_backend/='legacy') &
+           error stop 'ERROR: z_backend must be faddeeva or legacy.'
+      call validate_bessel_input
+      if (writeOut) write(*,'(2a)') 'Z backend: ',trim(z_backend)
       if (normalization /= 'rho_ref' .and. normalization /= 'd_ref') then
          write(*,'(3a)') 'ERROR: normalization=',trim(normalization),'; use rho_ref or d_ref.'
          error stop 1

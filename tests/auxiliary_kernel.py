@@ -20,6 +20,14 @@ def experimental_kernel():
     start = source.index('   complex function disp0(om)')
     end = source.index('   end function disp0', start)+len('   end function disp0')
     body = source[start:end]
+    body = re.sub(r'^.*(?:plasma_z_backend|type\(z_evaluation_guard\)|logical :: z_reject|call begin_z_evaluation|if \(z_reject\)|call end_z_evaluation).*\n', '', body, flags=re.M)
+    # J.1 dispatch is outside the mathematical prototype: retain its original
+    # fixed-128 equations and disable the production adaptive entry explicitly.
+    body = body.replace('  use adaptive_kinetic, only : dynamic_harmonics, disp_adaptive\n', '')
+    body, removed = re.subn(r'     if \(dynamic_harmonics\(\)\) then\n'
+                           r'       disp0=disp_adaptive\(om,bessel,zet_in\)\n'
+                           r'       return\n     endif\n', '', body)
+    assert removed == 1
     assert body.count('alphp = spec(1)%alph_s') == 1
     cache_start = body.index('     if ((kperp .eq. kperp_last )')
     cache_end = body.index('     !Arguments of Bessel functions', cache_start)

@@ -1,6 +1,8 @@
 program kinetic_core_probe
   !! Isolated direct susceptibility experiment. Never calls input validation for
   !! unsupported physical states, never calls roots, never reports a mixed det.
+  use vars, only: z_backend
+  use vars, only: bessel_mode
   use vars, only: specie,nspec,spec,susc,lam,low_n,pi,betap,kpar,kperp,vtp,normalization
   use vars, only: solver_betap,solver_vtp,solver_kpar,solver_kperp,solver_spec,sync_solver_state
   use auxiliary_normalization
@@ -19,6 +21,8 @@ program kinetic_core_probe
   integer(int64), allocatable :: physical_bits(:)
   integer(int64) :: global_bits(4)
 
+  z_backend='legacy'
+  bessel_mode='fixed' ! Historical Stage 3B comparison, explicit harmonic convention.
   read(*,*) nspec,kpar,kperp,vtp
   allocate(spec(nspec),solver_spec(nspec),susc(nspec,3,3))
   do i=1,nspec

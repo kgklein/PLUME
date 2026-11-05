@@ -1,3 +1,4 @@
+from faddeeva_build import compile_c,c_objects
 """Milestone A checkpoint: explicit production core versus unchanged prototype."""
 import subprocess
 import unittest
@@ -14,7 +15,7 @@ class KineticCoreTests(unittest.TestCase):
         aux.AuxiliaryNormalizationTests.setUpClass()
         cls.addClassCleanup(aux.AuxiliaryNormalizationTests.temp.cleanup)
         cls.probes={}
-        modules=('nrtype','nrutil_trim','vars','cold_susceptibility','auxiliary_normalization','kinetic_core','cold_reference','functions','bessel','disprels')
+        modules=('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization','kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','functions','bessel','disprels')
         for checked,prototype in aux.AuxiliaryNormalizationTests.probes.items():
             directory=prototype.parent
             base=['gfortran','-fdefault-real-8','-I',str(directory),'-J',str(directory)]
@@ -26,7 +27,7 @@ class KineticCoreTests(unittest.TestCase):
             objects=[str((directory if checked else aux.ROOT)/f'{m}.o') for m in modules]
             exe=directory/'core_probe'
             subprocess.run(base+flags+[str(directory/'kernel.f90'),str(aux.ROOT/'tests/kinetic_core_probe.f90'),
-                           *objects,'-o',str(exe)],cwd=directory,check=True,capture_output=True)
+                           *objects,*c_objects(directory if checked else aux.ROOT),'-o',str(exe)],cwd=directory,check=True,capture_output=True)
             cls.probes[checked]=exe
 
     run_probe=aux.AuxiliaryNormalizationTests.run_probe
