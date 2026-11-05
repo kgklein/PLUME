@@ -180,8 +180,7 @@ class MixedEigenfunctionTests(unittest.TestCase):
                     self.assertEqual(rows.shape[1],18+14*len(sp))
                     for row in rows:
                         kp,kz=row[:2];w=complex(*row[4:6]);values=row[6:18];b=values[:6:2]+1j*values[1:6:2];e=values[6::2]+1j*values[7::2]
-                        if any(s[0]==0 for s in sp):self.assertTrue(np.isnan(row[18:18+8*len(sp)]).all())
-                        else:self.assertTrue(np.isfinite(row[18:18+8*len(sp)]).all())
+                        self.assertTrue(np.isfinite(row[18:18+8*len(sp)]).all())
                         direct=self.evaluate(sp,w,checked=checked,kpar=kz,kperp=kp)
                         self.assertEqual(direct['status'],0)
                         error=distance(e,direct['e']);self.assertLess(error,3e-6)
@@ -266,7 +265,7 @@ class MixedEigenfunctionTests(unittest.TestCase):
         for mode in ['rho_ref','d_ref']:
             text=scans.source([P,E],[scans.scan(1,.06,.08,eigen=True),scans.scan(0,.05,.07,eigen=True)],
                               backend='legacy',mode='fixed128',normalization=mode)
-            old,expected=mixed.run(directory/'plume.e',text);new,actual=mixed.run(ROOT/'plume.e',text)
+            old,expected=mixed.run(directory/'plume.e',text.replace("heating_convention='legacy'\n",''));new,actual=mixed.run(ROOT/'plume.e',text)
             self.assertEqual(old.returncode,0,old.stdout+old.stderr);self.assertEqual(new.returncode,0,new.stdout+new.stderr)
             names=[n for n in expected if n.endswith('.mode1')]
             self.assertEqual(len(names),2)
@@ -296,16 +295,18 @@ class MixedEigenfunctionTests(unittest.TestCase):
         path=self.directory/'field.mode1';path.write_text(mode)
         loaded=load_plume_sweep(str(path),nspec=2,heating=False,eigen=True)
         self.assertTrue(np.isfinite(loaded['exr']).all())
-        self.assertTrue(np.isnan(loaded['ux1r']).all() and np.isnan(loaded['n2r']).all())
+        self.assertTrue(np.isfinite(loaded['ux1r']).all() and np.isfinite(loaded['n2r']).all())
+        obj.params['heating_convention']='legacy'
         obj.scan_inputs[0]['heating']='.true.'
         with self.assertRaisesRegex(ValueError,'Stage 4B.3'):obj.check_input_for_errors()
 
-    def test_single_point_output_and_unavailable_moments(self):
+    def test_single_point_output_and_available_moments(self):
         for sp in [[CP,CE],[P,CE],[CP,E]]:
             out=self.evaluate(sp,.06-.0001j)
             text=scans.source(sp,[],option=-1,guess=out['w'])
             result,_=mixed.run(ROOT/'plume.e',text)
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
             self.assertIn('ef =',result.stdout);self.assertIn('bf =',result.stdout)
-            self.assertIn('species moments, wave energy, heating and FPC unavailable',result.stdout)
-            self.assertNotIn('ns =',result.stdout);self.assertNotIn('Ps =',result.stdout)
+            self.assertIn('Wave energy, heating and FPC unavailable',result.stdout)
+            self.assertIn('ns =',result.stdout);self.assertIn('Us =',result.stdout)
+            self.assertNotIn('Ps =',result.stdout)

@@ -1,7 +1,9 @@
 #Plotting Routine, *.plt
-input='example_map'
+#input='example_map'
 
 #input='example_kpar'
+
+input='example_kpar-E'
 
 #input='example_kperp'
 

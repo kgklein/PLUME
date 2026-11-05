@@ -327,6 +327,7 @@ class MixedScanTests(unittest.TestCase):
                 result,files=mixed.run(ROOT/'plume.e',Path(name+'.in').read_text())
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
                 self.assertEqual(len(next(iter(mode_rows(files).values()))),3)
+                obj.params['heating_convention']='legacy'
                 obj.scan_inputs[0]['heating']='.true.'
                 with self.assertRaisesRegex(ValueError,'Stage 4B'):obj.check_input_for_errors()
 
@@ -342,7 +343,7 @@ class MixedScanTests(unittest.TestCase):
         subprocess.run(['make','-j2'],cwd=directory,check=True,capture_output=True)
         for mode in ['rho_ref','d_ref']:
             text=source([P,E],[scan(1,.06,.09),scan(0,.05,.09)],backend='legacy',mode='fixed128',normalization=mode)
-            old,old_files=mixed.run(directory/'plume.e',text)
+            old,old_files=mixed.run(directory/'plume.e',text.replace("heating_convention='legacy'\n",''))
             new,new_files=mixed.run(ROOT/'plume.e',text)
             self.assertEqual(old.returncode,0,old.stdout+old.stderr)
             self.assertEqual(new.returncode,0,new.stdout+new.stderr)

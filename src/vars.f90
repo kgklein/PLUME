@@ -33,6 +33,10 @@ module vars
    real, target :: vtp
   !!rho_ref: v_t,ref,par/c; d_ref: v_A,ref/c.
 
+   character(16) :: heating_convention = 'corrected'
+   !! Collisionless heating/energy convention; independent of Z and Bessel modes.
+   public :: heating_convention
+
    character(16) :: z_backend = 'faddeeva'
    !! Independent Z evaluator: faddeeva (default) or legacy.
    public :: z_backend
@@ -550,7 +554,24 @@ contains
       write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
       if (has_cold_species()) then
          write(unit_no,'(a)') 'EM fields: Ex=1; omega*B=(k_d/(v_A/c)) cross E where the gauge is available.'
-         write(unit_no,'(a)') 'Species moments/energy/heating/FPC unavailable; eigen moment slots contain NaN.'
+         write(unit_no,'(a)') 'Species velocities: deltaU/(c*deltaEx/B0); densities: (delta n/n0)/(deltaEx/B0).'
+         write(unit_no,'(a)') 'tauS=0: cold-fluid moments; tauS>0: kinetic current/continuity moments; original species order.'
+         write(unit_no,'(a)') 'Unavailable/failed species moments contain NaN; warnings identify species and status.'
+         write(unit_no,'(a)') 'Moment status: 0=valid,1=input,2=frequency,3=Doppler,4=cyclotron,5=numerical,6=absent.'
+         write(unit_no,'(a)') 'heating_convention='//trim(heating_convention)
+         if (heating_convention=='corrected') then
+            write(unit_no,'(a)') 'Corrected collisionless energy/heating in companion .energy; cold kinetic heating is NaN.'
+         else
+            write(unit_no,'(a)') 'Legacy mixed/cold heating is unavailable.'
+         endif
+         write(unit_no,'(a)') 'FPC remains unavailable for cold-containing runs.'
+         do i=1,nspec
+            if (spec(i)%tau_s==0.) then
+               write(unit_no,'(a,i0,a)') 'moment_species=',i,'; model=cold-fluid'
+            else
+               write(unit_no,'(a,i0,a)') 'moment_species=',i,'; model=kinetic current/continuity'
+            endif
+         enddo
       endif
       if (has_cold_reference()) then
          write(unit_no,'(a)') 'reference_species=1; cold reference; no thermal reference scale is constructed.'

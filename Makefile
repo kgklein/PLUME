@@ -44,7 +44,7 @@ CC ?= cc
 FADDEEVA_CFLAGS = -O3 -std=c99 -fno-fast-math
 LIBS= -lm
 
-LFMOD=	faddeeva_bridge.o faddeeva.o plasma_z_faddeeva.o nrtype.o nrutil_trim.o vars.o plasma_z_legacy.o plasma_z_backend.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o harmonic_selection.o bessel_cache.o adaptive_kinetic.o cold_reference.o electromagnetic_fields.o scan_support.o functions.o bessel.o disprels.o fpc.o
+LFMOD=	faddeeva_bridge.o faddeeva.o plasma_z_faddeeva.o nrtype.o nrutil_trim.o vars.o plasma_z_legacy.o plasma_z_backend.o cold_susceptibility.o auxiliary_normalization.o kinetic_core.o harmonic_selection.o bessel_cache.o adaptive_kinetic.o cold_reference.o species_moments.o electromagnetic_fields.o heating_response.o heating_energy.o heating_diagnostics.o scan_support.o functions.o bessel.o disprels.o fpc.o
 
 LFX=  	plume.o
 
@@ -89,9 +89,9 @@ cold_susceptibility.o: src/cold_susceptibility.f90 vars.o nrtype.o | $(MODDIR)
 
 bessel.o:      nrtype.o nrutil_trim.o
 
-disprels.o:    electromagnetic_fields.o scan_support.o plasma_z_backend.o vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_collisional_species.inc src/kinetic_harmonics.inc src/electromagnetic_electric.inc
+disprels.o:    functions.o heating_diagnostics.o electromagnetic_fields.o scan_support.o plasma_z_backend.o vars.o bessel.o cold_susceptibility.o cold_reference.o src/kinetic_species.inc src/kinetic_collisional_species.inc src/kinetic_harmonics.inc src/electromagnetic_electric.inc src/kinetic_parallel_response.inc src/kinetic_parallel_longitudinal.inc
 
-functions.o:   vars.o adaptive_kinetic.o scan_support.o
+functions.o:   heating_diagnostics.o vars.o adaptive_kinetic.o scan_support.o
 
 fpc.o:         disprels.o vars.o
 
@@ -132,5 +132,15 @@ plasma_z_backend.o: src/plasma_z_backend.f90 vars.o plasma_z_faddeeva.o plasma_z
 scan_support.o: src/scan_support.f90 vars.o | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
 
-electromagnetic_fields.o: src/electromagnetic_fields.f90 src/electromagnetic_electric.inc vars.o | $(MODDIR)
+electromagnetic_fields.o: src/electromagnetic_fields.f90 src/electromagnetic_electric.inc vars.o species_moments.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+species_moments.o: src/species_moments.f90 vars.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+
+heating_response.o: src/heating_response.f90 cold_reference.o species_moments.o cold_susceptibility.o src/kinetic_parallel_response.inc src/kinetic_parallel_longitudinal.inc | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+heating_energy.o: src/heating_energy.f90 heating_response.o | $(MODDIR)
+	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
+heating_diagnostics.o: src/heating_diagnostics.f90 heating_energy.o electromagnetic_fields.o | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<

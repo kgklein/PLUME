@@ -40,3 +40,7 @@ __pycache__
 
 !inputs/example/mixed_fields_*.in
 !inputs/example/cold_fields_*.in
+
+!inputs/example/mixed_moments_multispecies.in
+
+!inputs/example/heating_*.in

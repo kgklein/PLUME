@@ -4,6 +4,7 @@ module scan_support
        dispersion_status, susc, susc_low, lam
   use, intrinsic :: ieee_arithmetic
   use, intrinsic :: ieee_exceptions
+  use vars, only: heating_convention,collision_type
   implicit none
   private
   public :: scan_frame, wavevector_scan, validate_scan_inputs, prepare_scan_start
@@ -133,8 +134,14 @@ contains
        if (has_cold_species()) then
           if (.not.wavevector_scan(scan(s))) &
                error stop 'ERROR: Stage 4A cold-containing scans support wavevectors only; plasma-parameter scans are deferred.'
-          if (scan(s)%heat_s) &
-               error stop 'ERROR: cold-containing scan heating is unavailable until Stage 4B.3.'
+          if (scan(s)%heat_s .and. heating_convention=='legacy') &
+               error stop 'ERROR: legacy cold-containing scan heating is unavailable; Stage 4B.3 corrected mode is required.'
+       endif
+       if (scan(s)%heat_s .and. heating_convention=='corrected') then
+          if (collision_type/=0) &
+               error stop 'ERROR: corrected heating requires collision_type=0; use legacy for collisional diagnostics.'
+          if (option==4) error stop 'ERROR: corrected heating is not supported in frequency maps; map formats remain unchanged.'
+          if (.not.wavevector_scan(scan(s))) error stop 'ERROR: corrected plasma-parameter heating scans are deferred.'
        endif
        if (.not.wavevector_scan(scan(s))) cycle
        if (.not.ieee_is_finite(scan(s)%range_i) .or. .not.ieee_is_finite(scan(s)%range_f)) &

@@ -138,8 +138,10 @@ are supported; exact perpendicular propagation with warm species is deferred.
 
 Use `option=1`, `use_map=.false.`, `nscan=0` for supplied root guesses, or
 `option=-1` for determinant evaluation. Frequency maps are also supported.
-Cold-containing electromagnetic fields are available in Stage 4B.1; species
-moments, heating, FPC, energy, collisions and plasma-parameter/radial scans remain unavailable. Stage 4A enables collisionless **wavevector** scans,
+Cold-containing electromagnetic fields (Stage 4B.1) and species density/velocity
+moments (Stage 4B.2) are available. Corrected collisionless kinetic absorption
+and complete wave energy are available (Stage 4B.3A); cold kinetic heating is
+unavailable (NaN). FPC, cold collisions and plasma-parameter/radial scans remain deferred. Stage 4A enables collisionless **wavevector** scans,
 including cold-reference mixtures, using the existing continuation framework. Charge and current balance are warning-only conditions.
 See the [input restrictions](input.md), [cold-reference report](tests/COLD_REFERENCE_MIXED_REPORT.md),
 and examples:
@@ -179,9 +181,10 @@ and navigate to and open the [`examplelinfpc.ipynb`](./examplelinfpc.ipynb) note
 
 Use the existing `&scan_input_N` inputs with `option=1` for serial continuation,
 `option=2` for two-dimensional grids, or `option=4` for independent frequency
-maps. Cold-containing runs require collisionless `d_ref` and `heating=.false.`;
-`eigen=.true.` enables electromagnetic fields with unavailable species moments
-marked NaN. All-kinetic scans retain their existing normalization and
+maps. Cold-containing runs require collisionless `d_ref`. For heating use the default
+`heating_convention='corrected'`.
+`eigen=.true.` enables electromagnetic fields and species density/velocity
+moments; unavailable or failed species moments are marked NaN. All-kinetic scans retain their existing normalization and
 diagnostic support. Both signs of **nonzero** `kpar` are supported. Stage 4A
 rejects perpendicular scan points; fully cold single-wavevector perpendicular
 calculations remain supported.
@@ -216,10 +219,10 @@ not set field amplitudes. Existing all-kinetic eigenfunction/moment/heating
 calculations remain unchanged.
 
 Use `eigen=.true., heating=.false.` in existing serial or 2D scan inputs.
-Fields retain the existing columns. For a cold-containing run, all density and
-velocity slots are NaN, including warm-species slots; they are deferred diagnostics,
-not physical zeros. No new mixed heating, FPC or wave energy is enabled.
-At a known single-wavevector eigenfrequency, `option=-1` prints E/B; the field-only
+Fields retain the existing columns. Stage 4B.2 fills density/velocity slots with
+cold-fluid moments for cold species and existing kinetic current/continuity
+moments for warm species. Corrected mixed heating and wave energy are described below; FPC remains deferred.
+At a known single-wavevector eigenfrequency, `option=-1` prints E/B and species moments; the field-only
 Fortran API is also available. Arbitrary off-mode frequencies do not have a
 validated eigenfunction. Modes with Ex=0 cannot use the historical gauge and
 report unavailable rather than adopting a different normalization.
@@ -234,6 +237,33 @@ report unavailable rather than adopting a different normalization.
 See [conventions and API](input.md#electromagnetic-eigenfunctions-stage-4b1),
 [field columns](output.md#electromagnetic-eigenfunction-conventions-stage-4b1),
 and the [audit and independent validation report](tests/MIXED_EIGENFUNCTION_REPORT.md).
+
+### Species density and velocity eigenfunctions (Stage 4B.2)
+
+All supported cold/kinetic compositions now provide species velocity and density
+perturbations, preserving species ordering and the existing Ex=1 field gauge.
+Velocity is `deltaU/(c*deltaEx/B0)` and density is
+`(delta n/n0)/(deltaEx/B0)`. Cold species solve the linearized momentum and
+continuity equations, including the equilibrium-drift magnetic force. Warm
+species retain the susceptibility-current/continuity method. Physical moments
+never depend on the auxiliary thermal scale or cold anisotropy placeholders.
+
+Existing `eigen=.true., heating=.false.` serial/2D scan files keep their columns.
+A failure in one species produces NaN in that species' moment block, with a
+species/status warning; valid E/B and other species remain available. An absent
+zero-density species has no defined relative-density moment. Single-point
+`option=-1` prints moments at a valid eigenfrequency. Stage 4B.3A adds corrected heating/energy below; FPC remains deferred; the all-kinetic historical path remains unchanged.
+
+The four field examples above now also provide moments. A multiple cold/warm
+population example is:
+
+```bash
+./plume.e inputs/example/mixed_moments_multispecies.in
+```
+
+See the [moment inputs/API](input.md#species-moments-stage-4b2),
+[output conventions](output.md#species-moment-conventions-stage-4b2), and
+[independent validation report](tests/COLD_FLUID_EIGENFUNCTION_REPORT.md).
 
 ### Plasma dispersion function backend
 
@@ -326,3 +356,53 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+### Corrected heating and wave energy (Stage 4B.3A)
+
+`heating_convention='corrected'` is now the default, independent of Z, Bessel,
+and input normalization settings. Collisionless single-point (`option=-1`),
+serial and 2D wavevector scans (`heating=.true.`) support kinetic, fully cold,
+and mixed populations, including cold references. The full-plasma E/B fields
+and species moments are preserved if heating is unavailable.
+
+The species diagnostic is signed normalized absorption/emission,
+`Ps = Im(E† chi_s(omega_r) E)/H`, approximately a contribution to
+`-gamma/omega_r` for an isolated weak mode. It is neither dimensional power nor
+irreversible thermodynamic heating. All seven selected historical channels
+are retained; they are not an exhaustive partition. Cold species have NaN
+kinetic heating, while contributing to wave energy through their susceptibility.
+
+The complete formal wave energy includes vacuum electric, magnetic, and every
+species' `d(omega_r*chi_H)/domega_r` contribution. A versioned `.energy`
+companion reports `H_total`, `H_E`, `H_B`, individual species contributions,
+signed fractions and the noncancelling electric contribution `f_E_abs`.
+Signed fractions can be negative or exceed one. The latter is a contribution
+measure, not a physical energy fraction. Check numerical and applicability
+statuses before interpreting strongly growing/damped or reactive modes.
+See [input controls](input.md#heating-and-wave-energy-stage-4b3a),
+[output schema](output.md#corrected-energy-companion-plume-energy-v1), and the
+[implementation report](tests/MIXED_HEATING_ENERGY_REPORT.md).
+
+Exact historical heating reproduction requires all three independent settings:
+
+```fortran
+heating_convention='legacy'
+z_backend='legacy'
+bessel_mode='fixed128'
+```
+
+The legacy thermal heating implementation remains unchanged, including its
+incomplete wave-energy normalizer and historical harmonic snapshot behavior.
+Corrected heating requires `collision_type=0`; use explicit legacy mode for
+previously supported all-kinetic collisional diagnostics. FPC retains its
+historical implementation and availability restrictions. Corrected heating is
+not added to maps, radial scans, or plasma-parameter scans.
+
+Working examples (run `./plume.e <input>`):
+
+- [All kinetic](inputs/example/heating_corrected_kinetic.in).
+- [Warm-reference mixture](inputs/example/heating_corrected_warm_reference.in).
+- [Cold-reference mixture](inputs/example/heating_corrected_cold_reference.in).
+- [Fully cold wave energy](inputs/example/heating_corrected_cold.in).
+- [Historical convention](inputs/example/heating_legacy.in).

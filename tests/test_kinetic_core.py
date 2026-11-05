@@ -15,7 +15,7 @@ class KineticCoreTests(unittest.TestCase):
         aux.AuxiliaryNormalizationTests.setUpClass()
         cls.addClassCleanup(aux.AuxiliaryNormalizationTests.temp.cleanup)
         cls.probes={}
-        modules=('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization','kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','electromagnetic_fields','scan_support','functions','bessel','disprels')
+        modules=('nrtype','nrutil_trim','vars','plasma_z_faddeeva','plasma_z_legacy','plasma_z_backend','cold_susceptibility','auxiliary_normalization','kinetic_core','harmonic_selection','bessel_cache','adaptive_kinetic','cold_reference','species_moments','electromagnetic_fields','heating_response','heating_energy','heating_diagnostics','scan_support','functions','bessel','disprels')
         for checked,prototype in aux.AuxiliaryNormalizationTests.probes.items():
             directory=prototype.parent
             base=['gfortran','-fdefault-real-8','-I',str(directory),'-J',str(directory)]

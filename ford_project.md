@@ -20,6 +20,7 @@ ordered_subpage: INSTALL.md
                  FADDEEVA_BACKEND_REPORT.md
                  MIXED_SCAN_REPORT.md
                  MIXED_EIGENFUNCTION_REPORT.md
+                 COLD_FLUID_EIGENFUNCTION_REPORT.md
                  citingpapers.md
                  READ
 display: public
@@ -87,3 +88,23 @@ If you use this code for a science publication, please provide the same code web
 ## Python wrapper (linfpclib)
 
 With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional. NOTE: Please create and run notebooks from the main directory of the repository. This is necessary because the notebooks import key functions directly from the linfpclib module located there.
+
+## Corrected diagnostic implementation (Stage 4B.3A)
+
+The default `heating_convention='corrected'` dispatches requested single-point
+and wavevector-scan heating through `heating_diagnostics::calc_corrected_eigen`.
+It uses the existing fields/moments, then calls the explicit-state
+`heating_energy::calculate_heating`. `heating_response::response_snapshot`
+returns local species and initialized signed-harmonic snapshots; optional
+harmonic outputs of `cold_reference::calc_warm_auxiliary` reuse the same shared
+kinetic equations. No diagnostic frequency is sent through production `disp`.
+Cold `d(w*chi_H)/dw` differentiates the fluid linear solve analytically; warm
+species use checked centered/Richardson steps. All energies use the same
+physical k and reference scales, irrespective of auxiliary beta.
+
+`disprels::calc_eigen` remains the unchanged legacy/FPC API. Legacy heating
+requires explicit selection; exact replay also requires legacy Z and fixed128.
+The versioned `.energy` companion contains formal wave-energy components,
+species-resolved contributions, signed and noncancelling fractions, and
+availability/status information. See [input](./input.md), [output](./output.md),
+and the [validation report](./tests/MIXED_HEATING_ENERGY_REPORT.md).

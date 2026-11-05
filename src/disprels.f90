@@ -459,10 +459,13 @@ module disprels
   !-=-=-=-=-
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
-    use vars, only : wroots, nroot_max, writeOut, nspec, scan
+    use vars, only : wroots, nroot_max, writeOut, nspec, scan, low_n
     use vars, only : kperp, kpar, solver_vtp, has_cold_species, has_cold_reference, dispersion_status,z_backend
 
-    use electromagnetic_fields, only: calc_em_eigen
+    use electromagnetic_fields, only: calc_mixed_eigen
+    use vars, only: heating_convention
+    use heating_energy, only: heating_result
+    use heating_diagnostics, only: calc_corrected_eigen,write_energy_record
     implicit none
 
     !Eigenfunctions
@@ -495,7 +498,8 @@ module disprels
     complex :: D
     !! Output of dispersion relation function.
 
-    integer :: i,j,em_status
+    integer :: i,j,em_status,moment_status(nspec)
+    type(heating_result) :: energy
     
     
 
@@ -511,15 +515,56 @@ module disprels
     endif
     write(*,'(2es14.4)')kperp,kpar
 
+    if (heating_convention=='corrected') then
+       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+       write(*,'(a)') 'Heating convention: corrected'
+       if (energy%field_status==0) then
+          write(*,*) 'ef ='
+          write(*,'(3(1x,es14.6))') ef
+          write(*,*) 'bf ='
+          write(*,'(3(1x,es14.6))') bf
+          write(*,*) 'ns ='
+          write(*,'(100(1x,es14.6))') (ns(i),i=1,nspec)
+          write(*,*) 'Us ='
+          do i=1,nspec
+             write(*,'(3(1x,es14.6))') (Us(j,i),j=1,3)
+          enddo
+       else
+          write(*,'(a,i0)') 'Electromagnetic eigenfunction unavailable; determinant only. Field status: ',energy%field_status
+       endif
+       write(*,*) 'Ps ='
+       write(*,'(100(1x,es14.6))') Ps
+       if (low_n) then
+          write(*,*) 'Ps_split ='
+          do i=1,nspec
+             write(*,'(4(1x,es14.6))') (Ps_split(j,i),j=1,4)
+          enddo
+       endif
+       write(*,'(a,4es25.16e3)') 'H_total,H_E,H_B,H_species_total: ', &
+            energy%total,energy%electric,energy%magnetic,energy%species_total
+       write(*,'(a,2i5)') 'Energy numerical status and applicability: ',energy%status,energy%applicability
+       write(*,'(a)') 'All seven channels and energy components/statuses are in the .energy companion; FPC unchanged.'
+       call write_energy_record(energy,omega,-1,0,0,0,1,energy%field_status==0,'stdout')
+       return
+    endif
+
     if (has_cold_species()) then
        write(*,'(a,i0)') 'Mixed dispersion status (0=valid, 1=input, 2-4=pole, 5=numerical): ',dispersion_status
-       call calc_em_eigen(omega,ef,bf,em_status,disp)
+       call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.false.,em_status,disp,moment_status)
        if (em_status==0) then
           write(*,*) 'ef ='
           write(*,'(3(1x,es14.6))') ef
           write(*,*) 'bf ='
           write(*,'(3(1x,es14.6))') bf
-          write(*,'(a)') 'Electromagnetic fields only; species moments, wave energy, heating and FPC unavailable.'
+          write(*,*) 'ns ='
+          write(*,'(100(1x,es14.6))') (ns(i), i=1,nspec)
+          write(*,*) 'Us ='
+          do i=1,nspec
+             write(*,'(3(1x,es14.6))') (Us(j,i), j=1,3)
+          enddo
+          write(*,'(a)') 'Species moment statuses (0=valid; 1=input, 2=frequency, 3=Doppler, 4=cyclotron, 5=numerical, 6=absent):'
+          write(*,'(100i4)') moment_status
+          write(*,'(a)') 'Wave energy, heating and FPC unavailable.'
        else
           write(*,'(a,i0)') 'Electromagnetic eigenfunction unavailable; determinant only. Field status: ',em_status
        endif
@@ -804,6 +849,10 @@ end subroutine map_scan
 !-=-=-=-=-=
 subroutine om_scan(is)
   use electromagnetic_fields, only: calc_mixed_eigen
+  use vars, only: heating_convention
+  use heating_energy, only: heating_result,heat_root_failed
+  use heating_response, only: diagnostic_nan
+  use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
   use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
        wavevector_scan,refine_scan_point
   use vars, only: has_cold_reference,has_cold_species
@@ -900,6 +949,7 @@ subroutine om_scan(is)
   
   logical :: root_valid
   integer :: em_status
+  type(heating_result) :: energy
   integer :: iflag
   !!Flag for Root search
 
@@ -1078,7 +1128,9 @@ subroutine om_scan(is)
            if (root_valid .and. (scan(is)%eigen_s.or.scan(is)%heat_s)) then
               if (root_valid) val=abs(disp(omega))
               !>>>GGH: 1/18/23
-              if (has_cold_species()) then
+              if (scan(is)%heat_s .and. heating_convention=='corrected') then
+                 call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+              else if (has_cold_species()) then
                  call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(is)%heat_s,em_status,disp)
               else
               call calc_eigen(omega,ef,bf,Us,ns,Ps,&
@@ -1086,7 +1138,7 @@ subroutine om_scan(is)
               endif
               !<<<GGH: 1/18/23
               omega=omlast(ii)
-              if (.not.has_cold_species()) then
+              if (.not.has_cold_species() .and. heating_convention=='legacy') then
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
@@ -1096,7 +1148,11 @@ subroutine om_scan(is)
            endif
 
            if (root_valid) then
-              if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+              ! Keep corrected snapshots and their written frequency identical;
+              ! retain the historical output rounding for other workflows.
+              if (heating_convention=='legacy' .or. .not.scan(is)%heat_s) then
+                 if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+              endif
            endif
 
            !1, 2, 3, 4
@@ -1107,6 +1163,12 @@ subroutine om_scan(is)
            !19,20 21,22 23,24 : 25,26 27,28 29,30 :
            !31,32 33,34
            !35, 36
+
+           if (scan(is)%heat_s .and. heating_convention=='corrected') then
+              if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
+              Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
+              call write_energy_record(energy,omega,1,is,0,jj,ii,root_valid,outName)
+           endif
 
            select case(out_type)
            case(0)!Om, Eigen, Heating
@@ -1141,11 +1203,15 @@ subroutine om_scan(is)
                       Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
               else
+                 if (heating_convention=='corrected') then
+                    write(out_unit(ii),fmt) kperp,kpar,betap,vtp,omega,Ps(1:nspec),params(1:6,1:nspec)
+                 else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       Ps(1:nspec),&
                       params(1:6,1:nspec),Ew
+                 endif
               endif
            case(3) !Om
               write(out_unit(ii),fmt)&
@@ -1198,6 +1264,10 @@ end subroutine om_scan
 !-=-=-=-=-
 subroutine om_double_scan
   use electromagnetic_fields, only: calc_mixed_eigen
+  use vars, only: heating_convention
+  use heating_energy, only: heating_result,heat_root_failed
+  use heating_response, only: diagnostic_nan
+  use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
   use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
        wavevector_scan,refine_scan_point
   use vars, only: has_cold_reference,has_cold_species
@@ -1301,6 +1371,7 @@ subroutine om_double_scan
   
   logical :: root_valid
   integer :: em_status
+  type(heating_result) :: energy
   integer :: iflag
   !!Flag for Root search
   
@@ -1589,13 +1660,15 @@ subroutine om_double_scan
                  if (root_valid .and. (scan(2)%eigen_s.or.scan(2)%heat_s)) then
                     if (root_valid) val=abs(disp(omega))
                     !>>>GGH: 1/18/23
-                    if (has_cold_species()) then
+                    if (scan(2)%heat_s .and. heating_convention=='corrected') then
+                       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+                    else if (has_cold_species()) then
                        call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%heat_s,em_status,disp)
                     else
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
                     endif
                     !<<<GGH: 1/18/23
-                    if (.not.has_cold_species()) then
+                    if (.not.has_cold_species() .and. heating_convention=='legacy') then
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
@@ -1605,6 +1678,12 @@ subroutine om_double_scan
 
                  endif
                  
+                 if (scan(2)%heat_s .and. heating_convention=='corrected') then
+                    if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
+                    Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
+                    call write_energy_record(energy,omega,2,0,kk,jj,ii,root_valid,outName)
+                 endif
+
                  select case(out_type)
                  case(0) !Om, Eigen, Heating                    
                     if (low_n) then
@@ -1638,11 +1717,15 @@ subroutine om_double_scan
                                Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
                     else
+                       if (heating_convention=='corrected') then
+                          write(out_unit(ii),fmt) kperp,kpar,betap,vtp,omega,Ps(1:nspec),params(1:6,1:nspec)
+                       else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
                             omega,&            
                             Ps(1:nspec),&
                             params(1:6,1:nspec),Ew
+                       endif
                     endif
                  case(3) !Om
                     write(out_unit(ii),fmt)&
@@ -3983,16 +4066,13 @@ complex function disp_mixed_parallel(om)
      delta=om-kpar*spec(is)%vv_s
      susc(is,:,:)=cmplx(0.,0.)
      do n=-1,1,2
-        zeta=(delta-n*gyro)/(kpar*thermal)
-        response=spec(is)%alph_s-1. + &
-             (spec(is)%alph_s*delta+(1.-spec(is)%alph_s)*n*gyro)*zet_in(kpar,zeta)/(kpar*thermal)
+        include 'kinetic_parallel_response.inc'
         susc(is,1,1)=susc(is,1,1)+plasma*response/(2.*om**2)
         susc(is,1,2)=susc(is,1,2)+imaginary*n*plasma*response/(2.*om**2)
      enddo
      susc(is,2,2)=susc(is,1,1)
      susc(is,2,1)=-susc(is,1,2)
-     zeta=delta/(kpar*thermal)
-     susc(is,3,3)=2.*plasma*(1.+zeta*zet_in(kpar,zeta))/(kpar*thermal)**2
+     include 'kinetic_parallel_longitudinal.inc'
   enddo
   if (low_n) susc_low=invalid_complex() ! Resonance heating is unavailable for mixtures.
   lam=sum(susc,dim=1)

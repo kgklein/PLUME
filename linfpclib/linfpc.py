@@ -75,13 +75,16 @@ class plume_input:
     def set_params(self,betap,kperp,kpar,vtp,nspec,nscan,option,\
                     nroot_max,use_map,writeOut,collision_type=0,Kn=None,
                     normalization='rho_ref', bessel_mode='adaptive', bessel_tol=1e-10,
-                    bessel_nmax=512, bessel_nfixed=128, bessel_diagnostics=False, z_backend='faddeeva'):
+                    bessel_nmax=512, bessel_nfixed=128, bessel_diagnostics=False, z_backend='faddeeva', heating_convention='corrected'):
         """Set PLUME inputs; adaptive Bessel harmonics are the default.
 
         In d_ref, k uses d_ref, vtp is v_A/c, and tauS is 2T_parallel/(m_ref*v_A^2).
         bessel_tol bounds harmonic tails, not the full susceptibility error.
-        Use z_backend='legacy' and bessel_mode='fixed128' for historical reproduction.
+        Use heating_convention='legacy', z_backend='legacy' and bessel_mode='fixed128'
+        for historical heating reproduction. FPC retains its historical path.
         """
+        if heating_convention not in ('corrected', 'legacy'):
+            raise ValueError("heating_convention must be 'corrected' or 'legacy'")
         if z_backend not in ('faddeeva', 'legacy'):
             raise ValueError("z_backend must be 'faddeeva' or 'legacy'")
         if normalization not in ('rho_ref', 'd_ref'):
@@ -110,6 +113,7 @@ class plume_input:
                        'vtp':vtp,
                        'normalization':normalization,
                        'z_backend':z_backend,
+                       'heating_convention':heating_convention,
                        'bessel_mode':bessel_mode,
                        'bessel_tol':bessel_tol,
                        'bessel_nmax':int(bessel_nmax),
@@ -264,6 +268,21 @@ class plume_input:
     def check_input_for_errors(self):
         #will not halt things,  but will print warnings
 
+        convention=self.params.get('heating_convention','corrected')
+        if convention not in ('corrected','legacy'):
+            raise ValueError("heating_convention must be 'corrected' or 'legacy'")
+        if convention=='corrected':
+            if self.params.get('option')==-1 and self.params.get('collision_type',0)!=0:
+                raise ValueError('corrected diagnostics require collision_type=0; use legacy for historical collisional diagnostics')
+            for scan in self.scan_inputs:
+                if scan.get('heating') in (True,'.true.'):
+                    if self.params.get('collision_type',0)!=0:
+                        raise ValueError('corrected heating requires collision_type=0')
+                    if self.params.get('option')==4:
+                        raise ValueError('corrected heating is not supported in frequency maps')
+                    if not ((scan.get('scan_style')==0 and scan.get('scan_type') in (0,1)) or
+                            (scan.get('scan_style')==-1 and scan.get('scan_type') in (0,1,2))):
+                        raise ValueError('corrected plasma-parameter heating scans are deferred')
         mode = self.params.get('normalization', 'rho_ref')
         if mode not in ('rho_ref', 'd_ref'):
             raise ValueError("normalization must be 'rho_ref' or 'd_ref'")
@@ -294,8 +313,8 @@ class plume_input:
                     if not ((scan.get('scan_style') == 0 and scan.get('scan_type') in (0, 1)) or
                             (scan.get('scan_style') == -1 and scan.get('scan_type') in (0, 1, 2))):
                         raise ValueError('Stage 4A supports wavevector scans only')
-                    if scan.get('heating') in (True, '.true.'):
-                        raise ValueError('cold-containing scan heating is deferred to Stage 4B.3')
+                    if scan.get('heating') in (True, '.true.') and convention=='legacy':
+                        raise ValueError('legacy mixed/cold heating is unavailable; use Stage 4B.3 corrected mode')
             if not all_cold and self.params['kpar'] == 0:
                 raise ValueError('mixed calculations require nonzero kpar')
         _tolerance = 0.0001
@@ -322,7 +341,7 @@ class plume_input:
 
         f.write('&params\n')
         for key in self.params.keys():
-            if(key in ('outputName', 'normalization', 'bessel_mode', 'z_backend')):
+            if(key in ('outputName', 'normalization', 'bessel_mode', 'z_backend', 'heating_convention')):
                 line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
             else:
                 line = str(key)+'='+str(self.params[key])+'\n'
@@ -388,7 +407,7 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','normalization','bessel_mode','z_backend','bessel_tol','bessel_nmax','bessel_nfixed','bessel_diagnostics','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
+        paramkeys = ['betap','kperp','kpar','vtp','normalization','bessel_mode','z_backend','heating_convention','bessel_tol','bessel_nmax','bessel_nfixed','bessel_diagnostics','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
         fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
         specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
         mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
@@ -419,7 +438,7 @@ class plume_input:
                     if(parse[0] in paramkeys):
                         if(parse[0] in ['nspec','nscan','option','nroot_max','bessel_nmax','bessel_nfixed']):
                             tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
-                        elif parse[0] in ('normalization','bessel_mode','z_backend'):
+                        elif parse[0] in ('normalization','bessel_mode','z_backend','heating_convention'):
                             tempparamdict[parse[0]] = parse[1].split('!')[0].strip().strip("'\"\n")
                         elif(parse[0] != 'dataName'):#dataname is class level var
                             try:
@@ -428,6 +447,7 @@ class plume_input:
                                 tempparamdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
 
                     _i += 1
+                tempparamdict.setdefault('heating_convention','corrected')
                 self.params = ParamsDict(self, tempparamdict)
 
 
@@ -1300,6 +1320,37 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
         return loadlinfpccart(filename,idxoffset=idxoffset+1)
 
 
+def load_plume_energy(filename):
+    """Read the versioned corrected-heating companion (.energy).
+
+    Returns columns as NumPy arrays and raw header metadata under ``metadata``.
+    ``source_file`` and scan/outer/point/mode identify the associated mode row;
+    failed roots are retained. Check energy_status, applicability, and status_sN
+    before interpreting Ps. Signed fractions are not bounded to [0, 1].
+    """
+    import shlex
+    metadata, columns, rows = [], None, []
+    with open(filename) as stream:
+        for line in stream:
+            if line.startswith('#'):
+                metadata.append(line[1:].strip())
+                if line.startswith('# columns:'):
+                    columns = line.split(':', 1)[1].split()
+            elif line.strip():
+                row = shlex.split(line)
+                if columns is None or len(row) != len(columns):
+                    raise ValueError('Invalid plume-energy-v1 record')
+                rows.append(row)
+    if 'schema=plume-energy-v1' not in metadata or columns is None:
+        raise ValueError('Unsupported PLUME energy schema')
+    result = {'metadata': metadata}
+    integer_columns = set(columns[:11])
+    for index, name in enumerate(columns):
+        dtype = str if name == 'source_file' else int if name in integer_columns else float
+        result[name] = np.asarray([row[index] for row in rows], dtype=dtype)
+    return result
+
+
 def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = False, use_ps_split_new=True):
 
     #use_ps_split_new is another name for use_new_low_n
@@ -1503,21 +1554,21 @@ def load_plume_sweep(flnm, nspec = 0, heating = False, eigen = False, verbose = 
                     plume_sweep["n"+str(_i)+"r"].append(float(line[18+6*(nspec)+2*(_i-1)]))
                     plume_sweep["n"+str(_i)+"i"].append(float(line[19+6*(nspec)+2*(_i-1)]))
 
-            # Heating block: P1..Pn, then groups of 6 per species
+            # Heating block: P1..Pn, then groups of 7 per species
             if(heating):
                 not_eig = int(not(eigen))
                 base = 17
                 # 0-based index of first heating value (P1)
-                H0 = base + 1 + (8 - 6*not_eig)*nspec - 12*not_eig
+                H0 = 18 + 8*nspec if eigen else 6
 
                 # First: total power P for all species (P1..Pn)
                 for _i in range(1, nspec+1):
                     plume_sweep[f"p{_i}"].append(float(line[H0 + (_i-1)]))
 
-                # Then: for each species, 6 consecutive sub-terms
+                # Then: for each species, 7 consecutive sub-terms
                 after_p = H0 + nspec
                 for _i in range(1, nspec+1):
-                    b = after_p + 6*(_i-1)
+                    b = after_p + 7*(_i-1)
                     plume_sweep[f"p{_i}ttd_yy"].append(float(line[b + 0]))
                     plume_sweep[f"p{_i}ttd_yz"].append(float(line[b + 1]))
                     plume_sweep[f"p{_i}ld_zy"].append(float(line[b + 2]))
@@ -1731,21 +1782,21 @@ def load_plume_sweep_debug(flnm, nspec = 0, heating = False, eigen = False, verb
                     plume_sweep["n"+str(_i)+"r"].append(18+6*(nspec)+2*(_i-1))
                     plume_sweep["n"+str(_i)+"i"].append(19+6*(nspec)+2*(_i-1))
 
-            # Heating block: P1..Pn, then groups of 6 per species
+            # Heating block: P1..Pn, then groups of 7 per species
             if(heating):
                 not_eig = int(not(eigen))
                 base = 17
                 # 0-based index of first heating value (P1)
-                H0 = base + 1 + (8 - 6*not_eig)*nspec - 12*not_eig
+                H0 = 18 + 8*nspec if eigen else 6
 
                 # First: total power P for all species (P1..Pn)
                 for _i in range(1, nspec+1):
                     plume_sweep["p"+str(_i)].append(H0 + (_i-1))
 
-                # Then: for each species, 6 consecutive sub-terms
+                # Then: for each species, 7 consecutive sub-terms
                 after_p = H0 + nspec
                 for _i in range(1, nspec+1):
-                    b = after_p + 6*(_i-1)
+                    b = after_p + 7*(_i-1)
                     plume_sweep["p"+str(_i)+"ttd_yy"].append(b + 0)
                     plume_sweep["p"+str(_i)+"ttd_yz"].append(b + 1)
                     plume_sweep["p"+str(_i)+"ld_zy"].append(b + 2)

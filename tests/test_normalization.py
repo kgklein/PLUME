@@ -26,7 +26,7 @@ def input_text(mode, beta, alpha_ref, kperp_d, kpar_d, species, scan=None):
         kperp, kpar, vtp = kperp_d, kpar_d, 1e-4
     option = 1 if scan else -1
     lines = [
-        '&params', "z_backend='legacy'", "bessel_mode='fixed'", f"normalization='{mode}'", f'betap={beta:.17g}',
+        '&params', "heating_convention='legacy'", "z_backend='legacy'", "bessel_mode='fixed'", f"normalization='{mode}'", f'betap={beta:.17g}',
         f'kperp={kperp:.17g}', f'kpar={kpar:.17g}', f'vtp={vtp:.17g}',
         f'nspec={len(species)}', f'nscan={1 if scan else 0}', f'option={option}',
         'nroot_max=1', 'use_map=.false.', 'writeOut=.false.',
@@ -84,7 +84,7 @@ class NormalizationTests(unittest.TestCase):
         cls.probe = Path(cls.tempdir.name) / 'probe'
         subprocess.run(['gfortran', '-O3', '-fdefault-real-8', '-Iinclude',
                         '-o', str(cls.probe), str(PROBE), 'nrtype.o', 'nrutil_trim.o',
-                        'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT), 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o','electromagnetic_fields.o','scan_support.o', 'disprels.o', 'fpc.o'],
+                        'vars.o', 'plasma_z_faddeeva.o','plasma_z_legacy.o','plasma_z_backend.o',*c_objects(ROOT), 'functions.o', 'bessel.o', 'cold_susceptibility.o', 'auxiliary_normalization.o', 'kinetic_core.o', 'harmonic_selection.o', 'bessel_cache.o', 'adaptive_kinetic.o', 'cold_reference.o','species_moments.o','electromagnetic_fields.o','heating_response.o','heating_energy.o','heating_diagnostics.o','scan_support.o', 'disprels.o', 'fpc.o'],
                        cwd=ROOT, check=True, capture_output=True)
 
     @classmethod
@@ -331,7 +331,7 @@ class NormalizationTests(unittest.TestCase):
             for relative in ('inputs/example/example_map_par.in', 'tests/drift_cbe_test.in'):
                 source = (ROOT / relative).read_text()
                 old = run_case(old_probe, source)[0]
-                new = run_case(self.probe, source.replace('&params', "&params\nz_backend='legacy'\nbessel_mode='fixed128'", 1))[0]
+                new = run_case(self.probe, source.replace('&params', "&params\nheating_convention='legacy'\nz_backend='legacy'\nbessel_mode='fixed128'", 1))[0]
                 self.assertEqual(old.returncode, 0, old.stderr + old.stdout)
                 self.assertEqual(new.returncode, 0, new.stderr + new.stdout)
                 self.assertEqual(numeric_records(old.stdout), numeric_records(new.stdout))

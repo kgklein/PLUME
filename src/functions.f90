@@ -48,7 +48,8 @@ contains
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
       use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
-      use vars, only: z_backend
+      use vars, only: z_backend,heating_convention
+      use heating_diagnostics, only: reset_energy_output
       use vars, only: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
       use adaptive_kinetic, only: validate_bessel_input
       use vars, only: normalization, sync_solver_state, write_normalization_metadata
@@ -68,7 +69,7 @@ contains
 
       !Read in the basic parameter list.
       nameList /params/ &
-         z_backend,bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics, &
+         heating_convention,z_backend,bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics, &
          betap, kperp, kpar, vtp, normalization, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
          collision_type, Kn, &
@@ -90,6 +91,10 @@ contains
       read (unit=unit, nml=params)
       if (z_backend/='faddeeva' .and. z_backend/='legacy') &
            error stop 'ERROR: z_backend must be faddeeva or legacy.'
+      if (heating_convention/='corrected' .and. heating_convention/='legacy') &
+           error stop 'ERROR: heating_convention must be corrected or legacy.'
+      if (heating_convention=='corrected' .and. collision_type/=0 .and. option==-1) &
+           error stop 'ERROR: corrected diagnostics require collision_type=0; select legacy for historical collisional diagnostics.'
       call validate_bessel_input
       if (writeOut) write(*,'(2a)') 'Z backend: ',trim(z_backend)
       if (normalization /= 'rho_ref' .and. normalization /= 'd_ref') then
@@ -126,6 +131,7 @@ contains
          call sync_solver_state
       endif
       call write_normalization_metadata
+      call reset_energy_output
 
       !Check that ref mass ratio is 1 (in the python wrapper, this is used to help determine the output format to load in sweeps, which is why we check it)
       if (spec(1)%mu_s - 1 > 0.0000001) then
@@ -607,13 +613,15 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine radial_read
   !!Subroutine for reading in radial scan global parameters
-      use vars, only: nRad, nRad_sub, modelName, radial_heating, radial_eigen, k_scan
+      use vars, only: nRad, nRad_sub, modelName, radial_heating, radial_eigen, k_scan,heating_convention
       implicit none
 
   nameList /radial_input/ nRad, nRad_sub, modelName, &
        radial_heating, radial_eigen, k_scan
   nRad_sub = 1
   read (unit=unit,nml=radial_input)
+  if (radial_heating .and. heating_convention=='corrected') &
+       error stop 'ERROR: corrected radial heating is deferred; use legacy for historical radial diagnostics.'
 
    end subroutine radial_read
 

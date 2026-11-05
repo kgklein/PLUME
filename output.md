@@ -44,8 +44,8 @@ result. The Fortran `disp` API returns the unscaled determinant; inspect
 Failure invalidates `susc`, `lam`, and resonance arrays rather than leaving
 stale values. A subsequent valid evaluation recomputes the physical response.
 
-Mixed electromagnetic fields are available in Stage 4B.1. Species moments,
-wave energy, heating and FPC remain unavailable; the direct evaluator labels
+Mixed electromagnetic fields and species moments are available in Stages
+4B.1/4B.2. Corrected collisionless wave energy/heating is supplied by Stage 4B.3A; FPC remains unavailable; the direct evaluator labels
 those omissions and incompatible requests fail.
 Cold resonance-resolved susceptibility entries (`susc_low`) are undefined/NaN,
 not fictitious heating contributions. See the [Stage 2 report](tests/MIXED_DISPERSION_REPORT.md).
@@ -188,27 +188,14 @@ and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add
 
 If `heat` is set to true, the next set of columns will be the power absorption or emission from each component. If `low_n` is set to true, additional terms associated with Landau, Transit time, and Cyclotron heating will be output. If `eigen` is false, this data will start in the 7th column. If `eigen` is true, this data will start in the 18+8 `nspec`+1st column.
 
-If `low_n` is true, the ordering is:
-  1) All total powers P_j for j=1..nspec, then
-  2) For each species j, the six sub-terms (yy, yz, zy, zz, n=0, n=±1) consecutively.
-
-Concretely (1-based column numbers; {!eigen}=1 if eigen is false, else 0):
-
-- P_j: 18 + (8 - 6{!eigen})*nspec + j
-
-Let afterP = 18 + (8 - 6{!eigen})*nspec + nspec.
-Then for species j in {1,..,nspec}:
-
-- P_j^yy:   afterP + 6*(j-1) + 1   (Transit Time Damping term 1)
-- P_j^yz:   afterP + 6*(j-1) + 2   (Transit Time Damping term 2)
-- P_j^zy:   afterP + 6*(j-1) + 3   (Landau Damping term 1)
-- P_j^zz:   afterP + 6*(j-1) + 4   (Landau Damping term 2)
-- P_j^{n=0}: afterP + 6*(j-1) + 5  (sum of Landau and Transit Time Damping)
-- P_j^{n=+1}: afterP + 6*(j-1) + 6 (n=±1 Cyclotron Damping)
-- P_j^{n=-1}: afterP + 7*(j-1) + 7 (n=-1 Cyclotron Damping)
-
-Here, {!eigen} (negation of the eigen boolean) equals 1 if eigen is false and 0 if eigen is true.
-
+If `low_n` is true, all species totals `Ps(1:nspec)` appear first, then
+seven consecutive channels for each species in original order.
+Use zero-based `start = 18 + 8*nspec` when eigen=true, otherwise `start = 6`.
+Total for species j (one-based species index) is column `start+j` (one-based
+column). Channel c=1..7 is column `start+nspec+7*(j-1)+c`.
+Channels are n=0 yy, yz, zy, zz, full n=0, transverse n=+1, transverse n=-1.
+They are selected diagnostics, not an exhaustive partition: first four sum to
+channel 5; channels 5--7 need not sum to Ps; summing all seven double-counts n=0.
 
 This will be followed by 6`nspec` columns containing the parameter lists $\mathcal{P}_j$ for each species or component. 
 - 19+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $T_{ref,\parallel}/T_{j,\parallel}$.
@@ -217,7 +204,7 @@ This will be followed by 6`nspec` columns containing the parameter lists $\mathc
 - 22+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $q_{ref}/q_{j}$.
 - 23+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $n_{j}/n_{ref}$.
 - 24+`noutperspec` `nspec`+6(j-1)-12({!eigen}). $v_{j,drift}/v_{A,ref}$.
-Here, noutperspec = 0 is the number of additional outputs created by setting heating or eigen to true. If eigen and heating are false, then noutperspec = 8, if eigen is false and heating is true, then noutperspec = 8, and if eigen is true and if eigen and heating are true, then noutperspec=16. Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
+Here `noutperspec` is 0 if both flags are false, 8 if only one is true, and 16 if both are true (low_n=true). Note that {!eigen} (negation of eigen boolean) is equal to 1 if eigen is false and 0 if eigen is true.
 
 For ease of reference, consider the below tables for column numbers for two and three component calculations.
    
@@ -313,7 +300,7 @@ the branch. Inspect frequency continuity and refine steps where necessary.
 `.roots` pair per wavevector, with independent root selection. Cold-containing
 maps use the supplied frequency bounds. Existing normalization and Bessel cache
 metadata remain available, with their established Z/backend labels. No new columns are introduced. Stage 4B.1 fills the existing electromagnetic
-field columns while density/velocity slots remain NaN for cold-containing runs.
+field columns; Stage 4B.2 also fills density/velocity slots for cold-containing runs.
 
 See the [scan input guide](input.md#mixed-wavevector-scans-stage-4a) and
 [validation report](tests/MIXED_SCAN_REPORT.md).
@@ -326,10 +313,9 @@ are complex Bx,By,Bz, and 13–18 are complex Ex,Ey,Ez, with real/imaginary pair
 The first six root/input columns and trailing six species parameters per species
 retain their meanings. Eigen-only files have `18+14*nspec` real columns.
 
-For cold-containing runs only the 12 electromagnetic values are enabled.
-The intervening `8*nspec` velocity/density values (starting at column 19) are
-NaN for **every** species. These are explicitly unavailable, not zero fluid
-perturbations, and do not implement Stage 4B.2 or 4B.3. Existing all-kinetic
+Stage 4B.2 fills the intervening `8*nspec` velocity/density values (starting at
+column 19) for cold and warm species, in their original ordering. Failed species
+moment blocks contain NaN, rather than physical zeros. Existing all-kinetic
 moments and heating layouts/calculations are unchanged. Python `load_plume_sweep`
 reads these files using `eigen=True, heating=False`; NaNs are retained.
 
@@ -353,7 +339,125 @@ used to replace zero wavevector components or normalize a zero Ex.
 
 The single-point cold/mixed evaluator prints the existing `ef`/`bf` blocks at
 a valid mode, and a status/omission notice elsewhere. It does not print fabricated
-species moments or energies. The normalization sidecar identifies the new
-field normalization and unavailable diagnostics. Read the
+energies. It now also prints species moments and their statuses. The
+normalization sidecar identifies field/moment units, species models, and
+unavailable diagnostics. Read the
 [implementation/validation report](tests/MIXED_EIGENFUNCTION_REPORT.md) for
 cofactor pivoting, failure statuses, tolerances, and the energy assessment.
+
+
+## Species moment conventions (Stage 4B.2)
+
+Existing eigen-only files retain `18+14*nspec` real columns:
+
+- 1–6: native kperp, kpar, betap, vtp, complex frequency;
+- 7–18: Bx,By,Bz and Ex,Ey,Ez as real/imaginary pairs;
+- 19 through `18+6*nspec`: Ux,Uy,Uz real/imaginary pairs for species 1, then 2, etc.;
+- `19+6*nspec` through `18+8*nspec`: density real/imaginary pairs in species order;
+- the remaining `6*nspec` columns: existing plasma/species input parameters.
+
+No columns are inserted, removed or repurposed. Velocity is
+`deltaU_s/(c*deltaEx/B0)`; density is `(delta n_s/n0_s)/(deltaEx/B0)`.
+These use the same historical Ex=1 amplitude/phase convention as E/B. To obtain
+physical values, choose the wave amplitude deltaEx/B0, multiply the velocity
+by c times that amplitude, and density by n0_s times that amplitude.
+The full complex omega enters momentum and continuity.
+
+Exactly zero tauS selects cold-fluid moments; positive tauS selects kinetic
+current/continuity moments. Neither an assumed species ordering nor auxiliary
+thermal normalization changes these physical units. The density-drift current
+must be retained when converting moments to current for drifting species.
+Cold anisotropy placeholders are ignored.
+
+NaN means unavailable, including numerical failure or absent zero-density
+species. A failed species does not invalidate other species or successful E/B.
+Warnings identify the species and status; single-point output also lists the
+per-species statuses. The normalization sidecar records species model, units,
+and status meanings. Corrected heating/wave energy is described below; cold-containing FPC remains excluded. The Python loader uses `eigen=True, heating=False` and
+reads finite moments or NaNs in the unchanged columns.
+
+See [input/API and status codes](input.md#species-moments-stage-4b2) and
+[the independent moment validation report](tests/COLD_FLUID_EIGENFUNCTION_REPORT.md).
+
+
+## Corrected energy companion (plume-energy-v1)
+
+The existing low_n=true mode-file numeric columns/precision are unchanged.
+Heating values change by default to the corrected convention. Cold species
+and failed/inapplicable heating have NaNs, preserving every species slot.
+Historical `Ew` values were unassigned and are not wave energy. In corrected
+low_n=false eigen+heating output that old final slot is explicitly NaN;
+heating-only no longer writes an orphan unassigned Ew record. New H components
+are never inserted into the old heating blocks or substituted into Ew.
+
+Corrected `option=-1`, and serial/2D scans requesting heating, write
+`data/<dataName>/<outputName>.energy`. Single-point/scan runs reset their prior companion;
+legacy writes none. Maps are unchanged. Header `schema=plume-energy-v1`
+version-controls a whitespace table. `# columns:` specifies every column;
+the final quoted `source_file` tolerates spaces. Each row identifies the
+workflow (-1 single, 1 serial, 2 grid), scan, outer/point iteration indices,
+mode, root/field validity, numerical status and applicability. Indices use
+the existing scan loops: point is the integration index, **not** the output
+row number when nres>1. Missing/failed roots have explicit rows, NaNs and
+status 8; they do not shift later mode associations. The source mode file,
+wavevector, outer index and point identify each output unambiguously.
+
+Numeric columns are 11 integers followed by 16 reals, then 15 reals/species:
+
+```
+record workflow scan outer point mode root_valid field_status
+energy_status applicability response_code
+kperp kpar omega_r gamma H_total H_E H_B H_species_total
+f_E f_B f_species f_E_abs uncertainty gamma_ratio gamma_est total_Ps
+# repeated for s=1..nspec:
+H_s f_s Q_s Ps_s status_s dmatrix_s dproject_s dstep_s C1_s ... C7_s
+# final string:
+source_file
+```
+
+Wavevectors use native input units; w/gamma use Omega_ref. H terms have units
+`16*pi*W/abs(deltaEx)^2`. Hs differentiates wr*chi_H at fixed physical plasma
+and k. E is Ex=1 at the accepted complex mode; HB uses real wr Faraday fields,
+not the old complex-frequency magnetic norm. All susceptibility snapshots for
+Q and the seven channels share that same wr. Q is raw signed absorption,
+Ps=Q/H. C1..C7 are the seven normalized channels, +1 preceding -1.
+`total_Ps` sums kinetic Ps only when every required diagnostic is available;
+fully cold or qualified/failed values are NaN, not a physical zero.
+
+`f_E=H_E/H`, `f_B=H_B/H`, `f_species=sum(Hs)/H`, `f_s=Hs/H` are **signed formal
+fractions**, unclamped; negative-energy/drifting modes can have fractions
+outside [0,1]. They sum to one when resolved. If H is within ten estimated
+numerical uncertainties of zero, signed fractions and normalized heating are
+unavailable. `f_E_abs=H_E/(abs(H_E)+abs(H_B)+sum(abs(Hs)))` is a noncancelling
+**contribution measure**, not a physical energy fraction, and can remain
+available when signed fractions are not. No artificial floor is inserted.
+
+`uncertainty` estimates derivative step-window and floating-point error,
+not a rigorous bound or a physical applicability guarantee. `dmatrix_s` and
+`dproject_s` report neighboring Richardson estimate changes, with a shared
+conservative scale; both must pass 1e-6. `dstep_s` is the chosen relative
+centered step. Cold derivatives are analytic (step/errors zero).
+
+| Code | energy_status |
+|---|---|
+| 0 | Numerically resolved formal energy |
+| 1, 2, 3 | Invalid input, unavailable Ex=1 fields, zero wr |
+| 4, 5, 6 | Response/pole failure, unresolved derivative, unresolved H |
+| 7, 8, 9 | Unsupported collisions, failed root, arithmetic failure |
+
+Applicability is a bit mask: 1 for abs(gamma/wr)>0.05; 2 for weak balance
+mismatch/near-reactive warning. Formal energy may remain resolved with either
+bit; kinetic Ps/channels are then NaN. `gamma_est=-wr*sum(Q_kinetic)/H` is an
+independent weak-mode check, not an imposed closure or strong-mode growth rate.
+Species status: 0 valid kinetic, 1 cold kinetic-heating unavailable, 2 absent,
+3 response/input failure, 4 unresolved derivative, 5 unavailable normalizer,
+6 applicability. Cold Hs/f_s are still calculated when energy is resolved.
+Response codes retain existing kernel pole/numerical status definitions.
+
+Read using `linfpclib.linfpc.load_plume_energy(path)`. It returns named NumPy
+columns plus raw `metadata`, retaining failed records and NaNs. The existing
+low_n=true `load_plume_sweep` now uses the correct heating offset and seven-
+channel stride; original Fortran column meanings are unchanged. Its automatic
+schema inference remains ambiguous for some species/flag combinations: supply
+nspec/eigen/heating explicitly. For low_n=false use the companion or explicit
+schema; the historical sweep reader assumes seven channels.

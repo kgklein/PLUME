@@ -2,7 +2,8 @@ module electromagnetic_fields
   !! Existing PLUME cofactor polarization and Faraday fields, isolated from
   !! kinetic moments/heating and from the reference thermal normalization.
   use vars, only: lam_state=>lam,spec,kpar_state=>kpar,kperp_state=>kperp, &
-       vtp,normalization,dispersion_status
+       vtp,normalization,dispersion_status,susc
+  use species_moments, only: calc_species_moments,moment_invalid
   use, intrinsic :: ieee_arithmetic
   use, intrinsic :: ieee_exceptions
   implicit none
@@ -125,17 +126,33 @@ contains
     call ieee_set_halting_mode(exceptions,halting)
   end subroutine
 
-  subroutine calc_mixed_eigen(omega,electric,magnetic,velocity,density,heating,split,heat_requested,ierr,evaluate)
+  subroutine calc_mixed_eigen(omega,electric,magnetic,velocity,density,heating,split,heat_requested,ierr,evaluate, &
+       moment_status)
     complex,intent(in) :: omega
     complex,intent(out) :: electric(3),magnetic(3),velocity(:,:),density(:)
     real,intent(out) :: heating(:),split(:,:)
     logical,intent(in) :: heat_requested
     integer,intent(out) :: ierr
     procedure(dispersion_function) :: evaluate
+    integer,intent(out),optional :: moment_status(:)
+    integer :: status(size(density)),s
     if (heat_requested) error stop 'ERROR: mixed heating is unavailable until Stage 4B.3.'
     velocity=invalid_value();density=invalid_value()
     heating=real(invalid_value());split=real(invalid_value())
     call calc_em_eigen(omega,electric,magnetic,ierr,evaluate)
+    status=moment_invalid
+    if (ierr==em_ok) then
+       ! Cold-containing production inputs are d_ref, including warm references.
+       ! This reads physical state and the refreshed species chi, never solver_*.
+       if (normalization=='d_ref') call calc_species_moments(spec,omega,kpar_state,kperp_state,vtp, &
+            electric,magnetic,susc,velocity,density,status)
+       do s=1,size(status)
+          if (status(s)/=0) write(*,'(a,i0,a,i0,a,2es15.6)') &
+               'WARNING: species moment unavailable; species=',s,'; status=',status(s), &
+               '; kperp,kpar=',kperp_state,kpar_state
+       enddo
+    endif
+    if (present(moment_status)) moment_status=status
     if (ierr/=em_ok) write(*,'(a,i0,a,2es15.6)') &
          'WARNING: electromagnetic eigenfunction unavailable; status=',ierr,'; kperp,kpar=',kperp_state,kpar_state
   end subroutine
