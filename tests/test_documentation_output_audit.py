@@ -33,15 +33,15 @@ class DocumentationAuditTests(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):data=markers(ROOT,Path(d))
         records=[r for r in data['markers'] if r.get('case')=='low_n=false']
         self.assertEqual(len(records),4);self.assertTrue(all('IndexError' in r['outcome'] for r in records))
-    def test_writeout_is_currently_coupled_to_use_map(self):
+    def test_writeout_is_independent_of_use_map(self):
         obj=plume_input('audit');obj.set_params(.4,.05,.06,.01,2,0,1,1,False,True,normalization='d_ref')
-        self.assertEqual(obj.params['writeOut'],'.false.') # Confirmed defect; not a desired API contract.
-    def test_fpc_reader_currently_replaces_nan_with_zero(self):
+        self.assertEqual(obj.params['writeOut'],'.true.')
+    def test_fpc_reader_preserves_nan(self):
         with tempfile.TemporaryDirectory() as d:
             file=Path(d)/'test.cpar.specie01.mode01'
             file.write_text('tau bi kpar kperp vti mu omega.r omega.i\n1 1 .1 .1 .01 1 .1 -.001\nvperpmin vperpmax vparmin vparmax delv\n0 1 -1 1 1\n---\nNaN 2 3\n4 5 6\n')
             actual=loadlinfpccepar(str(file))
-            self.assertEqual(actual['CEpar'][0,0],0.) # Historical missing-value loss.
+            self.assertTrue(np.isnan(actual['CEpar'][0,0]))
     def test_energy_reader_preserves_failed_rows_and_quoted_paths(self):
         with tempfile.TemporaryDirectory() as d:
             file=Path(d)/'test.energy';file.write_text('# schema=plume-energy-v1\n# columns: record workflow scan outer point mode root_valid field_status energy_status applicability response_code H_total source_file\n1 2 0 0 0 1 0 -1 8 0 0 NaN "data/a path/mode.mode1"\n')

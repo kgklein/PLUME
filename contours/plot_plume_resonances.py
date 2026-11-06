@@ -302,12 +302,13 @@ def read_plume_input(path: str | Path) -> PlumeInput:
             raise ValueError(f"{p}: species_{idx} is missing required key {exc.args[0]!r}") from exc
 
     scans = []
-    for key, vals in sorted(namelists.items()):
-        if key.startswith("scan_input_"):
-            scans.extend(vals)
+    for key in sorted((key for key in namelists if key.startswith("scan_input_")),
+                      key=lambda key: int(key.rsplit("_",1)[1])):
+        scans.extend(namelists[key])
 
-    eigen = any(bool(scan.get("eigen", False)) for scan in scans)
-    heating = any(bool(scan.get("heating", scan.get("heat", False))) for scan in scans)
+    selected = scans[1:2] if params.get("option")==2 else scans
+    eigen = any(bool(scan.get("eigen", False)) for scan in selected)
+    heating = any(bool(scan.get("heating", scan.get("heat", False))) for scan in selected)
     low_n = bool(params.get("low_n", True))
     return PlumeInput(
         path=p,
@@ -385,62 +386,62 @@ def _first_existing(paths: list[Path]) -> Path | None:
     return paths[0] if paths else None
 
 
-def read_dispersion_output(path: Path, plume_input: PlumeInput, branch: int) -> DispersionData:
-    data = np.loadtxt(path, ndmin=2)
-    if data.shape[1] < 6:
-        raise ValueError(f"{path}: expected at least 6 columns, found {data.shape[1]}")
+def read_dispersion_output(path: Path, plume_input: PlumeInput, branch: int,
+                           *, scan_index: int | None = None) -> DispersionData:
+    """Read an explicitly selected scan schema, never guess heat from length.
 
-    columns = {name: i for i, name in enumerate(BASE_COLUMNS)}
-    nspec = len(plume_input.species)
-    eigen_block_cols = 12 + 8 * nspec
-    eigen_available = plume_input.eigen and data.shape[1] >= 6 + 12
-    if eigen_available:
-        for name, col in {
-            "Bx_re": 6,
-            "Bx_im": 7,
-            "By_re": 8,
-            "By_im": 9,
-            "Bz_re": 10,
-            "Bz_im": 11,
-            "Ex_re": 12,
-            "Ex_im": 13,
-            "Ey_re": 14,
-            "Ey_im": 15,
-            "Ez_re": 16,
-            "Ez_im": 17,
-        }.items():
-            if col < data.shape[1]:
-                columns[name] = col
-
-    # Per output.md, P_j starts immediately after the full eigen block:
-    # 1-based P_j column = 18 + 8*nspec + j, so 0-based start = 18 + 8*nspec.
-    heat_start = 6 + eigen_block_cols if eigen_available else 6
-    heating_available = data.shape[1] >= heat_start + nspec
-    split_start = heat_start + nspec
-    low_n_available = data.shape[1] >= split_start + 7 * nspec
-    params_start = split_start + 7 * nspec if low_n_available and data.shape[1] >= split_start + 7 * nspec + 6 * nspec else None
-
-    if heating_available:
-        for j in range(nspec):
-            columns[f"P_species_{j+1}"] = heat_start + j
-        if low_n_available:
+    scan_index is one-based for serial inputs whose diagnostic switches differ.
+    In 2D PLUME uses scan_input_2's eigen/heating switches. Historical orphan
+    low_n=false records are rejected rather than interpreted as new mode rows.
+    """
+    option=plume_input.params.get("option",1)
+    if option not in (1,2):
+        raise ValueError(f"{path}: option={option} is not a serial/2D .modeN scan schema")
+    scans=plume_input.scans
+    if option==2:
+        if len(scans)!=2 or scan_index not in (None,2):
+            raise ValueError("2D .modeN output requires scan_input_2 diagnostic flags")
+        chosen=scans[1]
+    elif scan_index is not None:
+        if not 1<=scan_index<=len(scans):raise ValueError("scan_index must select a one-based scan_input_N")
+        chosen=scans[scan_index-1]
+    elif scans:
+        layouts={(bool(scan.get("eigen",False)),bool(scan.get("heating",False))) for scan in scans}
+        if len(layouts)!=1:
+            raise ValueError(f"{path}: ambiguous serial diagnostic flags; pass scan_index=N for this file")
+        chosen=scans[0]
+    else:
+        # Explicit PlumeInput flags also support programmatic schema construction.
+        chosen={"eigen":plume_input.eigen,"heating":plume_input.heating}
+    eigen=bool(chosen.get("eigen",False));heating=bool(chosen.get("heating",False))
+    low_n=plume_input.low_n;nspec=len(plume_input.species)
+    prefix=18+8*nspec if eigen else 6
+    heat_count=(8*nspec if low_n else nspec) if heating else 0
+    params_start=prefix+heat_count
+    expected=params_start+6*nspec+int(eigen and heating and not low_n)
+    try:
+        data=np.loadtxt(path,ndmin=2)
+    except ValueError as exc:
+        raise ValueError(f"{path}: nonrectangular scan records; legacy low_n=false orphan Ew records need a separate parser") from exc
+    if data.shape[1]!=expected:
+        raise ValueError(f"{path}: expected {expected} columns for nspec={nspec}, eigen={eigen}, "
+                         f"heating={heating}, low_n={low_n}; found {data.shape[1]}. "
+                         "Select the matching input/scan_index; extra columns are not inferred as heating.")
+    columns={name:i for i,name in enumerate(BASE_COLUMNS)}
+    if eigen:
+        for i,name in enumerate(["Bx_re","Bx_im","By_re","By_im","Bz_re","Bz_im",
+                                 "Ex_re","Ex_im","Ey_re","Ey_im","Ez_re","Ez_im"],6):
+            columns[name]=i
+    if heating:
+        for j in range(nspec):columns[f"P_species_{j+1}"]=prefix+j
+        if low_n:
+            labels=("TTD_yy","TTD_yz","LD_zy","LD_zz","n0","n+1","n-1")
             for j in range(nspec):
-                offset = split_start + 7 * j
-                labels = ("TTD_yy", "TTD_yz", "LD_zy", "LD_zz", "n0", "n+1", "n-1")
-                for label_i, label in enumerate(labels):
-                    columns[f"P_species_{j+1}_{label}"] = offset + label_i
-
-    return DispersionData(
-        path=path,
-        data=data,
-        columns=columns,
-        branch=branch,
-        eigen_available=eigen_available,
-        heating_available=heating_available,
-        low_n_available=low_n_available,
-        heat_start=heat_start if heating_available else None,
-        params_start=params_start,
-    )
+                for c,label in enumerate(labels):columns[f"P_species_{j+1}_{label}"]=prefix+nspec+7*j+c
+    return DispersionData(path=path,data=data,columns=columns,branch=branch,
+                          eigen_available=eigen,heating_available=heating,
+                          low_n_available=heating and low_n,
+                          heat_start=prefix if heating else None,params_start=params_start)
 
 
 def read_species_resonance_outputs(files: OutputFiles, branch: int) -> dict[tuple[int, str], np.ndarray]:

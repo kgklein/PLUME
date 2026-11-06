@@ -89,9 +89,11 @@ The data is ordered in columns as
 5. Im $[|\mathcal{\Lambda}|]$  
 
 The *&maps* namelist in *filename*.in determines the structure of *filename*.map.  
-The range of $\omega_{\textrm{r}}/\Omega_p$ is from `omi` to `omf` with `nr` steps.
-Logorithmic or linear spacing is selected with `loggridw`.
-The range of $\gamma_{\textrm{r}}/\Omega_p$ is from `gami` to `gamf` with `ni` steps. Logorithmic or linear spacing is selected with `loggridg`.
+Linear grids span `omi` to `omf` with `nr` steps and `gami` to `gamf` with
+`ni` steps (both endpoints included). `loggridw` and `loggridg` select
+historical logarithmic equations whose bounds are **not physical endpoints**;
+the imaginary logarithmic grid is always negative. See
+[the exact equations and warning](input.md#historical-logarithmic-maps).
 `nr` and `ni` are set to 128 as a default which can be replaced by user defined parameters;
 see [input.md].
 
@@ -461,3 +463,26 @@ channel stride; original Fortran column meanings are unchanged. Its automatic
 schema inference remains ambiguous for some species/flag combinations: supply
 nspec/eigen/heating explicitly. For low_n=false use the companion or explicit
 schema; the historical sweep reader assumes seven channels.
+
+### Explicit contour-reader schemas and FPC missing values
+
+`contours.plot_plume_resonances.read_dispersion_output(path, input, branch)`
+uses the matching input's `eigen`, `heating`, `low_n`, and species count.
+It validates the exact scan column count; species-parameter columns are never
+inferred to be heating. Serial files with different scan diagnostic flags
+require the one-based keyword `scan_index=N`. Two-dimensional files use
+`scan_input_2` flags, as the writer does. Eigen-only, heating-only, and combined
+files retain their original species ordering and seven-channel ordering.
+Mismatched/ambiguous layouts raise `ValueError`. Historical ragged
+`low_n=false` records are rejected explicitly; rectangular records with
+explicit flags can be read. No Fortran record format is changed.
+
+Gyro and Cartesian FPC readers in `linfpclib.linfpc` preserve NaN, infinity,
+finite positive/negative values, physical zeros, and array shape by default.
+The Cartesian 3D reader also preserves representable small/large samples
+without the old clipping. Existing FPC units, normalization, and calculation
+restrictions are unchanged. To replace **only NaNs** with zeros for a plot,
+explicitly pass `visualization_nan_to_zero=True`; this does not convert
+infinities or reinterpret unavailable values as calculated physical zeros.
+The option is also available through distribution-loading helpers. The
+`.energy` reader is unchanged and continues to retain missing/failed records.

@@ -50,6 +50,7 @@ contains
       use vars, only: low_n, susc_low
       use vars, only: z_backend,heating_convention
       use heating_diagnostics, only: reset_energy_output
+      use scan_support, only: warn_unsupported_parallel
       use vars, only: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
       use adaptive_kinetic, only: validate_bessel_input
       use vars, only: normalization, sync_solver_state, write_normalization_metadata
@@ -130,6 +131,7 @@ contains
       else
          call sync_solver_state
       endif
+      call warn_unsupported_parallel(kperp)
       call write_normalization_metadata
       call reset_energy_output
 
@@ -276,6 +278,10 @@ end subroutine read_map_input
        positive_roots,nr,ni
 
       read (unit=unit, nml=maps)
+      if (loggridw .or. loggridg) write(*,'(a)') &
+           'WARNING: historical logarithmic frequency maps mix exponent origins with frequency-ratio increments; '// &
+           'loggridw starts at 10**omi; loggridg starts at -10**abs(gami) and discards signs. '// &
+           'Bounds are not physical endpoints. See input.md (logarithmic maps). Equations are unchanged.'
 
    end subroutine map_read
 

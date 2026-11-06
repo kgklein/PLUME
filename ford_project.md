@@ -41,8 +41,7 @@ favicon: favicon.ico
 <img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
 <img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/>
 
-PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
-relation in hot (even relativistic) magnetised plasma.
+PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion relation in cold and hot magnetised plasmas.
 
 If you use the code for a science publication, please provide the code website
 [github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication, and cite the code:

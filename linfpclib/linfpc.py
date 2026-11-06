@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import math
+from ._namelist import read_scalar_namelists, validate_controls, scalar_text
 
 def find_nearest(array, value): #random but very useful function
     """
@@ -103,7 +104,7 @@ class plume_input:
             use_map_out = '.false.'
 
         usewriteOut_out = '.true.'
-        if(not(use_map)):
+        if(not(writeOut)):
             usewriteOut_out = '.false.'
 
         self.params = ParamsDict(self, {
@@ -145,22 +146,16 @@ class plume_input:
            self.fpc['vzmin'] = vzmin
            self.fpc['vzmax'] = vzmax
 
-    def set_maps(self,loggridw,omi,omf,gami,gamf,positive_roots):
-        loggridw_out = '.true.'
-        if(not(loggridw)):
-            loggridw_out = '.false.'
+    def set_maps(self,loggridw,omi,omf,gami,gamf,positive_roots,loggridg=False,nr=128,ni=128):
+        """Set independent map flags and interval counts (nr+1 by ni+1 nodes).
 
-        positive_roots_out = '.true.'
-        if(not(loggridw)):
-            positive_roots_out = '.false.'
-
-        self.maps = {'loggridw':loggridw_out,
-                     'omi':omi,
-                     'omf':omf,
-                     'gami':gami,
-                     'gamf':gamf,
-                     'positive_roots':positive_roots_out
-        }
+        Log grids retain PLUME's historical mixed-origin convention; see input.md.
+        """
+        self.maps = {'loggridw':'.true.' if loggridw else '.false.',
+                     'loggridg':'.true.' if loggridg else '.false.',
+                     'omi':omi, 'omf':omf, 'gami':gami, 'gamf':gamf,
+                     'positive_roots':'.true.' if positive_roots else '.false.',
+                     'nr':int(nr), 'ni':int(ni)}
 
     def get_nuns(self, spec):
         muS = spec['muS']
@@ -226,7 +221,7 @@ class plume_input:
 
         self.species[idx]['nu_ns'] = self.get_nuns(self.species[idx])
 
-    def make_scan(self,scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen):
+    def make_scan(self,scan_type,scan_style,swi,swf,swlog,ns,nres,heating,eigen,tensor=False):
         swlog_out = '.true.'
         if(not(swlog)):
             swlog_out = '.false.'
@@ -247,7 +242,8 @@ class plume_input:
                     'ns':int(ns),
                     'nres':int(nres),
                     'heating':heating_out,
-                    'eigen':eigen_out
+                    'eigen':eigen_out,
+                    'tensor':'.true.' if tensor else '.false.'
         }
 
         if(len(self.scan_inputs[0]) == 0):
@@ -267,6 +263,16 @@ class plume_input:
 
     def check_input_for_errors(self):
         #will not halt things,  but will print warnings
+        import warnings
+        if self.params.get('kperp')==0 and all(s.get('tauS',0)>0 for s in self.species):
+            warnings.warn('Exact-parallel all-kinetic calculations (kperp=0) are unsupported; no wavevector floor is applied.', stacklevel=2)
+        if self.params.get('option')==4:
+            if any(s.get(k) in (True,'.true.') for s in self.scan_inputs for k in ('eigen','tensor')):
+                warnings.warn('Frequency-map eigen/tensor requests are ignored; map output has no such diagnostics.', stacklevel=2)
+            if self.params.get('heating_convention','corrected')=='legacy' and any(s.get('heating') in (True,'.true.') for s in self.scan_inputs):
+                warnings.warn('Legacy frequency-map heating requests are ignored; map output has no heating.', stacklevel=2)
+        if any(self.maps.get(k) in (True,'.true.') for k in ('loggridw','loggridg')):
+            warnings.warn('Historical logarithmic frequency maps mix exponent origins and frequency-ratio increments; bounds are not physical endpoints (see input.md).', stacklevel=2)
 
         convention=self.params.get('heating_convention','corrected')
         if convention not in ('corrected','legacy'):
@@ -331,6 +337,11 @@ class plume_input:
 
     def write_input(self,flnm,outputname,desc='',verbose=False):
 
+        validate_controls('params',self.params)
+        validate_controls('maps',self.maps);validate_controls('fpc',self.fpc)
+        for item in self.species:validate_controls('species',item,derived=('nu_ns',))
+        for item in self.scan_inputs:validate_controls('scan_input',item)
+        for item in self.guesses:validate_controls('guess',item)
         self.check_input_for_errors()
 
         _replace_input_aux(flnm,verbose=verbose)
@@ -340,29 +351,21 @@ class plume_input:
         self.params['outputName'] = outputname
 
         f.write('&params\n')
-        for key in self.params.keys():
-            if(key in ('outputName', 'normalization', 'bessel_mode', 'z_backend', 'heating_convention')):
-                line = str(key)+'='+"'"+str(self.params[key])+"'"+'\n'
-            else:
-                line = str(key)+'='+str(self.params[key])+'\n'
-            if(key == 'Kn'):
-                if(not(self.params['Kn']) is None):
-                    line = str(key)+'='+str(self.params[key])+'\n'
-                else:
-                    continue
-            f.write(line)
+        for key,value in self.params.items():
+            if key in ('dataName','Kn') and (key=='dataName' or value is None):continue
+            f.write(key+'='+scalar_text('params',key,value)+'\n')
 
         if(self.params['Kn'] != None and self.params['collision_type'] == 0):
             print("Warning, Kn has a finite value but collision_type is 0 (i.e. collisions are off). Was this intentional?")
 
-        line = 'dataName'+"='"+str(self.dataname)+"'\n"
+        line = 'dataName='+scalar_text('params','dataName',self.dataname)+'\n'
         f.write(line)
         f.write('/\n\n')
 
         if(len(self.fpc) != 0):
             f.write('&fpc\n')
             for key in self.fpc.keys():
-                line = str(key)+'='+str(self.fpc[key])+'\n'
+                line = str(key)+'='+scalar_text('fpc',key,self.fpc[key])+'\n'
                 f.write(line)
             f.write('/\n\n')
 
@@ -372,7 +375,7 @@ class plume_input:
             for key in spec.keys():
                 if(key == 'nu_ns'):
                     continue
-                line = str(key)+'='+str(spec[key])+'\n'
+                line = str(key)+'='+scalar_text('species',key,spec[key])+'\n'
                 f.write(line)
             f.write('/\n\n')
             specidx += 1
@@ -380,7 +383,7 @@ class plume_input:
         if(len(self.maps) != 0):
             f.write('&maps\n')
             for key in self.maps.keys():
-                line = str(key)+'='+str(self.maps[key])+'\n'
+                line = str(key)+'='+scalar_text('maps',key,self.maps[key])+'\n'
                 f.write(line)
             f.write('/\n\n')
 
@@ -389,7 +392,7 @@ class plume_input:
             for scan in self.scan_inputs:
                 f.write('&scan_input_'+str(scanidx)+'\n')
                 for key in scan.keys():
-                    line = str(key)+'='+str(scan[key])+'\n'
+                    line = str(key)+'='+scalar_text('scan_input',key,scan[key])+'\n'
                     f.write(line)
                 f.write('/\n\n')
                 scanidx += 1
@@ -399,7 +402,7 @@ class plume_input:
             for guess in self.guesses:
                 f.write('&guess_'+str(gidx)+'\n')
                 for key in guess.keys():
-                    line = str(key)+'='+str(guess[key])+'\n'
+                    line = str(key)+'='+scalar_text('guess',key,guess[key])+'\n'
                     f.write(line)
                 f.write('/\n\n')
                 gidx += 1
@@ -407,140 +410,43 @@ class plume_input:
         f.close()
 
     def load_from_file(self,flnm):
-        paramkeys = ['betap','kperp','kpar','vtp','normalization','bessel_mode','z_backend','heating_convention','bessel_tol','bessel_nmax','bessel_nfixed','bessel_diagnostics','nspec','nscan','option','nroot_max','use_map','writeOut','outputName','collision_type','Kn'] #note dataName is missing as that is set by self.dataname and defined at creation
-        fpckeys = ['vperpmin','vperpmax','vparmin','vparmax','delv','elecdircontribution']
-        specieskeys = ['tauS','muS','alphS','Qs','Ds','vvS']
-        mapskeys = ['loggridw','omi','omf','gami','gamf','positive_roots']
-        scaninputkeys = ['scan_type','scan_style','swi','swf','swlog','ns','nres','heating','eigen']
-        guesskeys = ['g_om','g_gam']
+        """Load supported scalar controls without dropping optional fields.
 
-        tempfile = open(flnm, "r")
-        _tempfile = []
-        for line in tempfile:
-            _tempfile.append(line)
-        tempfile.close()
-        tempfile = _tempfile
-
-        _i = 0
-        while _i < len(tempfile):
-            parse = tempfile[_i].split()
-
-            if(len(parse) == 0):
-                parse = ['']
-
-            if(parse[0] == '&params'):
-                tempparamdict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in paramkeys):
-                        if(parse[0] in ['nspec','nscan','option','nroot_max','bessel_nmax','bessel_nfixed']):
-                            tempparamdict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
-                        elif parse[0] in ('normalization','bessel_mode','z_backend','heating_convention'):
-                            tempparamdict[parse[0]] = parse[1].split('!')[0].strip().strip("'\"\n")
-                        elif(parse[0] != 'dataName'):#dataname is class level var
-                            try:
-                                tempparamdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                            except:
-                                tempparamdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-
-                    _i += 1
-                tempparamdict.setdefault('heating_convention','corrected')
-                self.params = ParamsDict(self, tempparamdict)
-
-
-            if(parse[0] == '&fpc'):
-                tempfpcdict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in fpckeys):
-                        try:
-                            tempfpcdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                        except:
-                            tempfpcdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-                    _i += 1
-                self.fpc = tempfpcdict
-
-            if(parse[0] == '&maps'):
-                tempmapdict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in mapskeys):
-                        try:
-                            tempmapdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                        except:
-                            tempmapdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-                    _i += 1
-                self.maps = tempmapdict
-
-            parse_2 = parse[0].split('_')
-            if(parse_2[0] == '&species'):
-                tempspecdict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in specieskeys):
-                        try:
-                            tempspecdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                        except:
-                            tempspecdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-                    _i += 1
-                if(len(self.species[0]) == 0):
-                    self.species = [tempspecdict]
-                else:
-                    self.species.append(tempspecdict)
-
-            if(parse_2[0] == '&scan'):
-                tempscandict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in scaninputkeys):
-                        if(parse[0] in ['scan_type','scan_style','ns','nres']):
-                            tempscandict[parse[0]] = int(parse[1].split('!')[0].replace('\n',''))
-                        else:
-                            try:
-                                tempscandict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                            except:
-                                tempscandict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-                    _i += 1
-                if(len(self.scan_inputs[0]) == 0):
-                    self.scan_inputs = [tempscandict]
-                else:
-                    self.scan_inputs.append(tempscandict)
-
-            if(parse_2[0] == '&guess'):
-                tempguessdict = {}
-                while _i < len(tempfile):
-                    line = tempfile[_i].replace(' ', '')
-                    parse = line.split('=')
-                    if(parse[0]=='/\n'):
-                        break
-                    if(parse[0] in guesskeys):
-                        try:
-                            tempguessdict[parse[0]] = float(parse[1].split('!')[0].replace('\n',''))
-                        except:
-                            tempguessdict[parse[0]] = parse[1].split('!')[0].replace('\n','')
-                    _i += 1
-                if(len(self.guesses[0]) == 0):
-                    self.guesses = [tempguessdict]
-                else:
-                    self.guesses.append(tempguessdict)
-
-
-            _i += 1
+        Explicit input dataName is authoritative; assign ``obj.dataname`` after
+        loading to redirect output. Unknown/unsupported controls raise ValueError.
+        Loading replaces previous state rather than appending duplicate species.
+        """
+        with open(flnm) as stream:
+            groups=read_scalar_namelists(stream.read())
+        singles={};indexed={'species':{},'scan_input':{},'guess':{}}
+        import re
+        for name,values in groups:
+            match=re.fullmatch(r'(species|scan_input|guess)_(\d+)',name)
+            if match:
+                family,index=match[1],int(match[2])
+                if index<1 or index in indexed[family]:raise ValueError(f'Duplicate/invalid indexed namelist &{name}')
+                indexed[family][index]=values
+            else:
+                if name not in ('params','maps','fpc'):raise ValueError(f'Expected indexed namelist, found &{name}')
+                if name in singles:raise ValueError(f'Duplicate namelist &{name}')
+                singles[name]=values
+        if 'params' not in singles:raise ValueError('Missing &params namelist')
+        ordered={}
+        for family,items in indexed.items():
+            if sorted(items)!=list(range(1,len(items)+1)):raise ValueError(f'Noncontiguous &{family}_N indices')
+            ordered[family]=[items[i] for i in sorted(items)]
+        params=singles['params']
+        # Only omitted settings receive their existing Fortran defaults. Kn=None
+        # means omit it on write (Fortran defaults to 1e30).
+        for key,value in {'Kn':None,'collision_type':0,'nscan':0,'heating_convention':'corrected',
+                          'normalization':'rho_ref','low_n':'.true.'}.items():
+            params.setdefault(key,value)
+        if 'dataName' in params:self.dataname=params.pop('dataName')
+        self.params=ParamsDict(self,params)
+        self.fpc=singles.get('fpc',{});self.maps=singles.get('maps',{})
+        self.species=ordered['species'] or [{}]
+        self.scan_inputs=ordered['scan_input'] or [{}]
+        self.guesses=ordered['guess'] or [{}]
 
 
     dataname = 'default'
@@ -934,7 +840,13 @@ def make_sweeps_that_branch_from_params(plume_input,stylenum,sweepvarkey,sweepmi
     #     print("and thus the output file name will be rounded as well. ")
     #     print("It is recommended that one rounds sweepmax and sweepmin to multiples of .001 manually.")
 
-def loadlinfpccepar(filename,verbose=False):
+def _fpc_sample(token, visualization_nan_to_zero=False):
+    """Keep unavailable samples distinct from measured zero by default."""
+    value=float(token)
+    return 0.0 if visualization_nan_to_zero and math.isnan(value) else value
+
+
+def loadlinfpccepar(filename,verbose=False,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for Epar in gyrotropic coordinates
 
@@ -1006,10 +918,7 @@ def loadlinfpccepar(filename,verbose=False):
         line = line.split()
         row = []
         for k in line:
-            if(math.isnan(float(k))):
-                row.append(0.)
-            else:
-                row.append(float(k))
+            row.append(_fpc_sample(k, visualization_nan_to_zero))
         C.append(row)
         line = f.readline()
 
@@ -1029,7 +938,7 @@ def loadlinfpccepar(filename,verbose=False):
 
     return linfpcdata
 
-def loadlinfpcceperp(filename,verbose=False):
+def loadlinfpcceperp(filename,verbose=False,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for Eperp in gyrotropic coordinates
 
@@ -1047,14 +956,14 @@ def loadlinfpcceperp(filename,verbose=False):
     """
 
     import copy
-    linfpcdata = loadlinfpccepar(filename,verbose=verbose)
+    linfpcdata = loadlinfpccepar(filename,verbose=verbose,visualization_nan_to_zero=visualization_nan_to_zero)
 
     linfpcdata['CEperp'] = copy.deepcopy(linfpcdata['CEpar'])
     del linfpcdata['CEpar']
 
     return linfpcdata
 
-def loadlinfpcgyro_dist(filenamereal,filenameimag):
+def loadlinfpcgyro_dist(filenamereal,filenameimag,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for fs1 in gyrotropic coordinates
 
@@ -1071,8 +980,8 @@ def loadlinfpcgyro_dist(filenamereal,filenameimag):
         dict containing fs1 data
     """
 
-    realpartdict = loadlinfpccepar(filenamereal)
-    imagpartdict = loadlinfpccepar(filenameimag)
+    realpartdict = loadlinfpccepar(filenamereal,visualization_nan_to_zero=visualization_nan_to_zero)
+    imagpartdict = loadlinfpccepar(filenameimag,visualization_nan_to_zero=visualization_nan_to_zero)
 
     outdict = {}
 
@@ -1087,7 +996,7 @@ def loadlinfpcgyro_dist(filenamereal,filenameimag):
 
     return outdict
 
-def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
+def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for fs1 in cartesian coordintates
 
@@ -1106,8 +1015,8 @@ def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
         dict containing fpc data
     """
 
-    realpartdict = loadlinfpccart(filenamereal)
-    imagpartdict = loadlinfpccart(filenameimag)
+    realpartdict = loadlinfpccart(filenamereal,idxoffset=idxoffset,visualization_nan_to_zero=visualization_nan_to_zero)
+    imagpartdict = loadlinfpccart(filenameimag,idxoffset=idxoffset,visualization_nan_to_zero=visualization_nan_to_zero)
 
     outdict = {}
 
@@ -1130,7 +1039,7 @@ def loadlinfpccart_dist(filenamereal,filenameimag,idxoffset=0):
 
     return outdict
 
-def loadlinfpccart(filename,idxoffset=0,verbose=False):
+def loadlinfpccart(filename,idxoffset=0,verbose=False,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for fs1 in cartesian coordintates
     assumes equal bounds in vx vy and vz direction
@@ -1250,10 +1159,7 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
             row = []
             rowcounter = 0
             for k in line:
-                if(math.isnan(float(k))):
-                    row.append(0.)
-                else:
-                    row.append(float(k))
+                row.append(_fpc_sample(k, visualization_nan_to_zero))
                 vx_xy[linecounter-1,rowcounter] = vx[linecounter-1]
                 vy_xy[linecounter-1,rowcounter] = vy[rowcounter]
                 rowcounter += 1
@@ -1270,10 +1176,7 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
             row = []
             rowcounter = 0
             for k in line:
-                if(math.isnan(float(k))):
-                    row.append(0.)
-                else:
-                    row.append(float(k))
+                row.append(_fpc_sample(k, visualization_nan_to_zero))
                 vx_xz[linecounter-1,rowcounter] = vx[linecounter-1]
                 vz_xz[linecounter-1,rowcounter] = vz[rowcounter]
                 rowcounter += 1
@@ -1290,10 +1193,7 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
             row = []
             rowcounter = 0
             for k in line:
-                if(math.isnan(float(k))):
-                    row.append(0.)
-                else:
-                    row.append(float(k))
+                row.append(_fpc_sample(k, visualization_nan_to_zero))
                 vy_yz[linecounter-1,rowcounter] = vy[linecounter-1]
                 vz_yz[linecounter-1,rowcounter] = vz[rowcounter]
                 rowcounter += 1
@@ -1317,7 +1217,7 @@ def loadlinfpccart(filename,idxoffset=0,verbose=False):
 
         return linfpcdata
     except:
-        return loadlinfpccart(filename,idxoffset=idxoffset+1)
+        return loadlinfpccart(filename,idxoffset=idxoffset+1,verbose=verbose,visualization_nan_to_zero=visualization_nan_to_zero)
 
 
 def load_plume_energy(filename):
@@ -3091,7 +2991,7 @@ def _read_header_and_axes_3d(f, filename, idxoffset=0, verbose=False):
 
 
 def _read_3d_block_into(arr, f, nx, ny, nz,
-                        clamp_small=9.999e-99, clamp_big=9.999e+99):
+                        clamp_small=0.0, clamp_big=float('inf'), *, visualization_nan_to_zero=False):
     """
     Fill arr shaped (nz, ny, nx) from the Fortran writer:
       one line per (ix, iy) containing nz values.
@@ -3132,13 +3032,10 @@ def _read_3d_block_into(arr, f, nx, ny, nz,
 
         # fill one (ix, iy, :) column along z
         for iz in range(nz):
-            try:
-                v = float(toks[iz])
-            except ValueError:
+            v = _fpc_sample(toks[iz], visualization_nan_to_zero)
+            if math.isfinite(v) and abs(v) < clamp_small:
                 v = 0.0
-            if math.isnan(v) or abs(v) < clamp_small:
-                v = 0.0
-            elif abs(v) > clamp_big:
+            elif math.isfinite(v) and abs(v) > clamp_big:
                 v = math.copysign(clamp_big, v)
             arr[iz, iy, ix] = v
 
@@ -3152,7 +3049,7 @@ def _read_3d_block_into(arr, f, nx, ny, nz,
 import numpy as np
 import math
 
-def loadlinfpc3d(filename,idxoffset=0,verbose=False):
+def loadlinfpc3d(filename,idxoffset=0,verbose=False,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for fs1 in cartesian coordintates
     assumes equal bounds in vx vy and vz direction
@@ -3230,12 +3127,7 @@ def loadlinfpc3d(filename,idxoffset=0,verbose=False):
             if len(vals)<len(vz):
                 line=f.readline(); continue
             for iz in range(len(vz)):
-                try: v=float(vals[iz])
-                except: v=0.0
-                if math.isnan(v): v=0.0
-                av=abs(v)
-                if av<9.999E-99: v=0.0
-                elif av>9.999E+99: v=9.999E+99
+                v=_fpc_sample(vals[iz], visualization_nan_to_zero)
                 arr[iz,iy,ix]=v
             iy+=1
             if iy>=len(vy): iy=0; ix+=1
@@ -3247,14 +3139,14 @@ def loadlinfpc3d(filename,idxoffset=0,verbose=False):
                     'delv':delv,'species':species,'omega_sqrtbetap_over_kpar':omega}
         return linfpcdata
     except:
-        return loadlinfpc3d(filename,idxoffset=idxoffset+1,verbose=verbose)
+        return loadlinfpc3d(filename,idxoffset=idxoffset+1,verbose=verbose,visualization_nan_to_zero=visualization_nan_to_zero)
 
-def loadlinfpc3d_dist(filenamereal,filenameimag,idxoffset=0,verbose=False):
+def loadlinfpc3d_dist(filenamereal,filenameimag,idxoffset=0,verbose=False,*,visualization_nan_to_zero=False):
     """
     Loads fpc data for fs1 in cartesian coordintates
     """
-    realpartdict = loadlinfpc3d(filenamereal,idxoffset=idxoffset,verbose=verbose)
-    imagpartdict = loadlinfpc3d(filenameimag,idxoffset=idxoffset,verbose=verbose)
+    realpartdict = loadlinfpc3d(filenamereal,idxoffset=idxoffset,verbose=verbose,visualization_nan_to_zero=visualization_nan_to_zero)
+    imagpartdict = loadlinfpc3d(filenameimag,idxoffset=idxoffset,verbose=verbose,visualization_nan_to_zero=visualization_nan_to_zero)
 
     outdict = {}
     for key in realpartdict.keys():

@@ -334,7 +334,10 @@ characterizing heating channels. Previous had multiple versions of the low n sus
 and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2), this logical flag is unnecessary.
 
 **`writeOut`**  
-Write or suppress output to screen.
+Verbosity control for screen output, independent of `use_map`. It does not
+disable file output or required output directories. Input warnings remain
+visible with `writeOut=.false.`. The Python wrapper preserves both switches
+independently.
 
 **`dataName`**  
 Subdirectory (below PLUME/data/) where outputs will be written.
@@ -360,30 +363,53 @@ Only used when `use_map`=.true.
 
 **`loggridw`**  
 Linear (F) or Log (T) spacing for $\omega_{r}/\Omega_{p}$ map search.
-Spacing automatically calculated between `omi` and `omf`.  
+Only linear grids use `omi` and `omf` as physical endpoints; see the
+historical logarithmic convention below.
 
 **`loggridg`**  
 Linear (F) or Log (T) spacing for $\gamma/\Omega_{p}$ map search.
-Spacing automatically calculated between `gami` and `gamf`  
+Only linear grids use `gami` and `gamf` as physical endpoints.
+
+#### Historical logarithmic maps
+
+The logarithmic map equations are retained for compatibility, but their
+origins and increments use inconsistent conventions. For i=0..nr, j=0..ni:
+
+```
+wr(i) = 10**(omi + i*(log10(omf)-log10(omi))/nr)
+wi(j) = -10**(abs(gami) + j*(log10(abs(gamf))-log10(abs(gami)))/ni)
+```
+
+Real logarithmic bounds must be positive; imaginary magnitudes must be
+nonzero. Both imaginary input signs are discarded and all logarithmic
+imaginary nodes are negative. Thus `omi=.1, omf=1` gives approximately
+1.258925 to 12.58925; `gami=-1e-4, gamf=-1e-2` gives approximately
+-1.000230 to -100.0230. These are neither physical endpoint bounds nor a
+consistent exponent-bound convention. PLUME and the Python wrapper warn
+when either log flag is requested. Use linear grids for physical endpoint
+control. Stage 5B.0 does not change these equations; a future correction
+requires an explicit compatibility decision. See the
+[characterization report](tests/PLUME_5B0_CORRECTIONS.md).
 
 **`omi`**  
-Smallest $\omega_{r}/\Omega_{p}$ value for complex map search.
+Initial $\omega_{r}/\Omega_{p}$ endpoint for a linear complex map search;
+logarithmic behavior is defined above.
 
 **`omf`**  
-Largest $\omega_{r}/\Omega_{p}$ value for complex map search.
+Final $\omega_{r}/\Omega_{p}$ endpoint for a linear complex map search.
 
 **`gami`**      
-Smallest $\gamma/\Omega_{p}$ value for complex map search.
+Initial $\gamma/\Omega_{p}$ endpoint for a linear complex map search.
 
 **`gamf`**  
-Largest $\gamma/\Omega_{p}$ value for complex map search.
+Final $\gamma/\Omega_{p}$ endpoint for a linear complex map search.
 
 **`nr`**  
-Number of $\omega_{r}/\Omega_{p}$ points in frequency grid.
+Number of $\omega_{r}/\Omega_{p}$ intervals (`nr+1` nodes) in the frequency grid.
 Default is 128 if not specified.
 
 **`ni`**  
-Number of $\gamma/\Omega_{p}$ points in frequency grid.
+Number of $\gamma/\Omega_{p}$ intervals (`ni+1` nodes) in the frequency grid.
 Default is 128 if not specified.
 
 **`positive_roots`**
@@ -786,3 +812,29 @@ Python `set_params(..., heating_convention='corrected')` writes and reads this
 control. Read the companion with `load_plume_energy(filename)`; use the
 existing `load_plume_sweep(..., nspec=N, eigen=..., heating=True)` for the
 unchanged low_n=true columns. Supply switches explicitly for ambiguous files.
+
+### Python wrapper roundtrips and unsupported requests
+
+`plume_input.load_from_file(path)` preserves supported scalar controls in
+`params`, `species_N`, `maps`, `scan_input_N`, `guess_N`, and `fpc`. This includes
+`low_n`, both log flags, `nr`, `ni`, `tensor`, and all six Cartesian FPC bounds.
+Loading replaces the previous object state. An explicit input `dataName` is
+preserved; assign `obj.dataname` after loading to redirect output. Quoted paths,
+inline scalar assignments, logical values and D exponents are supported.
+Unknown controls, unsupported groups (including radial/k_range groups), and
+array/expression syntax raise `ValueError` instead of being silently lost.
+The wrapper is not a general Fortran namelist parser.
+
+`set_maps(loggridw, omi, omf, gami, gamf, positive_roots,
+loggridg=False, nr=128, ni=128)` keeps its historical first six arguments and
+adds independent optional settings. `make_scan(..., tensor=False)` preserves
+the tensor switch.
+
+Exact-parallel **all-kinetic** runs (`kperp=0`) retain their historical
+unsupported behavior and now warn once. No perpendicular floor is applied.
+Mixed/cold analytic parallel limits remain available. Frequency maps do not
+write eigenfunction or tensor diagnostics: requested flags now warn rather
+than silently disappearing. Legacy map heating likewise warns and remains
+absent. Corrected map heating retains its existing rejection. These warnings
+preserve accepted legacy workflows; successful process exit alone does not
+establish a valid unsupported calculation.

@@ -99,6 +99,13 @@ Each file contains rows and columns where the ith, jth element corresponds to th
 
 Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax and vmin bounds are not integer multiples of delv, a passive warning message will be output, but the code will continue running. This may cause off by 1 errors when loading.
 
+The gyro and Cartesian Python FPC readers now preserve NaNs (unavailable
+samples) and genuine physical zeros separately. For visualization only,
+`visualization_nan_to_zero=True` explicitly opts into replacing NaNs with
+zero; the default is `False`. FPC physics and normalization are unchanged,
+and this reader correction does not add mixed-plasma FPC support. See the
+[reader notes](output.md#explicit-contour-reader-schemas-and-fpc-missing-values).
+
 ### Cartesian Ouput
 These outputs are created when option 7 is selected.
 

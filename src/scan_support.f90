@@ -9,6 +9,8 @@ module scan_support
   private
   public :: scan_frame, wavevector_scan, validate_scan_inputs, prepare_scan_start
   public :: initialize_scan_frame, scan_coordinates, check_scan_kpar, refine_scan_point
+  public :: warn_unsupported_parallel
+  logical, save :: warned_parallel=.false.
   type :: scan_frame
      real :: perpendicular, parallel, angle, magnitude
   end type
@@ -25,6 +27,14 @@ module scan_support
      end function
   end interface
 contains
+  subroutine warn_unsupported_parallel(kp)
+    real,intent(in) :: kp
+    if (kp/=0. .or. has_cold_species() .or. warned_parallel) return
+    write(*,'(a)') 'WARNING: exact-parallel all-kinetic calculations (kperp=0) are unsupported; '// &
+         'the historical kinetic evaluator may return invalid results. No wavevector floor is applied.'
+    warned_parallel=.true.
+  end subroutine
+
   logical function wavevector_scan(s)
     type(scanner),intent(in) :: s
     wavevector_scan=(s%style_s==0 .and. s%type_s>=0 .and. s%type_s<=1) .or. &
@@ -32,6 +42,7 @@ contains
   end function
 
   subroutine check_scan_kpar()
+    call warn_unsupported_parallel(kperp)
     if (.not.ieee_is_finite(kpar) .or. .not.ieee_is_finite(kperp)) &
          error stop 'ERROR: wavevector scan contains nonfinite coordinates.'
     if (kpar==0.) error stop 'ERROR: k_parallel=0 scan points: exact perpendicular scans are outside Stage 4A.'
@@ -122,6 +133,7 @@ contains
     if (kz==0.) error stop 'ERROR: k_parallel=0 scan points: exact perpendicular scans are outside Stage 4A.'
     if (.not.ieee_is_finite(kp) .or. .not.ieee_is_finite(kz)) &
          error stop 'ERROR: wavevector scan produced nonfinite coordinates.'
+    call warn_unsupported_parallel(kp)
   end subroutine
 
   subroutine validate_scan_inputs()
@@ -131,6 +143,12 @@ contains
     logical :: both_wave,cartesian,polar
     kp=kperp;kz=kpar
     do s=1,nscan
+       if (option==4) then
+          if (scan(s)%eigen_s .or. scan(s)%tensor_s) write(*,'(a,i0,a)') &
+               'WARNING: frequency-map scan ',s,': eigen/tensor requests are ignored; map files contain no such diagnostics.'
+          if (scan(s)%heat_s .and. heating_convention=='legacy') write(*,'(a,i0,a)') &
+               'WARNING: frequency-map scan ',s,': legacy heating request is ignored; map files contain no heating.'
+       endif
        if (has_cold_species()) then
           if (.not.wavevector_scan(scan(s))) &
                error stop 'ERROR: Stage 4A cold-containing scans support wavevectors only; plasma-parameter scans are deferred.'
