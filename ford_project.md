@@ -34,76 +34,57 @@ favicon: favicon.ico
 
 ---
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg)](https://doi.org/10.5281/zenodo.15215514)
+# PLUME: linear waves in kinetic, cold and mixed plasmas
 
-## Plasma in a Linear Uniform Magnetized Environment
+<img src="./page/PLUME_logo.png" alt="PLUME logo" width="200"/>
+<img src="./page/qrcode_plume_github.png" alt="Repository QR code" width="200"/>
 
-<img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
-<img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/>
+PLUME is a serial Fortran solver for linear electromagnetic dispersion relations
+in homogeneous **nonrelativistic** magnetized plasmas. Populations are drifting
+kinetic bi-Maxwellians or collisionless cold fluids, including mixtures with a
+cold physical reference species. Parallel equilibrium drifts and kinetic
+temperature anisotropy are supported within the documented geometry restrictions.
+PLUME does not provide relativistic kinetics, arbitrary distributions or
+MPI/OpenMP parallelization.
 
-PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion relation in cold and hot magnetised plasmas.
+Start with the [current user manual](./page/index.html),
+[installation](./page/INSTALL.html) and [Quick Start](./page/tutorial.html).
+The manual is the scientific user entry point; generated procedure lists below
+serve developers. New source pages may require staging beyond the historical
+workflow; the local verification report records that distinction.
 
-If you use the code for a science publication, please provide the code website
-[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication, and cite the code:
+| Workflow or definition | Manual page |
+|---|---|
+| Every input control | [Input reference](./page/input.html) |
+| Physical scales and equivalent inputs | [Normalization](./page/normalization.html) |
+| Population models and restrictions | [Species and capabilities](./page/models.html) |
+| Roots, frequency maps and scans | [Calculation modes](./page/modes.html) |
+| E/B and species density/velocity | [Eigenfunctions](./page/eigenfunctions.html) |
+| Signed absorption and complete formal energy | [Heating and wave energy](./page/heating.html) |
+| File schemas and Python readers | [Outputs](./page/output.html) |
+| Twelve-lesson learning path | [Examples](./page/examples.html) |
+| Harmonics, Z and numerical methods | [Numerics](./page/numerics.html) |
+| Missing/failed diagnostics | [Limitations](./page/limitations.html) |
+| Historical numerical choices | [Reproducibility](./page/reproducibility.html) |
+| APIs and historical evidence | [Developer guide](./page/development.html) |
 
-```
-@software{PLUME_2025,
-  author       = {{Klein}, K. G. and
-                  {Howes}, G. G.},
-  title        = {kgklein/PLUME: Zenodo release},
-  month        = April,
-  year         = 2025,
-  publisher    = {Zenodo},
-  version      = {v1.0.1},
-  doi          = {10.5281/zenodo.15215514},
-  url          = {https://doi.org/10.5281/zenodo.15215514}
-}
-```
-and code paper 
-[Klein, K. G., Howes, G. G.,
-and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
+Current outputs include complex mode frequency, electromagnetic polarization,
+kinetic/cold density and velocity moments, warm-species signed absorption and
+seven selected channels, and corrected wave-energy decomposition. Dispersion
+support does not guarantee all supplementary diagnostics: cold kinetic heating
+and mixed FPC are unavailable, energy is a qualified weak-mode expression, and
+exact-axis restrictions remain. See the capability and limitation pages.
 
-Publications using the PLUME code can be found in our [NASA ADS Library](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg).
+For citation, use the [PLUME code paper](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
+and record the source revision/settings. The established release DOI is
+[10.5281/zenodo.15215514](https://doi.org/10.5281/zenodo.15215514);
+[full citation details](./page/index.html#authors-scientific-references-and-citation)
+are in the manual. [Publications using PLUME](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg)
+are collected in the existing ADS library.
 
-For first-time users, we recommend working through our [PLUME Tutorial](./page/tutorial.md).
+[JET-PLUME](./page/README-JETPLUME.html) provides historical all-kinetic FPC
+reconstructions; no mixed-FPC extension is implied by the new moments/heating.
+The optional Python wrapper and readers are described on the output page.
 
-The key input parameters for PLUME are described on the [PLUME Input](./page/input.md) page.
-
-The output format of PLUME is described on the [PLUME Output](./page/output.md) page.
-
-## Judging Energy Transfer in a - Plasma in a Linear Uniform Magnetized Environment
-
-<img src="./page/Jet-Plume_Logo.svg" alt="JetPlumeLogoDrawing" width="200"/>
-
-JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the [README for JET-PLUME](./page/README-JETPLUME.md).
-
-JET-PLUME is operated in a similar manner to PLUME, either using command line or the python wrapper. See Section 4 above on how to operate and [README for JET-PLUME](./README-JETPLUME.md) for the additional inputs.
-
-Details
-
-If you use this code for a science publication, please provide the same code website as plume
-[github.com/kgklein/PLUME](https://github.com/kgklein/PLUME) in the acknowledgements of your publication and cite the code paper for JET-PLUME: ...
-
-## Python wrapper (linfpclib)
-
-With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the [example notebook](./page/examplelinfpc.md) to see the key features of this wrapper. The use of the wrapper is entirely optional. NOTE: Please create and run notebooks from the main directory of the repository. This is necessary because the notebooks import key functions directly from the linfpclib module located there.
-
-## Corrected diagnostic implementation (Stage 4B.3A)
-
-The default `heating_convention='corrected'` dispatches requested single-point
-and wavevector-scan heating through `heating_diagnostics::calc_corrected_eigen`.
-It uses the existing fields/moments, then calls the explicit-state
-`heating_energy::calculate_heating`. `heating_response::response_snapshot`
-returns local species and initialized signed-harmonic snapshots; optional
-harmonic outputs of `cold_reference::calc_warm_auxiliary` reuse the same shared
-kinetic equations. No diagnostic frequency is sent through production `disp`.
-Cold `d(w*chi_H)/dw` differentiates the fluid linear solve analytically; warm
-species use checked centered/Richardson steps. All energies use the same
-physical k and reference scales, irrespective of auxiliary beta.
-
-`disprels::calc_eigen` remains the unchanged legacy/FPC API. Legacy heating
-requires explicit selection; exact replay also requires legacy Z and fixed128.
-The versioned `.energy` companion contains formal wave-energy components,
-species-resolved contributions, signed and noncancelling fractions, and
-availability/status information. See [input](./input.md), [output](./output.md),
-and the [validation report](./tests/MIXED_HEATING_ENERGY_REPORT.md).
+Kristopher Klein, Gregory Howes and Collin Brown maintain PLUME. This manual
+update changes documentation only and does not deploy a website.

@@ -1,108 +1,124 @@
-# PLUME: Plasma in a Linear Uniform Magnetized Environment
+<a id="installation-and-verification"></a>
 
-These are the install instructions for the PLUME code: the Plasma in a Linear Uniform Magnetized Environment.
+# Installation and verification
 
-## Authors
+[Manual home](./) · [Next: Quick Start](tutorial.md)
 
-Kristopher Klein   (kgklein@arizona.edu)
-Gregory Howes      (gregory-howes@uiowa.edu)
+<a id="requirements-by-activity"></a>
 
-## CONTENTS
+## Requirements by activity
 
-1. Requirements and Dependencies
-2. Getting the PLUME Code
-3. Installing the PLUME Code
-4. Execution of Test Runs
+| Activity | Requirements |
+|---|---|
+| Compile/run the solver | GNU Fortran, an ordinary C99 compiler, GNU make, standard Fortran/C runtime libraries and libm |
+| Read/write inputs and analyze output with Python | Python 3, NumPy; the current `linfpclib.linfpc` module also imports Matplotlib |
+| Independent reference tests and some analysis | SciPy, NumPy, Matplotlib; Python's unittest is built in |
+| Optional high-precision tests | mpmath; tests fall back or skip the specific optional references when unavailable |
+| Plotting | Matplotlib; historical `.plt` examples require gnuplot; other plotting folders have their own assumptions |
+| Local documentation | FORD and its Python dependencies; Graphviz for API graphs |
 
-## REQUIREMENTS AND DEPENDENCIES
+The accurate plasma dispersion function is bundled and compiled into the
+executable. Users do not need SciPy, libcerf, a C++ runtime, CMake, Python, or a
+package manager **to run the solver**. Python requirements apply to analysis,
+wrapper and test workflows, not to susceptibility evaluation at runtime.
 
-PLUME has the following requirements:
+GNU Fortran/C 11.4.0 and GNU make 4.3 have been exercised on Linux. Recent
+validation used Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3 and Matplotlib 3.10.8.
+Other platforms/compilers are not certified by the presence of an alternative
+Makefile rule. Preserve the project's promoted-double and strict-IEEE rules:
+changing precision or optimization can alter legacy regressions and validation.
 
-- A UNIX, Linux, or macOS operating system with a working shell.
-- GNU make.
-- Fortran 90 compiler (e.g., gfortran) - we recommend using the latest version
-  of the compiler to avoid any surprises in the evaluation.
+<a id="get-the-source-and-compile"></a>
 
-## GETTING THE PLUME CODE
+## Get the source and compile
 
-We recommend pulling the latest version of PLUME from GitHub. For this, go to
-the directory where you want to install PLUME and execute the following command:
-
-```
+```bash
 git clone https://github.com/kgklein/PLUME.git
+cd PLUME
+make -j2
 ```
 
-Alternatively, you can also go to the website https://https://github.com/kgklein/PLUME
+The resulting executable is `plume.e`. To rebuild from source:
 
-directly and download the source code from there. The advantage of using the git
-command is that you can now contribute to the development of the PLUME code. If
-you make any changes to the code, GitHub will run automatic tests (via workflows)
-to ensure that the changes do not break the code.
-
-
-## INSTALLING THE PLUME CODE
-
-There are no additional dependencies for compiling the code, so running
-```
-make
-```
-should be sufficent if using gfortran.
-If using another FORTRAN90 compiler, simply add that compiler to the Makefile and compile.
-
-Running
-```
-make tidyup
-```
-will move the extraneous *.o and *.mod files to the include directory.
-
-
-**If you need a clean compilations**, run
-```
+```bash
 make clean
+make -j2
 ```
-This will remove all of the files from the `include` directory as well as the compiled executable, enabling a clean recompilation if necessary.
 
+The default Makefile selects its GNU configuration. The existing flags promote
+Fortran default real to binary64; several numerical modules are built with
+strict floating-point semantics. The C99 Faddeeva sources and ABI bridge are
+built automatically. Do not link arbitrary kind/precision variants together;
+[numerical-method notes](numerics.md) explain the precision interface.
 
-## EXECUTION OF TEST RUNS
+<a id="run-from-the-repository-root"></a>
 
-PLUME comes with a selection of test runs that cycle through various test
-problems.
-To execute a small set of tests, navigate to `inputs/example/` and execute the following shell script:
+## Run from the repository root
 
+```bash
+mkdir -p data/example
+./plume.e inputs/example/mixed_fields_warm_reference.in
 ```
-./run_example.sh
-```
-This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.
 
-To run the automated normalization, cold-kernel and mixed-dispersion suites
-(requires Python, NumPy, SciPy, and Matplotlib as well as gfortran), run from the repository root:
+The command takes an input filename ending in `.in`. Its indexed namelist
+extractor creates a scratch file beside that input, so that directory must be
+writable. It also has a historical 100-character argument buffer: avoid very
+long input paths. The input's `dataName='example'` selects `data/example/`
+relative to the **working directory**, not relative to the input file.
 
-```sh
+PLUME does not create these directories automatically. Files and numerical
+metadata may be opened even with `writeOut=.false.`. This flag reduces stdout
+verbosity; it is not a master file-output switch. Use a unique `outputName` and
+an isolated directory for exploratory runs: files with matching names can be
+replaced, and old branch files can otherwise be mistaken for new output.
+
+Follow the [Quick Start](tutorial.md) before attempting large maps or scans.
+
+<a id="python-environment-and-tests"></a>
+
+## Python environment and tests
+
+In a virtual environment, install the analysis/test dependencies if needed:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install numpy scipy matplotlib
+# Optional high-precision references:
+python3 -m pip install mpmath
 make -j2
 MPLCONFIGDIR=/tmp/plume-mpl python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-The legacy regression comparison needs the pre-normalization commit
-`c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20` in the local Git history.
-See [normalization.md](normalization.md) for coverage and tolerances.
-The [Stage 2 report](tests/MIXED_DISPERSION_REPORT.md) documents the independent
-harmonic-sum/root comparisons and mixed-calculation restrictions.
+`MPLCONFIGDIR` is useful on systems whose home Matplotlib cache is not writable.
+Tests compile additional isolated Fortran probes, including bounds-checked and
+floating-point-trapping builds, and check pinned legacy revisions. Run in a Git
+checkout with the historical commits available, not only an exported source
+archive, for those comparisons. Optional arbitrary precision is a test reference,
+not a production dependency. A current test count is recorded in the
+[manual verification report](https://github.com/kgklein/PLUME/blob/main/tests/PLUME_5B1_MANUAL_REPORT.md);
+it is not a permanent scientific guarantee.
 
+<a id="documentation-sources-and-local-builds"></a>
 
+## Documentation sources and local builds
 
-## Building the documentation
+Root Markdown files are the editable user-manual sources. `ford_project.md`
+contains the FORD project configuration and landing-page body. The existing
+`.github/workflows/doc.yml` stages selected pages into `docs/` with `title:`
+metadata, then runs:
 
-PLUME uses [Ford](https://forddocs.readthedocs.io/en/latest/) to build its documentation. The documentation is automatically built and deployed to [github.io](https://kgklein.github.io/PLUME/) by the [doc workflow](https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml). To build the documentation locally, follow the [Build documentation](https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32) step in the workflow, summarized here:
-1. Install `ford` by e.g. `pip install ford`. See [Ford documentation](https://forddocs.readthedocs.io/en/latest/) for details
-2. Create a `docs` directory by `mkdir docs`
-3. Add a line `title: Readme` to the top of [README.md](./README.md) and copy it to `docs/index.md`
-4. Add a line `title: Install` to the top of [INSTALL.md](./INSTALL.md) and copy it to `docs/INSTALL.md`
-5. Run `ford ford_project.md`
-6. Open `docs/index.html` in a browser to view the documentation
+```bash
+ford ford_project.md
+```
 
-### Adding static pages to documentation
+Install FORD in a separate environment if desired (`python3 -m pip install ford`)
+and provide Graphviz `dot` for graphs. Running FORD directly in an unstaged
+checkout does not stage the static manual pages for you. The current workflow
+has a fixed staging list; several new manual pages are not yet included there.
+Its link rewriting and assets also need follow-up. See
+[Developer documentation](development.md#local-documentation-build) and the
+manual verification report for exact locally tested builds and known failures.
+Do not infer that a successful API build means the complete manual was included.
 
-The [README.md](./README.md) and [INSTALL.md](./INSTALL.md) files are added to the [Ford documentation](https://kgklein.github.io/PLUME/) as static pages. You can add more static pages to the documentation by
-1. Add the content in a markdown file to the repository.
-2. Add a `title: ` line to the beginning of the file and copy it to `docs/` in the [doc workflow](https://github.com/kgklein/PLUME/blob/master/.github/workflows/doc.yml). See steps 3-4 in the previous section, or the [Build documentation](https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32) step in the workflow.
-3. Add the name of the markdown file as a new line under `ordered_subpage` in [ford_project.md](./ford_project.md)
+This manual update does not deploy a site or repair deployment configuration.

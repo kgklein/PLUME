@@ -1,149 +1,169 @@
-# JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized Environment) 
-[Collin Brown](https://www.collinrbrown.com)<br />
-collin.crbrown@gmail.com<br />
-University of Iowa; Naval Research Lab- Plasma Physics Division<br />
+<a id="jet-plume-historical-field-particle-correlations"></a>
 
-JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique. 
+# JET-PLUME: historical field-particle correlations
 
-## Other Contributing Authors
-[Greg Howes](https://physics.uiowa.edu/people/gregory-g-howes)<br />
-[Kris Klein](https://www.lpl.arizona.edu/faculty/kristopher-klein)<br />
-[Jason TenBarge](https://plasmacenter.princeton.edu/people/jason-tenbarge)<br />
+[Manual home](./) · [Input reference](input.md#fpc-fpc) · [Output readers](output.md#fpc-and-debug-families)
 
-<img src="./Jet-Plume_Logo.svg" width=50% height=50%>
+JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized
+Environment) reconstructs linear velocity-space distribution perturbations and
+field-particle correlation (FPC) signatures. It is an **all-kinetic historical
+pathway**, separate from corrected species Ps and wave energy. Cold/mixed FPC is
+not implemented, including warm populations in a mixture. New density/velocity
+moments and corrected heating do not enable that future functionality.
 
-# 1.) JET-PLUME Setup and Running
+Original JET-PLUME contributions are credited to Collin Brown, Gregory Howes,
+Kristopher Klein and Jason TenBarge. The [PLUME paper and existing scientific
+references](./#authors-scientific-references-and-citation) provide context.
 
-The install for JET-PLUME is the same as PLUME. See the installation section in PLUME readme.
+<a id="workflows-and-coordinates"></a>
 
-Running JET-PLUME is the same as PLUME except with additional inputs. See Running the PLUME code in PLUME readme.
+## Workflows and coordinates
 
-# 2.) JET-PLUME / FPC New Inputs
+`option=6` invokes `compute_fpc_gyro`: distributions/correlations are reduced over
+velocity gyrophase to a (vperp,vpar) grid. `option=7` invokes `compute_fpc_cart`:
+Cartesian velocity-space reconstruction, three projected planes, and 3D/debug
+outputs. Earlier prose reversing these routines was incorrect. In both cases
+use_map selects map initialization versus supplied guesses refined by the solver;
+there is not an independent mixed/cold FPC root solver.
 
-One needs to *add* the following to a normal PLUME [input](./input.md).
+The background field is z, k lies in x-z, x is perpendicular in the wave/field
+plane, y is its second perpendicular direction, and z is parallel. Grid velocities
+use the historical species **parallel thermal-speed** coordinates, not the
+species-moment output normalization. FPC grid construction/header values still
+use the derived rho_ref solver convention for d_ref inputs.
 
-Example JET-PLUME/FPC namelist:
-```
+Add `&fpc` to an otherwise valid all-kinetic input. This is a parameter fragment,
+not a standalone runnable plasma:
+
+```fortran
 &fpc
-vperpmin=0.01
-vperpmax=3.0
-vparmin=-3.0
-vparmax=3.0
-delv=0.15
-vxmin=-3.0
-vxmax=3.0
-vymin=-3.0
-vymax=3.0
-vzmin=-3.0
-vzmax=3.0
+vperpmin=0, vperpmax=.5, vparmin=-.5, vparmax=.5
+vxmin=-.5, vxmax=.5, vymin=-.5, vymax=.5, vzmin=-.5, vzmax=.5
+delv=.5, elecdircontribution=0
 /
 ```
-**vperpmin,vperpmax,vparmin,vparmax**<br />
-Gyro velocity space grid bounds<br />
-These correspond to the minimum and maximum values of $v_{\perp}$ and $v_{||}$ computed when computing the FPC in gyro coordinates. These values are ignored when using the cartesian routine.
 
-**vxmin,vxmax,vymin,vymax,vzmin,vzmax**<br />
-Cartesian velocity space grid bounds<br />
-These correspond to the minimum and maximum values of $v_{x}$, $v_{y}$ and $v_{z}$ computed when computing the FPC in cartesian coordinates. These values are ignored when using the gyro routine.
+Those bounds/spacing are exercised by the existing FPC normalization test:
 
-**delv**<br />
-Velocity grid spacing<br />
-'delv' is the spacing in between grid points in both routines. Spacing is equal in all directions.
-
-*And be sure to select the correct routine.
-
-# 3.) JET-PLUME Routines
-
-JET-PLUME is a key subroutine of PLUME that is called by specifying the correct input value of 'option'. JET-PLUME has two procedures corresponding to routine 6 and 7. They work by doing the following for each root found by the root finder (Note, we typically assume only one root per input in the wrapper but this is not striclty necessary for command line usage):
-
-6: Compute the field-particle correlation and fs1 in gyrotropic coordinates (e.g. $C_{E_i}(v_{\perp},v_{par})$ ) for found roots if use_map is True and specified roots if False and roots are provided. That is compute the perturbed distribution function, $f_{s,1}(\mathbf{v},\mathbf{k},\omega)$ (real and imaginary parts), velocity-space energy transfer for all 3 components of $\mathbf{E}$ (i.e. $E_i$ $\in$  { $E_x$, $E_y$, $E_z$ }), $C_{E_i}(\mathbf{v})$, for specified $k_{||}$, and $k_{\perp}$ in 3D cartesian-space coordinates. If $\omega$ is specified, the quantites will be computed for each provided $\omega$. If $\omega$ is not specified, a PLUME subroutine will be called to attempt too compute up to the specified number of roots in the system, and the above quantities will be computed for each.
-
-(Note without loss of generality, we choose coordiates such that $k_{\perp,1} = k_{\perp}$, thus the $\perp,1$ direction is in the plane of the wave and magnetic field.)
-
-7: Compute the field-particle correlation adn fs1 in cartesian coordinates (e.g. $C_{E_i}(v_{x},v_{y},v_{z})$ ) for found roots if use_map is True and specified roots if False and roots are provided. That is same as one, except in 2D 'gyro coordinates', i.e. $f_{s,1}(v_{||},v_{\perp},\mathbf{k},\omega)$, $C_{E_i}(\mathbf{v})(v_{||},v_{\perp},\mathbf{k},\omega)$, equal to integrating out the third coorindate, $\theta$, in cylindrical coordinates in velocity space.
-
-# 4.) JET-PLUME OUTPUT FORMAT 
-
-One set of these outputs are created per species per root when options 6 or 7 is selected.
-
-Running JET-PLUME will create measurements of $C_{E_i}$, and $f_{s1}$ (the fourier coefficients of the perturbed portion of the distribution function), on the selected velocity space grid projection.
-
-### Gyro Output
-These outputs are created when option 6 is selected.
-
-The value of  $C_{E_i}$, and $f_{s1}$ on a projected cartesian velocity grid is written to the files:
+```bash
+PYTHONPATH=tests MPLCONFIGDIR=/tmp/plume-mpl python3 -m unittest \
+  test_normalization.NormalizationTests.test_fpc_diagnostics -v
 ```
-'data/',trim(dataName),'/',&
-*outputName*.cpar.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.cperp.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.df1gyro.real.specie*num*.mode*num* 
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.df1gyro.imag.specie*num*.mode*num* 
-```
-for each species and each mode (i.e. selected $\mathbf{k}$ $\omega$ solution).
 
-The files contain the correlation with respect to $E_{||}$, the correlation with respect to $E_{\perp}$, the real part of the perturbed distribution function fourier coefficients, and the imaginary part of the perturbed distribution function fourier coefficients respectively.
+A curated standalone public FPC lesson is still outstanding. The existing
+[example notebook](https://github.com/kgklein/PLUME/blob/main/examplelinfpc.ipynb)
+shows the optional wrapper's historical workflow; review mode/schema assumptions
+before reuse. This stage does not create or rewrite input examples.
 
-Each file contains rows and columns where the ith, jth element corresponds to the value on the ith, jth position on the velocity grid. $v_{||}$ evolves along the columns and $v_{\perp}$ evolves along the rows. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{||}$ and $v_{\perp}$.
+Use positive delv and integer-compatible bounds. The writer derives integer grid
+indices; noninteger-multiple bounds warn and may cause off-by-one reader behavior.
+Gyro bounds matter for option6; Cartesian bounds for option7. delv is shared across
+directions. elecdircontribution is a debug forcing selector: 1 keeps Ex, 2 Ey,
+3 Ez, and 0/other leaves forcing unchanged. It is not a heating-channel selector.
 
-Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax and vmin bounds are not integer multiples of delv, a passive warning message will be output, but the code will continue running. This may cause off by 1 errors when loading.
+<a id="meaning-and-normalization-caveats"></a>
 
-The gyro and Cartesian Python FPC readers now preserve NaNs (unavailable
-samples) and genuine physical zeros separately. For visualization only,
-`visualization_nan_to_zero=True` explicitly opts into replacing NaNs with
-zero; the default is `False`. FPC physics and normalization are unchanged,
-and this reader correction does not add mixed-plasma FPC support. See the
-[reader notes](output.md#explicit-contour-reader-schemas-and-fpc-missing-values).
+## Meaning and normalization caveats
 
-### Cartesian Ouput
-These outputs are created when option 7 is selected.
+The distribution files contain real/imaginary parts of the internally normalized
+linear Fourier coefficient f_s1, not an independent physical measured distribution.
+For Cartesian internal thermal-coordinate velocity vhat_i and distribution
+coefficient fhat_1, the literal implemented weight is
 
-The value of  $C_{E_i}$, and $f_{s1}$ on a projected cartesian velocity grid is written to the files:
-```
-'data/',trim(dataName),'/',&
-*outputName*.cparcart.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.cperp1.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.cperp2.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.df1.real.specie*num*.mode*num*
-```
-AND
-```
-'data/',trim(dataName),'/',&
-*outputName*.df1.imag.specie*num*.mode*num*
-```
-for each species and each mode (i.e. selected $\mathbf{k}$ $\omega$ solution).
+\[
+ \widehat C_i=-\frac{Q_s}{2}\widehat v_i^2
+ \operatorname{Re}\!\left[E_i^*
+                 \frac{\partial\widehat f_1}{\partial\widehat v_i}\right].
+\]
 
-The files contain the correlation with respect to $E_{||}$, the correlation with respect to $E_{\perp,1}$, the correlation with respect to $E_{\perp,2}$, the real part of the perturbed distribution function fourier coefficients, and the imaginary part of the perturbed distribution function fourier coefficients respectively.
+Here Q_s is **the code's input charge ratio** q_R/q_s, E_i is the Ex=1 field
+component, and vhat/fhat are the FPC routine's internal thermal variables. This
+states the implemented nondimensional weight, not a new dimensional-power
+normalization. Projection integrates the omitted coordinate with the grid
+weights; gyro reduction includes the cylindrical Jacobian/gyrophase weights
+and a special near-zero radial cell treatment. There are existing finite-grid,
+harmonic and normalization limitations. Do not equate these raw weights or their
+debug integrals with corrected Ps or entropy production without a separate
+normalization/closure analysis. A universal dimensional conversion for these
+historical FPC outputs is not newly validated by this manual.
 
-Each file contains all three projections of each quantity, starting with the $(v_{\perp,1},v_{\perp,2})$, $(v_{\perp,1},v_{||})$, $(v_{\perp,2},v_{||})$, separted by '---'.
+Headers labeled omega.r/omega.i literally contain real/imaginary parts of
+w sqrt(beta_R)/Kpar, where w=omega/Omega_R and Kpar=kpar rho_R in solver
+coordinates. Since rho_R/d_R=sqrt(beta_R alpha_R), this equals
+\((w/\kappa_\parallel)/\sqrt{\alpha_R}\), **not** the physical phase speed in
+v_A,R units when alpha_R differs from one. Old stdout/plot labels claiming an
+unqualified Alfvén-normalized phase speed need that caveat. A future FPC audit
+must address the full header/grid/normalization contract before broader use.
 
-For the $(v_{\perp,1},v_{\perp,2})$ projection, $v_{\perp,1}$ evolves with rows and $v_{\perp,2}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+FPC reconstruction has fixed internal harmonic range nbesmax=15; adaptive
+susceptibility Bessels do not change it. Numerical distribution moments/debug
+integrals are not the validated analytic current/continuity species moments.
+Their quadrature can be inaccurate. No mixed FPC or new collisional accuracy
+claim is made here.
 
-For the $(v_{\perp,1},v_{||})$ projection, $v_{\perp,1}$ evolves with rows and $v_{||}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+<a id="files-and-array-orientation"></a>
 
-For the $(v_{\perp,2},v_{||})$ projection, $v_{||}$ evolves with rows and $v_{\perp,2}$ evolves with columns. The 0th,0th element (i.e. top left) corresponds to the minimum value of $v_{\perp,1}$ and $v_{\perp,2}$.
+## Files and array orientation
 
-Each grid point is spaced by delv, including vmax and vmin. Warning!!!: If vmax and vmin bounds are not integer multiples of delv, a passive warning message will be output, but the code will continue running. This may cause off by 1 errors when loading.
+One indexed set is produced per population and root, with species in the original
+input order, generally `.specieSS.modeMM`. Old readers use index-based electron
+labels and offset recovery; those heuristics are not arbitrary-mixture validation.
+
+<a id="gyro-files-option6"></a>
+
+### Gyro files: option6
+
+| Quantity suffix | Contents |
+|---|---|
+| .cpar | Parallel-field correlation |
+| .cperp | Perpendicular-field correlation |
+| .df1gyro.real | Real reduced perturbed distribution coefficient |
+| .df1gyro.imag | Imaginary reduced perturbed distribution coefficient |
+
+Each has eight physical/thermal header labels/values, five grid labels/values,
+a separator, then a matrix. vperp advances by row, vpar by column; the first
+entry corresponds to the minimum grid values. The matrix is a gyro-reduced
+velocity-space object, not a projected Cartesian map mislabeled as gyro.
+
+<a id="cartesian-files-option7"></a>
+
+### Cartesian files: option7
+
+| Quantity suffix | Contents |
+|---|---|
+| .cparcart | Ez correlation, projected into three planes |
+| .cperp1 | Ex correlation, projected into three planes |
+| .cperp2 | Ey correlation, projected into three planes |
+| .dfs.real, .dfs.imag | Real/imaginary distribution projected into those planes |
+| .dfs3D.real, .dfs3D.imag | Real/imaginary full 3D distribution blocks |
+
+Projection files contain (x,y), (x,z), (z,y) array layouts separated by `---`.
+The first has rows x / columns y; second rows x / columns z; third rows z /
+columns y. This last historical orientation assumes compatible y/z grids;
+it is not a reason to transpose every loaded diagnostic blindly. The old
+`.df1.real/.imag` naming in prose does not match the current `.dfs` writer.
+
+Three-dimensional blocks use reader storage (z,y,x), one writer line per (x,y)
+containing z values. They have a separate block contract and must not be passed
+to the projected-file parser. Source/header-specific debug `.eigen`/`.mom` files
+are described on [Output](output.md#fpc-and-debug-families); they have no ordinary
+scan species-parameter suffix and are unsuitable as a general scientific reader.
+
+Some FPC **writers** already zero extremely small values and saturate large ones
+(typical thresholds 9.999e-99 and 9.999e99). Reader corrections cannot reconstruct
+values lost by that historical formatting. A zero in such a file is not proof of
+an exactly vanishing physical correlation; inspect its source/precision regime.
+No clipping thresholds or numerical FPC calculation are changed by this manual.
+
+<a id="reading-and-missing-values"></a>
+
+## Reading and missing values
+
+Use `loadlinfpccepar`, `loadlinfpcceperp`, `loadlinfpcgyro_dist` for gyro;
+`loadlinfpccart`/`loadlinfpccart_dist` for projections;
+`loadlinfpc3d`/`loadlinfpc3d_dist` for full Cartesian distribution blocks.
+Readers preserve NaNs, infinities, genuine finite zeros, signs and shape by
+default. `visualization_nan_to_zero=True` explicitly replaces **only NaNs** for
+plots; it is not a physical value or analysis correction. The 3D reader no
+longer clips representable finite samples itself, though old writers may already
+have done so. Distinguish a missing diagnostic from a physical calculated zero.

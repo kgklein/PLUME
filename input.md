@@ -1,840 +1,268 @@
-# PLUME Input
-
-This is a reference for the key input parameters used by PLUME.
-
-## Plasma dispersion function backend
-
-`&params` accepts `z_backend='faddeeva'` (default) or `z_backend='legacy'`.
-Other values fail input validation. Old inputs without this setting select the
-new accurate default; to reproduce historical collisionless results explicitly
-select **both** `z_backend='legacy'` and `bessel_mode='fixed128'` (or
-`bessel_mode='fixed', bessel_nfixed=128`). All Z/Bessel combinations are supported.
-The previous collisional `zz` physics correction remains active in either mode.
-
-The accurate backend evaluates $Z(\zeta)=i\sqrt{\pi}w(\zeta)$ with the Landau
-analytic continuation. The public `zet_in(kpar,zin)` convention is unchanged:
-positive `kpar` returns $Z(zin)$; negative `kpar` returns $-Z(-zin)$.
-Kinetic-only, warm-reference mixed, auxiliary-normalized cold-reference mixed,
-and weakly collisional calculations share this choice. Fully cold calculations
-do not evaluate Z. This setting changes no normalization or harmonic cutoff.
-
-The historical approximation has an accuracy defect near $|\zeta|=3$ that
-cannot be repaired by tightening its iteration tolerance. Faddeeva removes that
-defect but can cost more CPU time; compiled benchmarks and residual accuracy
-limits are in the [backend report](tests/FADDEEVA_BACKEND_REPORT.md).
-Bessel approximation, truncation and cancellation remain separate error sources.
-
-For the accurate backend, nonfinite arguments, `kpar=0` calls, nonrepresentable
-outputs and numerical failures produce assigned quiet NaNs. Dispersion guards
-mark the evaluation invalid; root refinement rejects it and frequency maps mask
-isolated invalid points. There are no floors, damping offsets, clamping or
-fallback to legacy. A later valid evaluation resets the failure state.
-In particular $\zeta=-14i$ is representable, whereas $\zeta=-30i$ exceeds
-binary64 range. The standalone API distinguishes invalid input (1), zero `kpar`
-(2), output range (3), and numerical failure (4), with 0 meaning success.
-Production dispersion status retains existing conventions: 1 invalid frequency,
-2 zero frequency, cold poles 2–4, and 5 nonfinite numerical response. The legacy
-backend retains its historical failure behavior for reproducibility.
-
-The Python wrapper's `set_params(..., z_backend='faddeeva')` reads/writes the
-same setting; use `z_backend='legacy', bessel_mode='fixed128'` for compatibility.
-See [accurate input](inputs/example/faddeeva_accuracy.in) and
-[historical numerical input](inputs/example/legacy_numerics.in).
-
-## Bessel harmonic controls
-
-These optional `&params` settings apply to warm kinetic species in either
-normalization, including warm-reference and auxiliary-normalized cold-reference
-mixtures and the existing weakly collisional all-kinetic calculation.
-
-| Input | Default | Meaning |
-| --- | --- | --- |
-| `bessel_mode` | `'adaptive'` | `'adaptive'` selects each species' cutoff; `'fixed'` uses `bessel_nfixed`; `'fixed128'` is an alias requiring `bessel_nfixed=128`. |
-| `bessel_tol` | `1.e-10` | Positive ordinary and quadratic-weighted Bessel-tail bounds must both be below this value. Require finite `0 < bessel_tol < 1`. |
-| `bessel_nmax` | `512` | Adaptive cutoff cap, independently applied to each warm species. |
-| `bessel_nfixed` | `128` | Fixed maximum **absolute** harmonic order: sum `-N..N`, including zero. |
-| `bessel_diagnostics` | `.false.` | Write per-species cache statistics to the `.bessel` sidecar. |
-
-Both counts must be positive integers. The current 32-bit harmonic arithmetic
-requires counts at most 46338 to avoid integer overflow in the existing `n*n`
-expressions. Fixed mode is not limited by `bessel_nmax`. Adjacent coefficients
-through `N+1` are stored separately; they do not add another susceptibility
-harmonic. Exact parallel limits already supported by PLUME remain analytical.
-No wavevector component or temperature is replaced by a floor.
-
-The physical argument is
-`lambda_s=(kperp*d_ref)^2*Qs^2*alphS*tauS_d/(2*muS)`.
-In `rho_ref` it is `kperp_rho^2*Qs^2*alphS/(2*muS*tauS_rho*alphS_ref)`.
-Thus different species generally require different cutoffs. The reference
-anisotropy in the historical gyroradius is retained. Auxiliary normalization
-changes neither this argument nor the physical input state.
-
-Reaching `bessel_nmax` without satisfying both bounds **warns and continues**
-at that cutoff. The warning identifies species, argument, tolerance, cap and
-bounds. Identical repeated frequency evaluations do not repeat it. Metadata
-retains unresolved-point history even if a subsequent scan point converges.
-Nonfinite Bessel arithmetic or allocation/range failure is a numerical failure,
-not a successful capped approximation.
-
-`bessel_tol` bounds omitted Bessel weights, not the full susceptibility error:
-resonances, cancellation, Bessel-coefficient accuracy, and (with legacy Z)
-historical plasma-dispersion-function errors can dominate. Check each observable by tightening the tolerance and increasing
-the cap; a substantially higher fixed count is another useful check. Fixed 128
-is part of historical compatibility (also select `z_backend='legacy'`),
-not an accuracy reference at large arguments. It keeps
-the historical Bessel evaluator and compiler path; other counts use the new
-vector Bessel calculation. Consequently differences from fixed 128 can also
-include improvements in coefficient accuracy.
-
-The Python wrapper's `set_params` accepts the same optional keyword arguments,
-including `bessel_diagnostics=True`, and reads/writes them in input files.
-See [the example](inputs/example/adaptive_bessel.in) and
-[the technical report](tests/ADAPTIVE_BESSEL_CACHE_REPORT.md).
-
-## Normalization conventions
-
-`normalization='rho_ref'` is the default and preserves existing inputs.
-`normalization='d_ref'` uses the inertial length of `species_1`. The reference
-species must be first in either convention. The symbols $\mu_s=m_R/m_s$,
-$Q_s=q_R/q_s$ (signed), $D_s=n_s/n_R$, and $\alpha_s=T_{\perp,s}/T_{\parallel,s}$
-have the same meaning in both modes.
-
-| Parameter | `rho_ref` | `d_ref` |
-| --- | --- | --- |
-| `kperp`, `kpar` | $k\rho_R$, $\rho_R=v_{t\perp,R}/|\Omega_R|$ | $kd_R$, $d_R=c/\omega_{pR}$ |
-| `vtp` | $v_{t\parallel,R}/c$ | $v_{A,R}/c$ |
-| `betap` | $8\pi n_RT_{\parallel,R}/B_0^2$ | same, and equals reference `tauS` |
-| `tauS` | $T_{\parallel,R}/T_{\parallel,s}$ | $2T_{\parallel,s}/(m_Rv_{A,R}^2)$ |
-| `muS`, `Qs`, `Ds`, `alphS`, `vvS` | $m_R/m_s$, $q_R/q_s$, $n_s/n_R$, $T_{\perp,s}/T_{\parallel,s}$, $U_s/v_{A,R}$ | same |
-| `Kn` | $(n_0\sigma\rho_R)^{-1}$ | $(n_0\sigma d_R)^{-1}$ |
-
-For $\alpha_R=T_{\perp,R}/T_{\parallel,R}$ and positive reference temperature,
-$k d_R=k\rho_R/\sqrt{\beta_{\parallel,R}\alpha_R}$,
-$v_{t\parallel,R}/c=\sqrt{\beta_{\parallel,R}}\,v_{A,R}/c$, and
-$\tau_s^{(d)}=\beta_{\parallel,R}/\tau_s^{(\rho)}$. In `d_ref`,
-$v_{t\parallel,s}^2/v_{A,R}^2=\mu_s\tau_s^{(d)}$,
-$\beta_{\parallel,s}=D_s\tau_s^{(d)}$,
-$\omega_{ps}^2/\Omega_R^2=D_s\mu_s/[Q_s^2(v_{A,R}/c)^2]$,
-and $\Omega_s/\Omega_R=\mu_s/Q_s$. The signed charge ratio is retained in
-the cyclotron frequency and Doppler shift.
-
-`d_ref` requires `species_1` `tauS=betap`.
-A scan of either reference beta or reference `tauS` updates both.
-Its other inputs remain fixed during that scan;
-this is a different physical scan from changing only `betap` in `rho_ref`.
-Two-dimensional scans cannot vary both redundant quantities independently.
-Positive `tauS` selects a kinetic species. In collisionless `d_ref` runs,
-exactly zero `tauS` selects a cold-fluid species; negative temperatures
-are invalid. A cold reference requires `betap=0`; additional species may be warm or cold.
-See the matched example files in `inputs/example/normalization_*.in`.
-
-### Mixed kinetic/cold calculations (Stage 2)
-
-Use `normalization='d_ref'`, `collision_type=0`, a warm first species, and
-`nscan=0` for single-wavevector runs (wavevector scans are described below). Additional species may have exactly `tauS=0`; every positive
-temperature, however small, remains kinetic. Cold `alphS` is ignored (zero is
-allowed). Density, signed charge, mass and parallel drift retain their definitions.
-No cold temperature is replaced by a numerical floor.
-Parallel (`kperp=0`) and oblique propagation are supported. Mixed runs require
-nonzero `kpar`: the warm susceptibility's exact perpendicular limit is not
-implemented. No small nonzero wavevector is substituted automatically.
-
-- `option=-1` evaluates the determinant and reports its status. For mixed runs
-  Stage 4B.1/4B.2 also prints E/B and species moments at a validated
-  eigenfrequency. Corrected collisionless heating/wave energy is available in
-  Stage 4B.3A; FPC remains unavailable for cold-containing plasmas.
-- `option=1`, `use_map=.false.` refines supplied `&guess_N` values with the
-  existing secant method. Set `writeOut=.true.` to print the solutions.
-- `option=0` searches a frequency map. Singular samples remain NaN in map
-  output and are excluded from root selection; failed refinements are skipped.
-- Cold-containing plasma-parameter/radial scans and FPC
-  are unavailable; corrected collisionless heating is available; collisionless wavevector scans are supported in Stage 4A. Requests fail clearly; temperature scans that reach or leave
-  zero are also rejected. All-kinetic scan and diagnostic behavior is retained.
-
-Cold species with `rho_ref` and cold-containing collisional configurations
-are unsupported. The kernel's zero-frequency,
-Doppler and cyclotron poles are not regularized. A supplied guess that reaches
-a pole or fails to converge reports an error rather than a fabricated solution.
-
-Charge neutrality and zero equilibrium current are **warning-only** checks,
-emitted during input reading. Densities/drifts are never adjusted. Nonstandard
-homogeneous equilibria may require external forces or currents to maintain them.
-
-See `inputs/example/mixed_warm_protons_cold_electrons.in` and the
-[Stage 2 implementation report](tests/MIXED_DISPERSION_REPORT.md).
-
-### Fully cold calculations (Stage 3A)
-
-Set `normalization='d_ref'`, `collision_type=0`, `betap=0`, and `tauS=0`
-for **every** species, including species 1. Supply positive `vtp=v_A,ref/c`.
-The inertial length `d_ref=c/omega_p,ref` remains finite at zero temperature;
-no thermal speed or gyroradius is constructed. Thus `rho_ref` cannot be used
-for this configuration. Cold `alphS` has no physical meaning and is ignored:
-zero, unity, or other finite placeholders give identical results.
-
-| Configuration | Supported |
-| --- | --- |
-| `d_ref`, all species cold, `betap=0` | Yes, Stage 3A |
-| `d_ref`, warm reference, other warm/cold species | Yes, Stage 2 |
-| `d_ref`, cold reference, warm/cold additional species, `betap=0` | Yes, Stage 3B.2 |
-| `rho_ref`, all species warm | Yes, unchanged legacy calculation |
-| `rho_ref`, any cold species | No |
-
-Fully cold runs accept exact `kperp=0`, exact `kpar=0`, oblique wavevectors,
-and arbitrary signed parallel drifts `vvS`. The mixed-run restriction on exact
-perpendicular propagation does not apply. Frequencies remain `omega/Omega_ref`;
-positive imaginary frequency means growth. No small wavevector, temperature,
-frequency offset, or artificial damping is inserted.
-
-Use the same `option=-1`, `0`, or `1` root/determinant workflows described above,
-with `nscan=0` for a single wavevector, or Stage 4A wavevector scans below. The existing secant and map search are reused. Root guesses
-select branches and must avoid exact poles; map resolution must resolve the
-branch being sought. Corrected collisionless heating/wave energy is available
-(see Stage 4B.3A below); FPC, cold collisions, and plasma-parameter/radial scans remain unavailable.
-Warning-only charge/current checks and their external-maintenance caveat apply
-also to fully cold equilibria.
-
-Run `./plume.e inputs/example/cold_proton_electron.in` from the repository root.
-This example selects the parallel L (Alfvén/ion-cyclotron) branch at
-`kpar*d_ref=0.06`. The companion
-`inputs/example/cold_proton_electron_perpendicular.in` selects the low-frequency
-X (fast magnetosonic) branch at exactly `kpar=0`, `kperp*d_ref=0.2`.
-Both retain finite electron mass and print their roots to stdout.
-The Python wrapper accepts the same inputs through
-`set_params(..., normalization='d_ref')` and `make_species(tauS=0, ...)`.
-See the [Stage 3A implementation report](tests/FULLY_COLD_DISPERSION_REPORT.md)
-for tensor, root, singularity and regression validation.
-
-### Cold-reference mixtures with warm species (Stage 3B.2)
-
-Use `normalization='d_ref'`, `betap=0`, `tauS=0` for species 1,
-`collision_type=0`, and `nscan=0` for single-wavevector runs (wavevector scans are described below). Additional species use exactly zero `tauS`
-for cold-fluid response or positive `tauS` for kinetic response; negative values
-are invalid. No temperature threshold is used. Supply positive `vtp=v_A,ref/c`.
-The physical reference mass, signed charge, density, gyrofrequency, Alfvén
-speed and inertial length stay fixed, as do species order and equilibrium drifts.
-Cold anisotropy placeholders are ignored; warm anisotropies remain physical.
-
-For oblique warm responses, PLUME selects the first warm species `j` and sets
-`b_star=tauS(j)`. This internal numerical policy adds no required input parameter.
-It constructs `V=vtp*sqrt(b_star)`, `K=k*d_ref*sqrt(b_star)` and inverse ratios
-`t_s=b_star/tauS(s)`, with a separate normalization anisotropy of unity.
-The validated kinetic expressions then give the same physical susceptibility,
-independent of this arbitrary scale up to finite-precision conditioning.
-Neither the physical reference temperature nor any species temperature is
-replaced: `betap` and reference `tauS` remain exactly zero. No fictitious
-population, reference thermal speed or gyroradius is introduced.
-
-Exact parallel (`kperp=0`) propagation uses the existing analytical kinetic
-limit with `v_t,s/v_A=sqrt(muS*tauS)`. Oblique propagation, either sign of `kpar`,
-parallel drifts of warm/cold species, and complex frequencies in either
-half-plane are supported. **Exact `kpar=0` with any warm species is unsupported.**
-Use `option=-1` for direct evaluation, `option=1`, `use_map=.false.` for supplied
-guesses, or `option=0`/`use_map=.true.` for supported frequency-map searches.
-Set `writeOut=.true.` to print roots. The existing secant method is unchanged;
-nearby branch-specific guesses are useful when several physical modes coexist.
-
-Extreme temperature spreads or auxiliary scales can produce unrepresentable
-intermediate kinetic products even though the normalization is algebraically
-invariant. Invalid or nonfinite evaluations return the existing failure status
-and NaN tensors, with no added damping or floors. A subsequent valid trial is
-recomputed. The first-warm-species policy is provisional, not an optimized
-conditioning guarantee. Species reordering can change that scale but must not
-change the physical result beyond the documented numerical tolerance.
-
-Cold-containing FPC, collisions,
-plasma-parameter/radial scans and model-transition scans remain unavailable.
-Wavevector scans are supported as described below. Charge
-neutrality and current balance remain warning-only checks made at input reading;
-nonstandard homogeneous equilibria may require external currents or forces.
-
-Run `./plume.e inputs/example/mixed_cold_protons_warm_electrons.in` from the
-repository root for an oblique damped mode with cold protons and warm electrons.
-The Python wrapper accepts the same convention and restrictions. See the
-[Stage 3B.2 implementation report](tests/COLD_REFERENCE_MIXED_REPORT.md) for
-interfaces, cache behavior, independent benchmarks and numerical limits.
-
-## Namelists in input files.
-
-The following namelists and associated input parameters are read in by PLUME from the input file.
-
-### *&params*  
-General system parameters.
-
-**`normalization`**
-`'rho_ref'` (default) or `'d_ref'`.
-Invalid values stop with a diagnostic.
-
-**`betap`**  
-Initial reference parallel plasma beta $\beta_{ref,\parallel} = 8 \pi n_{ref} T_{ref,\parallel}/B^2$.
-
-**`kperp`**  
-Initial perpendicular wavevector $k_{\perp} \rho_{ref}$ or $k_{\perp}d_{ref}$,
-according to `normalization`.
-
-**`kpar`**  
-Initial parallel wavevector $k_{\parallel} \rho_{ref}$ or $k_{\parallel}d_{ref}$.
-
-**`vtp`**  
-Initial reference parallel thermal velocity $v_{t,ref,\parallel}/c$ in `rho_ref`,
-or reference Alfvén speed $v_{A,ref}/c$ in `d_ref`.
-
-**`nspec`**   
-Number of plasma species or components.
-
-**`nscan`**   
-Number parameter or wavevector scans to execute.
-
-**`collision_type`**   
-Type of collision for the system.
-- 0: no collisions; standard PLUME
-- 1: non-conservative Krook Operator
-     neutral-charged collisions only.
-
-**`Kn`**   
-Neutral Knudson number over characteristic scale $(n_0 \sigma \rho_{ref})^{-1}$.
-or $(n_0 \sigma d_{ref})^{-1}$.
-Ignored for `collision_type`=0 (collisionless evalulation).
-
-**`option`**   
-Determines set of scans to perform. Choice of:
-
-- -1: Calculate the value of the dispersion relation
-      at a single $(\omega/\Omega_{ref}, \gamma/\Omega_{ref})$
--  0: Calculate roots for input plasma parameters.
--  1: Calculate roots for input plasma parameters or Reads in root value
-      and then scan over plasma parameters, with range and type specified in *.in file.
--  2: Calculate roots for input plasma parameters or Reads in root value
-      and then scan over two-dimensional plasma parameters space,
-      with range and type specified in *.in file.
--  3: Deprecated...
--  4: Make multiple maps of complex frequency space.
--  5: Find roots for parameters along a prescribed path
-      Path is set by solar wind models, with values calculated and
-      output by helper function (in development, the radial scan function.).
-
-**`nroot_max`**   
-Number of dispersion solutions to find and follow.
-
-**`use_map`**   
-Choice of:  
-
-- True: Searching for roots over a map in complex frequency space (see &maps namelist).  
-- False: Input `nroot_max` guesses for solutions (see &guess_1 namelist).
-
-**`low_n`**  
-Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels. Separates Landau, Transit, and Cyclotron damping.
-This follows [Huang et al 2024 JPP](https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/velocityspace-signature-of-transittime-damping/60F34E118AFFC3701071477C52A81174) and is expressed in Sec. 5 of [Klein, K. G., Howes, G. G.,
-and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2).
-
-**`new_low_n`**  
-*Depricated* Logical to toggle on or off outputing the $n=0$ and $\pm 1$ resonances for
-characterizing heating channels. Previous had multiple versions of the low n susceptability calculation. As we are only using Eqns. 39,40, and 41 from [Klein, K. G., Howes, G. G.,
-and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2), this logical flag is unnecessary.
-
-**`writeOut`**  
-Verbosity control for screen output, independent of `use_map`. It does not
-disable file output or required output directories. Input warnings remain
-visible with `writeOut=.false.`. The Python wrapper preserves both switches
-independently.
-
-**`dataName`**  
-Subdirectory (below PLUME/data/) where outputs will be written.
-
-**`outputName`**
-String to be included in output files to identify specific run.
-
-### *&guess_m*  
-Initial guess of complex frequency for $m$th solution.  
-Only used when `use_map`=.false.  
-Need to have number of namelists equal to `nroot_max`.
-
-**`g_om`**  
-Guess for real solution $\omega_{r}/\Omega_{ref} $.
-
-**`g_gam`**  
-Guess for imaginary solution $\gamma/\Omega_{ref} $.
-
-
-### *&maps*  
-Range of complex frequencies for map_scan subroutine.  
-Only used when `use_map`=.true.
-
-**`loggridw`**  
-Linear (F) or Log (T) spacing for $\omega_{r}/\Omega_{p}$ map search.
-Only linear grids use `omi` and `omf` as physical endpoints; see the
-historical logarithmic convention below.
-
-**`loggridg`**  
-Linear (F) or Log (T) spacing for $\gamma/\Omega_{p}$ map search.
-Only linear grids use `gami` and `gamf` as physical endpoints.
-
-#### Historical logarithmic maps
-
-The logarithmic map equations are retained for compatibility, but their
-origins and increments use inconsistent conventions. For i=0..nr, j=0..ni:
-
-```
-wr(i) = 10**(omi + i*(log10(omf)-log10(omi))/nr)
-wi(j) = -10**(abs(gami) + j*(log10(abs(gamf))-log10(abs(gami)))/ni)
-```
-
-Real logarithmic bounds must be positive; imaginary magnitudes must be
-nonzero. Both imaginary input signs are discarded and all logarithmic
-imaginary nodes are negative. Thus `omi=.1, omf=1` gives approximately
-1.258925 to 12.58925; `gami=-1e-4, gamf=-1e-2` gives approximately
--1.000230 to -100.0230. These are neither physical endpoint bounds nor a
-consistent exponent-bound convention. PLUME and the Python wrapper warn
-when either log flag is requested. Use linear grids for physical endpoint
-control. Stage 5B.0 does not change these equations; a future correction
-requires an explicit compatibility decision. See the
-[characterization report](tests/PLUME_5B0_CORRECTIONS.md).
-
-**`omi`**  
-Initial $\omega_{r}/\Omega_{p}$ endpoint for a linear complex map search;
-logarithmic behavior is defined above.
-
-**`omf`**  
-Final $\omega_{r}/\Omega_{p}$ endpoint for a linear complex map search.
-
-**`gami`**      
-Initial $\gamma/\Omega_{p}$ endpoint for a linear complex map search.
-
-**`gamf`**  
-Final $\gamma/\Omega_{p}$ endpoint for a linear complex map search.
-
-**`nr`**  
-Number of $\omega_{r}/\Omega_{p}$ intervals (`nr+1` nodes) in the frequency grid.
-Default is 128 if not specified.
-
-**`ni`**  
-Number of $\gamma/\Omega_{p}$ intervals (`ni+1` nodes) in the frequency grid.
-Default is 128 if not specified.
-
-**`positive_roots`**
-If true, the map routine will only select solutions with $\omega_{|textrm{r}} \ge 0$.
-
-### *&species_j*  
-Species or component parameters list for distribution $f_{j}$.
-
-**`tauS`**  
-Relative parallel temperature $T_{ref,\parallel}/T_{j,\parallel}$ in `rho_ref`;
-Alfvénic temperature $2T_{j,\parallel}/(m_{ref}v_{A,ref}^2)$ in `d_ref`.
-Exactly zero selects cold-fluid susceptibility under the Stage 2/3A/3B.2 restrictions
-above; it is not a valid legacy inverse-temperature ratio.
-
-**`muS`**  
-Relative mass $m_{ref}/m_{j}$.
-
-**`alphS`**  
-Temperature anisotropy $T_{j,\perp}/T_{j,\parallel}$; ignored for cold species.
-
-**`Qs`**  
-Relative charge $q_{ref}/q_{j}$.
-
-**`Ds`**  
-Relative density $n_{j}/n_{ref}$.
-
-**`vvS`**  
-Drift speed parallel to mean magnetic field, normalized to the reference Alfven velocity
-$v_{j,drift}/v_{A,ref}$, where $v_{A,ref}=B/\sqrt{4 \pi n_{ref} m_{ref}}$
-
-**`nunS`**  
-Neutral-charged species collision frequency, $\nu_{n,s}/\Omega_{ref} = n_0$
-
-
-## Mixed wavevector scans (Stage 4A)
-
-All supported compositions use the existing scan framework and `disp/rtsec`:
-all kinetic (`rho_ref` or `d_ref`), fully cold (`d_ref`), warm-reference mixed
-(`d_ref`), and cold-reference mixed (`d_ref`, `betap=0`). Any number of supported
-warm and cold species, parallel drifts and signed nonzero `kpar` are permitted.
-Cold-containing scans must be collisionless. No species can change model.
-
-| Workflow | Inputs | Traversal |
-| --- | --- | --- |
-| Serial continuation | `option=1`, `nscan>=1` | Each scan starts from the preceding scan's final valid root. |
-| Two-dimensional grid | `option=2`, `nscan=2` | Outer-axis continuation; each inner traversal starts from its saved row-start seed. |
-| Repeated frequency maps | `option=4`, `nscan=1` | Independent existing map search at each point; no branch association between maps. |
-
-Wavevector coordinates use the existing namelists:
-
-| `scan_style` | `scan_type` | Existing interpretation |
-| ---: | ---: | --- |
-| 0 | 0 | `kperp`, from `swi` to `swf` |
-| 0 | 1 | `kpar`, from `swi` to `swf` |
-| -1 | 0 | Current vector to `(kperp,kpar)=(swi,swf)` |
-| -1 | 1 | Current `atan(kperp/kpar)` to `swi` degrees, fixed signed magnitude; `swf` unused |
-| -1 | 2 | Current signed magnitude to `swf`, fixed angle; `swi` unused |
-
-The historical signed magnitude is `kpar/cos(atan(kperp/kpar))`; for negative
-`kpar`, use a negative target `swf` to retain that propagation direction.
-Logarithmic scans require positive scanned coordinates; use linear scans for
-negative parallel coordinates/signed magnitudes. Exact parallel `kperp=0`
-uses the existing mixed/cold dispersion limits. Geometry support never extends
-a susceptibility limit that the single-point evaluator does not implement.
-
-Two-dimensional wavevector grids support distinct Cartesian `kperp/kpar` axes,
-or ordered angle (`scan_input_1`) and magnitude (`scan_input_2`) axes. Overlapping
-coordinate definitions are rejected. Existing all-kinetic plasma-parameter
-scans are retained, but no plasma-parameter or radial scans are enabled for
-cold-containing configurations in Stage 4A.
-
-Require positive `ns` and `nres`; the existing scan takes `ns*nres` continuation
-steps and writes `ns+1` rows. Input bounds must be finite. Scans are preflighted
-before root initialization. If **any** sampled point has `kpar=0`, including a
-90-degree angle endpoint, the run stops with a Stage 4A diagnostic. No epsilon
-wavevector is inserted. This restriction includes fully cold scans but does
-not change fully cold single-wavevector perpendicular calculations.
-
-Cold-containing runs initialize their roots at the actual first scan point.
-Their physical plasma parameters and reference definition are fixed throughout:
-wavevectors are `k*d_ref`, frequencies are `omega/Omega_ref`, and `vtp=v_A/c`.
-Warm-reference `d_ref` conversions retain `sqrt(betap*alphS_ref)`; cold-reference
-runs bypass the thermal adapter and retain `b_star=tauS(first warm species)`.
-Changing only `kpar` reuses Bessel coefficients; changing `kperp` updates/resizes
-the existing cache using the physical argument. Z/Bessel backend choices remain
-independent and unchanged.
-
-For cold-containing scans `eigen=.true.` enables
-E/B fields and species density/velocity moments. Failed species moment blocks
-are marked NaN. Both flags default false.
-Heating requests require `heating_convention='corrected'` and collisionless inputs.
-Optional `tensor=.true.` uses the existing susceptibility output and introduces
-no new columns. Stage 4B.2 supplies density/velocity perturbations;
-FPC for mixed plasmas remains outside
-this stage, including the agreed later policy for kinetic species. Cold values
-are unavailable, not physical zeros. All-kinetic diagnostics remain available.
-
-A failed root is written as NaN in the existing frequency columns; tensor and
-requested diagnostic slots are invalidated as well. A warning gives
-the wavevector and failure flag. Only successful roots update the continuation
-seed. Later points retry from the last valid seed. An intermediate point hidden
-by `nres` can fail and warn even if no NaN output row is scheduled there.
-No branch tracker is introduced: reduce steps and inspect crossings, poles,
-strong damping and recovery after failures. Cold-containing map scans retain
-the supplied `&maps` frequency bounds, avoiding undefined cold anisotropy;
-legacy all-kinetic map-span behavior is unchanged.
-
-Examples: [warm reference](inputs/example/mixed_scan_warm_reference.in),
-[cold reference](inputs/example/mixed_scan_cold_reference.in), and
-[fully cold](inputs/example/fully_cold_scan.in). The Python wrapper accepts the
-same wavevector scans through `make_scan`; its cold-containing writer validation
-rejects parameter scans, mixed FPC, and legacy mixed-heating requests.
-
-## Electromagnetic eigenfunctions (Stage 4B.1)
-
-Supported fields use the complete production `lam` matrix, retaining each
-species contribution in `susc(species,row,column)`. Existing kinetic susceptibility,
-cold susceptibility, auxiliary normalization and numerical backend selections
-are unchanged. Eigenfunctions are right nullvectors of the ordinary complex
-wave matrix, not Hermitian eigenvectors at complex frequency.
-
-For cold/mixed scans use `eigen=.true.`; corrected collisionless heating may also be enabled. Serial and 2D Stage 4A
-workflows and both signs of nonzero kpar are supported. Option 2 retains its
-existing rule that **scan_input_2 selects the output diagnostics**. Stage 4B.2
-populates the existing species velocity/density slots using cold-fluid or kinetic
-moments as appropriate. All-kinetic calculations retain their full existing
-moments behavior. Corrected kinetic heating in mixtures is available in Stage
-4B.3A; FPC remains deferred to Stage 4B.3B.
-
-`option=-1` prints fields and species moments for a cold-containing input when the supplied
-frequency has a validated electromagnetic nullvector. It prints an unavailable
-status for off-mode or invalid frequencies. Root-only `option=1, nscan=0`
-retains its existing root-only output; use a known root with option=-1, an
-existing fixed-endpoint eigen scan, or the Fortran API for fields.
-
-The amplitude/phase gauge is Ex=1+0i. The fields are `(Ex,Ey,Ez)` and `(Bx,By,Bz)`
-with B0 along z and k=(kperp,0,kpar). The Fourier convention is exp(i*k.r-i*omega*t).
-No handedness or component ordering changes. In Gaussian field units both E
-and B outputs are divided by the physical deltaEx amplitude. To convert B to
-units of B0, multiply by deltaEx/B0. These are not unit-energy eigenfunctions.
-
-Faraday in PLUME's normalized inputs is
-
-- `omega_hat * B = cross(k_rho/(vtp*sqrt(alphS_ref)), E)` for rho_ref;
-- `omega_hat * B = cross(k_d/vtp, E)` for d_ref, where vtp=v_A/c.
-
-The frequency is full complex omega/Omega_ref, including damping/growth, and
-not just its real part. The anisotropic rho_ref conversion gives
-`k_rho/(vtp_solver*sqrt(alphS_ref))=k_d/(v_A/c)`. No beta or auxiliary b_star
-factor remains. Cold-reference fields never require a reference thermal speed.
-
-The existing two-row cofactor elimination is reused. Equivalent row-pair
-cofactors handle zero fixed divisors, including exact parallel mixed/cold
-propagation. No LAPACK/general eigensolver or regularization is introduced.
-Numerically rank-deficient matrices and modes with vanishing/unresolvable Ex
-are unavailable in this gauge. The exactly perpendicular cold O mode is one
-such case; the perpendicular X mode has a valid Ex gauge and is supported for
-single-wavevector calls. Stage 4A still rejects perpendicular scan points.
-Existing all-kinetic propagation limits are unchanged.
-
-Field-only Fortran interfaces in `electromagnetic_fields`:
-
-```fortran
-! Refresh the total production matrix through the existing callback:
-call calc_em_eigen(omega, electric, magnetic, ierr, disp)
-! Or calculate from an explicit complete matrix, without global state:
-call calc_em_fields(matrix, omega, kpar, kperp, vtp, normalization, &
-                    alpha_ref, electric, magnetic, ierr)
-```
-
-Status 0 means success, 1 invalid inputs/evaluation, 2 degenerate/ill-conditioned
-rank, 3 unavailable Ex gauge, 4 no acceptable nullvector at this frequency,
-and 5 nonfinite arithmetic. Failed fields contain assigned quiet NaNs.
-Field failure does not turn a valid dispersion matrix into an invalid root.
-The direct matrix API accepts native input units and ignores alpha_ref for d_ref.
-The historical `disprels::calc_eigen` remains the all-kinetic moment/heating API.
-
-The historical `Ew` slots do not export the normalizer. Stage 4B.3A provides
-complete corrected energy in a separate `.energy` companion; neither convention
-is an exact conserved energy for arbitrary growing/damped modes. See below.
-
-## Species moments (Stage 4B.2)
-
-For `eigen=.true., heating=.false.`, cold-containing single-point and serial/2D
-wavevector workflows now calculate cold-fluid moments for exactly `tauS=0`,
-and kinetic moments for `tauS>0`. Negative temperature remains invalid. Species
-ordering and physical density/mass/signed charge/drift definitions are unchanged.
-No new input switch is required. Both signs of nonzero kpar, parallel/oblique
-propagation, drifts and full complex frequencies are supported under the existing
-dispersion restrictions. Exact perpendicular scans remain outside Stage 4A.
-
-With `epsilon=deltaEx/B0`, the velocity columns are
-`v=deltaU/(c*epsilon)` and density is `eta=(delta n/n0)/epsilon`.
-They are **not** deltaU/vA or the absolute density delta n/n_ref.
-In d_ref define `a=vtp=vA/c`, `kappa=k*d_ref`, `u=vvS`, and
-`delta=omega_hat-kappa_parallel*u`. The cold momentum and continuity equations are
-
-```text
--i*delta*v = (muS/Qs)*(E + v cross zhat + a*u*zhat cross B)
-delta*eta = (kappa dot v)/a
-```
-
-The warm calculation reuses the existing species current from chi, removes the
-`a*u*eta*zhat` equilibrium-drift density current, and uses continuity. It needs
-no thermal reference conversion after chi is evaluated. For rho_ref equivalence
-use `a=vtp/sqrt(betap)` and `kappa=k_rho/sqrt(betap*alphS_ref)`. The legacy
-all-kinetic output/arithmetic remains unchanged. Neither cold nor warm physical
-moments depend on the cold-reference auxiliary normalization.
-
-The explicit-state module `species_moments` provides:
-
-```fortran
-call calc_cold_moments(species, omega, kpar_d, kperp_d, va_ref_c, &
-                       E, B, velocity, density, status)
-call calc_kinetic_moments(species, omega, kpar_d, kperp_d, va_ref_c, &
-                          E, chi, velocity, density, status)
-```
-
-Both return one species in existing output units. Cold moments are derived from
-momentum/continuity and do not call susceptibility, Bessel or Z routines, or read
-temperature/anisotropy. The mixed adapter offers optional per-species status:
-
-```fortran
-call calc_mixed_eigen(omega,E,B,U,n,P,Psplit,.false.,field_status,disp, &
-                      moment_status)
-```
-
-`field_status` retains its Stage 4B.1 meaning. Each `moment_status` is 0 valid,
-1 invalid input, 2 zero frequency, 3 exact cold Doppler pole, 4 exact cold
-cyclotron pole, 5 unrepresentable/nonfinite arithmetic, or 6 absent zero-density
-species. A zero-density species has no defined relative-density/bulk-velocity
-moment. Failure sets only that species' moment block to quiet NaNs and emits a
-species/status warning, leaving valid fields and other species intact. Failed
-fields leave all moments unavailable. A subsequent valid point is recomputed.
-No floors, damping or offsets regularize poles. The warm current elimination
-avoids a removable intermediate division at delta=0 when chi itself is finite;
-it does not remove any cold response pole.
-
-The existing column order, phase, scientific precision, and root continuation
-are preserved. Metadata identifies model/units/status meanings. This moment stage does not change FPC, pressure moments or propagation.
-Corrected heating/wave energy was added separately in Stage 4B.3A below.
-See [validation and derivation](tests/COLD_FLUID_EIGENFUNCTION_REPORT.md).
-
-### *&scan_input_l*
-Inputs for scanning parameter space for $l$th scan.  
-
-**`scan_type`**  
-Type of parameter scan.
-
-For `scan_style`=-1 (Global Two-Component Scan), options of:
-
-- 0: Scan from $\textbf{k}_0 \rho_{ref}$ to $\textbf{k}_1 \rho_{ref}$.
-Scans from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $k_\perp \rho_p$=`swi` and $k_\parallel \rho_{ref}$=`swf`.
-- 1: Scan from $\theta_0$ to $\theta_1$ with fixed $|k|\rho_{ref}$.
-Scans from current value of $(|k|\rho_{ref},\theta)$ to $(|k|\rho_{ref},$`swi`$)$, with `swi` in degrees.
-- 2: Scan from $|k|_0 \rho_{ref}$ to $|k|_1 \rho_{ref}$ with a fixed value of $\theta$.
-Scan from current value of $(k_\perp,k_\parallel) \rho_{ref}$ to $|k|\rho_{ref}$=`swf` with constant $\theta = \atan (k_\perp/k_\parallel)$.
-
-*NOTE:* If you are executing a two-parameter plane scan of $\theta$ and $|k|\rho_{ref}$, $\theta$ (`scan_style`=-1, `scan_type`=1) must be set to `scan_input_1` and $|k| \rho_{ref}|$ (`scan_style`=-1, `scan_type`=2) to `scan_input_2`.
-The opposite order will not properly scan through $|k| \rho_{ref}|$.
-See
-```
-inputs/example/example_map_perp.in
-```
-for an example.
-
-For `scan_style`=0 (Global Scan), options of:
-
-- 0: $k_\perp \rho_{ref}$
-- 1: $k_\parallel \rho_{ref}$
-- 2: $\beta_{ref,\parallel}$
-- 3: $v_{t,ref,\parallel}/c$
-
-`swi` and `swf` represent the initial and final scan values for `scan_style`=0.
-
-For `scan_style`=1-`nspec` (Parameter scan of component `scan_style`), options of:
-
-- 0: $T_{ref,\parallel}/T_{j,\parallel}$.
-- 1: $m_{ref}/m_{j}$.
-- 2: $T_{j,\perp}/T_{j,\parallel}$.
-- 3: $q_{ref}/q_{j}$.
-- 4: $n_{j}/n_{ref}$.
-- 5: $v_{j,drift}/v_{A,ref}$.
-
-`swi` and `swf` represent the initial and final scan values for `scan_style`=1 through `nspec`.
-
-**`scan_style`**  
-Class of parameter scan. Options of:
-
-- -1: Global Two-Component Scan
-- 0: Global Scan
-- 1-nspec: Single-Parameter Scan
-
-**`swi`**  
-Scan variable to define start of scan through parameter space.
-
-**`swf`**  
-Scan variable to define end of scan through parameter space.
-
-**`swlog`**  
-Use $\log_{10}$ (T) or linear (F) spacing.
-
-**`ns`**  
-Number of output scan values.
-
-**`nres`**  
-Resolution between output scan values.
-
-**`heating`**  
-Calculates heating rates if true.
-
-**`eigen`**  
-Calculates eigenfunctions if true. In cold-containing runs, Stage 4B.1 supplies
-E/B fields and cold-fluid/kinetic species density and velocity moments;
-failed moment blocks are unavailable (NaN).
-
-**`tensor`**  
-Outputs susceptibility tensor if true.     
-
-
-## Heating and wave energy (Stage 4B.3A)
-
-In `&params`, `heating_convention='corrected'` (default) or `'legacy'` selects
-only the diagnostic convention. It does not select a Z backend, Bessel mode,
-or normalization. For the new convention use `collision_type=0`.
-
-```fortran
-&params
-heating_convention='corrected'
-z_backend='faddeeva'
-bessel_mode='adaptive'
-! other ordinary plasma/root parameters ...
-/
-&scan_input_1
-! existing wavevector scan coordinates ...
-eigen=.true.
-heating=.true.
-/
-```
-
-`option=-1` computes diagnostics at the supplied frequency only when it has
-an acceptable Ex=1 electromagnetic eigenfunction. With `option=1`/`option=2`,
-heating follows the existing scan switches (in 2D, `scan_input_2` controls
-outputs). Fully kinetic, fully cold, warm-reference mixed and cold-reference
-mixed collisionless plasmas are supported. Existing geometry restrictions
-remain: warm species need nonzero kpar; scans exclude kpar=0. No artificial
-wavevector, temperature or frequency floors are used.
-
-Corrected snapshots use the same real lab frequency `wr` for total and signed
-harmonic susceptibilities. Centered susceptibility derivatives require stable
-matrix and E-projected convergence; cold derivatives are analytic. The
-accepted complex-frequency dispersion state and field/moment eigenfunctions
-are preserved. Failed derivatives do not invalidate the dispersion root.
-
-For E=deltaE/deltaEx and kappa=k*d_ref, define
-
-```
-HE = |E|^2
-HB = |kappa cross E/(a*wr)|^2,  a=vA_ref/c
-Hs = E† d[wr*chi_H,s(wr)]/dwr E
-H  = HE + HB + sum_s Hs
-W  = abs(deltaEx)^2/(16*pi) * H
-Ps = Im(E† chi_s(wr) E)/H
-```
-
-Physical wavevectors, species parameters and reference scales remain fixed
-under differentiation. No species Doppler frequency replaces lab wr in its
-prefactor. Both kinetic and cold species contribute to Hs. Auxiliary thermal
-scales are coordinates, not additional particles or energy terms.
-
-`Ps` is a signed absorption/emission diagnostic, approximately a species
-contribution to `-gamma/wr` for weak isolated modes. All seven historical
-channels retain their definitions/order: n=0 yy, yz, zy, zz, full n=0,
-transverse n=+1, transverse n=-1. The first four sum to full n=0; the last
-three need not sum to total Ps. Summing all seven double-counts n=0 and also
-omits higher harmonics and some +/-1 longitudinal/cross contributions.
-Cold species' kinetic Ps/channels are unavailable (NaN), not zero. Fully cold
-systems have energy but no kinetic-heating total.
-
-The `.energy` companion reports individual energy components, signed
-fractions, the noncancelling electric contribution `f_E_abs`, derivative
-convergence, and numerical/applicability statuses. Negative H is allowed;
-vanishing or numerically unresolved H has unavailable signed fractions.
-These are formal real-frequency wave-energy expressions, not exact conserved
-energies for arbitrary complex modes. `abs(gamma/wr)>0.05` and independently
-failed weak-mode balance set applicability bits; normalized Ps/channels then
-remain NaN, while resolved formal energy, raw Q, fields and moments remain
-available. A weak-mode balance check alone cannot diagnose every degeneracy.
-
-Legacy replay uses `heating_convention='legacy', z_backend='legacy',
-bessel_mode='fixed128'`. It retains the historical arithmetic, normalizer,
-shifted harmonic snapshots and collisional behavior. Explicit legacy heating
-is unavailable in cold-containing scans; the direct evaluator can still
-report fields/moments with its existing unavailable-heating message.
-Corrected collisional heating is rejected rather than reinterpreting the
-collision operator. Maps gain no heating, radial/plasma-parameter heating
-remains legacy-only, and FPC behavior is unchanged.
-
-Python `set_params(..., heating_convention='corrected')` writes and reads this
-control. Read the companion with `load_plume_energy(filename)`; use the
-existing `load_plume_sweep(..., nspec=N, eigen=..., heating=True)` for the
-unchanged low_n=true columns. Supply switches explicitly for ambiguous files.
-
-### Python wrapper roundtrips and unsupported requests
-
-`plume_input.load_from_file(path)` preserves supported scalar controls in
-`params`, `species_N`, `maps`, `scan_input_N`, `guess_N`, and `fpc`. This includes
-`low_n`, both log flags, `nr`, `ni`, `tensor`, and all six Cartesian FPC bounds.
-Loading replaces the previous object state. An explicit input `dataName` is
-preserved; assign `obj.dataname` after loading to redirect output. Quoted paths,
-inline scalar assignments, logical values and D exponents are supported.
-Unknown controls, unsupported groups (including radial/k_range groups), and
-array/expression syntax raise `ValueError` instead of being silently lost.
-The wrapper is not a general Fortran namelist parser.
+<a id="input-reference"></a>
+
+# Input reference
+
+[Manual home](./) · [Normalization](normalization.md) · [Modes](modes.md)
+
+This reference covers **89 distinct case-insensitive input names**, across
+14 namelist definitions (seven alternative `k_range` layouts share names).
+The tables describe the current parser and checks, not a list of internal vars.
+The source of truth is `functions.f90` namelists, `vars.f90` initialization and
+subsequent validation in the numerical/scan modules. Historical audit findings
+have been updated for the reader/wrapper corrections.
+
+<a id="syntax-and-required-values"></a>
+
+## Syntax and required values
+
+An input uses `&params ... /`, then indexed `&species_1` through `&species_nspec`,
+plus maps/guesses/scans/FPC/radial groups as selected. Put each indexed header
+**alone on a lowercase line**, without a trailing comment. The custom indexed
+extractor is case-sensitive even though scalar field names are not. Ordinary
+commas or newlines can separate scalar assignments; quote character values and
+use `.true.`/`.false.` for clarity. Supply all required species values, including
+a placeholder `alphS` for cold species. See the complete working annotated
+[Quick Start](tutorial.md#2-read-the-input-in-physical-terms).
+
+“No safe default” means there is no explicit initialization establishing a public
+value: **supply it whenever the group/workflow uses it**. Compiler storage that
+happens to be zero is not a documented default. A default only removes the
+requirement to write that particular value, not the mode's other dependencies.
+Fortran real values use the project's compiler-promoted double precision.
+
+Common public links: [physical parameters](normalization.md),
+[species classification](models.md), [scan semantics](modes.md),
+[heating convention](heating.md), [numerical backends](numerics.md),
+[FPC restrictions](README-JETPLUME.md), [output schemas](output.md).
+No fields called `heat`, `new_low_n`, `va_ref_c`, `b_star`, `solver_*`, `nu_ns`,
+`nbesmax` or `computemoment` are accepted aliases/public input controls.
+
+<a id="global-controls-params"></a>
+
+## Global controls: &params
+
+This group is required for every run. Species type and available diagnostics
+also depend on the selected workflow and geometry; see the capability matrix.
+All velocities/wavevectors must be interpreted in the selected normalization.
+The first species is the reference; `writeOut` and `use_map` are independent.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-heating_convention"></a>`heating_convention` (character(16)) | `corrected` | Diagnostic convention; corrected complete real-frequency energy and initialized same-frequency harmonics; legacy original calc_eigen arithmetic. Units: dimensionless label. Values: 'corrected'  or  'legacy'. | Corrected collisionless -1/serial/2D heating; legacy all-kinetic and old collisional workflows. Independent of Z/Bessel/normalization; legacy cold heating unavailable. **Check:** Exact case-sensitive enumerated string check at read_in_params; invalid value ERROR STOP. | [heating_corrected_cold.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_cold.in) |
+| <a id="param-z_backend"></a>`z_backend` (character(16)) | `faddeeva` | Plasma dispersion Z backend, Z=i sqrt(pi) wofz; signed kpar convention retained. Units: dimensionless label. Values: 'faddeeva'  or  'legacy'. | Every warm susceptibility; cold bypasses Z. Independent of harmonics/diagnostic convention. **Check:** Exact case-sensitive enumerated string check at read_in_params; invalid value ERROR STOP. | [heating_corrected_kinetic.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_kinetic.in) |
+| <a id="param-bessel_mode"></a>`bessel_mode` (character(16)) | `adaptive` | Species-specific warm harmonic policy. Units: maximum absolute signed order N, sum -N..N. Values: 'adaptive'  or  'fixed'  or  'fixed128'. | Warm collisionless/collisional dispersion; cold uses no Bessels. fixed128 requires nfixed=128; FPC distribution uses separate fixed internal nbesmax=15. **Check:** validate_bessel_input: exact mode, finite 0&lt;tol&lt;1, positive integer counts&lt;=46338; fixed128 requires 128; invalid ERROR STOP. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-bessel_tol"></a>`bessel_tol` (real) | `1e-10` | Ordinary and n^2-weighted Bessel tail tolerance, not guaranteed tensor/root error. Units: dimensionless. Values: finite 0 &lt; value &lt; 1. | Adaptive warm harmonics. Both tails checked; arithmetic failure distinct from unresolved tail. **Check:** validate_bessel_input: exact mode, finite 0&lt;tol&lt;1, positive integer counts&lt;=46338; fixed128 requires 128; invalid ERROR STOP. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-bessel_nmax"></a>`bessel_nmax` (integer) | `512` | Adaptive maximum harmonic cap; warning and continue on unresolved tail. Units: absolute order. Values: 1..46338. | Adaptive warm harmonics. Unresolved status recorded; cap warning once per cache state. **Check:** validate_bessel_input: exact mode, finite 0&lt;tol&lt;1, positive integer counts&lt;=46338; fixed128 requires 128; invalid ERROR STOP. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-bessel_nfixed"></a>`bessel_nfixed` (integer) | `128` | Fixed maximum absolute harmonic order. Units: absolute order. Values: 1..46338. | Fixed warm harmonics. fixed128 requires exactly 128. **Check:** validate_bessel_input: exact mode, finite 0&lt;tol&lt;1, positive integer counts&lt;=46338; fixed128 requires 128; invalid ERROR STOP. | See group workflow / tests |
+| <a id="param-bessel_diagnostics"></a>`bessel_diagnostics` (logical) | `.false.` | Enable .bessel cache/cutoff/convergence metadata. Units: logical. Values: .true.  or  .false.. | All calculations, no Bessels required for cold. Legacy fixed128 cache counters are explicitly limited. **Check:** validate_bessel_input: exact mode, finite 0&lt;tol&lt;1, positive integer counts&lt;=46338; fixed128 requires 128; invalid ERROR STOP. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-betap"></a>`betap` (real) | **No safe default** | 8\*pi\*nR\*Tparallel,R/B0^2. Units: parallel reference beta. Values: positive for warm reference; exactly zero for cold reference. | All modes. d_ref requires tauS(1)=betap within 1e-8 relative; beta/reference-temperature scans synchronize them. **Check:** Thermal adapter requires positive beta/vtp; cold reference requires exactlybeta0 andpositivea; d_ref tau1-beta equality1e-8relative. Explicit finite checks also occur in numerical kernels, not a blanket parser check. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-kperp"></a>`kperp` (real) | **No safe default** | Perpendicular wavevector component, k=(kperp,0,kpar). Units: k\*rho_R or k\*d_R. Values: finite; mixed/cold can be exactly zero. | All modes. Cold/mixed exact parallel available; historical all-warm zero-kperp kernel singularity is not dispatched away. **Check:** Wavevector scan preflight requires finite kpar!=0, including hidden steps; mixed warm kpar=0 is explicitly rejected; the old all-warm exact-axis path may reach invalid response rather than an early geometry error. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-kpar"></a>`kpar` (real) | **No safe default** | Parallel wavevector component. Units: k\*rho_R or k\*d_R. Values: finite; nonzero in every wavevector scan and warm susceptibility. | All calculations; signed drift/propagation. All-kinetic exact-axis propagation remains unsupported; see the model capability matrix. **Check:** Wavevector scan preflight requires finite kpar!=0, including hidden steps; mixed warm kpar=0 is explicitly rejected; the old all-warm exact-axis path may reach invalid response rather than an early geometry error. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-vtp"></a>`vtp` (real) | **No safe default** | rho_ref: reference parallel thermal speed/c; d_ref: reference Alfven speed/c. Units: v_tparallel,R/c or vA,R/c. Values: positive. | All modes; d_ref remains finite for cold reference. No alias va_ref_c is an input; do not confuse internal auxiliary V with this physical a. **Check:** Thermal adapter requires positive beta/vtp; cold reference requires exactlybeta0 andpositivea; d_ref tau1-beta equality1e-8relative. Explicit finite checks also occur in numerical kernels, not a blanket parser check. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-normalization"></a>`normalization` (character(16)) | `rho_ref` | Physical input length/temperature/velocity convention. Units: rho_ref uses perpendicular reference thermal gyroradius; d_ref uses inertial length. Values: 'rho_ref'  or  'd_ref'. | All modes; cold-containing requires d_ref. Species 1 is physical reference; no separate reference selector. **Check:** Exact case-sensitive enumerated string check at read_in_params; invalid value ERROR STOP. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-nspec"></a>`nspec` (integer) | **No safe default** | Number of populations, in original indexed order. Units: count. Values: must be positive; parser lacks explicit complete bounds check. | All modes. Provide every &species_j; species 1 fixes physical reference. **Check:** No comprehensive early count bound check; supply positive nspec and complete indexed species groups. Root-candidate storage is unrelated to species count. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-nscan"></a>`nscan` (integer) | `0` | Number of serial scans or 2D coordinate axes. Units: count. Values: nonnegative; 2 for option=2; option=4 one scan. | 1/2/4; zero for supplied-guess single point. Mixed/cold scans wavevector only. **Check:** 2Drequires2,option4rejects&gt;1 withSTOP; cold profilesrestrict modes; broadnonnegative/count initialization checks incomplete. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-option"></a>`option` (integer) | **No safe default** | Executable workflow selector. Units: enumeration. Values: -1,0,1,2,4,5,6,7; 3 explicitly deprecated. | -1 direct; 0 root map; 1 supplied/map roots + serial scans; 2 grid; 4 repeated maps; 5 radial; 6 gyro FPC; 7 Cartesian FPC. A zero process exit is not proof of valid outputs; deprecated/unsupported paths can STOP with status zero. **Check:** Executable SELECT CASE;3andunrecognizedvaluesSTOP andcanexit0; othermode restrictions invars/scanvalidators. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-nroot_max"></a>`nroot_max` (integer) | **No safe default** | Number of supplied guesses / continued branches, not a guaranteed cap on .roots file lines. Units: count. Values: positive; effective storage ceiling numroots=500, not fully input-validated. | Map searches, supplied roots, scans/FPC. Provide this many guess_N groups when not using a map. Scans continue this many branch slots, not all .roots lines. Candidate storage is internal 500; sorting is not on by default. **Check:** Counts/storage/available-root matching are not comprehensively validated. Supply a positive count within storage and verify actual branches. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-use_map"></a>`use_map` (logical) | **No safe default** | Choose frequency map search versus supplied guesses. Units: logical. Values: .true.  or  .false.. | Options 1/2/5/6/7; option0 maps regardless. Map needs &maps; guesses need indexed &guess_j. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-low_n"></a>`low_n` (logical) | `.true.` | Select extra n=0,+1,-1 harmonic outputs in historical mode blocks. Units: logical. Values: .true.  or  .false.. | Heating scans and selected legacy susceptibility storage. Corrected .energy always includes all seven channels; active generic sweep reader assumes low_n=true. Explicit contour schema supports rectangular low_n=false; legacy orphan records are rejected. **Check:** Logical input. Controls selected harmonic storage/old file blocks, not a new collision model or wave-energy definition. | See group workflow / tests |
+| <a id="param-collision_type"></a>`collision_type` (integer) | `0` | Collision operator selection. Units: enumeration. Values: 0 collisionless; 1 nonconservative Krook; other values STOP. | All-kinetic only for finite rate. Corrected heating requires 0. Legacy collisional diagnostics retained, with outstanding xz/yz questions; not new accuracy claims. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-kn"></a>`Kn` (real) | `1e+30` | Neutral mean free path / selected reference length. Units: Kn_d=Kn_rho\*sqrt(beta_R\*alpha_R). Values: positive physical mean free path ratio; incomplete finite/positivity validation. | All-kinetic collisions. Kn&gt;1e25 gives nu=0; default1e30; nu_d=sqrt(mu\*tau_d)/(sqrt(2)\*Kn_d). nu_ns is derived, not an input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-writeout"></a>`writeOut` (logical) | **No safe default** | Verbosity control for screen output, not a prohibition on files. Units: logical. Values: .true.  or  .false.. | All modes. Independent of use_map in Fortran and Python; warnings remain visible when false. **Check:** Logical namelist parsing; supported numeric results and file output do not depend on this verbosity flag. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-dataname"></a>`dataName` (character(100)) | **No safe default** | Subdirectory under data/ for output. Units: path. Values: existing relative data subdirectory. | All output-producing workflows. Fortran writers generally do not create it; mkdir -p data/&lt;dataName&gt; first. **Check:** Fortrancharacter100 truncation; fileOPEN runtimeerrors ifdirectorymissing; noautomaticdirectorycreation. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-outputname"></a>`outputName` (character(100)) | **No safe default** | Common prefix for mode/maps/metadata outputs. Units: filename component. Values: output basename. | All modes. Files may be overwritten; companion single/scan runs reset prior .energy. **Check:** Fortrancharacter100 truncation; fileOPEN runtimeerrors ifdirectorymissing; noautomaticdirectorycreation. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+
+<a id="species-species_n"></a>
+
+## Species: &species_N
+
+Supply six fields for every indexed population. `tauS=0` selects cold only in d_ref; any positive value remains kinetic. Species ordering is never changed automatically.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-taus"></a>`tauS` (real) | **No safe default** | rho_ref: Tparallel,R/Tparallel,s; d_ref:2\*Tparallel,s/(mR\*vA^2). Units: inverse temperature ratio or Alfvenic temperature. Values: rho_ref &gt;0; d_ref &gt;=0, exact zero cold. | Every species. Exact zero is model selector only in d_ref; negative invalid; no small-temperature threshold. **Check:** Negative tau ERROR STOP; exactlyzero cold selected onlyd_ref; rho cold rejected. Reference consistency and collision/mode restrictions enforced in vars validators. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-mus"></a>`muS` (real) | **No safe default** | Reference/species mass ratio mR/ms. Units: dimensionless. Values: positive. | Every species. Physical reference value should be1; parser warns only for mu1&gt;1+1e-7, not symmetric/terminal. **Check:** &lt;=0 ERROR STOP; reference mu&gt;1+1e-7 printsnonterminalERROR; no symmetric selfratio enforcement. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-alphs"></a>`alphS` (real) | **No safe default** | Species perpendicular/parallel temperature ratio. Units: dimensionless. Values: warm &gt;0; cold ignored. | Every species; cold placeholder irrelevant. Physical alpha_s distinct from auxiliary alpha\*=1; rho_R uses alpha_R. **Check:** Warm&lt;=0 ERROR STOP; cold value deliberately not compared/read by thermal kernel. Finite validation can be deferred to guarded numerical routines. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-qs"></a>`Qs` (real) | **No safe default** | Reference/species charge ratio qR/qs. Units: dimensionless. Values: nonzero, signed. | Every species. Gyrofrequency mu/Q signed; plasma prefactor uses Q^2. No neutrality hard constraint. **Check:** Zero ERROR STOP; signed values retained. Neutrality/current onlywarn. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-ds"></a>`Ds` (real) | **No safe default** | Species/reference density ratio ns/nR. Units: dimensionless. Values: nonnegative physical density; cold references/cold kernels enforce; warm-only validation incomplete. | Every species. Zero density has unavailable relative-density moments; not physically defined zero perturbation. **Check:** Negative cold/reference validation rejects; warm-only parser lacks nonnegative check; guarded response/root may fail later. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+| <a id="param-vvs"></a>`vvS` (real) | **No safe default** | Equilibrium Us/vA,R along B0. Units: Alfven velocity. Values: finite signed parallel drift. | Every species, including species1 with warning. No forced zero-current frame or automatic charge/current balancing. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [adaptive_bessel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in) |
+
+<a id="supplied-frequencies-guess_n"></a>
+
+## Supplied frequencies: &guess_N
+
+Provide one group per requested guess when `use_map=.false.` in root workflows, and for direct option=-1. Only the first frequency is directly evaluated by test_disp.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-g_om"></a>`g_om` (real) | **No safe default** | Real part of supplied frequency. Units: Omega_R. Values: finite supplied frequency guess. | &guess_j, use_map=false; direct option-1 uses first. Secant roots are refined except direct evaluation. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | See group workflow / tests |
+| <a id="param-g_gam"></a>`g_gam` (real) | **No safe default** | Imaginary part of supplied frequency; growth positive. Units: Omega_R. Values: finite, signed. | &guess_j. Strongly damped/growing heating can be qualified/unavailable. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | See group workflow / tests |
+
+<a id="frequency-maps-maps"></a>
+
+## Frequency maps: &maps
+
+Required for option=0/4 or any map-initialized workflow. Use both log flags explicitly; linear maps are recommended. These flags concern the frequency plane, not wavevector scan interpolation.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-loggridw"></a>`loggridw` (logical) | **No safe default** | Select the historical inconsistent logarithmic real-frequency map formula; linear recommended. Units: logical. Values: .true.  or  .false.. | &maps, option0/maps. See Modes for the exact origin/increment equations; bounds are not physical endpoints when true. **Check:** Input warning, no equation change; logarithms require positive real bounds. General bound/order validation is incomplete. | See group workflow / tests |
+| <a id="param-loggridg"></a>`loggridg` (logical) | **No safe default** | Select the historical inconsistent logarithmic imaginary-frequency map formula; linear recommended. Units: logical. Values: .true.  or  .false.. | &maps. Imaginary signs discarded and all resulting nodes negative; see Modes. **Check:** Input warning, no equation change; logarithms require nonzero endpoint magnitudes. General bound validation is incomplete. | See group workflow / tests |
+| <a id="param-omi"></a>`omi` (real) | **No safe default** | Initial real-frequency coordinate for a linear map; historical log origin differs. Units: Omega_R. Values: finite; &gt;0 if log. | &maps. Linear endpoints work; log origin currently exponentiates omi rather than log10(omi). **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-omf"></a>`omf` (real) | **No safe default** | Final real-frequency coordinate for a linear map; historical log endpoint differs. Units: Omega_R. Values: finite; &gt;0 if log. | &maps. Bounds ordering/grid positivity not comprehensively validated. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-gami"></a>`gami` (real) | **No safe default** | Initial signed imaginary-frequency coordinate for a linear map; historical log origin differs. Units: Omega_R, positive growth. Values: finite; nonzero magnitude if log. | &maps. Log mode always negative; intended bounds currently not reproduced. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-gamf"></a>`gamf` (real) | **No safe default** | Final signed imaginary-frequency coordinate for a linear map; historical log endpoint differs. Units: Omega_R. Values: finite; nonzero magnitude if log. | &maps. Same log-origin issue as gami. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-positive_roots"></a>`positive_roots` (logical) | `.false.` | Select candidates with real frequency &gt; -1e-10 after map file writing. Units: logical. Values: .true.  or  .false.. | Map-selected continuation roots. Does not mean positive growth; .roots written before final filter; hard gamma&lt;1 filter also exists. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | See group workflow / tests |
+| <a id="param-nr"></a>`nr` (integer) | `128` | Real-frequency map intervals, generating nr+1 nodes. Units: interval count. Values: positive intended, not fully validated. | &maps. Default128 -&gt;129 nodes; grid has (nr+1)\*(ni+1) rows. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | See group workflow / tests |
+| <a id="param-ni"></a>`ni` (integer) | `128` | Imaginary-frequency map intervals, generating ni+1 nodes. Units: interval count. Values: positive intended, not fully validated. | &maps. Default128 -&gt;129 nodes. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | See group workflow / tests |
+
+<a id="scans-scan_input_n"></a>
+
+## Scans: &scan_input_N
+
+Supply nscan indexed groups for serial scans or exactly two axes for option=2. Defaults for diagnostics reset false for each group; range/style/count controls have no safe default. See [scan mappings](modes.md#serial-wavevector-scans) for the overloaded swi/swf meanings.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-scan_type"></a>`scan_type` (integer) | **No safe default** | Select coordinate inside scan style. Units: enumeration. Values: style-1:0 vector,1 angle,2 magnitude; style0:0 kp,1 kz,2 beta,3 vtp; species:0 tau,1 mu,2 alpha,3 Q,4 D,5 U. | &scan_input_j. Vector swi/swf are final kp/kz; angle uses swi as terminal angle; magnitude uses swf; not generic two endpoints. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-swi"></a>`swi` (real) | **No safe default** | Scan range_i; compound vector/angle overload. Units: native coordinate; angle degrees. Values: coordinate-dependent valid initial/target value. | &scan_input_j. For style-1 vector: target kperp; angle: target theta; initial physical point comes from current plasma state. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-swf"></a>`swf` (real) | **No safe default** | Scan range_f; compound vector/magnitude overload. Units: native coordinate; angle degrees. Values: coordinate-dependent valid final/target value. | &scan_input_j. For style-1 vector: target kpar; magnitude: terminal signed  or k or . **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-swlog"></a>`swlog` (logical) | **No safe default** | Logarithmic or linear continuation coordinate. Units: logical. Values: .true.  or  .false.. | Scans. Log wavevector coordinates require positive endpoints; use linear for negative kpar. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-scan_style"></a>`scan_style` (integer) | **No safe default** | Select family of scan coordinate. Units: enumeration. Values: -1 compound k;0 globals;1..nspec individual species. | Options1/2/4; legacy parameter scans. Mixed/cold allow wavevector scans only. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-ns"></a>`ns` (integer) | **No safe default** | Number of output intervals; normally ns+1 output points. Units: count. Values: positive for wavevector scans. | Scans. Internal steps ns\*nres; hidden substeps can fail without a written point. **Check:** Wavevector scan positivecount andinteger-product overflow checks; older parameter/radial paths lesscomplete. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-nres"></a>`nres` (integer) | **No safe default** | Substeps per output interval. Units: count. Values: positive for wavevector scans. | Scans. Writes when mod(internal_index,nres)=0; companion point is internal index. **Check:** Wavevector scan positivecount andinteger-product overflow checks; older parameter/radial paths lesscomplete. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-heating"></a>`heating` (logical) | `.false.` | Request species absorption and channels; corrected also companion energy. Units: logical. Values: .true.  or  .false.. | Serial/2D, grid scan_input_2. Corrected collisionless wavevector scans only; second-axis flag in 2D. Maps reject corrected and warn/ignore legacy. Cold kinetic slots NaN, warm totals/channels retained. **Check:** Mixed legacy and corrected collisional requests rejected; no heating columns are added to map files. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-eigen"></a>`eigen` (logical) | `.false.` | Request E/B and existing kinetic/cold density/velocity eigenfunctions. Units: logical. Values: .true.  or  .false.. | Serial/2D; grid uses scan_input_2. Serial uses this scan; 2D uses second axis. Map request warns and is ignored. Ex=1 field and per-species moment failures are separate. **Check:** Defaults false per scan group; unavailable values are NaN, not alternate-gauge fields. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+| <a id="param-tensor"></a>`tensor` (logical) | `.false.` | Request six independent complex susceptibility elements per species. Units: ordinary chi. Values: .true.  or  .false.. | Serial/2D output; grid requires BOTH tensor flags. Serial scan flag; 2D requires both axes true. Map requests warn and are ignored. make_scan(..., tensor=False) exposes the independent option. **Check:** No new map tensor format; repeated maps warn. Ordinary species chi is retained in component-major output. | [cold_fields_parallel.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in) |
+
+<a id="fpc-fpc"></a>
+
+## FPC: &fpc
+
+Used by options 6/7 only, in all-kinetic configurations. Grids are historical species-parallel-thermal-speed coordinates; all component bounds and delv should be integer-compatible. FPC normalization and numerical moment closure have caveats; see the [FPC appendix](README-JETPLUME.md). None of these fields enables mixed FPC.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-vperpmin"></a>`vperpmin` (real) | **No safe default** | Velocity-grid minimum for vperp. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vperpmax"></a>`vperpmax` (real) | **No safe default** | Velocity-grid maximum for vperp. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vparmin"></a>`vparmin` (real) | **No safe default** | Velocity-grid minimum for vpar. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vparmax"></a>`vparmax` (real) | **No safe default** | Velocity-grid maximum for vpar. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-delv"></a>`delv` (real) | **No safe default** | FPC velocity-grid spacing. Units: species parallel thermal-speed units in historical FPC grid. Values: positive. | FPC6/7. No comprehensive grid validation; zero spacing can cause invalid arithmetic. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vxmin"></a>`vxmin` (real) | **No safe default** | Velocity-grid minimum for vx. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vxmax"></a>`vxmax` (real) | **No safe default** | Velocity-grid maximum for vx. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vymin"></a>`vymin` (real) | **No safe default** | Velocity-grid minimum for vy. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vymax"></a>`vymax` (real) | **No safe default** | Velocity-grid maximum for vy. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vzmin"></a>`vzmin` (real) | **No safe default** | Velocity-grid minimum for vz. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-vzmax"></a>`vzmax` (real) | **No safe default** | Velocity-grid maximum for vz. Units: species parallel thermal-speed units in historical FPC grid. Values: finite ordered velocity bounds. | FPC option6 gyro or7 Cartesian. All species kinetic; supply bounds explicitly; cold-containing FPC rejected. Header uses solver thermal values even for d_ref input. **Check:** Supply valid finite values; input checks are incomplete. Intended allowed ranges are not a promise of comprehensive early validation. | See group workflow / tests |
+| <a id="param-elecdircontribution"></a>`elecdircontribution` (real) | `0.0` | Debug selection of electric forcing components for FPC. Units: selector. Values: 1 Ex only,2 Ey only,3 Ez only;0/other unchanged. | FPC6/7. Changes a debug diagnostic forcing, not dispersion. Not new mixed FPC support. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | See group workflow / tests |
+
+<a id="experimental-radial-controls"></a>
+
+## Experimental radial controls
+
+The following &radial_input and selected &k_range fields are retained for option=5, not promoted to general mixed-plasma support. All kinetic only; corrected radial heating is rejected. No small standalone public radial model is currently validated as a primary example.
+
+<a id="radial_input"></a>
+
+### &radial_input
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-nrad"></a>`nRad` (integer) | **No safe default** | Number of radial model rows. Units: count. Values: positive required model-row count. | Experimental option5. Requires modelName0.rad and one species table per population. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-nrad_sub"></a>`nRad_sub` (integer) | `1` | Radial interpolation substeps. Units: count. Values: positive intended. | Option5. Default 1; interpolate in selected input variables, not generally invariant between normalizations. **Check:** Read default1; radial_scan silently clamps with max(1,nRad_sub). | Experimental; no primary input |
+| <a id="param-modelname"></a>`modelName` (character(100)) | **No safe default** | Prefix of &lt;modelName&gt;0.rad globals and &lt;modelName&gt;s.rad species tables. Units: path. Values: valid input model basename/path. | Option5. Global rows radius,beta,vtp; species rows radius,tau,mu,alpha,Q,D,U. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-radial_heating"></a>`radial_heating` (logical) | **No safe default** | Request historical radial heating. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-radial_eigen"></a>`radial_eigen` (logical) | **No safe default** | Request radial fields/moments. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-k_scan"></a>`k_scan` (integer) | **No safe default** | Radial wavevector selection:0 fixed,1 kz,2 kp,3 magnitude,4 angle,5 kp/kz plane,6 angle/magnitude plane. Units: enumeration. Values: 0..6. | Option5. Selects different &k_range namelist layouts; cold-containing radial unsupported. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+
+<a id="k_range-choose-the-layout-matching-k_scan"></a>
+
+### &k_range (choose the layout matching k_scan)
+
+These controls belong only to the experimental radial pathway, not ordinary scan_input_N. The layout table below specifies which names may coexist. Angles are degrees; wavevector coordinates use the selected native length.
+
+| Name / type | Default | Definition, units and allowed values | Applicability, dependencies and actual validation | Existing example |
+|---|---|---|---|---|
+| <a id="param-kperp_1"></a>`kperp_1` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-kpar_1"></a>`kpar_1` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-kpar_2"></a>`kpar_2` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-nk"></a>`nK` (integer) | **No safe default** | Radial k_range output interval count for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-kres"></a>`kres` (integer) | **No safe default** | Radial k_range resolution substeps for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-rad_log"></a>`rad_log` (logical) | **No safe default** | Choose logarithmic interpolation for the named radial wavevector coordinate. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-rad_heat"></a>`rad_heat` (logical) | **No safe default** | Request historical radial heating. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-rad_eigen"></a>`rad_eigen` (logical) | **No safe default** | Request radial fields/moments. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-kperp_2"></a>`kperp_2` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-k_1"></a>`k_1` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-k_2"></a>`k_2` (real) | **No safe default** | Initial/final wavevector coordinate in radial k_range layout. Units: native selected k-length convention. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-theta_1"></a>`theta_1` (real) | **No safe default** | Initial/final angle in radial k_range layout. Units: degrees. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-theta_2"></a>`theta_2` (real) | **No safe default** | Initial/final angle in radial k_range layout. Units: degrees. Values: finite; positive if logarithmic. | Option5; k_scan selects active fields. Suffix1 initial/fixed,2 terminal; other fields may be absent for that k_scan layout. **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-nk2"></a>`nk2` (integer) | **No safe default** | Radial k_range output interval count for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-kres2"></a>`kres2` (integer) | **No safe default** | Radial k_range resolution substeps for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-rad_log_perp"></a>`rad_log_perp` (logical) | **No safe default** | Choose logarithmic interpolation for the named radial wavevector coordinate. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-rad_log_par"></a>`rad_log_par` (logical) | **No safe default** | Choose logarithmic interpolation for the named radial wavevector coordinate. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-ntheta"></a>`ntheta` (integer) | **No safe default** | Radial k_range output interval count for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-thetares"></a>`thetares` (integer) | **No safe default** | Radial k_range resolution substeps for its designated coordinate. Units: count. Values: positive intended. | Option5, layout depends on k_scan. Defaults not assigned; nk/nk2 and kres/kres2 for Cartesian axes, ntheta/thetares for angle; model interpolation already separate. **Check:** Counts and storage bounds are not comprehensively validated early; supply valid positive values. Candidate storage 500 is internal, not a validated public upper bound. | Experimental; no primary input |
+| <a id="param-rad_log_k"></a>`rad_log_k` (logical) | **No safe default** | Choose logarithmic interpolation for the named radial wavevector coordinate. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+| <a id="param-rad_log_theta"></a>`rad_log_theta` (logical) | **No safe default** | Choose logarithmic interpolation for the named radial wavevector coordinate. Units: logical. Values: .true.  or  .false.. | Experimental radial option5. Corrected radial_heating rejected; use legacy all-kinetic; k_range rad_heat/rad_eigen are read but are not assigned to scan diagnostic fields (global radial flags control output). **Check:** Fortran namelist type parsing; no additional comprehensive range/finiteness/semantic check identified beyond the cited dependencies. | Experimental; no primary input |
+
+| k_scan | Required k_range layout |
+|---|---|
+| 0, fixed vector | kperp_1, kpar_1 |
+| 1, fixed kperp / varying kpar | kperp_1, kpar_1, kpar_2, nK, kres, rad_log, rad_heat, rad_eigen |
+| 2, fixed kpar / varying kperp | kperp_1, kperp_2, kpar_1, nK, kres, rad_log, rad_heat, rad_eigen |
+| 3, fixed angle / varying magnitude | k_1, k_2, theta_1, nK, kres, rad_log, rad_heat, rad_eigen |
+| 4, fixed magnitude / varying angle | k_1, theta_1, theta_2, nK, kres, rad_log, rad_heat, rad_eigen |
+| 5, Cartesian plane | kperp_1, kperp_2, kpar_1, kpar_2, nk, kres, nk2, kres2, rad_log_perp, rad_log_par, rad_heat, rad_eigen |
+| 6, polar plane | k_1, k_2, theta_1, theta_2, nk, kres, ntheta, thetares, rad_log_k, rad_log_theta, rad_heat, rad_eigen |
+
+`nK` and `nk` are the same case-insensitive parameter. Model tables contain
+radius in the first column, then beta/vtp in modelName0.rad or the six species
+parameters in modelNameN.rad. nRad sets rows, nRad_sub interpolation substeps.
+radial_eigen/radial_heating concern radial continuation; rad_eigen/rad_heat are
+stored on the auxiliary wavevector-range scan. This historical two-level
+interface has no primary curated example and should not be generalized without
+separate validation. The existing synthetic radial test is the developer reference.
+
+<a id="interactions-and-validation-gaps"></a>
+
+## Interactions and validation gaps
+
+- Cold-containing inputs require d_ref, collision_type=0, no FPC, and only
+  supported wavevector scans. Cold references require betap=0; warm d_ref
+  references require tauS_1=betap within the implemented relative comparison.
+- Warm-reference adaptation needs positive reference beta, vtp and physical
+  anisotropy. Cold anisotropy is ignored; it must not create thermal scales.
+- Modern selectors and Bessel count/tolerance bounds are checked explicitly.
+  Many old finite/count/storage/bound/Kn/FPC-grid checks remain incomplete.
+  An accepted file or exit code is not proof of a supported physical workflow.
+- Self mass/charge/density ratios are a user consistency responsibility; the old
+  mass-ratio warning is nonterminal and not a comprehensive reference check.
+  Charge neutrality, zero current and reference drift are warning-only, not
+  imposed equilibrium constraints.
+- All-kinetic kperp=0 warns but remains unsupported. Every wavevector scan excludes
+  kpar=0, including hidden points. Do not replace it with an arbitrary small floor.
+- Map eigen/tensor and legacy heating requests warn and remain ignored;
+  corrected map heating is rejected. See [Modes](modes.md) rather than assuming
+  that a flag implies a diagnostic file exists.
+
+<a id="python-wrapper-contract"></a>
+
+## Python wrapper contract
+
+`linfpclib.linfpc.plume_input` supports the scalar params/species/maps/scan/guess/
+fpc groups above. It preserves low_n, both log flags, nr/ni, tensor and all
+Cartesian FPC bounds on read/write roundtrips. `writeOut` is independent of
+`use_map`, and `positive_roots` is independent of `loggridw`.
 
 `set_maps(loggridw, omi, omf, gami, gamf, positive_roots,
-loggridg=False, nr=128, ni=128)` keeps its historical first six arguments and
-adds independent optional settings. `make_scan(..., tensor=False)` preserves
-the tensor switch.
+loggridg=False, nr=128, ni=128)` retains its historical first six arguments.
+`make_scan(..., tensor=False)` adds an optional tensor flag. Logical values
+in wrapper dictionaries use canonical Fortran strings. Quoted paths, comments,
+D exponents and scalar logical variants are supported.
 
-Exact-parallel **all-kinetic** runs (`kperp=0`) retain their historical
-unsupported behavior and now warn once. No perpendicular floor is applied.
-Mixed/cold analytic parallel limits remain available. Frequency maps do not
-write eigenfunction or tensor diagnostics: requested flags now warn rather
-than silently disappearing. Legacy map heating likewise warns and remains
-absent. Corrected map heating retains its existing rejection. These warnings
-preserve accepted legacy workflows; successful process exit alone does not
-establish a valid unsupported calculation.
+`load_from_file` replaces prior indexed state, preserves an explicit dataName,
+and rejects unknown fields/unsupported groups or array/expression syntax instead
+of silently dropping controls. Assign `obj.dataname` **after loading** to redirect
+output. `write_input` still takes an explicit outputname. Radial/k_range groups
+are not supported by this wrapper. It is not a general Fortran namelist parser.
+Examples and executable reader code are on [Output](output.md#python-workflows).

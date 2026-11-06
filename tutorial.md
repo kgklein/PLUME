@@ -1,81 +1,152 @@
-# PLUME Tutorial
+<a id="quick-start-a-small-mixed-plasma-wave"></a>
 
-This is a tutorial for PLUME.
-It will guide you through the setting up of some basic input files, the running of the code, and the basic output.
-For more details, we refer to the [PLUME Input](input.md) page and the [PLUME Output](output.md) pages.
+# Quick Start: a small mixed-plasma wave
 
-## Authors
+[Manual home](./) · [Installation](INSTALL.md) · [Input reference](input.md)
 
-Kristopher Klein   (kgklein@arizona.edu)  
-Gregory Howes      (gregory-howes@uiowa.edu)
+The first calculation should be small enough to inspect. We use the existing
+[mixed_fields_warm_reference.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_fields_warm_reference.in):
+a warm proton reference and cold electrons, an oblique wavevector, one supplied
+complex-frequency guess, and three written scan points. There is no map search,
+heating request, or FPC calculation in this example.
 
-## Contents
+<a id="1-build-and-run"></a>
 
-1. Before getting started
-2. Installing PLUME
-3. Running PLUME
-4. Visualizing Results
+## 1. Build and run
 
+From the repository root:
 
-## 1. Before getting started
-
-Before starting with the steps described in this tutorial, we recommend that you familiarise yourself with the code paper.
-
-[Klein, K. G., Howes, G. G.,
-and Brown, C. R., 2025](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
-
-You don't need to go through all details, but it is certainly helpful to know what PLUME does and doesn't calculate.
-The code paper also explains the numerical techniques used in the code.
-We also recommend checking the [Readme](../README.md) file.
-
-## 2. Installing PLUME
-
-This tutorial assumes that you have a working copy of PLUME on your computer, including all the required dependencies. You can find the installation guide [here](../INSTALL.md). Make sure you have a version of PLUME that compiled completely without error messages after typing.
-
->     make
-
-## 3. Running PLUME
-
-For our first case, consider a simple scan over $k_\parallel \rho_{ref}$ for four solutions, the Slow, Alfven, Fast, and "entropy" (SAFE) modes.
-
-These modes will be identified first by a map scan over a prescribed range of complex frequencies, and then followed along a logirithmic scan of $k_\parallel \rho_{ref}$ values.
-```
-./plume.e inputs/example/example_map_par.in
+```bash
+make -j2
+mkdir -p data/example
+./plume.e inputs/example/mixed_fields_warm_reference.in
 ```
 
-You can run this entire routine by moving to the
-```
-inputs/example
-```
-subdirectory and running the `run_example.sh` executable.
+The input directory must be writable for the indexed-namelist scratch file.
+The supplied example has `writeOut=.true.`, so it also prints root information.
+The primary file is:
 
-A similar calculation, with a map scan over a prescribed range of complex frequencies, and then followed along a logirithmic scan of $k_\perp \rho_{ref}$ values, can be performed via
 ```
-./plume.e inputs/example/example_map_perp.in
+data/example/mixed_fields_warm_reference_kpar_60_90.mode1
 ```
 
-To illustrate a double scan over a plane in $|k| \rho_{ref}$ and $\theta$, run
-```
-./plume.e inputs/example/example_guess_double.in
-```
-which will vary the two parameters in tandem.
+The integer filename tags encode endpoints, not the physical wavevector units;
+read the numeric columns and matching input. Metadata include
+`normalization_mixed_fields_warm_reference.txt` and
+`mixed_fields_warm_reference.bessel`. The exact normalization metadata filename
+is documented in the [output reference](output.md#metadata).
 
-## 4. Visualizing Results
+<a id="2-read-the-input-in-physical-terms"></a>
 
-Assuming you have gnuplot installed on your computer, move to the
-```
-plotter/example
-```
-subdirectory and run
-```
-./cycle.sh
-```
-which executes a bash script to plot the dispersion surface map and identified solutions from the `example_map_par.in` calculation.
+## 2. Read the input in physical terms
 
-If you would like to see the $k_\parallel \rho_p$ scans of the four identified solutions, 
-uncomment out the
+This compact rendering has the same essential state and scan as the existing
+example; its optional Bessel diagnostics are omitted here for readability:
+
+```fortran
+&params
+normalization='d_ref', betap=.4, vtp=.01
+kperp=.05, kpar=.06
+nspec=2, nscan=1, option=1, nroot_max=1
+use_map=.false., writeOut=.true.
+dataName='example', outputName='mixed_fields_warm_reference'
+/
+&species_1
+ tauS=.4, muS=1, alphS=1.3, Qs=1, Ds=1, vvS=0
+/
+&species_2
+ tauS=0, muS=1836, alphS=0, Qs=-1, Ds=1, vvS=0
+/
+&guess_1
+ g_om=.06, g_gam=-.0001
+/
+&scan_input_1
+ scan_style=0, scan_type=1, swi=.06, swf=.09
+ ns=2, nres=2, swlog=.false.
+ eigen=.true., heating=.false., tensor=.false.
+/
 ```
-input='example_kpar'
+
+Keep each indexed `&species_N`, `&guess_N` and `&scan_input_N` header **alone on
+its own line**, in lowercase. The Fortran extractor is more restrictive than
+ordinary case-insensitive namelist field syntax.
+
+Here `vtp=.01` means \(a=v_{A,R}/c=.01\), and `kpar`/`kperp` mean
+\(k_\parallel d_R\), \(k_\perp d_R\). The warm proton `tauS=.4` is its
+Alfvénic parallel temperature and equals reference `betap`. Electron `tauS=0`
+selects a true cold-fluid response; its anisotropy placeholder is ignored.
+Signed `Qs=-1` gives negative electron gyrofrequency. Neither cold-electron
+inertia nor the full electromagnetic response is discarded.
+
+`option=1` refines the guess and then continues a branch through serial scans.
+`ns=2` means **two output intervals, three written points**. `nres=2` inserts
+hidden continuation substeps. The written parallel coordinates are .06, .075,
+.09; the physical plasma state and perpendicular coordinate remain fixed.
+The default Z backend is Faddeeva, Bessel selection is adaptive, and the
+heating convention is corrected, independently of one another.
+
+<a id="3-inspect-the-first-result"></a>
+
+## 3. Inspect the first result
+
+For the unchanged example, a locally verified first row gives approximately
+
+\[
+ w=\frac{\omega}{\Omega_R}=0.06153842-5.564326\times10^{-6}i.
+\]
+
+The negative imaginary part means damping with time, not spatial attenuation.
+This is a benchmark at the printed precision, not an input or a promised exact
+frequency for other plasma states. The run should produce three rows with
+finite frequencies, no `scan root failed` warning, and finite E/B/moments.
+Process exit zero alone does not certify a valid mode or branch.
+
+The file has 46 columns: six coordinates/root entries, 12 field entries,
+16 moment entries and 12 species parameters. Columns 1–6 (one-based) are native
+kperp, kpar, betap, vtp, real frequency, imaginary frequency. Columns 7–12 are
+B real/imaginary pairs; 13–18 are E pairs. The remaining blocks are described
+without hard-coded species assumptions in the [output schema](output.md#mode-files).
+
+<a id="4-read-with-python"></a>
+
+## 4. Read with Python
+
+```python
+import numpy as np
+from linfpclib.linfpc import load_plume_sweep
+
+path = 'data/example/mixed_fields_warm_reference_kpar_60_90.mode1'
+d = load_plume_sweep(path, nspec=2, eigen=True, heating=False)
+w = d['w'] + 1j*d['g']
+print(w)
+assert len(w) == 3 and np.isfinite(w).all()
+print('Ex:', d['exr'][0] + 1j*d['exi'][0])  # 1+0j
 ```
-line in `cycle.sh` and rerun the script.
-This will construct a plot of $\omega_{r}}/\Omega_p$ (top row), $\gamma/Omega_p$ (second row), $\gamma_p/\omega_{r}$ (third row), $\gamma_e/\omega_{r}$ (fourth row), and the degree of elliptical polarization of the $x$ and $y$ components of the electric field.
+
+The Ex=1 convention fixes complex amplitude and phase. E is divided by deltaEx,
+B by the same deltaEx in Gaussian units; species velocities are not divided by
+a thermal speed. See [Eigenfunctions and moments](eigenfunctions.md) before
+comparing these amplitudes with dimensional observations.
+
+Use explicit reader switches. Extra columns at the end can be species
+parameters, not heating. This example has no kinetic heating block and no
+corrected `.energy` record. A cold population is not a zero-heating measurement.
+
+<a id="5-make-the-next-calculation-deliberately"></a>
+
+## 5. Make the next calculation deliberately
+
+- For all-kinetic absorption and wave energy, run
+  `./plume.e inputs/example/heating_corrected_kinetic.in` and inspect its
+  `.energy` companion, as explained in [Heating and wave energy](heating.md).
+- For a cold physical reference, run
+  `./plume.e inputs/example/mixed_fields_cold_reference.in`.
+- For equivalent physical inputs in both normalizations, use the
+  [matched pair](normalization.md#worked-equivalent-inputs).
+- For maps or 2D scans, read [Calculation modes](modes.md) and use the
+  [examples index](examples.md); do not start with the large historical grid.
+
+If no file appears, check the working directory, `dataName`, flags and workflow.
+For NaNs or missing eigenfunctions, inspect warnings and diagnostic statuses;
+[troubleshooting](limitations.md) distinguishes a bad root from an unavailable
+supplementary quantity.

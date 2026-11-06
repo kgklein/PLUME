@@ -1,165 +1,215 @@
-# Dual normalization: source audit and implementation report
+<a id="normalization-and-physical-units"></a>
 
-Historical report. [Stage 3B.2](tests/COLD_REFERENCE_MIXED_REPORT.md) now supports cold-reference
-mixtures containing warm species; historical measurements below are retained.
+# Normalization and physical units
 
-This report records the original dual-normalization stage. Stage 2 now permits
-non-reference cold species in collisionless `d_ref` dispersion calculations;
-the adapter skips their zero temperatures. See the current [input guide](input.md)
-and [mixed-dispersion report](tests/MIXED_DISPERSION_REPORT.md) for supported
-functionality. The original validation results below remain historical records.
+[Manual home](./) · [Input reference](input.md) · [Species models](models.md)
 
-Stage 3A adds a fully cold path that bypasses the adapter altogether, using
-`d_ref` with `betap=0`. Its scope and tests are recorded in the
-[fully cold report](tests/FULLY_COLD_DISPERSION_REPORT.md); cold-reference
-mixtures containing warm species remain deferred to Stage 3B.
+This page defines the physical symbols used throughout the manual. Temperatures
+are energies (Boltzmann's constant is absorbed into T). Electromagnetic formulas
+use Gaussian units. The equilibrium is homogeneous, with
+\(\mathbf B_0=B_0\hat{\mathbf z}\) and
+\(\mathbf k=(k_\perp,0,k_\parallel)\). Time dependence is
+\(\exp(-i\omega t)\); \(\omega=\omega_r+i\gamma\) grows when \(\gamma>0\).
 
-PLUME accepts `rho_ref` and `d_ref` inputs while retaining the finite-temperature
-kinetic calculation in its existing variables. The parameter definitions and a
-matched input pair are documented in [README.md](README.md) and [input.md](input.md).
+<a id="reference-scales"></a>
 
-## Source audit
+## Reference scales
 
-| Subsystem | Findings |
-| --- | --- |
-| Parameter storage and input | `src/vars.f90` declares global parameters, the `specie` type, and scan state. `read_in_params` and `spec_read` in `src/functions.f90` read `&params` and indexed species namelists. Validation precedes kinetic evaluation. |
-| Reference species | Species 1 supplies the reference anisotropy and reference frame checks. The Python wrapper likewise assumes species 1 is the reference. No new reference selector was introduced. |
-| Susceptibility | `disp0` and `disp1` in `src/disprels.f90` implement collisionless and weakly collisional kinetic responses. Both use `betap/vtp**2` for the plasma-frequency scale, signed `muS/Qs` for gyrofrequency, thermal Bessel arguments, and thermal resonance arguments. |
-| Dispersion and roots | `disp` dispatches the susceptibility calculation. `map_search`, `refine_guess`, and `rtsec` use dimensionless frequency `omega/Omega_R`. The determinant and susceptibility are identical for physically equivalent inputs. |
-| Eigenfunctions and heating | `calc_eigen` uses the wave tensor, susceptibility, and derived thermal state for fields, density, velocity, total heating, and seven resonance heating channels. Its finite-frequency derivative calculation is unchanged. |
-| Diagnostics | `src/fpc.f90` uses thermal velocities for gyrotropic and Cartesian distributions and correlations. Its file headers describe derived legacy parameters even for a `d_ref` input. The public single-frequency diagnostic uses the same derived state. |
-| Scans | `om_scan`, `om_double_scan`, and `map_scan` mutate input parameters through scan pointers. Their setup helpers cover both wavevectors, magnitude/angle, beta, global velocity, and all six species parameters. `read_radial_input` reads `.rad` tables; `radial_scan` interpolates their values and continues roots through wavevector scans. |
-| Python | `linfpclib/linfpc.py` constructs and reads namelists, computes collision frequencies, and loads numeric outputs. `contours/plot_plume_resonances.py` interprets temperature widths, drift/resonance velocities, and wavevector labels. |
-
-The existing gyroradius is **perpendicular**:
-`rho_R = v_tperp,R / abs(Omega_R)`. For an anisotropic reference,
+PLUME uses `species_1` as reference R; there is no reference-index input.
+Use the usual positive reference gyrofrequency scale (a positive reference
+charge and B0), retaining signed charge ratios for other populations. Define
 
 \[
-k d_R=\frac{k\rho_R}{\sqrt{\beta_{\parallel,R}\alpha_R}},\qquad
-\alpha_R=T_{\perp,R}/T_{\parallel,R}.
+ \Omega_R=\frac{q_R B_0}{m_R c},\qquad
+ \omega_{pR}^2=\frac{4\pi n_R q_R^2}{m_R},\qquad
+ v_{A,R}=\frac{B_0}{\sqrt{4\pi n_R m_R}},\qquad
+ d_R=\frac{c}{\omega_{pR}}=\frac{v_{A,R}}{\Omega_R}.
 \]
 
-Omitting the anisotropy factor changes the physical system when `alphS` for
-species 1 differs from unity. The sign of `Qs` is retained in cyclotron terms;
-plasma-frequency magnitudes use `Qs**2`.
-
-Temperature-sensitive expressions include the Bessel argument proportional to
-`1/tauS`, the thermal resonance argument, the drift factor
-`kpar*vvS/sqrt(betap*alpha_R)`, eigenfunction factors `vtp**2/betap`, and FPC
-factors containing `sqrt(tauS/(muS*betap))`. None is a cold susceptibility.
-Zero and negative kinetic temperatures are rejected before evaluating them.
-
-## Architecture and scan semantics
-
-Approach A was selected for this stage. It requires fewer changes than
-rewriting both susceptibility kernels and their diagnostics in inertial units,
-and retains the legacy floating-point expressions. Approach B would avoid a
-thermal adapter at very small beta and offer a more direct cold-reference path,
-but would change substantially more numerical code.
-
-The public globals remain the authoritative input state in the chosen
-convention. `sync_solver_state` derives `solver_*` values before every `disp`
-evaluation. Susceptibility, eigenfunction, and FPC routines read that derived
-state. In `rho_ref`, the adapter copies inputs without changing their values.
-In `d_ref`, it uses
+Here c is light speed, m_R, q_R and n_R set the reference mass, charge and
+number-density scales. For the thermal reference define
 
 \[
-k\rho_R=(kd_R)\sqrt{\beta_R\alpha_R},\qquad
-v_{t\parallel,R}/c=\sqrt{\beta_R}\,(v_{A,R}/c),\qquad
-\tau_s^{(\rho)}=\beta_R/\tau_s^{(d)}.
+ v_{t\parallel,R}=\sqrt{\frac{2T_{\parallel,R}}{m_R}},\quad
+ \alpha_R=\frac{T_{\perp,R}}{T_{\parallel,R}},\quad
+ \rho_R=\frac{v_{t\perp,R}}{|\Omega_R|},\quad
+ \beta_R=\frac{8\pi n_R T_{\parallel,R}}{B_0^2}.
 \]
 
-The input state can represent zero temperature independently of a thermal
-reference length. This release's kinetic adapter deliberately rejects it. A
-future cold-reference calculation must dispatch before this adapter rather than
-create a fictitious reference temperature. Extremely small positive beta still
-inherits the conditioning limits of the legacy thermal calculation.
+The historical gyroradius uses the **perpendicular** thermal speed. Thus
+\(v_{t\parallel,R}/v_{A,R}=\sqrt{\beta_R}\) and
+\(\rho_R/d_R=\sqrt{\beta_R\alpha_R}\) for a finite-temperature reference.
+PLUME's Alfvén speed uses reference density/mass, not the mixture's total mass
+density. Do not substitute a total-mixture Alfvén speed without converting
+all normalized inputs.
 
-`d_ref` beta scans and species-1 temperature scans update both redundant
-parameters. Other input values stay fixed. Scanning both independently in a
-two-dimensional run is rejected. A legacy beta scan instead holds its legacy
-wavevectors, thermal velocity, and temperature ratios fixed. To compare those
-physical paths, convert **every point**, including all affected inputs.
-Radial tables use the selected input convention; linear interpolation of
-reciprocal temperatures in one convention generally differs from linear
-interpolation in the other. Matching endpoints alone does not establish an
-identical interpolated physical path.
+<a id="inputs-in-the-two-conventions"></a>
 
-`Kn` uses the selected length. With
-`Kn_d = Kn_rho * sqrt(beta_R*alpha_R)`, the equivalent collision frequency is
-`sqrt(muS*tauS_d)/(sqrt(2)*Kn_d)`. Numeric scan output remains in input units.
-FPC output retains its documented derived thermal units. Reusing an output name
-for a legacy run removes a stale `d_ref` metadata file.
+## Inputs in the two conventions
 
-## Verification
+Use `normalization='rho_ref'` (default) or `'d_ref'` in `&params`. Let
+\(w=\omega/\Omega_R\), \(a=v_{A,R}/c\),
+\(K_j=k_j\rho_R\), and \(\kappa_j=k_jd_R\), with j parallel or perpendicular.
+For a physical population s, use \(\mu_s=m_R/m_s\),
+\(Q_s=q_R/q_s\) (signed), \(D_s=n_s/n_R\),
+\(u_s=U_s/v_{A,R}\), and \(\alpha_s=T_{\perp,s}/T_{\parallel,s}\).
 
-Run the available automated suite with:
+| Input | `rho_ref` | `d_ref` |
+|---|---|---|
+| `betap` | Reference parallel beta, beta_R | Same; zero for a cold reference |
+| `kperp`, `kpar` | K_perp, K_parallel | kappa_perp, kappa_parallel |
+| `vtp` | v_tparallel,R/c | a=v_A,R/c |
+| `tauS` | tau_rho,s=T_parallel,R/T_parallel,s | theta_s=2T_parallel,s/(m_R v_A,R^2) |
+| `muS` | m_R/m_s | Same |
+| `Qs` | q_R/q_s, signed | Same |
+| `Ds` | n_s/n_R | Same |
+| `alphS` | T_perp,s/T_parallel,s | Same for warm species; ignored for cold |
+| `vvS` | u_s=U_s/v_A,R | Same; never thermal-speed-normalized |
+| `g_om`, `g_gam` | omega_r/Omega_R, gamma/Omega_R | Same |
+| `Kn` | Neutral mean free path/rho_R | Neutral mean free path/d_R |
 
-```sh
-make -j2
-MPLCONFIGDIR=/tmp/plume-mpl python3 -m unittest discover -s tests -p 'test_*.py' -v
+Use theta_s as a symbol for d_ref `tauS` in this manual to avoid confusing a
+physical temperature with the inverse ratio in rho_ref. Both are the same
+Fortran input name. Ordinary self ratios for a physical reference population
+are mu_1=Q_1=D_1=1. The solver does not comprehensively enforce self-ratio or
+reference-density consistency; unusual component decompositions require a
+clearly specified reference density. They do not cause automatic renormalization.
+
+For d_ref the physical thermal and species frequency relations are
+
+\[
+ \frac{v_{t\parallel,s}^2}{v_{A,R}^2}=\mu_s\theta_s,\quad
+ \beta_{\parallel,s}=D_s\theta_s,\quad
+ \frac{\Omega_s}{\Omega_R}=\frac{\mu_s}{Q_s},\quad
+ \frac{\omega_{ps}^2}{\Omega_R^2}=\frac{D_s\mu_s}{Q_s^2a^2}.
+\]
+
+The Doppler-shifted frequency is \(\delta_s=w-\kappa_\parallel u_s\).
+The gyrofrequency is signed; the plasma-frequency coefficient uses Q_s squared.
+These definitions apply to kinetic and cold species. theta_s=0 means cold fluid,
+not a small positive kinetic temperature.
+
+<a id="converting-equivalent-physical-states"></a>
+
+## Converting equivalent physical states
+
+When beta_R>0 and alpha_R>0,
+
+\[
+ K_j=\kappa_j\sqrt{\beta_R\alpha_R},\qquad
+ \mathrm{vtp}_{\rho}=a\sqrt{\beta_R},\qquad
+ \tau_s^{(\rho)}=\frac{\beta_R}{\theta_s}.
+\]
+
+Keep mu_s, Q_s, D_s, alpha_s, u_s and w unchanged. In particular, converting
+only the wavevector by sqrt(beta_R) is wrong unless alpha_R=1. Matching collision
+frequencies additionally requires
+\(\mathrm{Kn}_d=\mathrm{Kn}_\rho\sqrt{\beta_R\alpha_R}\).
+The existing derived rates are
+
+\[
+ \frac{\nu_s}{\Omega_R}=\frac{1}{\sqrt{2}\,\mathrm{Kn}_\rho}
+       \sqrt{\frac{\mu_s}{\tau_s^{(\rho)}\alpha_R}}
+   =\frac{\sqrt{\mu_s\theta_s}}{\sqrt{2}\,\mathrm{Kn}_d}.
+\]
+
+These rates belong only to the restricted all-kinetic Krook implementation;
+none of these conversions enables cold collisions.
+
+<a id="worked-equivalent-inputs"></a>
+
+### Worked equivalent inputs
+
+The unchanged
+[normalization_rho_ref.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_rho_ref.in)
+and [normalization_d_ref.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_d_ref.in)
+represent a proton/electron system with beta_R=.4, alpha_R=1.5,
+a=1e-4, alpha_e=1, u_e=.02, and theta_e=.2.
+
+| Quantity | rho_ref input | d_ref input |
+|---|---:|---:|
+| Initial kperp | .03872983346207417 | .05 |
+| Initial kpar | .046475800154489 | .06 |
+| vtp | .00006324555320336759 | .0001 |
+| Proton tauS | 1 | .4 |
+| Electron tauS | 2 | .2 |
+| Final scanned kpar | .06196773353931867 | .08 |
+
+The length ratio is sqrt(.4*1.5)=sqrt(.6), not sqrt(.4).
+Run both from the repository root:
+
+```bash
+mkdir -p data/example
+./plume.e inputs/example/normalization_rho_ref.in
+./plume.e inputs/example/normalization_d_ref.in
 ```
 
-The suite compares raw complex determinants, every susceptibility element,
-electric/magnetic fields, polarization, density/velocity fluctuations, heating
-and all seven heating channels, and converged complex roots. Cases include
-isotropic and anisotropic proton/electron plasmas, electron drift, drifting
-alpha particles, oblique propagation, and reference beta 1, 0.3, and 0.02.
-Root checks also require convergence before the secant iteration limit and a
-scaled determinant below `1e-8`.
+Both first mode rows give, at printed precision,
+\(w=0.06024424-0.0004186511i\). All three written roots match between the two
+representations. Their native wavevector and vtp columns differ by the factors
+above. Convert those columns before overlaying curves. These example files
+omit the numerical selectors and therefore use current defaults, not a
+historical-release numerical convention.
 
-Integration checks cover parallel/perpendicular wavevector scans,
-two-dimensional scans, frequency maps, beta scans converted point by point,
-velocity and species-temperature scans, radial interpolation, both FPC
-coordinate systems, weak collisions, example inputs, Python round trips, input
-validation, and metadata when an output name is reused.
+<a id="scan-paths"></a>
 
-High-precision comparisons use `1e-10 + 5e-8*max(abs(a),abs(b))`. Rounded mode
-files use `1e-4*max(1,abs(a),abs(b))`; FPC files use their printed precision.
-The existing map fixtures contain singular grid points, so the map comparison
-requires finite values in its nonsingular test grid.
+### Scan paths
 
-The completed automated run passes **15 tests**. Across the high-precision
-equivalence cases, the maximum `abs(a-b)/max(1,abs(a),abs(b))` is `4.668e-13`;
-the maximum absolute difference in a frequency component is `6.939e-18`.
-The legacy probe comparison is exact. Python compilation and `git diff --check`
-also pass. FORD is not installed in the local environment, so its rendered
-documentation build was not run locally; the report is included in the existing
-documentation workflow.
+A beta-only d_ref scan fixes native kappa, a and other theta_s; changing beta_R
+also updates theta_1. A reference theta_1 scan updates beta_R in return. Varying
+both independently in a 2D scan is rejected. A beta-only rho_ref scan instead
+holds legacy K, vtp and inverse temperature ratios fixed. Thus a beta-only scan
+in the two conventions traces different physical systems. Convert every point,
+including endpoint and interpolation rules, before making a physical comparison.
 
-Legacy regression builds commit
-`c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20`, the last pre-normalization revision,
-and requires exact probe records for two existing input files. The reference
-commit is pinned so merging this feature cannot turn the test into a comparison
-against itself. Existing expected data files are not modified.
+<a id="cold-references-and-the-auxiliary-thermal-scale"></a>
 
-The full-resolution `example_map_par.in` was also run in isolation during the
-initial implementation: its dispersion map and all four mode files matched the
-pre-change build byte for byte. The first six `.roots` columns matched exactly.
-Some remaining legacy `.roots` species columns differ because the old
-non-map-scan path writes an uninitialized parameter array. The new `d_ref` path
-initializes those columns. The tracked golden files additionally correspond to
-older input ranges and do not reproduce the current example; they were retained.
+## Cold references and the auxiliary thermal scale
 
-## Modified files and future cold-fluid requirements
+Cold-containing calculations require d_ref. For a cold reference use
+`betap=0` and species_1 `tauS=0`. All species may be cold, or some may be kinetic.
+No physical reference thermal speed or gyroradius exists in that limit; d_R,
+v_A,R and Omega_R remain finite.
 
-The initial implementation changed `src/vars.f90`, `src/functions.f90`,
-`src/disprels.f90`, `src/fpc.f90`, `linfpclib/linfpc.py`, and
-`contours/plot_plume_resonances.py`. It added the Fortran probe, Python test suite,
-and matched example pair, and updated README, input/output documentation, FORD
-source comments, and `.gitignore`. This follow-up pins the regression baseline,
-extends path coverage, fixes the single-frequency heating array allocation,
-aligns Python's beta/temperature tolerance with Fortran, and completes this
-report.
+For warm species with a cold reference, the existing kinetic algebra uses an
+internal positive scale b_star selected from the **first warm species'** theta.
+It constructs auxiliary beta B=b_star, thermal velocity over c, V=a sqrt(b_star),
+wavevector K_star=kappa sqrt(b_star), inverse temperature t_s=b_star/theta_s,
+and normalization anisotropy alpha_star=1. The physical alpha_s is unchanged.
+These factors cancel from physical resonance arguments, Bessel arguments,
+frequency prefactors and output amplitudes. This is a coordinate transformation,
+not an added species, fictitious physical temperature, new pressure or new
+reference frame. Fully cold calculations bypass thermal conversion entirely.
 
-The future cold-fluid stage must:
+There is no public b_star/auxiliary-temperature namelist control. Reordering warm
+non-reference populations can change the internally chosen scale; results should
+remain physically equivalent within the documented numerical conditioning.
 
-- Add cold susceptibility and dispatch each species to its kinetic or fluid response.
-- Permit `tauS=0` and `betap=0` through a path independent of the thermal adapter,
-  including a fully cold proton/electron plasma.
-- Define cold-species eigenfunction, heating, collision, and FPC behavior;
-  thermal distributions and temperature anisotropy are undefined for a cold species.
-- Extend scan, diagnostic, and limiting-case tests across mixed kinetic/fluid
-  systems and cold reference species without adding an artificial temperature.
+<a id="diagnostic-units"></a>
 
-No cold susceptibility has been added in this stage.
+## Diagnostic units
+
+Let E=deltaE/deltaEx, B=deltaB/deltaEx and e0=deltaEx/B0. The Ex=1 gauge fixes
+the shared phase/amplitude convention. Then
+
+\[
+ w\mathbf B=\frac{\boldsymbol\kappa\times\mathbf E}{a},\qquad
+ \mathbf v_s=\frac{\delta\mathbf U_s}{c e_0},\qquad
+ \eta_s=\frac{\delta n_s/n_{0s}}{e_0}.
+\]
+
+E and B are Gaussian field ratios; species velocities are **not** v_A-normalized
+or thermal-speed-normalized. Density uses each species' own equilibrium n0s.
+The physical moments follow by multiplying v_s by c e0 and eta_s by n0s e0.
+All amplitudes can be complex. For drifting populations the current is
+q_s(n0s deltaU_s+delta n_s U_s zhat), not just q_s n0s deltaU_s.
+
+Corrected heating uses dimensionless Ps_s=Im(E-dagger chi_s E)/H. Formal energy
+is W=abs(deltaEx)^2 H/(16 pi); H has separate vacuum electric, magnetic and
+species terms. Their full definitions and applicability live on
+[Heating and wave energy](heating.md), rather than being repeated in every
+input/output table. FPC grids/header variables retain historical thermal units
+and are a separate contract; see the [FPC appendix](README-JETPLUME.md).
+
+The earlier normalization implementation audit is preserved as
+[historical evidence](https://github.com/kgklein/PLUME/blob/main/tests/NORMALIZATION_IMPLEMENTATION_HISTORY.md).
