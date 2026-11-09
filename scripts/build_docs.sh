@@ -124,11 +124,9 @@ try:
                 title = re.search(r'^# (.+)$', text, re.M)
                 if not title:
                     raise RuntimeError(f'Missing page title: {name}')
-                label = 'Plasma Models' if name == 'models.md' else title[1]
+                label = 'Plasma Models' if source.name == 'models.md' else title[1]
                 text = f'title: {label}\n\n' + text
             (pages / source.name).write_text(convert_links(text))
-        for name in ('PLUME_logo.png', 'qrcode_plume_github.png', 'Jet-Plume_Logo.svg'):
-            shutil.copy2(root / name, pages / name)
         config = work / 'ford_project.md'
         config.write_text(project_config(pages, site))
         log = work / 'build.log'
@@ -139,6 +137,7 @@ try:
         if build.returncode:
             print(log.read_text(), file=sys.stderr)
             raise RuntimeError(f'FORD failed with exit status {build.returncode}')
+        shutil.copytree(root / 'docs/assets', site / 'page/assets')
         result = {'source': checker.source_checks(), 'site': checker.site_checks(site)}
         if result['source']['errors'] or result['site']['missing_pages'] or result['site']['broken_links']:
             print(json.dumps(result, indent=2), file=sys.stderr)

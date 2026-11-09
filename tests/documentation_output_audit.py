@@ -19,11 +19,16 @@ ROOT=Path(__file__).resolve().parents[1]
 BASE='https://kgklein.github.io/PLUME/'
 
 
+def documentation_sources():
+    """Current project overview, FORD configuration and manual source pages."""
+    return [ROOT/'README.md', ROOT/'ford_project.md', *sorted((ROOT/'docs').glob('*.md'))]
+
+
 def crawl(output,cache):
     import requests
     from bs4 import BeautifulSoup
     cache.mkdir(parents=True,exist_ok=True)
-    expected={urljoin(BASE,'page/'+p.stem+'.html') for p in ROOT.glob('*.md') if p.name not in ['README.md','ford_project.md']}
+    expected={urljoin(BASE,'page/'+p.stem+'.html') for p in (ROOT/'docs').glob('*.md')}
     expected|={urljoin(BASE,'page/'+p.stem+'.html') for p in (ROOT/'tests').glob('*REPORT.md')}
     expected|={urljoin(BASE,'module/'+name.lower()+'.html') for p in (ROOT/'src').glob('*.f90') for name in re.findall(r'(?im)^\s*module\s+(?!procedure\b)(\w+)',p.read_text())}
     pending={BASE}|expected;seen=set();pages={};resources={};total=0
@@ -116,7 +121,7 @@ def parse_input(text):
 def inventory(output):
     tracked=set(subprocess.check_output(['git','ls-files'],cwd=ROOT,text=True).splitlines())
     defaults=dict(normalization='rho_ref',z_backend='faddeeva',heating_convention='corrected',bessel_mode='adaptive',bessel_tol=1e-10,bessel_nmax=512,bessel_nfixed=128,bessel_diagnostics=False,nscan=0,collision_type=0,kn=1e30,low_n=True,positive_roots=False,nr=128,ni=128)
-    docs={p.name:p.read_text() for p in ROOT.glob('*.md')}
+    docs={str(p.relative_to(ROOT)):p.read_text() for p in documentation_sources()}
     examples=[]
     for p in sorted((ROOT/'inputs').rglob('*.in')):
         if str(p.relative_to(ROOT)) not in tracked and p.parent != ROOT/'inputs/example':continue

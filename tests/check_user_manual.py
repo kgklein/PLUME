@@ -12,11 +12,12 @@ import re
 from urllib.parse import unquote, urlsplit
 
 ROOT=Path(__file__).resolve().parents[1]
-PAGES=['README.md','INSTALL.md','tutorial.md','input.md','normalization.md',
-       'models.md','modes.md','eigenfunctions.md','heating.md','output.md',
-       'examples.md','numerics.md','limitations.md','reproducibility.md',
-       'development.md','README-JETPLUME.md']
-MANUAL_PAGES=['docs/index.md',*PAGES[1:]]
+MANUAL_PAGES=['docs/'+name for name in (
+    'index.md','INSTALL.md','tutorial.md','input.md','normalization.md',
+    'models.md','modes.md','eigenfunctions.md','heating.md','output.md',
+    'examples.md','numerics.md','limitations.md','reproducibility.md',
+    'development.md','README-JETPLUME.md')]
+PAGES=['README.md',*MANUAL_PAGES]
 
 
 def repository_target(url):
@@ -57,13 +58,13 @@ class Document(HTMLParser):
 def source_checks():
     from documentation_output_audit import namelists
     actual={name.lower() for group in namelists() for name in group['parameters']}
-    text=(ROOT/'input.md').read_text()
+    text=(ROOT/'docs/input.md').read_text()
     documented=re.findall(r'<a id="param-([\w_]+)"></a>',text)
     errors=[];downloads=set();links=0
     if set(documented)!=actual or len(documented)!=len(actual):
         errors.append(dict(input_missing=sorted(actual-set(documented)),
                            input_extra=sorted(set(documented)-actual),records=len(documented)))
-    for name in [*PAGES, 'docs/index.md']:
+    for name in PAGES:
         source=(ROOT/name).read_text()
         if source.count(r'\[')!=source.count(r'\]') or source.count(r'\(')!=source.count(r'\)'):
             errors.append(dict(page=name,error='Unbalanced math delimiters'))
@@ -78,17 +79,11 @@ def source_checks():
             else:continue
             if not relative:continue
             resolved=(ROOT/relative if url.scheme or url.netloc else ROOT/Path(name).parent/relative)
-            # Homepage links use their rendered HTML names beside staged assets.
-            if name=='docs/index.md' and not url.scheme and not url.netloc:
-                if resolved.suffix=='.html':
-                    resolved=ROOT/('docs/index.md' if resolved.name=='index.html' else resolved.with_suffix('.md').name)
-                elif resolved.suffix in ('.png','.svg','.ico'):
-                    resolved=ROOT/resolved.name
             if not (resolved.is_file() or (resolved.is_dir() and any((resolved/n).is_file() for n in ('README.md','index.md')))):
                 errors.append(dict(page=name,missing_source=relative))
             if relative.startswith('inputs/'):
                 downloads.add(relative)
-    return dict(parameter_names=len(actual),parameter_records=len(documented),manual_pages=len(PAGES),
+    return dict(parameter_names=len(actual),parameter_records=len(documented),manual_pages=len(MANUAL_PAGES),
                 source_links=links,downloadable_inputs=sorted(downloads),errors=errors)
 
 
@@ -102,7 +97,7 @@ def site_checks(site):
         if not page.is_file():missing.append(name);continue
         parsed=read(page);math[name]=len(parsed.math);tables[name]=parsed.tables
         source=(ROOT/name).read_text()
-        if name=='input.md':
+        if Path(name).name=='input.md':
             expected_ids=set(re.findall(r'param-[\w_]+',source))
             if not expected_ids<=parsed.ids:
                 broken.append(dict(page=name,error='Input anchors lost in rendering',missing=sorted(expected_ids-parsed.ids)))
@@ -127,7 +122,7 @@ def site_checks(site):
                     broken.append(dict(page=name,target=target,error='missing anchor'))
                 if destination.parent.name in ('proc','module','lists'):
                     api_links.add(str(destination.relative_to(site)))
-        if not parsed.math and name in ('normalization.md','eigenfunctions.md','heating.md','numerics.md'):
+        if not parsed.math and Path(name).name in ('normalization.md','eigenfunctions.md','heating.md','numerics.md'):
             broken.append(dict(page=name,error='Scientific page has no TeX math scripts'))
     home=site/'page/index.html'
     if home.is_file():

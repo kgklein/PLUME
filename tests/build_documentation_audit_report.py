@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
-from documentation_output_audit import ROOT,BASE
+from documentation_output_audit import ROOT,BASE,documentation_sources
 
 # Semantics reviewed against functions.f90, vars.f90 and production call sites.
 DEFINITIONS={
@@ -276,9 +276,9 @@ def main():
         e['new_user_suitability']='secondary/advanced' if e['path'].split('/')[-1] in ['example_map_par.in','example_map_high_beta_par.in','example_map_perp.in','example_guess_double.in','adaptive_bessel.in'] else 'candidate bounded example; interpret statuses and branch identity'
         e['intended_problem']=(ROOT/e['path']).read_text().split('&params')[0].strip() or 'Historical example; physical branch is not proved by its filename.'
     source_docs=[]
-    for f in sorted(ROOT.glob('*.md')):
-        text=f.read_text();source_docs.append(dict(path=f.name,bytes=len(text.encode()),headings=re.findall(r'(?m)^#{1,3} (.+)$',text),published_canonical='page/index.html' if f.name=='README.md' else '/' if f.name=='ford_project.md' else 'page/'+f.stem+'.html',
-          purpose='historical implementation report, not current user reference' if f.name=='normalization.md' else 'current/partially chronological user documentation',
+    for f in documentation_sources():
+        text=f.read_text();source_docs.append(dict(path=str(f.relative_to(ROOT)),bytes=len(text.encode()),headings=re.findall(r'(?m)^#{1,3} (.+)$',text),published_canonical='/' if f.parent==ROOT else 'page/'+f.stem+'.html',
+          purpose='GitHub project overview' if f.name=='README.md' else 'FORD configuration and API landing page' if f.name=='ford_project.md' else 'current user manual',
           issues=['See prioritized findings and page-specific review.']))
     roadmap=[dict(stage='5B.0 targeted correctness contracts',scope='Independently fix/log-test map coordinate origins; explicit geometry validation/parallel support decision; retainNaNs inreaders; fix contour falseheating; preserve legacy physics/goldens.',acceptance='Independent grid endpoints; validparallel reference orclear rejection; unique markers; missingvalues preserved; unchanged prior numericalgoldens.',depends='No documentation restructuring required.'),
       dict(stage='5B.1 authoritative current user reference',scope='Model/capability overview;installation/quickstart;89input definitions;normalizationpair;diagnostics andlimitations;three-control legacy recipe.',acceptance='Every supported option/flag has a source/test reference; all primarycommands generate documented outputs with statuses.',depends='Document actualbehavior immediately; claim fixes only after5B.0.'),
