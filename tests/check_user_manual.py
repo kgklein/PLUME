@@ -16,6 +16,7 @@ PAGES=['README.md','INSTALL.md','tutorial.md','input.md','normalization.md',
        'models.md','modes.md','eigenfunctions.md','heating.md','output.md',
        'examples.md','numerics.md','limitations.md','reproducibility.md',
        'development.md','README-JETPLUME.md']
+MANUAL_PAGES=['docs/index.md',*PAGES[1:]]
 
 
 def repository_target(url):
@@ -62,7 +63,7 @@ def source_checks():
     if set(documented)!=actual or len(documented)!=len(actual):
         errors.append(dict(input_missing=sorted(actual-set(documented)),
                            input_extra=sorted(set(documented)-actual),records=len(documented)))
-    for name in PAGES:
+    for name in [*PAGES, 'docs/index.md']:
         source=(ROOT/name).read_text()
         if source.count(r'\[')!=source.count(r'\]') or source.count(r'\(')!=source.count(r'\)'):
             errors.append(dict(page=name,error='Unbalanced math delimiters'))
@@ -76,8 +77,14 @@ def source_checks():
                 relative=path
             else:continue
             if not relative:continue
-            resolved=ROOT/relative
-            if not (resolved.is_file() or (resolved.is_dir() and (resolved/'README.md').is_file())):
+            resolved=(ROOT/relative if url.scheme or url.netloc else ROOT/Path(name).parent/relative)
+            # Homepage links use their rendered HTML names beside staged assets.
+            if name=='docs/index.md' and not url.scheme and not url.netloc:
+                if resolved.suffix=='.html':
+                    resolved=ROOT/('docs/index.md' if resolved.name=='index.html' else resolved.with_suffix('.md').name)
+                elif resolved.suffix in ('.png','.svg','.ico'):
+                    resolved=ROOT/resolved.name
+            if not (resolved.is_file() or (resolved.is_dir() and any((resolved/n).is_file() for n in ('README.md','index.md')))):
                 errors.append(dict(page=name,missing_source=relative))
             if relative.startswith('inputs/'):
                 downloads.add(relative)
@@ -90,8 +97,8 @@ def site_checks(site):
     def read(path):
         if path not in cache:cache[path]=Document(path.read_text())
         return cache[path]
-    for name in ['ford_project.md',*PAGES]:
-        page=site/'index.html' if name=='ford_project.md' else site/'page'/('index.html' if name=='README.md' else Path(name).with_suffix('.html'))
+    for name in ['ford_project.md',*MANUAL_PAGES]:
+        page=site/'index.html' if name=='ford_project.md' else site/'page'/Path(name).with_suffix('.html').name
         if not page.is_file():missing.append(name);continue
         parsed=read(page);math[name]=len(parsed.math);tables[name]=parsed.tables
         source=(ROOT/name).read_text()
@@ -122,6 +129,17 @@ def site_checks(site):
                     api_links.add(str(destination.relative_to(site)))
         if not parsed.math and name in ('normalization.md','eigenfunctions.md','heating.md','numerics.md'):
             broken.append(dict(page=name,error='Scientific page has no TeX math scripts'))
+    home=site/'page/index.html'
+    if home.is_file():
+        parsed=read(home)
+        for name in MANUAL_PAGES[1:]:
+            if not any(urlsplit(link).path.endswith('/'+Path(name).with_suffix('.html').name) or
+                       urlsplit(link).path==Path(name).with_suffix('.html').name for link in parsed.links):
+                broken.append(dict(page='docs/index.md',error='Manual page absent from navigation',target=name))
+        unexpected=sorted(p.name for p in (site/'page').glob('*.html') if p.name not in
+                          {Path(n).with_suffix('.html').name for n in MANUAL_PAGES})
+        if unexpected:
+            broken.append(dict(page='docs/index.md',error='Unexpected primary navigation pages',pages=unexpected))
     return dict(site=str(site),missing_pages=missing,broken_links=broken,math_scripts=math,
                 tables=tables,valid_api_destinations=sorted(api_links))
 
