@@ -2,7 +2,7 @@
 
 # PLUME: Plasma in a Linear Uniform Magnetized Environment
 
-![PLUME logo](./PLUME_logo.png)
+![PLUME logo](./docs/assets/PLUME_logo.png)
 
 PLUME calculates **linear electromagnetic dispersion relations in homogeneous,
 nonrelativistic magnetized plasmas**. Each population is a drifting kinetic
@@ -22,7 +22,7 @@ PLUME is a **serial** Fortran executable. It does not provide relativistic
 kinetics, arbitrary velocity distributions, general collision operators, or
 universal exact-parallel/perpendicular support. The available Krook operator and
 FPC pathways have additional restrictions. Start with the capability table in
-[Species and models](models.md) and the [limitations](limitations.md).
+[Species and models](docs/models.md) and the [limitations](docs/limitations.md).
 
 <a id="start-here"></a>
 
@@ -36,7 +36,7 @@ mkdir -p data/example
 
 This small three-output-point scan uses warm protons and cold electrons and
 writes a mode file containing frequency, E/B and species moments. The
-[Quick Start](tutorial.md) explains its input, expected first root, columns and
+[Quick Start](docs/tutorial.md) explains its input, expected first root, columns and
 success checks. Run from the repository root; the input directory must be
 writable and output directories must exist. `writeOut` controls verbosity,
 not whether files are produced.
@@ -47,21 +47,21 @@ not whether files are produced.
 
 | Your question | Authoritative page |
 |---|---|
-| How do I build and test PLUME? | [Installation](INSTALL.md) |
-| How do I run and read a first calculation? | [Quick Start](tutorial.md) |
-| What does every input control mean? | [Input reference](input.md) |
-| What are the physical units and reference scales? | [Normalization](normalization.md) |
-| Which kinetic, cold and mixed states are supported? | [Species and models](models.md) |
-| How do roots, maps and scans work? | [Calculation modes and scans](modes.md) |
-| How are fields and species moments normalized? | [Eigenfunctions and moments](eigenfunctions.md) |
-| What do absorption and formal wave energy mean? | [Heating and wave energy](heating.md) |
-| Which file/reader contains my diagnostic? | [Output files and Python](output.md) |
-| What should I study next? | [Twelve-lesson examples index](examples.md) |
-| What numerical methods and backends are used? | [Numerical methods](numerics.md) |
-| Why is a result missing or NaN? | [Limitations and troubleshooting](limitations.md) |
-| How do I reproduce an older calculation? | [Historical reproduction](reproducibility.md) |
-| Where are APIs, tests and historical reports? | [Developer guide and history](development.md) |
-| What FPC functionality exists? | [JET-PLUME appendix](README-JETPLUME.md) |
+| How do I build and test PLUME? | [Installation](docs/INSTALL.md) |
+| How do I run and read a first calculation? | [Quick Start](docs/tutorial.md) |
+| What does every input control mean? | [Input reference](docs/input.md) |
+| What are the physical units and reference scales? | [Normalization](docs/normalization.md) |
+| Which kinetic, cold and mixed states are supported? | [Species and models](docs/models.md) |
+| How do roots, maps and scans work? | [Calculation modes and scans](docs/modes.md) |
+| How are fields and species moments normalized? | [Eigenfunctions and moments](docs/eigenfunctions.md) |
+| What do absorption and formal wave energy mean? | [Heating and wave energy](docs/heating.md) |
+| Which file/reader contains my diagnostic? | [Output files and Python](docs/output.md) |
+| What should I study next? | [Twelve-lesson examples index](docs/examples.md) |
+| What numerical methods and backends are used? | [Numerical methods](docs/numerics.md) |
+| Why is a result missing or NaN? | [Limitations and troubleshooting](docs/limitations.md) |
+| How do I reproduce an older calculation? | [Historical reproduction](docs/reproducibility.md) |
+| Where are APIs, tests and historical reports? | [Developer guide and history](docs/development.md) |
+| What FPC functionality exists? | [JET-PLUME appendix](docs/README-JETPLUME.md) |
 
 These pages describe current behavior. Development reports record earlier
 milestones and may describe restrictions subsequently removed; they are evidence,
@@ -77,12 +77,12 @@ along z and \(\mathbf k=(k_\perp,0,k_\parallel)\). Positive
 \(\operatorname{Im}\omega\) means growth. Frequencies use the reference gyrofrequency;
 input wavevectors and temperatures depend on `normalization='rho_ref'` or
 `'d_ref'`. **Do not exchange the two conventions by changing only the flag.**
-The [normalization page](normalization.md) supplies the full conversion, including
+The [normalization page](docs/normalization.md) supplies the full conversion, including
 reference anisotropy, and a verified pair of equivalent inputs.
 
 The default numerical choices are `z_backend='faddeeva'`,
 `bessel_mode='adaptive'`, and `heating_convention='corrected'`.
-They are independent. [Legacy replay](reproducibility.md) requires explicit
+They are independent. [Legacy replay](docs/reproducibility.md) requires explicit
 choices and a recorded source revision; fixed harmonics alone are insufficient.
 
 <a id="authors-scientific-references-and-citation"></a>

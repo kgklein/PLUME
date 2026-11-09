@@ -36,8 +36,8 @@ favicon: favicon.ico
 
 # PLUME: linear waves in kinetic, cold and mixed plasmas
 
-<img src="./page/PLUME_logo.png" alt="PLUME logo" width="200"/>
-<img src="./page/qrcode_plume_github.png" alt="Repository QR code" width="200"/>
+<img src="./page/assets/PLUME_logo.png" alt="PLUME logo" width="200"/>
+<img src="./page/assets/qrcode_plume_github.png" alt="Repository QR code" width="200"/>
 
 PLUME is a serial Fortran solver for linear electromagnetic dispersion relations
 in homogeneous **nonrelativistic** magnetized plasmas. Populations are drifting

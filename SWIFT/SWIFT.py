@@ -16,7 +16,7 @@ This script is intended to be readable and easy to modify.
 
 Primary format & convention references (as requested):
   - PLUME output column ordering (.modeN files):
-      https://github.com/kgklein/PLUME/blob/main/output.md
+      https://github.com/kgklein/PLUME/blob/main/docs/output.md
     In particular, for .modeN from om_scan:
       cols 1-6: k_perp*rho_ref, k_par*rho_ref, beta_ref_par, vt_ref_par/c, omega_r/Omega_ref, gamma/Omega_ref
       if eigen=true:
@@ -154,7 +154,7 @@ def load_mode(file_path: Union[str, Path], row_index: int) -> PlumeMode:
       - Raises an informative error if eigen columns are missing (likely eigen=false run).
 
     See:
-      https://github.com/kgklein/PLUME/blob/main/output.md
+      https://github.com/kgklein/PLUME/blob/main/docs/output.md
     """
     path = Path(file_path)
 
