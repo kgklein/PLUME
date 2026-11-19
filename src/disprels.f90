@@ -1129,7 +1129,8 @@ subroutine om_scan(is)
               if (root_valid) val=abs(disp(omega))
               !>>>GGH: 1/18/23
               if (scan(is)%heat_s .and. heating_convention=='corrected') then
-                 call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+                 call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in, &
+                         heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max)
               else if (has_cold_species()) then
                  call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(is)%heat_s,em_status,disp)
               else
@@ -1167,7 +1168,8 @@ subroutine om_scan(is)
            if (scan(is)%heat_s .and. heating_convention=='corrected') then
               if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
               Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
-              call write_energy_record(energy,omega,1,is,0,jj,ii,root_valid,outName)
+              call write_energy_record(energy,omega,1,is,0,jj,ii,root_valid,outName, &
+                   heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max)
            endif
 
            select case(out_type)
@@ -1661,7 +1663,8 @@ subroutine om_double_scan
                     if (root_valid) val=abs(disp(omega))
                     !>>>GGH: 1/18/23
                     if (scan(2)%heat_s .and. heating_convention=='corrected') then
-                       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+                       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in, &
+                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max)
                     else if (has_cold_species()) then
                        call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%heat_s,em_status,disp)
                     else
@@ -1681,7 +1684,8 @@ subroutine om_double_scan
                  if (scan(2)%heat_s .and. heating_convention=='corrected') then
                     if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
                     Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
-                    call write_energy_record(energy,omega,2,0,kk,jj,ii,root_valid,outName)
+                    call write_energy_record(energy,omega,2,0,kk,jj,ii,root_valid,outName, &
+                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max)
                  endif
 
                  select case(out_type)

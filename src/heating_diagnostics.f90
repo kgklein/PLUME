@@ -2,7 +2,7 @@ module heating_diagnostics
   !! Production corrected workflow and versioned companion IO, kept separate
   !! from the historical calc_eigen/FPC and the root/dispersion implementation.
   use vars, only: spec,susc,kpar,kperp,vtp,betap,normalization,nspec,collision_type, &
-       heating_convention,dataName,outputName,option,z_backend,bessel_mode
+       heating_convention,dataName,outputName,option,z_backend,bessel_mode,default_heating_gamma_ratio_max
   use electromagnetic_fields, only: calc_em_eigen
   use species_moments, only: calc_species_moments
   use heating_response
@@ -11,7 +11,7 @@ module heating_diagnostics
   implicit none
   private
   public :: calc_corrected_eigen,native_heating_state,reset_energy_output,write_energy_record,failed_heating_result
-  integer,save :: record_count=0
+  integer,save :: record_count=0,output_workflow=0,output_scan=0
   logical,save :: output_started=.false.
   abstract interface
      complex function dispersion_callback(w)
@@ -52,9 +52,11 @@ contains
     call finish_guard(guard,ierr)
   end subroutine
 
-  subroutine calc_corrected_eigen(w,e,b,velocity,density,power,split,r,evaluate,bessel,zet_in)
+  subroutine calc_corrected_eigen(w,e,b,velocity,density,power,split,r,evaluate,bessel,zet_in, &
+       heating_gamma_ratio_max)
     use vars, only: specie
     complex,intent(in) :: w
+    real,intent(in),optional :: heating_gamma_ratio_max
     complex,intent(out) :: e(3),b(3),velocity(:,:),density(:)
     real,intent(out) :: power(:),split(:,:)
     type(heating_result),intent(out) :: r
@@ -81,7 +83,8 @@ contains
     if (collision_type/=0) then
        r%status=heat_collision;r%field_status=0;return
     endif
-    call calculate_heating(physical,w,kz,kp,a,e,r,bessel,zet_in)
+    call calculate_heating(physical,w,kz,kp,a,e,r,bessel,zet_in, &
+         heating_gamma_ratio_max=heating_gamma_ratio_max)
     r%field_status=0;power=r%power;split=r%channels
   end subroutine
 
@@ -115,16 +118,21 @@ contains
     path='data/'//trim(dataName)//'/'//trim(outputName)//'.energy'
   end function
 
-  subroutine write_energy_record(r,w,workflow,scan_index,outer,point,mode,root_valid,source)
+  subroutine write_energy_record(r,w,workflow,scan_index,outer,point,mode,root_valid,source, &
+       heating_gamma_ratio_max)
     type(heating_result),intent(in) :: r
     complex,intent(in) :: w
     integer,intent(in) :: workflow,scan_index,outer,point,mode
     logical,intent(in) :: root_valid
+    real,intent(in),optional :: heating_gamma_ratio_max
+    real :: gamma_ratio_max
     character(*),intent(in) :: source
     character(300) :: path,mode_file
     character(30) :: index_text
     integer :: u,j,c
     if (heating_convention/='corrected') return
+    gamma_ratio_max=default_heating_gamma_ratio_max
+    if (present(heating_gamma_ratio_max)) gamma_ratio_max=heating_gamma_ratio_max
     path=energy_path()
     if (.not.output_started) then
        open(newunit=u,file=trim(path),status='replace',action='write')
@@ -136,7 +144,8 @@ contains
        write(u,'(a)') '# Signed fractions are not clamped; f_E_abs is a noncancelling contribution measure, not energy fraction.'
        write(u,'(a)') '# energy_status: 0=resolved,1=input,2=fields,3=wr_zero,4=response,5=derivative,'// &
             '6=unresolved_H,7=collisions,8=root,9=arithmetic'
-       write(u,'(a)') '# applicability bits: 1=abs(gamma/wr)>0.05,2=weak-balance/near-reactive warning.'
+       write(u,'(a)') '# applicability bits: 1=abs(gamma/wr)>heating_gamma_ratio_max,'// &
+            '2=weak-balance/near-reactive warning.'
        write(u,'(a)') '# species_status: 0=kinetic,1=cold_NA,2=absent,3=input/response,4=derivative,'// &
             '5=energy,6=applicability'
        write(u,'(a)') '# response_code uses existing kernel statuses (including exact Doppler/cyclotron poles).'
@@ -164,6 +173,11 @@ contains
        output_started=.true.
     else
        open(newunit=u,file=trim(path),status='old',position='append',action='write')
+    endif
+    if (record_count==0 .or. workflow/=output_workflow .or. scan_index/=output_scan) then
+       write(u,'(a,i0,a,i0,a,es25.16e3)') '# workflow=',workflow,' scan=',scan_index, &
+            ' heating_gamma_ratio_max=',gamma_ratio_max
+       output_workflow=workflow;output_scan=scan_index
     endif
     record_count=record_count+1
     write(u,'(11(i0,1x),*(es25.16e3,1x))',advance='no') record_count,workflow,scan_index,outer,point,mode, &

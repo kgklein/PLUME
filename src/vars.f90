@@ -36,6 +36,7 @@ module vars
    character(16) :: heating_convention = 'corrected'
    !! Collisionless heating/energy convention; independent of Z and Bessel modes.
    public :: heating_convention
+   real,parameter,public :: default_heating_gamma_ratio_max = 0.05
 
    character(16) :: z_backend = 'faddeeva'
    !! Independent Z evaluator: faddeeva (default) or legacy.
@@ -140,6 +141,9 @@ module vars
      !! Linear or Logarithmic scan.
      !!T-> log, F-> linear scan
 
+      real :: heating_gamma_ratio_max = default_heating_gamma_ratio_max
+     !! Maximum abs(gamma/omega_r) for corrected heating applicability.
+
       logical :: heat_s
      !! Controls supplementary heating calculation.
      !!T-> Heating Calculation; F-> No heating calculation.
@@ -220,8 +224,6 @@ module vars
 
    logical :: low_n = .true.
    !!Toggle on low-n susceptibility suplementary calculation.
-   !! 25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
-   !! n=0, \pm 1 calculation we wish to perform.
 
    complex, dimension(3, 3) :: lam
   !!Matrix in Wave equation.

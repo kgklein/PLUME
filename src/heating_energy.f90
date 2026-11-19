@@ -1,12 +1,13 @@
 module heating_energy
   !! Corrected collisionless absorption and formal real-frequency wave energy.
   !! No production dispersion/root state is read or written by this module.
-  use vars, only: specie
+  use vars, only: specie,default_heating_gamma_ratio_max
   use heating_response
   use, intrinsic :: ieee_arithmetic
   implicit none
   private
   public :: heating_result,calculate_heating,reset_heating,finish_energy,heating_channels
+  public :: validate_heating_gamma_ratio_max
   public :: heat_ok,heat_invalid,heat_no_field,heat_zero_real,heat_response,heat_derivative
   public :: heat_unresolved,heat_collision,heat_root_failed,heat_arithmetic
   public :: species_heat_ok,species_heat_cold,species_heat_absent,species_heat_failed
@@ -26,6 +27,14 @@ module heating_energy
      integer,allocatable :: species_status(:)
   end type
 contains
+  subroutine validate_heating_gamma_ratio_max(value)
+    !! Kept in this IEEE-preserving module, including for optimized input readers.
+    real,intent(in) :: value
+    if (.not.ieee_is_finite(value)) &
+         error stop 'ERROR: heating_gamma_ratio_max must be finite and nonnegative.'
+    if (value<0.) error stop 'ERROR: heating_gamma_ratio_max must be finite and nonnegative.'
+  end subroutine
+
   subroutine reset_heating(r,count,status)
     type(heating_result),intent(out) :: r
     integer,intent(in) :: count,status
@@ -41,24 +50,28 @@ contains
     r%matrix_error=nan;r%projection_error=nan;r%step=nan;r%species_status=species_heat_failed
   end subroutine
 
-  subroutine calculate_heating(spec,w,kpar,kperp,a,e,r,bessel,zet_in,auxiliary_beta)
+  subroutine calculate_heating(spec,w,kpar,kperp,a,e,r,bessel,zet_in,auxiliary_beta,heating_gamma_ratio_max)
     type(specie),intent(in) :: spec(:)
     complex,intent(in) :: w,e(3)
     real,intent(in) :: kpar,kperp,a
     type(heating_result),intent(out) :: r
     procedure(bessel_callback) :: bessel
     procedure(z_callback) :: zet_in
-    real,intent(in),optional :: auxiliary_beta
+    real,intent(in),optional :: auxiliary_beta,heating_gamma_ratio_max
     complex :: base(size(spec),3,3),low(size(spec),3,3,-1:1)
     complex :: plus(size(spec),3,3),minus(size(spec),3,3),work_low(size(spec),3,3,-1:1)
     complex :: center(3,3),prev_center(size(spec),3,3),richardson(3,3),prev_r(size(spec),3,3)
     complex :: best(size(spec),3,3),older_r(size(spec),3,3),difference(3,3),b(3)
     real :: previous_score(size(spec)),best_score(size(spec)),absolute_error(size(spec))
-    real :: wr,h,relative,score,pair_score,merr,perr,value,nan,enorm,roundoff
+    real :: wr,h,relative,score,pair_score,merr,perr,value,nan,enorm,roundoff,gamma_ratio_max
     logical :: resolved(size(spec))
     type(diagnostic_guard) :: guard
     integer :: n,s,level,ierr,arithmetic_status
     n=size(spec);call reset_heating(r,n,heat_invalid);nan=real(diagnostic_nan())
+    gamma_ratio_max=default_heating_gamma_ratio_max
+    if (present(heating_gamma_ratio_max)) gamma_ratio_max=heating_gamma_ratio_max
+    if (.not.ieee_is_finite(gamma_ratio_max)) return
+    if (gamma_ratio_max<0.) return
     do s=1,n
        if (.not.ieee_is_finite(spec(s)%tau_s)) return
        if (spec(s)%tau_s==0.) r%species_status(s)=species_heat_cold
@@ -159,7 +172,7 @@ contains
     r%uncertainty=sum(absolute_error)+roundoff
     call finish_energy(r)
     if (r%status/=heat_ok) goto 900
-    if (r%ratio>.05) r%applicability=ior(r%applicability,1)
+    if (r%ratio>gamma_ratio_max) r%applicability=ior(r%applicability,1)
     value=sum(pack(r%q,spec%tau_s>0. .and. spec%D_s>0.))
     r%gamma_est=-wr*value/r%total
     ! A consistency warning, never a fit: no observed gamma enters H or Q.

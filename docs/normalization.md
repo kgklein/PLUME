@@ -4,20 +4,21 @@
 
 [Manual home](index.md) · [Input reference](input.md) · [Species models](models.md)
 
-This page defines the physical symbols used throughout the manual. Temperatures
-are energies (Boltzmann's constant is absorbed into T). Electromagnetic formulas
-use Gaussian units. The equilibrium is homogeneous, with
+Here, we define the physical symbols used throughout the manual. Temperatures are in energy units (Boltzmann's constant is absorbed into T) and electromagnetic formulas use Gaussian units. 
+The equilibrium is homogeneous, with
 \(\mathbf B_0=B_0\hat{\mathbf z}\) and
-\(\mathbf k=(k_\perp,0,k_\parallel)\). Time dependence is
-\(\exp(-i\omega t)\); \(\omega=\omega_r+i\gamma\) grows when \(\gamma>0\).
+\(\mathbf k=(k_\perp,0,k_\parallel)\). 
+Time dependence is given by \(\exp(-i\omega t)\).
+The solution \(\omega=\omega_r+i\gamma\) grows when \(\gamma>0\).
 
 <a id="reference-scales"></a>
 
 ## Reference scales
 
-PLUME uses `species_1` as reference R; there is no reference-index input.
-Use the usual positive reference gyrofrequency scale (a positive reference
-charge and B0), retaining signed charge ratios for other populations. Define
+PLUME uses `species_1` as reference R.
+Use the usual positive reference gyrofrequency scale (a positive reference charge and B0), 
+retaining signed charge ratios for other populations. 
+Define
 
 \[
  \Omega_R=\frac{q_R B_0}{m_R c},\qquad
@@ -26,8 +27,10 @@ charge and B0), retaining signed charge ratios for other populations. Define
  d_R=\frac{c}{\omega_{pR}}=\frac{v_{A,R}}{\Omega_R}.
 \]
 
-Here c is light speed, m_R, q_R and n_R set the reference mass, charge and
-number-density scales. For the thermal reference define
+Here c is the speed of light, 
+m_R, q_R, and n_R set 
+the reference mass, charge, and number density. 
+For the thermal reference define
 
 \[
  v_{t\parallel,R}=\sqrt{\frac{2T_{\parallel,R}}{m_R}},\quad

@@ -1,4 +1,4 @@
-! Stages 4B.1/4B.2: E/B plus cold-fluid/kinetic density and velocity moments; Ex=1.
+! E/B plus cold-fluid/kinetic density and velocity moments; Ex=1.
 ! No heating/FPC/energy request. Fields occupy the existing eigen columns.
 &params
 z_backend='faddeeva'
@@ -18,7 +18,6 @@ use_map=.false.
 writeOut=.true.
 dataName='example'
 outputName='mixed_fields_warm_reference'
-
 /
 &species_1
 tauS=0.40000000000000002
@@ -45,8 +44,8 @@ scan_style=0
 scan_type=1
 swi=0.059999999999999998
 swf=0.089999999999999997
-ns=2
-nres=2
+ns=10
+nres=1
 swlog=.false.
 tensor=.false.
 heating=.false.

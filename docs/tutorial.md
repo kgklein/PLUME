@@ -4,11 +4,12 @@
 
 [Manual home](index.md) · [Installation](INSTALL.md) · [Input reference](input.md)
 
-The first calculation should be small enough to inspect. We use the existing
-[mixed_fields_warm_reference.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_fields_warm_reference.in):
-a warm proton reference and cold electrons, an oblique wavevector, one supplied
-complex-frequency guess, and three written scan points. There is no map search,
-heating request, or FPC calculation in this example.
+For a first calculation, let's use the
+[mixed_fields_warm_reference.in](https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_fields_warm_reference.in).
+This simulates a warm, isotropic proton VDF with cold electrons.
+The solution is at an oblique wavevector, 
+tracking one supplied complex-frequency guess for the solution, 
+and follows along ten steps in wavevector space. 
 
 <a id="1-build-and-run"></a>
 
@@ -23,18 +24,19 @@ mkdir -p data/example
 ```
 
 The input directory must be writable for the indexed-namelist scratch file.
-The supplied example has `writeOut=.true.`, so it also prints root information.
+The supplied example has  `writeOut=.true.`, so it also prints root information.
 The primary file is:
 
 ```
 data/example/mixed_fields_warm_reference_kpar_60_90.mode1
 ```
 
-The integer filename tags encode endpoints, not the physical wavevector units;
-read the numeric columns and matching input. Metadata include
+The integer filename tags encode scan endpoints.
+Read the numeric columns in the file for details. 
+Produced metadata include
 `normalization_mixed_fields_warm_reference.txt` and
-`mixed_fields_warm_reference.bessel`. The exact normalization metadata filename
-is documented in the [output reference](output.md#metadata).
+`mixed_fields_warm_reference.bessel`. 
+The exact normalization metadata details are documented in the [output reference](output.md#metadata).
 
 <a id="2-read-the-input-in-physical-terms"></a>
 
@@ -62,7 +64,7 @@ dataName='example', outputName='mixed_fields_warm_reference'
 /
 &scan_input_1
  scan_style=0, scan_type=1, swi=.06, swf=.09
- ns=2, nres=2, swlog=.false.
+ ns=10, nres=2, swlog=.false.
  eigen=.true., heating=.false., tensor=.false.
 /
 ```
@@ -75,31 +77,30 @@ Here `vtp=.01` means \(a=v_{A,R}/c=.01\), and `kpar`/`kperp` mean
 \(k_\parallel d_R\), \(k_\perp d_R\). The warm proton `tauS=.4` is its
 Alfvénic parallel temperature and equals reference `betap`. Electron `tauS=0`
 selects a true cold-fluid response; its anisotropy placeholder is ignored.
-Signed `Qs=-1` gives negative electron gyrofrequency. Neither cold-electron
-inertia nor the full electromagnetic response is discarded.
+Signed `Qs=-1` gives negative electron gyrofrequency. 
 
 `option=1` refines the guess and then continues a branch through serial scans.
-`ns=2` means **two output intervals, three written points**. `nres=2` inserts
-hidden continuation substeps. The written parallel coordinates are .06, .075,
-.09; the physical plasma state and perpendicular coordinate remain fixed.
-The default Z backend is Faddeeva, Bessel selection is adaptive, and the
-heating convention is corrected, independently of one another.
+`ns=10` means **ten output intervals, eleven written points**. 
+`nres=2` inserts hidden continuation substeps. 
+The written parallel coordinates are linear steps between .06 and .09; the physical plasma state and perpendicular scale remain fixed.
+For how to vary other parameters, see [input reference](input.md)
+The default plasma dispersion function Z backend is Faddeeva, 
+with adaptive Bessel selection, 
+and a corrected heating convention.
 
 <a id="3-inspect-the-first-result"></a>
 
 ## 3. Inspect the first result
 
-For the unchanged example, a locally verified first row gives approximately
+For the example input, the first row should give approximately
 
 \[
  w=\frac{\omega}{\Omega_R}=0.06153842-5.564326\times10^{-6}i.
 \]
 
-The negative imaginary part means damping with time, not spatial attenuation.
-This is a benchmark at the printed precision, not an input or a promised exact
-frequency for other plasma states. The run should produce three rows with
-finite frequencies, no `scan root failed` warning, and finite E/B/moments.
-Process exit zero alone does not certify a valid mode or branch.
+The negative imaginary part signifies damping with time, not spatial attenuation.
+The run should produce eleven rows with finite frequencies, no `scan root failed` warning, and finite E/B/moments.
+The code exiting alone does not certify a valid mode or branch.
 
 The file has 46 columns: six coordinates/root entries, 12 field entries,
 16 moment entries and 12 species parameters. Columns 1–6 (one-based) are native
@@ -119,22 +120,18 @@ path = 'data/example/mixed_fields_warm_reference_kpar_60_90.mode1'
 d = load_plume_sweep(path, nspec=2, eigen=True, heating=False)
 w = d['w'] + 1j*d['g']
 print(w)
-assert len(w) == 3 and np.isfinite(w).all()
+assert len(w) == 11 and np.isfinite(w).all()
 print('Ex:', d['exr'][0] + 1j*d['exi'][0])  # 1+0j
 ```
 
 The Ex=1 convention fixes complex amplitude and phase. E is divided by deltaEx,
-B by the same deltaEx in Gaussian units; species velocities are not divided by
-a thermal speed. See [Eigenfunctions and moments](eigenfunctions.md) before
+B by the same deltaEx in Gaussian units. 
+See [Eigenfunctions and moments](eigenfunctions.md) before
 comparing these amplitudes with dimensional observations.
-
-Use explicit reader switches. Extra columns at the end can be species
-parameters, not heating. This example has no kinetic heating block and no
-corrected `.energy` record. A cold population is not a zero-heating measurement.
 
 <a id="5-make-the-next-calculation-deliberately"></a>
 
-## 5. Make the next calculation deliberately
+## 5. Next Steps
 
 - For all-kinetic absorption and wave energy, run
   `./plume.e inputs/example/heating_corrected_kinetic.in` and inspect its
@@ -144,9 +141,9 @@ corrected `.energy` record. A cold population is not a zero-heating measurement.
 - For equivalent physical inputs in both normalizations, use the
   [matched pair](normalization.md#worked-equivalent-inputs).
 - For maps or 2D scans, read [Calculation modes](modes.md) and use the
-  [examples index](examples.md); do not start with the large historical grid.
+  [examples index](examples.md).
 
-If no file appears, check the working directory, `dataName`, flags and workflow.
+If no file appears, check the working directory, `dataName`, flags and input file.
 For NaNs or missing eigenfunctions, inspect warnings and diagnostic statuses;
-[troubleshooting](limitations.md) distinguishes a bad root from an unavailable
+[troubleshooting](limitations.md) helps to distinguish a "bad root" from an unavailable
 supplementary quantity.

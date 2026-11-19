@@ -319,7 +319,8 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine scan_read(is)
   !!Subroutine for reading in scan parameters.
-      use vars, only: scan, spec
+      use vars, only: scan, spec, default_heating_gamma_ratio_max
+      use heating_energy, only: validate_heating_gamma_ratio_max
       implicit none
       !Passed
       integer :: is
@@ -347,6 +348,9 @@ end subroutine read_map_input
       logical :: swlog
   !! Linear or Logarithmic scan.
 
+      real :: heating_gamma_ratio_max
+  !! Maximum abs(gamma/omega_r) for corrected heating.
+
       logical :: heating
   !! Controls supplementary heating calculation.
 
@@ -358,9 +362,11 @@ end subroutine read_map_input
 
       nameList /scan_input/ &
          scan_type, swi, swf, swlog, scan_style, ns, nres, &
-         heating, eigen, tensor
+         heating, eigen, tensor, heating_gamma_ratio_max
       heating=.false.; eigen=.false.; tensor=.false.
+      heating_gamma_ratio_max=default_heating_gamma_ratio_max
       read (unit=unit, nml=scan_input)
+      call validate_heating_gamma_ratio_max(heating_gamma_ratio_max)
 
       if (scan_style > 0 .and. scan_type == 0) then
          if (swi <= 0. .or. swf <= 0. .or. spec(scan_style)%tau_s == 0.) &
@@ -377,6 +383,7 @@ end subroutine read_map_input
       scan(is)%n_res = nres
       scan(is)%eigen_s = eigen
       scan(is)%heat_s = heating
+      scan(is)%heating_gamma_ratio_max = heating_gamma_ratio_max
       scan(is)%tensor_s = tensor
 
    end subroutine scan_read
