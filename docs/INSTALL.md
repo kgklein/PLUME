@@ -11,22 +11,23 @@
 | Activity | Requirements |
 |---|---|
 | Compile/run the solver | GNU Fortran, an ordinary C99 compiler, GNU make, standard Fortran/C runtime libraries and libm |
-| Read/write inputs and analyze output with Python | Python 3, NumPy; the current `linfpclib.linfpc` module also imports Matplotlib |
-| Independent reference tests and some analysis | SciPy, NumPy, Matplotlib; Python's unittest is built in |
+| Read/write inputs and analyze output w/ Python | Python 3, NumPy, Matplotlib |
+| Field Particle Correlation analysis w/ Python | Python 3, NumPy, Matplotlib |
+| Independent reference tests | SciPy, NumPy, Matplotlib; Python's unittest is built in |
 | Optional high-precision tests | mpmath; tests fall back or skip the specific optional references when unavailable |
-| Plotting | Matplotlib; historical `.plt` examples require gnuplot; other plotting folders have their own assumptions |
+| Plotting | Matplotlib; historical `.plt` examples require gnuplot |
 | Local documentation | FORD and its Python dependencies; Graphviz for API graphs |
 
-The accurate plasma dispersion function is bundled and compiled into the
-executable. Users do not need SciPy, libcerf, a C++ runtime, CMake, Python, or a
-package manager **to run the solver**. Python requirements apply to analysis,
-wrapper and test workflows, not to susceptibility evaluation at runtime.
+The PLUME plasma dispersion function is bundled and compiled into the executable.
+Users do not need SciPy, libcerf, a C++ runtime, CMake, Python, or a
+package manager **to run the solver**.
+Python was was used as an external, independent validation of some of the underlying methods.
 
-GNU Fortran/C 11.4.0 and GNU make 4.3 have been exercised on Linux. Recent
-validation used Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3 and Matplotlib 3.10.8.
-Other platforms/compilers are not certified by the presence of an alternative
-Makefile rule. Preserve the project's promoted-double and strict-IEEE rules:
-changing precision or optimization can alter legacy regressions and validation.
+GNU Fortran/C 11.4.0 and GNU make 4.3 have been exercised on Linux.
+Recent validation used Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3 and Matplotlib 3.10.8.
+Other platforms/compilers are not certified by the presence of an alternative Makefile rule.
+Preserve the project's promoted-double and strict-IEEE rules,
+as changing precision or optimization can alter legacy regressions and validation.
 
 <a id="get-the-source-and-compile"></a>
 
@@ -48,8 +49,8 @@ make -j2
 The default Makefile selects its GNU configuration. The existing flags promote
 Fortran default real to binary64; several numerical modules are built with
 strict floating-point semantics. The C99 Faddeeva sources and ABI bridge are
-built automatically. Do not link arbitrary kind/precision variants together;
-[numerical-method notes](numerics.md) explain the precision interface.
+built automatically. Do not link arbitrary kind/precision variants together.
+The [numerical-method notes](numerics.md) explain the precision interface.
 
 <a id="run-from-the-repository-root"></a>
 
@@ -60,17 +61,19 @@ mkdir -p data/example
 ./plume.e inputs/example/mixed_fields_warm_reference.in
 ```
 
-The command takes an input filename ending in `.in`. Its indexed namelist
-extractor creates a scratch file beside that input, so that directory must be
-writable. It also has a historical 100-character argument buffer: avoid very
-long input paths. The input's `dataName='example'` selects `data/example/`
+The command takes an input filename ending in `.in`.
+Its indexed namelist extractor creates a scratch file beside that input,
+so that directory must be writable.
+It also has a historical 100-character argument buffer, so avoid very
+long input paths. **This will be fixed in future revisions.**
+The input's `dataName='example'` selects `data/example/`
 relative to the **working directory**, not relative to the input file.
 
-PLUME does not create these directories automatically. Files and numerical
-metadata may be opened even with `writeOut=.false.`. This flag reduces stdout
-verbosity; it is not a master file-output switch. Use a unique `outputName` and
-an isolated directory for exploratory runs: files with matching names can be
-replaced, and old branch files can otherwise be mistaken for new output.
+*PLUME does not create directories automatically.*
+Files and numerical metadata may be opened even with `writeOut=.false.`
+as this flag reduces `stdout` verbosity and is not a master file-output switch.
+Use a unique `outputName` and an isolated directory for exploratory runs.
+Files with matching names are replaced
 
 Follow the [Quick Start](tutorial.md) before attempting large maps or scans.
 

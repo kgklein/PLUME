@@ -1,4 +1,4 @@
-title: PLUME User Manual
+title: Plasma in a Linear Uniform Magnetized Environment
 ordered_subpage: INSTALL.md
                  tutorial.md
                  input.md
@@ -15,64 +15,60 @@ ordered_subpage: INSTALL.md
                  development.md
                  README-JETPLUME.md
 
-# PLUME: linear waves in *cold* and **kinetic** plasmas
+# User Manual
 
 <img src="./assets/PLUME_logo.png" alt="PLUME logo" width="200"/>
 <img src="./assets/qrcode_plume_github.png" alt="Repository QR code" width="200"/>
 
-PLUME is a FORTRAN dispersion relation solver for linear electromagnetic dispersion relations in homogeneous, magnetized plasmas. 
-Populations are treated as drifting hot, anisotropic bi-Maxwellians or cold fluids, with mixtures of hot and cold species allowed. 
+PLUME solves linear electromagnetic dispersion relations in homogeneous,
+nonrelativistic magnetized plasmas, with drifting kinetic bi-Maxwellian and
+collisionless cold-fluid populations. This manual documents the physical
+conventions, supported calculations, numerical methods, output diagnostics and
+limitations of the solver.
 
-PLUME solves linear dispersion relations, outputting
-complex mode frequency, 
-electromagnetic polarization,
-and density and velocity moments. 
-For kinetic species, the wave emission or absorption can be calculated, 
-including through specified channels, e.g. Landau, transit time, or cyclotron resonances.
+For a first calculation, start with [installation](./INSTALL.md) and the
+[quick start](./tutorial.md).
 
-New users are encouraged to start with the
-[installation](./INSTALL.md) 
-and [quick start](./tutorial.md).
-This manual serves as the scientific user entry point. 
-More detailed API documentation is provided for developers.
+## Table of Contents
 
-| Table of Contents | Manual page |
+| Topic | Documentation |
 |---|---|
-| Input Parameters | [Input reference](./input.md) |
-| Normalization of Physical Scales | [Normalization](./normalization.md) |
-| Population models and restrictions | [Species and capabilities](./models.md) |
-| Roots, frequency maps and scans | [Calculation modes](./modes.md) |
-| E/B and species density/velocity | [Eigenfunctions](./eigenfunctions.md) |
-| Signed absorption and complete formal energy | [Heating and wave energy](./heating.md) |
-| File schemas and Python readers | [Outputs](./output.md) |
-| Twelve-lesson learning path | [Examples](./examples.md) |
-| Harmonics, Z and numerical methods | [Numerics](./numerics.md) |
-| Missing/failed diagnostics | [Limitations](./limitations.md) |
+| Building and testing | [Installation](./INSTALL.md) |
+| First calculation | [Quick Start](./tutorial.md) |
+| Input parameters | [Input reference](./input.md) |
+| Physical scales and units | [Normalization](./normalization.md) |
+| Kinetic, cold and mixed populations | [Species and models](./models.md) |
+| Root finding, maps and scans | [Calculation modes](./modes.md) |
+| Fields, density and velocity perturbations | [Eigenfunctions and moments](./eigenfunctions.md) |
+| Absorption and formal wave energy | [Heating and wave energy](./heating.md) |
+| Output files and Python readers | [Outputs](./output.md) |
+| Worked calculations | [Examples](./examples.md) |
+| Numerical methods | [Numerics](./numerics.md) |
+| Restrictions and troubleshooting | [Limitations](./limitations.md) |
 | Historical numerical choices | [Reproducibility](./reproducibility.md) |
-| APIs and historical evidence | [Developer guide](./development.md) |
+| API, tests and development reports | [Developer guide](./development.md) |
+| Historical all-kinetic FPC | [JET-PLUME](./README-JETPLUME.md) |
 
-[JET-PLUME](./README-JETPLUME.md) provides historical all-kinetic FPC
-reconstructions. **More Details to follow**
-
+The manual describes current behavior. Development reports document earlier
+implementation milestones and may contain restrictions subsequently removed.
 
 <a id="authors-scientific-references-and-citation"></a>
 
-## Scientific References and Citation
+## Authors, scientific references and citation
 
-The PLUME kinetic solver descends from Eliot Quataert's solver and Gregory Howes's
-FORTRAN adaptation. 
-Its kinetic equations follow Stix, *Waves in Plasmas*,
-Chapter 10, equations 66–73. 
-The selected heating channels are discussed in the
+PLUME is maintained by Kristopher Klein (kgklein@arizona.edu), Gregory Howes
+(gregory-howes@uiowa.edu), and Collin Brown (collin.crbrown@gmail.com).
+The kinetic solver descends from [Quataert (1998)](https://scixplorer.org/abs/1998ApJ...500..978Q/abstract)
+and Gregory Howes's Fortran adaptation. Its kinetic equations follow Stix,
+*Waves in Plasmas*, Chapter 10, equations 66–73. The cold drifting response
+follows [Verscharen & Chandran (2013), Section 2.1](https://arxiv.org/pdf/1212.5192).
+The selected kinetic heating channels are discussed in the
 [PLUME code paper](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2)
 and [Huang et al. (2024)](https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/velocityspace-signature-of-transittime-damping/60F34E118AFFC3701071477C52A81174).
-The cold drifting response follows
-[Verscharen & Chandran (2013), Section 2.1](https://iopscience.iop.org/article/10.1088/0004-637X/764/1/88/pdf).
 
-For publications, cite the [PLUME paper](https://iopscience.iop.org/article/10.3847/2515-5172/add1c2),
-acknowledge [the repository](https://github.com/kgklein/PLUME), and record the
-version/commit and numerical settings used. 
-The established code-release citation is:
+For publications, cite the PLUME code paper, acknowledge the
+[repository](https://github.com/kgklein/PLUME), and record the source revision
+and numerical settings. The archived code-release citation is:
 
 ```bibtex
 @software{PLUME_2025,
@@ -87,9 +83,11 @@ The established code-release citation is:
 }
 ```
 
-The [NASA SciX library](https://scixplorer.org/public-libraries/LR2P1ENiTgO8Z-vBM_35DA)
-collects publications using PLUME. **If we have missed one, please let us know.**
+The archived release predates some current capabilities. Publications using
+PLUME are collected in the [NASA ADS](https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg)
+and [NASA SciX](https://scixplorer.org/public-libraries/LR2P1ENiTgO8Z-vBM_35DA)
+libraries.
 
 PLUME uses the [BSD 2-Clause license](https://github.com/kgklein/PLUME/blob/main/LICENSE).
-The bundled Steven G. Johnson Faddeeva implementation has its own MIT license;
-see [third-party provenance](https://github.com/kgklein/PLUME/blob/main/third_party/faddeeva/README.md).
+The bundled Steven G. Johnson Faddeeva implementation has a separate
+[MIT license](https://github.com/kgklein/PLUME/blob/main/third_party/faddeeva/README.md).
