@@ -1,0 +1,1320 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>calculate_heating &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>calculate_heating
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 2.2% of total for procedures.">177 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/heating_energy.html'>heating_energy</a></li>
+            <li class="breadcrumb-item active" aria-current="page">calculate_heating</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine calculate_heating(spec, w, kpar, kperp, a, e, r, bessel, zet_in, auxiliary_beta, heating_gamma_ratio_max)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~3"></span>
+              type(<a href='../type/specie.html'>specie</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong>(:)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-w~12"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>w</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kpar~9"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kpar</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kperp~8"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kperp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~12"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-e~10"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>e</strong>(3)</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r~7"></span>
+              type(<a href='../type/heating_result.html'>heating_result</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>r</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bessel~7"></span>
+              procedure(<a href='../interface/bessel_callback.html'>bessel_callback</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bessel</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zet_in~7"></span>
+              procedure(<a href='../interface/z_callback.html'>z_callback</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>zet_in</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-auxiliary_beta~2"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>auxiliary_beta</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heating_gamma_ratio_max~5"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>heating_gamma_ratio_max</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~calculate_heating~~CallsGraph Pages: 1 -->
+<svg id="proccalculate_heatingCallsGraph" width="641pt" height="283pt"
+ viewBox="0.00 0.00 641.00 283.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~calculate_heating~~CallsGraph" class="graph" transform="scale(0.520014 0.520014) rotate(0) translate(4 540.27)">
+<title>proc~~calculate_heating~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-540.27 1228.66,-540.27 1228.66,4 -4,4"/>
+<!-- proc~calculate_heating -->
+<g id="proc~~calculate_heating~~CallsGraph_node1" class="node">
+<title>proc~calculate_heating</title>
+<polygon fill="none" stroke="black" points="106.02,-338.27 0,-338.27 0,-314 106.02,-314 106.02,-338.27"/>
+<text xml:space="preserve" text-anchor="middle" x="53.01" y="-322.53" font-family="Helvetica,sans-Serif" font-size="10.50">calculate_heating</text>
+</g>
+<!-- proc~absorptive -->
+<g id="proc~~calculate_heating~~CallsGraph_node2" class="node">
+<title>proc~absorptive</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node2"><a xlink:href="../proc/absorptive.html" xlink:title="absorptive">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="422.69,-516.27 354.92,-516.27 354.92,-492 422.69,-492 422.69,-516.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-500.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">absorptive</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~absorptive -->
+<g id="proc~~calculate_heating~~CallsGraph_edge1" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~absorptive</title>
+<path fill="none" stroke="#000000" d="M57.95,-338.67C67.42,-366.56 94.3,-433.74 142.02,-465.13 174.32,-486.38 281.58,-496.98 343.2,-501.44"/>
+<polygon fill="#000000" stroke="#000000" points="342.79,-504.92 353.01,-502.12 343.27,-497.93 342.79,-504.92"/>
+</g>
+<!-- proc~cold_frequency_derivative -->
+<g id="proc~~calculate_heating~~CallsGraph_node3" class="node">
+<title>proc~cold_frequency_derivative</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node3"><a xlink:href="../proc/cold_frequency_derivative.html" xlink:title="cold_frequency_derivative">
+<polygon fill="#d9534f" stroke="#d9534f" points="293.04,-216.27 142.02,-216.27 142.02,-192 293.04,-192 293.04,-216.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-200.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cold_frequency_derivative</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~cold_frequency_derivative -->
+<g id="proc~~calculate_heating~~CallsGraph_edge2" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~cold_frequency_derivative</title>
+<path fill="none" stroke="#000000" d="M62.27,-313.71C76.35,-293.46 106.89,-253.26 142.02,-230.13 147.17,-226.74 152.81,-223.74 158.61,-221.1"/>
+<polygon fill="#000000" stroke="#000000" points="159.87,-224.37 167.76,-217.3 157.18,-217.9 159.87,-224.37"/>
+</g>
+<!-- proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_node4" class="node">
+<title>proc~diagnostic_nan</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node4"><a xlink:href="../proc/diagnostic_nan.html" xlink:title="diagnostic_nan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="434.69,-384.27 342.92,-384.27 342.92,-360 434.69,-360 434.69,-384.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-368.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">diagnostic_nan</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_edge3" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~diagnostic_nan</title>
+<path fill="none" stroke="#000000" d="M76.38,-338.59C93.71,-347.53 118.63,-358.9 142.02,-364.13 205.8,-378.4 281.18,-378.47 331.49,-376.21"/>
+<polygon fill="#000000" stroke="#000000" points="331.44,-379.72 341.26,-375.73 331.1,-372.73 331.44,-379.72"/>
+</g>
+<!-- proc~finish_energy -->
+<g id="proc~~calculate_heating~~CallsGraph_node5" class="node">
+<title>proc~finish_energy</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node5"><a xlink:href="../proc/finish_energy.html" xlink:title="finish_energy">
+<polygon fill="#d9534f" stroke="#d9534f" points="258.92,-338.27 176.15,-338.27 176.15,-314 258.92,-314 258.92,-338.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-322.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finish_energy</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~finish_energy -->
+<g id="proc~~calculate_heating~~CallsGraph_edge4" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~finish_energy</title>
+<path fill="none" stroke="#000000" d="M106.33,-326.13C124.84,-326.13 145.65,-326.13 164.16,-326.13"/>
+<polygon fill="#000000" stroke="#000000" points="164.13,-329.64 174.13,-326.14 164.13,-322.64 164.13,-329.64"/>
+</g>
+<!-- proc~finish_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_node6" class="node">
+<title>proc~finish_guard</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node6"><a xlink:href="../proc/finish_guard.html" xlink:title="finish_guard">
+<polygon fill="#d9534f" stroke="#d9534f" points="427.19,-342.27 350.42,-342.27 350.42,-318 427.19,-318 427.19,-342.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-326.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finish_guard</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~finish_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge5" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~finish_guard</title>
+<path fill="none" stroke="#000000" d="M97.97,-338.76C111.93,-342.19 127.51,-345.43 142.02,-347.13 208.68,-354.98 226.18,-353.08 293.04,-347.13 308.16,-345.79 324.49,-343.26 339.25,-340.55"/>
+<polygon fill="#000000" stroke="#000000" points="339.54,-344.06 348.71,-338.75 338.23,-337.18 339.54,-344.06"/>
+</g>
+<!-- proc~heating_channels -->
+<g id="proc~~calculate_heating~~CallsGraph_node7" class="node">
+<title>proc~heating_channels</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node7"><a xlink:href="../proc/heating_channels.html" xlink:title="heating_channels">
+<polygon fill="#d9534f" stroke="#d9534f" points="270.17,-536.27 164.9,-536.27 164.9,-512 270.17,-512 270.17,-536.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-520.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_channels</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~heating_channels -->
+<g id="proc~~calculate_heating~~CallsGraph_edge6" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~heating_channels</title>
+<path fill="none" stroke="#000000" d="M56.92,-338.52C64.93,-369.84 90.18,-452.96 142.02,-498.13 145.78,-501.41 149.98,-504.29 154.42,-506.8"/>
+<polygon fill="#000000" stroke="#000000" points="152.56,-509.79 163.08,-511.08 155.66,-503.51 152.56,-509.79"/>
+</g>
+<!-- proc~hermitian -->
+<g id="proc~~calculate_heating~~CallsGraph_node8" class="node">
+<title>proc~hermitian</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node8"><a xlink:href="../proc/hermitian.html" xlink:title="hermitian">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="420.44,-123.27 357.17,-123.27 357.17,-99 420.44,-99 420.44,-123.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-107.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">hermitian</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~hermitian -->
+<g id="proc~~calculate_heating~~CallsGraph_edge7" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~hermitian</title>
+<path fill="none" stroke="#000000" d="M58.05,-313.55C67.73,-285.5 95.01,-217.62 142.02,-183.13 197.83,-142.2 226.85,-165.36 293.04,-145.13 309.31,-140.16 313.03,-137.89 329.04,-132.13 334.51,-130.17 340.26,-128.11 345.94,-126.07"/>
+<polygon fill="#000000" stroke="#000000" points="347.03,-129.41 355.26,-122.74 344.67,-122.81 347.03,-129.41"/>
+</g>
+<!-- proc~quadratic -->
+<g id="proc~~calculate_heating~~CallsGraph_node9" class="node">
+<title>proc~quadratic</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node9"><a xlink:href="../proc/quadratic.html" xlink:title="quadratic">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="248.79,-136.27 186.27,-136.27 186.27,-112 248.79,-112 248.79,-136.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-120.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">quadratic</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~quadratic -->
+<g id="proc~~calculate_heating~~CallsGraph_edge8" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~quadratic</title>
+<path fill="none" stroke="#000000" d="M56.72,-313.94C64.39,-282.25 89.18,-196.61 142.02,-150.13 151.3,-141.97 163.28,-136.34 174.92,-132.46"/>
+<polygon fill="#000000" stroke="#000000" points="175.8,-135.85 184.42,-129.68 173.84,-129.13 175.8,-135.85"/>
+</g>
+<!-- proc~reset_heating -->
+<g id="proc~~calculate_heating~~CallsGraph_node10" class="node">
+<title>proc~reset_heating</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node10"><a xlink:href="../proc/reset_heating.html" xlink:title="reset_heating">
+<polygon fill="#d9534f" stroke="#d9534f" points="259.29,-456.27 175.77,-456.27 175.77,-432 259.29,-432 259.29,-456.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-440.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">reset_heating</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~reset_heating -->
+<g id="proc~~calculate_heating~~CallsGraph_edge9" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~reset_heating</title>
+<path fill="none" stroke="#000000" d="M62.86,-338.65C77.31,-358.23 107.82,-396.13 142.02,-418.13 148.99,-422.62 156.83,-426.44 164.73,-429.65"/>
+<polygon fill="#000000" stroke="#000000" points="163.47,-432.92 174.06,-433.14 165.92,-426.36 163.47,-432.92"/>
+</g>
+<!-- proc~response_snapshot -->
+<g id="proc~~calculate_heating~~CallsGraph_node11" class="node">
+<title>proc~response_snapshot</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node11"><a xlink:href="../proc/response_snapshot.html" xlink:title="response_snapshot">
+<polygon fill="#d9534f" stroke="#d9534f" points="273.92,-296.27 161.15,-296.27 161.15,-272 273.92,-272 273.92,-296.27"/>
+<text xml:space="preserve" text-anchor="middle" x="217.53" y="-280.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">response_snapshot</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~response_snapshot -->
+<g id="proc~~calculate_heating~~CallsGraph_edge10" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~response_snapshot</title>
+<path fill="none" stroke="#000000" d="M102.77,-313.53C119.73,-309.15 138.94,-304.19 156.69,-299.6"/>
+<polygon fill="#000000" stroke="#000000" points="157.53,-303 166.34,-297.11 155.78,-296.22 157.53,-303"/>
+</g>
+<!-- proc~start_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_node12" class="node">
+<title>proc~start_guard</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node12"><a xlink:href="../proc/start_guard.html" xlink:title="start_guard">
+<polygon fill="#d9534f" stroke="#d9534f" points="424.94,-258.27 352.67,-258.27 352.67,-234 424.94,-234 424.94,-258.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-242.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">start_guard</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~start_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge11" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~start_guard</title>
+<path fill="none" stroke="#000000" d="M66.67,-313.51C82.67,-298.46 111.78,-274.01 142.02,-263.13 208.11,-239.37 290.54,-239.1 341.16,-241.96"/>
+<polygon fill="#000000" stroke="#000000" points="340.67,-245.43 350.87,-242.58 341.11,-238.45 340.67,-245.43"/>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_edge14" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~diagnostic_nan</title>
+<path fill="none" stroke="#000000" d="M239.62,-216.57C256.06,-227.17 278.46,-243.75 293.04,-263.13 318.43,-296.91 298.49,-321.94 329.04,-351.13 330.26,-352.3 331.56,-353.41 332.91,-354.45"/>
+<polygon fill="#000000" stroke="#000000" points="330.89,-357.32 341.21,-359.69 334.62,-351.4 330.89,-357.32"/>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~finish_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge15" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~finish_guard</title>
+<path fill="none" stroke="#000000" d="M236.67,-216.63C252.4,-227.89 275.36,-245.35 293.04,-263.13 311.34,-281.54 307.99,-293.95 329.04,-309.13 332.4,-311.56 336.07,-313.73 339.88,-315.66"/>
+<polygon fill="#000000" stroke="#000000" points="338.23,-318.76 348.79,-319.64 341.08,-312.37 338.23,-318.76"/>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~hermitian -->
+<g id="proc~~calculate_heating~~CallsGraph_edge16" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~hermitian</title>
+<path fill="none" stroke="#000000" d="M267.41,-191.59C276.4,-188.06 285.35,-183.64 293.04,-178.13 314.15,-163.02 307.99,-147.32 329.04,-132.13 334.33,-128.32 340.38,-125.13 346.55,-122.5"/>
+<polygon fill="#000000" stroke="#000000" points="347.39,-125.92 355.5,-119.1 344.9,-119.38 347.39,-125.92"/>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~start_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge17" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~start_guard</title>
+<path fill="none" stroke="#000000" d="M269.32,-216.74C292.23,-222.42 319.1,-229.09 341.45,-234.64"/>
+<polygon fill="#000000" stroke="#000000" points="340.34,-237.96 350.89,-236.98 342.02,-231.17 340.34,-237.96"/>
+</g>
+<!-- proc~calc_chi_cold -->
+<g id="proc~~calculate_heating~~CallsGraph_node13" class="node">
+<title>proc~calc_chi_cold</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node13"><a xlink:href="../proc/calc_chi_cold.html" xlink:title="calc_chi_cold">
+<polygon fill="#d9534f" stroke="#d9534f" points="429.81,-216.27 347.79,-216.27 347.79,-192 429.81,-192 429.81,-216.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-200.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_chi_cold</text>
+</a>
+</g>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~calc_chi_cold -->
+<g id="proc~~calculate_heating~~CallsGraph_edge12" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~calc_chi_cold</title>
+<path fill="none" stroke="#000000" d="M293.27,-204.13C307.65,-204.13 322.42,-204.13 335.89,-204.13"/>
+<polygon fill="#000000" stroke="#000000" points="335.83,-207.64 345.83,-204.14 335.83,-200.64 335.83,-207.64"/>
+</g>
+<!-- proc~calc_cold_moments -->
+<g id="proc~~calculate_heating~~CallsGraph_node14" class="node">
+<title>proc~calc_cold_moments</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node14"><a xlink:href="../proc/calc_cold_moments.html" xlink:title="calc_cold_moments">
+<polygon fill="#d9534f" stroke="#d9534f" points="447.06,-165.27 330.54,-165.27 330.54,-141 447.06,-141 447.06,-165.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-149.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_cold_moments</text>
+</a>
+</g>
+</g>
+<!-- proc~cold_frequency_derivative&#45;&gt;proc~calc_cold_moments -->
+<g id="proc~~calculate_heating~~CallsGraph_edge13" class="edge">
+<title>proc~cold_frequency_derivative&#45;&gt;proc~calc_cold_moments</title>
+<path fill="none" stroke="#000000" d="M260.37,-191.53C283.04,-184.7 311.27,-176.19 335.39,-168.93"/>
+<polygon fill="#000000" stroke="#000000" points="336.13,-172.36 344.7,-166.12 334.11,-165.66 336.13,-172.36"/>
+</g>
+<!-- proc~finish_energy&#45;&gt;proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_edge18" class="edge">
+<title>proc~finish_energy&#45;&gt;proc~diagnostic_nan</title>
+<path fill="none" stroke="#000000" d="M259.07,-337.15C280.77,-343.05 307.84,-350.41 331.54,-356.85"/>
+<polygon fill="#000000" stroke="#000000" points="330.49,-360.19 341.06,-359.43 332.33,-353.43 330.49,-360.19"/>
+</g>
+<!-- proc~finish_energy&#45;&gt;proc~finish_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge19" class="edge">
+<title>proc~finish_energy&#45;&gt;proc~finish_guard</title>
+<path fill="none" stroke="#000000" d="M259.07,-327.09C283.08,-327.66 313.65,-328.38 338.97,-328.98"/>
+<polygon fill="#000000" stroke="#000000" points="338.6,-332.47 348.68,-329.21 338.77,-325.48 338.6,-332.47"/>
+</g>
+<!-- proc~finish_energy&#45;&gt;proc~start_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge20" class="edge">
+<title>proc~finish_energy&#45;&gt;proc~start_guard</title>
+<path fill="none" stroke="#000000" d="M259.22,-318.88C270.68,-315.74 282.8,-311.32 293.04,-305.13 312.95,-293.1 309.55,-279.84 329.04,-267.13 333.02,-264.54 337.36,-262.22 341.83,-260.15"/>
+<polygon fill="#000000" stroke="#000000" points="343.06,-263.43 350.95,-256.36 340.37,-256.96 343.06,-263.43"/>
+</g>
+<!-- proc~heating_channels&#45;&gt;proc~absorptive -->
+<g id="proc~~calculate_heating~~CallsGraph_edge21" class="edge">
+<title>proc~heating_channels&#45;&gt;proc~absorptive</title>
+<path fill="none" stroke="#000000" d="M270.24,-518.03C293.58,-515.27 320.89,-512.04 343.31,-509.39"/>
+<polygon fill="#000000" stroke="#000000" points="343.52,-512.89 353.04,-508.24 342.7,-505.94 343.52,-512.89"/>
+</g>
+<!-- proc~reset_heating&#45;&gt;proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_edge22" class="edge">
+<title>proc~reset_heating&#45;&gt;proc~diagnostic_nan</title>
+<path fill="none" stroke="#000000" d="M257.14,-431.62C268.78,-427.59 281.53,-422.92 293.04,-418.13 313.55,-409.61 335.94,-398.82 353.79,-389.83"/>
+<polygon fill="#000000" stroke="#000000" points="355.33,-392.98 362.66,-385.33 352.16,-386.74 355.33,-392.98"/>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~diagnostic_nan -->
+<g id="proc~~calculate_heating~~CallsGraph_edge25" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~diagnostic_nan</title>
+<path fill="none" stroke="#000000" d="M274.4,-295.62C280.97,-298.19 287.35,-301.32 293.04,-305.13 314.6,-319.59 307.99,-335.95 329.04,-351.13 330.58,-352.25 332.19,-353.3 333.84,-354.31"/>
+<polygon fill="#000000" stroke="#000000" points="331.91,-357.25 342.39,-358.82 335.17,-351.06 331.91,-357.25"/>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~finish_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge26" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~finish_guard</title>
+<path fill="none" stroke="#000000" d="M264.78,-296.7C287.83,-302.97 315.7,-310.54 339.08,-316.89"/>
+<polygon fill="#000000" stroke="#000000" points="338.13,-320.26 348.69,-319.51 339.96,-313.51 338.13,-320.26"/>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~start_guard -->
+<g id="proc~~calculate_heating~~CallsGraph_edge27" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~start_guard</title>
+<path fill="none" stroke="#000000" d="M273.96,-271.69C295.68,-266.82 320.32,-261.28 341.12,-256.62"/>
+<polygon fill="#000000" stroke="#000000" points="341.76,-260.06 350.75,-254.45 340.23,-253.23 341.76,-260.06"/>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~calc_chi_cold -->
+<g id="proc~~calculate_heating~~CallsGraph_edge23" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~calc_chi_cold</title>
+<path fill="none" stroke="#000000" d="M239.66,-271.65C261.57,-258.99 297.02,-239.31 329.04,-225.13 332.36,-223.67 335.81,-222.22 339.32,-220.82"/>
+<polygon fill="#000000" stroke="#000000" points="340.37,-224.17 348.45,-217.31 337.86,-217.63 340.37,-224.17"/>
+</g>
+<!-- proc~calc_warm_auxiliary -->
+<g id="proc~~calculate_heating~~CallsGraph_node15" class="node">
+<title>proc~calc_warm_auxiliary</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node15"><a xlink:href="../proc/calc_warm_auxiliary.html" xlink:title="calc_warm_auxiliary">
+<polygon fill="#d9534f" stroke="#d9534f" points="448.56,-300.27 329.04,-300.27 329.04,-276 448.56,-276 448.56,-300.27"/>
+<text xml:space="preserve" text-anchor="middle" x="388.8" y="-284.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_warm_auxiliary</text>
+</a>
+</g>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~calc_warm_auxiliary -->
+<g id="proc~~calculate_heating~~CallsGraph_edge24" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~calc_warm_auxiliary</title>
+<path fill="none" stroke="#000000" d="M273.96,-285.44C287.8,-285.77 302.84,-286.13 317.31,-286.47"/>
+<polygon fill="#000000" stroke="#000000" points="317.16,-289.97 327.24,-286.7 317.33,-282.97 317.16,-289.97"/>
+</g>
+<!-- proc~begin_arithmetic -->
+<g id="proc~~calculate_heating~~CallsGraph_node17" class="node">
+<title>proc~begin_arithmetic</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node17"><a xlink:href="../proc/begin_arithmetic.html" xlink:title="begin_arithmetic">
+<polygon fill="#d9534f" stroke="#d9534f" points="618.71,-146.27 517.19,-146.27 517.19,-122 618.71,-122 618.71,-146.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-130.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">begin_arithmetic</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_cold_moments&#45;&gt;proc~begin_arithmetic -->
+<g id="proc~~calculate_heating~~CallsGraph_edge28" class="edge">
+<title>proc~calc_cold_moments&#45;&gt;proc~begin_arithmetic</title>
+<path fill="none" stroke="#000000" d="M447.31,-146.97C465.97,-144.96 486.74,-142.74 505.67,-140.71"/>
+<polygon fill="#000000" stroke="#000000" points="505.79,-144.21 515.36,-139.67 505.05,-137.25 505.79,-144.21"/>
+</g>
+<!-- proc~end_arithmetic -->
+<g id="proc~~calculate_heating~~CallsGraph_node21" class="node">
+<title>proc~end_arithmetic</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node21"><a xlink:href="../proc/end_arithmetic.html" xlink:title="end_arithmetic">
+<polygon fill="#d9534f" stroke="#d9534f" points="613.83,-104.27 522.06,-104.27 522.06,-80 613.83,-80 613.83,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-88.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">end_arithmetic</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_cold_moments&#45;&gt;proc~end_arithmetic -->
+<g id="proc~~calculate_heating~~CallsGraph_edge29" class="edge">
+<title>proc~calc_cold_moments&#45;&gt;proc~end_arithmetic</title>
+<path fill="none" stroke="#000000" d="M427.42,-140.59C434.51,-137.97 441.82,-135.1 448.56,-132.13 465.12,-124.85 467.68,-119.64 484.56,-113.14 492.89,-109.93 501.88,-107.06 510.76,-104.56"/>
+<polygon fill="#000000" stroke="#000000" points="511.66,-107.94 520.41,-101.97 509.85,-101.18 511.66,-107.94"/>
+</g>
+<!-- proc~finite~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_node23" class="node">
+<title>proc~finite~2</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node23"><a xlink:href="../proc/finite~2.html" xlink:title="finite">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="753.09,-64.27 699.09,-64.27 699.09,-40 753.09,-40 753.09,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="726.09" y="-48.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finite</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_cold_moments&#45;&gt;proc~finite~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_edge30" class="edge">
+<title>proc~calc_cold_moments&#45;&gt;proc~finite~2</title>
+<path fill="none" stroke="#000000" d="M435.2,-140.63C439.98,-138.25 444.55,-135.45 448.56,-132.13 472.83,-112.09 457.86,-87.81 484.56,-71.14 547.06,-32.11 637.23,-37.74 687.54,-45.09"/>
+<polygon fill="#000000" stroke="#000000" points="686.91,-48.53 697.34,-46.63 688,-41.62 686.91,-48.53"/>
+</g>
+<!-- proc~invalid -->
+<g id="proc~~calculate_heating~~CallsGraph_node24" class="node">
+<title>proc~invalid</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node24"><a xlink:href="../proc/invalid.html" xlink:title="invalid">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="753.09,-146.27 699.09,-146.27 699.09,-122 753.09,-122 753.09,-146.27"/>
+<text xml:space="preserve" text-anchor="middle" x="726.09" y="-130.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">invalid</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_cold_moments&#45;&gt;proc~invalid -->
+<g id="proc~~calculate_heating~~CallsGraph_edge31" class="edge">
+<title>proc~calc_cold_moments&#45;&gt;proc~invalid</title>
+<path fill="none" stroke="#000000" d="M447.51,-158.38C500.72,-162.09 581.74,-164.85 651.33,-155.13 663.52,-153.43 676.53,-150.22 688.17,-146.81"/>
+<polygon fill="#000000" stroke="#000000" points="688.87,-150.26 697.4,-143.97 686.81,-143.57 688.87,-150.26"/>
+</g>
+<!-- proc~validate -->
+<g id="proc~~calculate_heating~~CallsGraph_node27" class="node">
+<title>proc~validate</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node27"><a xlink:href="../proc/validate.html" xlink:title="validate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="595.08,-24.27 540.81,-24.27 540.81,0 595.08,0 595.08,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-8.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_cold_moments&#45;&gt;proc~validate -->
+<g id="proc~~calculate_heating~~CallsGraph_edge32" class="edge">
+<title>proc~calc_cold_moments&#45;&gt;proc~validate</title>
+<path fill="none" stroke="#000000" d="M436.94,-140.64C441.18,-138.27 445.15,-135.47 448.56,-132.13 480.55,-100.86 451.99,-68.8 484.56,-38.14 496.77,-26.63 514.04,-20.22 529.62,-16.64"/>
+<polygon fill="#000000" stroke="#000000" points="529.93,-20.15 539.07,-14.8 528.59,-13.28 529.93,-20.15"/>
+</g>
+<!-- proc~auxiliary_species -->
+<g id="proc~~calculate_heating~~CallsGraph_node16" class="node">
+<title>proc~auxiliary_species</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node16"><a xlink:href="../proc/auxiliary_species.html" xlink:title="auxiliary_species">
+<polygon fill="#d9534f" stroke="#d9534f" points="619.08,-436.27 516.81,-436.27 516.81,-412 619.08,-412 619.08,-436.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-420.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">auxiliary_species</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~auxiliary_species -->
+<g id="proc~~calculate_heating~~CallsGraph_edge33" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~auxiliary_species</title>
+<path fill="none" stroke="#000000" d="M436.94,-300.63C441.18,-303 445.15,-305.8 448.56,-309.13 480.55,-340.41 451.14,-373.39 484.56,-403.13 490.7,-408.6 498.07,-412.68 505.84,-415.72"/>
+<polygon fill="#000000" stroke="#000000" points="504.57,-418.99 515.17,-418.78 506.76,-412.34 504.57,-418.99"/>
+</g>
+<!-- proc~calc_chi_adaptive -->
+<g id="proc~~calculate_heating~~CallsGraph_node18" class="node">
+<title>proc~calc_chi_adaptive</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node18"><a xlink:href="../proc/calc_chi_adaptive.html" xlink:title="calc_chi_adaptive">
+<polygon fill="#d9534f" stroke="#d9534f" points="620.96,-394.27 514.94,-394.27 514.94,-370 620.96,-370 620.96,-394.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-378.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_chi_adaptive</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~calc_chi_adaptive -->
+<g id="proc~~calculate_heating~~CallsGraph_edge34" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~calc_chi_adaptive</title>
+<path fill="none" stroke="#000000" d="M434.36,-300.64C439.4,-303.03 444.26,-305.84 448.56,-309.13 470.86,-326.24 461.48,-345.09 484.56,-361.13 490.45,-365.23 497.06,-368.52 503.92,-371.17"/>
+<polygon fill="#000000" stroke="#000000" points="502.8,-374.49 513.4,-374.36 505.03,-367.85 502.8,-374.49"/>
+</g>
+<!-- proc~calc_chi_kinetic -->
+<g id="proc~~calculate_heating~~CallsGraph_node19" class="node">
+<title>proc~calc_chi_kinetic</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node19"><a xlink:href="../proc/calc_chi_kinetic.html" xlink:title="calc_chi_kinetic">
+<polygon fill="#d9534f" stroke="#d9534f" points="615.33,-352.27 520.56,-352.27 520.56,-328 615.33,-328 615.33,-352.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-336.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_chi_kinetic</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~calc_chi_kinetic -->
+<g id="proc~~calculate_heating~~CallsGraph_edge35" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~calc_chi_kinetic</title>
+<path fill="none" stroke="#000000" d="M426.07,-300.63C443.65,-306.52 465.11,-313.48 484.56,-319.13 492.45,-321.43 500.81,-323.72 509.06,-325.9"/>
+<polygon fill="#000000" stroke="#000000" points="508.16,-329.28 518.71,-328.41 509.92,-322.5 508.16,-329.28"/>
+</g>
+<!-- proc~dynamic_harmonics -->
+<g id="proc~~calculate_heating~~CallsGraph_node20" class="node">
+<title>proc~dynamic_harmonics</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node20"><a xlink:href="../proc/dynamic_harmonics.html" xlink:title="dynamic_harmonics">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="627.33,-310.27 508.56,-310.27 508.56,-286 627.33,-286 627.33,-310.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-294.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">dynamic_harmonics</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~dynamic_harmonics -->
+<g id="proc~~calculate_heating~~CallsGraph_edge36" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~dynamic_harmonics</title>
+<path fill="none" stroke="#000000" d="M448.79,-291.46C464.17,-292.33 480.91,-293.28 496.81,-294.18"/>
+<polygon fill="#000000" stroke="#000000" points="496.52,-297.67 506.7,-294.73 496.92,-290.68 496.52,-297.67"/>
+</g>
+<!-- proc~export_scale -->
+<g id="proc~~calculate_heating~~CallsGraph_node22" class="node">
+<title>proc~export_scale</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node22"><a xlink:href="../proc/export_scale.html" xlink:title="auxiliary_scale%export_scale">
+<polygon fill="#d9534f" stroke="#d9534f" points="651.33,-268.27 484.56,-268.27 484.56,-244 651.33,-244 651.33,-268.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-252.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">auxiliary_scale%export_scale</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~export_scale -->
+<g id="proc~~calculate_heating~~CallsGraph_edge37" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~export_scale</title>
+<path fill="none" stroke="#000000" d="M448.79,-277.48C460.77,-275.31 473.58,-273 486.17,-270.73"/>
+<polygon fill="#000000" stroke="#000000" points="486.45,-274.23 495.67,-269.01 485.21,-267.34 486.45,-274.23"/>
+</g>
+<!-- proc~make_auxiliary_scale -->
+<g id="proc~~calculate_heating~~CallsGraph_node25" class="node">
+<title>proc~make_auxiliary_scale</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node25"><a xlink:href="../proc/make_auxiliary_scale.html" xlink:title="make_auxiliary_scale">
+<polygon fill="#d9534f" stroke="#d9534f" points="630.71,-226.27 505.19,-226.27 505.19,-202 630.71,-202 630.71,-226.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-210.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">make_auxiliary_scale</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~make_auxiliary_scale -->
+<g id="proc~~calculate_heating~~CallsGraph_edge38" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~make_auxiliary_scale</title>
+<path fill="none" stroke="#000000" d="M431.49,-275.5C437.39,-273.07 443.25,-270.28 448.56,-267.13 466.98,-256.22 465.65,-245.17 484.56,-235.13 487.75,-233.44 491.09,-231.88 494.51,-230.43"/>
+<polygon fill="#000000" stroke="#000000" points="495.46,-233.82 503.57,-227 492.98,-227.27 495.46,-233.82"/>
+</g>
+<!-- proc~physical_bessel_argument -->
+<g id="proc~~calculate_heating~~CallsGraph_node26" class="node">
+<title>proc~physical_bessel_argument</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node26"><a xlink:href="../proc/physical_bessel_argument.html" xlink:title="physical_bessel_argument">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="643.83,-478.27 492.06,-478.27 492.06,-454 643.83,-454 643.83,-478.27"/>
+<text xml:space="preserve" text-anchor="middle" x="567.95" y="-462.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">physical_bessel_argument</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~physical_bessel_argument -->
+<g id="proc~~calculate_heating~~CallsGraph_edge39" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~physical_bessel_argument</title>
+<path fill="none" stroke="#000000" d="M437.88,-300.6C441.83,-302.97 445.48,-305.78 448.56,-309.13 490.87,-355.18 440.14,-401.13 484.56,-445.13 485.19,-445.76 485.83,-446.36 486.49,-446.95"/>
+<polygon fill="#000000" stroke="#000000" points="484.42,-449.77 494.58,-452.79 488.52,-444.1 484.42,-449.77"/>
+</g>
+<!-- proc~evaluate -->
+<g id="proc~~calculate_heating~~CallsGraph_node28" class="node">
+<title>proc~evaluate</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node28"><a xlink:href="../proc/evaluate.html" xlink:title="evaluate">
+<polygon fill="#d9534f" stroke="#d9534f" points="755.1,-436.27 697.08,-436.27 697.08,-412 755.1,-412 755.1,-436.27"/>
+<text xml:space="preserve" text-anchor="middle" x="726.09" y="-420.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">evaluate</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_chi_adaptive&#45;&gt;proc~evaluate -->
+<g id="proc~~calculate_heating~~CallsGraph_edge40" class="edge">
+<title>proc~calc_chi_adaptive&#45;&gt;proc~evaluate</title>
+<path fill="none" stroke="#000000" d="M619.11,-394.68C629.76,-397.42 640.93,-400.33 651.33,-403.13 662.61,-406.18 674.82,-409.6 686.01,-412.79"/>
+<polygon fill="#000000" stroke="#000000" points="684.74,-416.07 695.31,-415.46 686.67,-409.34 684.74,-416.07"/>
+</g>
+<!-- proc~fetch_bessel -->
+<g id="proc~~calculate_heating~~CallsGraph_node30" class="node">
+<title>proc~fetch_bessel</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node30"><a xlink:href="../proc/fetch_bessel.html" xlink:title="fetch_bessel">
+<polygon fill="#d9534f" stroke="#d9534f" points="764.85,-394.27 687.33,-394.27 687.33,-370 764.85,-370 764.85,-394.27"/>
+<text xml:space="preserve" text-anchor="middle" x="726.09" y="-378.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fetch_bessel</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_chi_adaptive&#45;&gt;proc~fetch_bessel -->
+<g id="proc~~calculate_heating~~CallsGraph_edge41" class="edge">
+<title>proc~calc_chi_adaptive&#45;&gt;proc~fetch_bessel</title>
+<path fill="none" stroke="#000000" d="M621.37,-382.13C638.96,-382.13 658.5,-382.13 675.84,-382.13"/>
+<polygon fill="#000000" stroke="#000000" points="675.36,-385.64 685.36,-382.14 675.36,-378.64 675.36,-385.64"/>
+</g>
+<!-- proc~evaluate~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_node29" class="node">
+<title>proc~evaluate~2</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node29"><a xlink:href="../proc/evaluate~2.html" xlink:title="evaluate">
+<polygon fill="#d9534f" stroke="#d9534f" points="755.1,-352.27 697.08,-352.27 697.08,-328 755.1,-328 755.1,-352.27"/>
+<text xml:space="preserve" text-anchor="middle" x="726.09" y="-336.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">evaluate</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_chi_kinetic&#45;&gt;proc~evaluate~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_edge42" class="edge">
+<title>proc~calc_chi_kinetic&#45;&gt;proc~evaluate~2</title>
+<path fill="none" stroke="#000000" d="M615.79,-340.13C637.97,-340.13 664.18,-340.13 685.37,-340.13"/>
+<polygon fill="#000000" stroke="#000000" points="685.37,-343.64 695.37,-340.14 685.37,-336.64 685.37,-343.64"/>
+</g>
+<!-- proc~end_arithmetic&#45;&gt;proc~finite~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_edge43" class="edge">
+<title>proc~end_arithmetic&#45;&gt;proc~finite~2</title>
+<path fill="none" stroke="#000000" d="M614.11,-80.57C637.58,-74.55 665.91,-67.3 688.07,-61.62"/>
+<polygon fill="#000000" stroke="#000000" points="688.75,-65.06 697.57,-59.19 687.01,-58.28 688.75,-65.06"/>
+</g>
+<!-- proc~end_arithmetic&#45;&gt;proc~invalid -->
+<g id="proc~~calculate_heating~~CallsGraph_edge44" class="edge">
+<title>proc~end_arithmetic&#45;&gt;proc~invalid</title>
+<path fill="none" stroke="#000000" d="M614.33,-103.46C626.37,-106.53 639.36,-109.91 651.33,-113.14 663.31,-116.37 676.35,-120.03 688.08,-123.38"/>
+<polygon fill="#000000" stroke="#000000" points="686.82,-126.66 697.4,-126.06 688.75,-119.93 686.82,-126.66"/>
+</g>
+<!-- proc~validate&#45;&gt;proc~finite~2 -->
+<g id="proc~~calculate_heating~~CallsGraph_edge45" class="edge">
+<title>proc~validate&#45;&gt;proc~finite~2</title>
+<path fill="none" stroke="#000000" d="M595.43,-18.92C620.75,-25.4 659.15,-35.24 687.6,-42.53"/>
+<polygon fill="#000000" stroke="#000000" points="686.71,-45.92 697.27,-45.01 688.45,-39.14 686.71,-45.92"/>
+</g>
+<!-- proc~emit_warning -->
+<g id="proc~~calculate_heating~~CallsGraph_node31" class="node">
+<title>proc~emit_warning</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node31"><a xlink:href="../proc/emit_warning.html" xlink:title="emit_warning">
+<polygon fill="#d9534f" stroke="#d9534f" points="902,-454.27 818.48,-454.27 818.48,-430 902,-430 902,-454.27"/>
+<text xml:space="preserve" text-anchor="middle" x="860.24" y="-438.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">emit_warning</text>
+</a>
+</g>
+</g>
+<!-- proc~fetch_bessel&#45;&gt;proc~emit_warning -->
+<g id="proc~~calculate_heating~~CallsGraph_edge46" class="edge">
+<title>proc~fetch_bessel&#45;&gt;proc~emit_warning</title>
+<path fill="none" stroke="#000000" d="M754.03,-394.65C767.98,-401.11 785.31,-409.09 800.85,-416.13 807.22,-419.02 813.99,-422.06 820.57,-425"/>
+<polygon fill="#000000" stroke="#000000" points="818.75,-428.02 829.31,-428.9 821.6,-421.63 818.75,-428.02"/>
+</g>
+<!-- proc~harmonic_tail_bounds -->
+<g id="proc~~calculate_heating~~CallsGraph_node32" class="node">
+<title>proc~harmonic_tail_bounds</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node32"><a xlink:href="../proc/harmonic_tail_bounds.html" xlink:title="harmonic_tail_bounds">
+<polygon fill="#d9534f" stroke="#d9534f" points="1224.66,-375.27 1096.14,-375.27 1096.14,-351 1224.66,-351 1224.66,-375.27"/>
+<text xml:space="preserve" text-anchor="middle" x="1160.4" y="-359.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">harmonic_tail_bounds</text>
+</a>
+</g>
+</g>
+<!-- proc~fetch_bessel&#45;&gt;proc~harmonic_tail_bounds -->
+<g id="proc~~calculate_heating~~CallsGraph_edge47" class="edge">
+<title>proc~fetch_bessel&#45;&gt;proc~harmonic_tail_bounds</title>
+<path fill="none" stroke="#000000" d="M765.15,-383.23C827.11,-384.6 953.59,-385.75 1060.14,-376.13 1067.96,-375.43 1076.12,-374.57 1084.24,-373.63"/>
+<polygon fill="#000000" stroke="#000000" points="1084.66,-377.1 1094.17,-372.43 1083.83,-370.15 1084.66,-377.1"/>
+</g>
+<!-- proc~scaled_bessel_array -->
+<g id="proc~~calculate_heating~~CallsGraph_node33" class="node">
+<title>proc~scaled_bessel_array</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node33"><a xlink:href="../proc/scaled_bessel_array.html" xlink:title="scaled_bessel_array">
+<polygon fill="#d9534f" stroke="#d9534f" points="919.62,-374.27 800.85,-374.27 800.85,-350 919.62,-350 919.62,-374.27"/>
+<text xml:space="preserve" text-anchor="middle" x="860.24" y="-358.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scaled_bessel_array</text>
+</a>
+</g>
+</g>
+<!-- proc~fetch_bessel&#45;&gt;proc~scaled_bessel_array -->
+<g id="proc~~calculate_heating~~CallsGraph_edge48" class="edge">
+<title>proc~fetch_bessel&#45;&gt;proc~scaled_bessel_array</title>
+<path fill="none" stroke="#000000" d="M765.31,-376.35C772.86,-375.21 781,-373.98 789.22,-372.73"/>
+<polygon fill="#000000" stroke="#000000" points="789.57,-376.22 798.94,-371.26 788.52,-369.3 789.57,-376.22"/>
+</g>
+<!-- proc~select_harmonics -->
+<g id="proc~~calculate_heating~~CallsGraph_node34" class="node">
+<title>proc~select_harmonics</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node34"><a xlink:href="../proc/select_harmonics.html" xlink:title="select_harmonics">
+<polygon fill="#d9534f" stroke="#d9534f" points="1060.14,-335.27 955.62,-335.27 955.62,-311 1060.14,-311 1060.14,-335.27"/>
+<text xml:space="preserve" text-anchor="middle" x="1007.88" y="-319.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">select_harmonics</text>
+</a>
+</g>
+</g>
+<!-- proc~fetch_bessel&#45;&gt;proc~select_harmonics -->
+<g id="proc~~calculate_heating~~CallsGraph_edge49" class="edge">
+<title>proc~fetch_bessel&#45;&gt;proc~select_harmonics</title>
+<path fill="none" stroke="#000000" d="M749.55,-369.63C771.18,-357.59 800.67,-341.19 800.85,-341.13 847.45,-326.86 902.56,-322.66 944.05,-321.87"/>
+<polygon fill="#000000" stroke="#000000" points="943.9,-325.37 953.86,-321.75 943.81,-318.37 943.9,-325.37"/>
+</g>
+<!-- proc~close_warnings -->
+<g id="proc~~calculate_heating~~CallsGraph_node35" class="node">
+<title>proc~close_warnings</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node35"><a xlink:href="../proc/close_warnings.html" xlink:title="close_warnings">
+<polygon fill="#d9534f" stroke="#d9534f" points="1054.14,-454.27 961.62,-454.27 961.62,-430 1054.14,-430 1054.14,-454.27"/>
+<text xml:space="preserve" text-anchor="middle" x="1007.88" y="-438.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">close_warnings</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~close_warnings -->
+<g id="proc~~calculate_heating~~CallsGraph_edge50" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~close_warnings</title>
+<path fill="none" stroke="#000000" d="M902.19,-442.13C917.02,-442.13 934.04,-442.13 949.99,-442.13"/>
+<polygon fill="#000000" stroke="#000000" points="949.86,-445.64 959.86,-442.14 949.86,-438.64 949.86,-445.64"/>
+</g>
+<!-- proc~warning_io_failure -->
+<g id="proc~~calculate_heating~~CallsGraph_node36" class="node">
+<title>proc~warning_io_failure</title>
+<g id="a_proc~~calculate_heating~~CallsGraph_node36"><a xlink:href="../proc/warning_io_failure.html" xlink:title="warning_io_failure">
+<polygon fill="#d9534f" stroke="#d9534f" points="1214.54,-474.27 1106.27,-474.27 1106.27,-450 1214.54,-450 1214.54,-474.27"/>
+<text xml:space="preserve" text-anchor="middle" x="1160.4" y="-458.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">warning_io_failure</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~calculate_heating~~CallsGraph_edge51" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M902.26,-453.31C918.71,-457.26 937.93,-461.19 955.62,-463.13 1001.97,-468.23 1054.61,-467.81 1094.78,-466.21"/>
+<polygon fill="#000000" stroke="#000000" points="1094.67,-469.72 1104.51,-465.78 1094.37,-462.72 1094.67,-469.72"/>
+</g>
+<!-- proc~scaled_bessel_array&#45;&gt;proc~harmonic_tail_bounds -->
+<g id="proc~~calculate_heating~~CallsGraph_edge52" class="edge">
+<title>proc~scaled_bessel_array&#45;&gt;proc~harmonic_tail_bounds</title>
+<path fill="none" stroke="#000000" d="M919.79,-362.33C966.93,-362.49 1033.51,-362.71 1084.53,-362.88"/>
+<polygon fill="#000000" stroke="#000000" points="1084.3,-366.38 1094.31,-362.92 1084.32,-359.38 1084.3,-366.38"/>
+</g>
+<!-- proc~scaled_bessel_array&#45;&gt;proc~select_harmonics -->
+<g id="proc~~calculate_heating~~CallsGraph_edge53" class="edge">
+<title>proc~scaled_bessel_array&#45;&gt;proc~select_harmonics</title>
+<path fill="none" stroke="#000000" d="M908.12,-349.58C921.05,-346.12 935.23,-342.32 948.71,-338.71"/>
+<polygon fill="#000000" stroke="#000000" points="949.62,-342.09 958.37,-336.12 947.81,-335.33 949.62,-342.09"/>
+</g>
+<!-- proc~select_harmonics&#45;&gt;proc~harmonic_tail_bounds -->
+<g id="proc~~calculate_heating~~CallsGraph_edge54" class="edge">
+<title>proc~select_harmonics&#45;&gt;proc~harmonic_tail_bounds</title>
+<path fill="none" stroke="#000000" d="M1056.09,-335.68C1070.45,-339.5 1086.4,-343.74 1101.39,-347.72"/>
+<polygon fill="#000000" stroke="#000000" points="1100.07,-350.99 1110.63,-350.18 1101.87,-344.22 1100.07,-350.99"/>
+</g>
+<!-- proc~close_warnings&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~calculate_heating~~CallsGraph_edge55" class="edge">
+<title>proc~close_warnings&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M1054.45,-448.19C1067.09,-449.87 1081.06,-451.73 1094.58,-453.52"/>
+<polygon fill="#000000" stroke="#000000" points="1093.91,-456.96 1104.28,-454.81 1094.83,-450.02 1093.91,-456.96"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panproccalculate_heatingCallsGraph = svgPanZoom('#proccalculate_heatingCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~calculate_heating~~CalledByGraph Pages: 1 -->
+<svg id="proccalculate_heatingCalledByGraph" width="502pt" height="116pt"
+ viewBox="0.00 0.00 502.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~calculate_heating~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 112.27)">
+<title>proc~~calculate_heating~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-112.27 497.56,-112.27 497.56,4 -4,4"/>
+<!-- proc~calculate_heating -->
+<g id="proc~~calculate_heating~~CalledByGraph_node1" class="node">
+<title>proc~calculate_heating</title>
+<polygon fill="none" stroke="black" points="493.56,-66.27 387.54,-66.27 387.54,-42 493.56,-42 493.56,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="440.55" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50">calculate_heating</text>
+</g>
+<!-- proc~calc_corrected_eigen -->
+<g id="proc~~calculate_heating~~CalledByGraph_node2" class="node">
+<title>proc~calc_corrected_eigen</title>
+<g id="a_proc~~calculate_heating~~CalledByGraph_node2"><a xlink:href="../proc/calc_corrected_eigen.html" xlink:title="calc_corrected_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="351.54,-66.27 226.77,-66.27 226.77,-42 351.54,-42 351.54,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="289.15" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_corrected_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_corrected_eigen&#45;&gt;proc~calculate_heating -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge1" class="edge">
+<title>proc~calc_corrected_eigen&#45;&gt;proc~calculate_heating</title>
+<path fill="none" stroke="#000000" d="M351.78,-54.13C359.67,-54.13 367.75,-54.13 375.67,-54.13"/>
+<polygon fill="#000000" stroke="#000000" points="375.6,-57.64 385.6,-54.14 375.6,-50.64 375.6,-57.64"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~calculate_heating~~CalledByGraph_node3" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~calculate_heating~~CalledByGraph_node3"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="190.77,-108.27 90,-108.27 90,-84 190.77,-84 190.77,-108.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-92.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge2" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M185.42,-83.53C200.51,-79.21 217.59,-74.33 233.43,-69.8"/>
+<polygon fill="#000000" stroke="#000000" points="234.04,-73.26 242.7,-67.14 232.12,-66.53 234.04,-73.26"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~calculate_heating~~CalledByGraph_node4" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~calculate_heating~~CalledByGraph_node4"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="169.77,-66.27 111,-66.27 111,-42 169.77,-42 169.77,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge3" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M170.03,-54.13C183.11,-54.13 199.26,-54.13 215.37,-54.13"/>
+<polygon fill="#000000" stroke="#000000" points="214.97,-57.64 224.97,-54.14 214.97,-50.64 214.97,-57.64"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~calculate_heating~~CalledByGraph_node5" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~calculate_heating~~CalledByGraph_node5"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="169.39,-24.27 111.38,-24.27 111.38,0 169.39,0 169.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge4" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M169.68,-20.23C187.63,-25.37 211.45,-32.19 233.02,-38.36"/>
+<polygon fill="#000000" stroke="#000000" points="232.02,-41.71 242.6,-41.1 233.95,-34.98 232.02,-41.71"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~calculate_heating~~CalledByGraph_node6" class="node">
+<title>program~plume</title>
+<g id="a_proc~~calculate_heating~~CalledByGraph_node6"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-66.27 0,-66.27 0,-42 54,-42 54,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge5" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M54.4,-64.09C66.7,-68.73 81.67,-74.37 95.6,-79.62"/>
+<polygon fill="#000000" stroke="#000000" points="93.98,-82.75 104.57,-83.01 96.45,-76.2 93.98,-82.75"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge6" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M54.4,-54.13C67.93,-54.13 84.69,-54.13 99.74,-54.13"/>
+<polygon fill="#000000" stroke="#000000" points="99.32,-57.64 109.32,-54.14 99.32,-50.64 99.32,-57.64"/>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~calculate_heating~~CalledByGraph_edge7" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M54.4,-44.18C68.17,-38.99 85.28,-32.54 100.53,-26.79"/>
+<polygon fill="#000000" stroke="#000000" points="101.69,-30.09 109.81,-23.29 99.22,-23.54 101.69,-30.09"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

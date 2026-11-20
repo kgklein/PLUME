@@ -1,0 +1,670 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>finite_complex &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>finite_complex
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">4 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/cold_susceptibility.html'>cold_susceptibility</a></li>
+            <li class="breadcrumb-item active" aria-current="page">finite_complex</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function finite_complex(value)  
+</h2>
+    
+
+    <p>Keep IEEE checks outside fast-math compilation units.</p>
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~8"></span>
+              complex(kind=SPC),
+            </td>
+<td>intent(in),</td>
+              <td></td>            <td>
+              value
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-finite_complex"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~finite_complex~~CalledByGraph Pages: 1 -->
+<svg id="procfinite_complexCalledByGraph" width="641pt" height="305pt"
+ viewBox="0.00 0.00 641.00 305.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~finite_complex~~CalledByGraph" class="graph" transform="scale(0.856837 0.856837) rotate(0) translate(4 352.27)">
+<title>proc~~finite_complex~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-352.27 744.1,-352.27 744.1,4 -4,4"/>
+<!-- proc~finite_complex -->
+<g id="proc~~finite_complex~~CalledByGraph_node1" class="node">
+<title>proc~finite_complex</title>
+<polygon fill="none" stroke="black" points="740.1,-234.27 651.33,-234.27 651.33,-210 740.1,-210 740.1,-234.27"/>
+<text xml:space="preserve" text-anchor="middle" x="695.71" y="-218.53" font-family="Helvetica,sans-Serif" font-size="10.50">finite_complex</text>
+</g>
+<!-- proc~disp_mixed -->
+<g id="proc~~finite_complex~~CalledByGraph_node2" class="node">
+<title>proc~disp_mixed</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node2"><a xlink:href="../proc/disp_mixed.html" xlink:title="disp_mixed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="615.33,-171.27 543.81,-171.27 543.81,-147 615.33,-147 615.33,-171.27"/>
+<text xml:space="preserve" text-anchor="middle" x="579.57" y="-155.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed</text>
+</a>
+</g>
+</g>
+<!-- proc~disp_mixed&#45;&gt;proc~finite_complex -->
+<g id="proc~~finite_complex~~CalledByGraph_edge1" class="edge">
+<title>proc~disp_mixed&#45;&gt;proc~finite_complex</title>
+<path fill="none" stroke="#000000" d="M603.39,-171.73C620.19,-181 643.27,-193.74 662.02,-204.09"/>
+<polygon fill="#000000" stroke="#000000" points="660.16,-207.06 670.6,-208.83 663.54,-200.93 660.16,-207.06"/>
+</g>
+<!-- proc~map_search -->
+<g id="proc~~finite_complex~~CalledByGraph_node3" class="node">
+<title>proc~map_search</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node3"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
+<polygon fill="#d9534f" stroke="#d9534f" points="296.79,-314.27 220.77,-314.27 220.77,-290 296.79,-290 296.79,-314.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-298.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
+</a>
+</g>
+</g>
+<!-- proc~map_search&#45;&gt;proc~finite_complex -->
+<g id="proc~~finite_complex~~CalledByGraph_edge2" class="edge">
+<title>proc~map_search&#45;&gt;proc~finite_complex</title>
+<path fill="none" stroke="#000000" d="M297.19,-296.3C329.25,-291.22 376.62,-283.54 417.81,-276.13 495.16,-262.23 584.32,-244.55 640.11,-233.28"/>
+<polygon fill="#000000" stroke="#000000" points="640.56,-236.76 649.66,-231.34 639.17,-229.9 640.56,-236.76"/>
+</g>
+<!-- proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_node4" class="node">
+<title>proc~rtsec</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node4"><a xlink:href="../proc/rtsec.html" xlink:title="rtsec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="410.55,-234.27 356.55,-234.27 356.55,-210 410.55,-210 410.55,-234.27"/>
+<text xml:space="preserve" text-anchor="middle" x="383.55" y="-218.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rtsec</text>
+</a>
+</g>
+</g>
+<!-- proc~map_search&#45;&gt;proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_edge9" class="edge">
+<title>proc~map_search&#45;&gt;proc~rtsec</title>
+<path fill="none" stroke="#000000" d="M288.42,-289.58C296.64,-285.62 305.49,-281 313.29,-276.13 322.41,-270.45 342.47,-254.67 358.67,-241.62"/>
+<polygon fill="#000000" stroke="#000000" points="360.43,-244.7 366,-235.69 356.02,-239.26 360.43,-244.7"/>
+</g>
+<!-- proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_node7" class="node">
+<title>proc~disp</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node7"><a xlink:href="../proc/disp.html" xlink:title="disp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="507.81,-146.27 453.81,-146.27 453.81,-122 507.81,-122 507.81,-146.27"/>
+<text xml:space="preserve" text-anchor="middle" x="480.81" y="-130.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
+</a>
+</g>
+</g>
+<!-- proc~map_search&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge15" class="edge">
+<title>proc~map_search&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M297.03,-295.79C331.63,-288.29 382.92,-272.85 417.81,-243.13 445.01,-219.96 462.82,-181.7 472.1,-157.22"/>
+<polygon fill="#000000" stroke="#000000" points="475.37,-158.45 475.46,-147.86 468.79,-156.09 475.37,-158.45"/>
+</g>
+<!-- proc~rtsec&#45;&gt;proc~finite_complex -->
+<g id="proc~~finite_complex~~CalledByGraph_edge3" class="edge">
+<title>proc~rtsec&#45;&gt;proc~finite_complex</title>
+<path fill="none" stroke="#000000" d="M410.99,-222.13C461.47,-222.13 572.51,-222.13 639.73,-222.13"/>
+<polygon fill="#000000" stroke="#000000" points="639.42,-225.64 649.42,-222.14 639.42,-218.64 639.42,-225.64"/>
+</g>
+<!-- proc~compute_fpc_cart -->
+<g id="proc~~finite_complex~~CalledByGraph_node5" class="node">
+<title>proc~compute_fpc_cart</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node5"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="312.16,-234.27 205.39,-234.27 205.39,-210 312.16,-210 312.16,-234.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-218.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_edge7" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;proc~rtsec</title>
+<path fill="none" stroke="#000000" d="M312.56,-222.13C323.4,-222.13 334.6,-222.13 344.78,-222.13"/>
+<polygon fill="#000000" stroke="#000000" points="344.66,-225.64 354.66,-222.14 344.66,-218.64 344.66,-225.64"/>
+</g>
+<!-- proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_node12" class="node">
+<title>proc~calc_eigen</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node12"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="417.81,-146.27 349.29,-146.27 349.29,-122 417.81,-122 417.81,-146.27"/>
+<text xml:space="preserve" text-anchor="middle" x="383.55" y="-130.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge23" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M297.27,-209.62C302.83,-207.15 308.34,-204.32 313.29,-201.13 333.1,-188.4 352.07,-169.41 365.13,-154.89"/>
+<polygon fill="#000000" stroke="#000000" points="367.5,-157.5 371.45,-147.67 362.23,-152.89 367.5,-157.5"/>
+</g>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~finite_complex~~CalledByGraph_node6" class="node">
+<title>proc~compute_fpc_gyro</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node6"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="313.29,-192.27 204.27,-192.27 204.27,-168 313.29,-168 313.29,-192.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-176.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+</a>
+</g>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_edge8" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~rtsec</title>
+<path fill="none" stroke="#000000" d="M296.62,-192.74C312.07,-198.03 330.02,-204.16 345.5,-209.46"/>
+<polygon fill="#000000" stroke="#000000" points="344.24,-212.73 354.84,-212.65 346.51,-206.11 344.24,-212.73"/>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge24" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M293.33,-167.57C307.27,-162.34 323.64,-156.21 338.52,-150.63"/>
+<polygon fill="#000000" stroke="#000000" points="339.49,-154.01 347.63,-147.22 337.03,-147.45 339.49,-154.01"/>
+</g>
+<!-- proc~disp&#45;&gt;proc~disp_mixed -->
+<g id="proc~~finite_complex~~CalledByGraph_edge4" class="edge">
+<title>proc~disp&#45;&gt;proc~disp_mixed</title>
+<path fill="none" stroke="#000000" d="M508.25,-140.97C515.71,-142.89 524.06,-145.05 532.32,-147.19"/>
+<polygon fill="#000000" stroke="#000000" points="531.43,-150.57 541.98,-149.68 533.18,-143.79 531.43,-150.57"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_node8" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node8"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="161.89,-348.27 96.38,-348.27 96.38,-324 161.89,-324 161.89,-348.27"/>
+<text xml:space="preserve" text-anchor="middle" x="129.13" y="-332.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~map_search -->
+<g id="proc~~finite_complex~~CalledByGraph_edge5" class="edge">
+<title>proc~map_scan&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M162.35,-327.56C176.75,-323.72 194.02,-319.12 209.89,-314.89"/>
+<polygon fill="#000000" stroke="#000000" points="210.38,-318.38 219.14,-312.43 208.58,-311.62 210.38,-318.38"/>
+</g>
+<!-- proc~om_radial -->
+<g id="proc~~finite_complex~~CalledByGraph_node9" class="node">
+<title>proc~om_radial</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node9"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
+<polygon fill="#d9534f" stroke="#d9534f" points="291.16,-150.27 226.39,-150.27 226.39,-126 291.16,-126 291.16,-150.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-134.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
+</a>
+</g>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_edge10" class="edge">
+<title>proc~om_radial&#45;&gt;proc~rtsec</title>
+<path fill="none" stroke="#000000" d="M291.54,-148.4C298.93,-151.38 306.59,-154.97 313.29,-159.13 323.64,-165.56 345.61,-186.06 362.04,-201.95"/>
+<polygon fill="#000000" stroke="#000000" points="359.35,-204.21 368.96,-208.68 364.24,-199.2 359.35,-204.21"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge17" class="edge">
+<title>proc~om_radial&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M291.4,-146.54C323.41,-153.88 374.25,-162.31 417.81,-155.13 426.06,-153.78 434.69,-151.46 442.79,-148.86"/>
+<polygon fill="#000000" stroke="#000000" points="443.7,-152.25 452.01,-145.68 441.42,-145.63 443.7,-152.25"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge26" class="edge">
+<title>proc~om_radial&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M291.4,-137.1C305.44,-136.65 322.22,-136.1 337.53,-135.6"/>
+<polygon fill="#000000" stroke="#000000" points="337.5,-139.1 347.38,-135.28 337.27,-132.11 337.5,-139.1"/>
+</g>
+<!-- proc~refine_guess -->
+<g id="proc~~finite_complex~~CalledByGraph_node10" class="node">
+<title>proc~refine_guess</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node10"><a xlink:href="../proc/refine_guess.html" xlink:title="refine_guess">
+<polygon fill="#d9534f" stroke="#d9534f" points="168.27,-268.27 90,-268.27 90,-244 168.27,-244 168.27,-268.27"/>
+<text xml:space="preserve" text-anchor="middle" x="129.13" y="-252.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">refine_guess</text>
+</a>
+</g>
+</g>
+<!-- proc~refine_guess&#45;&gt;proc~rtsec -->
+<g id="proc~~finite_complex~~CalledByGraph_edge11" class="edge">
+<title>proc~refine_guess&#45;&gt;proc~rtsec</title>
+<path fill="none" stroke="#000000" d="M168.69,-255.89C205.97,-255.07 263.92,-252.25 313.29,-243.13 323.91,-241.17 335.2,-238.16 345.52,-235.03"/>
+<polygon fill="#000000" stroke="#000000" points="346.34,-238.44 354.81,-232.08 344.22,-231.77 346.34,-238.44"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~finite_complex~~CalledByGraph_node11" class="node">
+<title>program~plume</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node11"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-190.27 0,-190.27 0,-166 54,-166 54,-190.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-174.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_search -->
+<g id="proc~~finite_complex~~CalledByGraph_edge6" class="edge">
+<title>program~plume&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M31.93,-190.62C39.42,-212.19 57.93,-256.14 90,-277.13 125.24,-300.2 173.47,-305.3 209.18,-305.3"/>
+<polygon fill="#000000" stroke="#000000" points="208.84,-308.81 218.79,-305.17 208.74,-301.81 208.84,-308.81"/>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_cart -->
+<g id="proc~~finite_complex~~CalledByGraph_edge12" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_cart</title>
+<path fill="none" stroke="#000000" d="M54.46,-184.95C65.42,-187.66 78.29,-190.71 90,-193.13 124.16,-200.21 162.48,-206.93 193.86,-212.11"/>
+<polygon fill="#000000" stroke="#000000" points="193.16,-215.54 203.6,-213.7 194.29,-208.63 193.16,-215.54"/>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_gyro -->
+<g id="proc~~finite_complex~~CalledByGraph_edge13" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_gyro</title>
+<path fill="none" stroke="#000000" d="M54.36,-178.36C87.83,-178.66 146.74,-179.17 192.58,-179.57"/>
+<polygon fill="#000000" stroke="#000000" points="192.38,-183.07 202.41,-179.65 192.44,-176.07 192.38,-183.07"/>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_edge20" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M31.43,-190.65C38.77,-215.64 57.98,-272.56 90,-310.13 92.05,-312.54 94.37,-314.81 96.82,-316.95"/>
+<polygon fill="#000000" stroke="#000000" points="94.27,-319.4 104.33,-322.71 98.53,-313.85 94.27,-319.4"/>
+</g>
+<!-- program~plume&#45;&gt;proc~refine_guess -->
+<g id="proc~~finite_complex~~CalledByGraph_edge22" class="edge">
+<title>program~plume&#45;&gt;proc~refine_guess</title>
+<path fill="none" stroke="#000000" d="M41.95,-190.53C54.31,-201.33 72.98,-217.24 90,-230.13 93.1,-232.48 96.39,-234.87 99.69,-237.2"/>
+<polygon fill="#000000" stroke="#000000" points="97.4,-239.87 107.62,-242.68 101.38,-234.12 97.4,-239.87"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_node13" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node13"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="309.16,-66.27 208.39,-66.27 208.39,-42 309.16,-42 309.16,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-50.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_edge29" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M33.6,-165.53C42.63,-146.7 62.28,-111.48 90,-93.14 121.59,-72.23 163,-62.47 196.78,-57.93"/>
+<polygon fill="#000000" stroke="#000000" points="196.9,-61.44 206.41,-56.77 196.07,-54.49 196.9,-61.44"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_node14" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node14"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="288.16,-24.27 229.39,-24.27 229.39,0 288.16,0 288.16,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-8.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_edge30" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M30.97,-165.59C37.4,-141.27 54.91,-87.62 90,-59.14 126.66,-29.38 181,-18.43 217.82,-14.43"/>
+<polygon fill="#000000" stroke="#000000" points="217.99,-17.93 227.61,-13.5 217.33,-10.96 217.99,-17.93"/>
+</g>
+<!-- proc~radial_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_node15" class="node">
+<title>proc~radial_scan</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node15"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="165.27,-150.27 93,-150.27 93,-126 165.27,-126 165.27,-150.27"/>
+<text xml:space="preserve" text-anchor="middle" x="129.13" y="-134.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~radial_scan -->
+<g id="proc~~finite_complex~~CalledByGraph_edge31" class="edge">
+<title>program~plume&#45;&gt;proc~radial_scan</title>
+<path fill="none" stroke="#000000" d="M54.31,-167.63C64.04,-163.74 75.34,-159.22 86.12,-154.92"/>
+<polygon fill="#000000" stroke="#000000" points="87.26,-158.23 95.25,-151.27 84.67,-151.73 87.26,-158.23"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~finite_complex~~CalledByGraph_node16" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~finite_complex~~CalledByGraph_node16"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="287.79,-108.27 229.77,-108.27 229.77,-84 287.79,-84 287.79,-108.27"/>
+<text xml:space="preserve" text-anchor="middle" x="258.78" y="-92.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge32" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M36.66,-165.64C47.37,-151.28 67.03,-128.26 90,-117.14 130.59,-97.48 182.89,-93.85 218.22,-94.1"/>
+<polygon fill="#000000" stroke="#000000" points="217.94,-97.59 228,-94.28 218.07,-90.59 217.94,-97.59"/>
+</g>
+<!-- proc~calc_eigen&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge14" class="edge">
+<title>proc~calc_eigen&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M418.14,-134.13C425.91,-134.13 434.23,-134.13 442.17,-134.13"/>
+<polygon fill="#000000" stroke="#000000" points="441.89,-137.64 451.89,-134.14 441.89,-130.64 441.89,-137.64"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge16" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M309.57,-65.1C341.2,-72.85 382.67,-84.46 417.81,-99.14 428.93,-103.78 440.57,-109.96 450.73,-115.84"/>
+<polygon fill="#000000" stroke="#000000" points="448.63,-118.66 459.01,-120.77 452.21,-112.65 448.63,-118.66"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge25" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M296.53,-66.68C302.3,-69.18 308.07,-72.01 313.29,-75.14 331.35,-85.95 349.37,-101.49 362.5,-113.91"/>
+<polygon fill="#000000" stroke="#000000" points="360.05,-116.41 369.67,-120.86 364.92,-111.38 360.05,-116.41"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge18" class="edge">
+<title>proc~om_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M288.58,-19.12C321.62,-27.99 376.54,-45.44 417.81,-72.14 435.05,-83.29 451.33,-99.9 462.88,-113.12"/>
+<polygon fill="#000000" stroke="#000000" points="459.97,-115.09 469.1,-120.47 465.31,-110.57 459.97,-115.09"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge27" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M288.4,-19.81C296.98,-23.01 306.03,-27.36 313.29,-33.14 340.18,-54.52 360.71,-89.14 372.2,-111.77"/>
+<polygon fill="#000000" stroke="#000000" points="368.91,-113 376.44,-120.45 375.2,-109.93 368.91,-113"/>
+</g>
+<!-- proc~radial_scan&#45;&gt;proc~om_radial -->
+<g id="proc~~finite_complex~~CalledByGraph_edge21" class="edge">
+<title>proc~radial_scan&#45;&gt;proc~om_radial</title>
+<path fill="none" stroke="#000000" d="M165.69,-138.13C180.89,-138.13 198.76,-138.13 214.7,-138.13"/>
+<polygon fill="#000000" stroke="#000000" points="214.39,-141.64 224.39,-138.14 214.39,-134.64 214.39,-141.64"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~disp -->
+<g id="proc~~finite_complex~~CalledByGraph_edge19" class="edge">
+<title>proc~test_disp&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M288.06,-97.31C319.91,-99.06 373.08,-103.28 417.81,-113.14 425.97,-114.93 434.57,-117.43 442.67,-120.08"/>
+<polygon fill="#000000" stroke="#000000" points="441.29,-123.31 451.89,-123.24 443.56,-116.69 441.29,-123.31"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_eigen -->
+<g id="proc~~finite_complex~~CalledByGraph_edge28" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M288.25,-104.95C303.13,-109.55 321.67,-115.29 338.36,-120.46"/>
+<polygon fill="#000000" stroke="#000000" points="336.97,-123.69 347.56,-123.3 339.04,-117 336.97,-123.69"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocfinite_complexCalledByGraph = svgPanZoom('#procfinite_complexCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,564 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>wavevector_scan &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>wavevector_scan
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">4 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/scan_support.html'>scan_support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">wavevector_scan</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function wavevector_scan(s)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-s~2"></span>
+              type(<a href='../type/scanner.html'>scanner</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>s</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-wavevector_scan"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~wavevector_scan~~CalledByGraph Pages: 1 -->
+<svg id="procwavevector_scanCalledByGraph" width="641pt" height="189pt"
+ viewBox="0.00 0.00 641.00 189.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~wavevector_scan~~CalledByGraph" class="graph" transform="scale(0.724621 0.724621) rotate(0) translate(4 257.2)">
+<title>proc~~wavevector_scan~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-257.2 880.6,-257.2 880.6,4 -4,4"/>
+<!-- proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node1" class="node">
+<title>proc~wavevector_scan</title>
+<polygon fill="none" stroke="black" points="876.6,-129.2 773.58,-129.2 773.58,-104.93 876.6,-104.93 876.6,-129.2"/>
+<text xml:space="preserve" text-anchor="middle" x="825.09" y="-113.46" font-family="Helvetica,sans-Serif" font-size="10.50">wavevector_scan</text>
+</g>
+<!-- proc~apply_parameter_point -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node2" class="node">
+<title>proc~apply_parameter_point</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node2"><a xlink:href="../proc/apply_parameter_point.html" xlink:title="apply_parameter_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="729.7,-129.2 594.43,-129.2 594.43,-104.93 729.7,-104.93 729.7,-129.2"/>
+<text xml:space="preserve" text-anchor="middle" x="662.07" y="-113.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_parameter_point</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge1" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M729.96,-117.06C740.62,-117.06 751.61,-117.06 762.15,-117.06"/>
+<polygon fill="#000000" stroke="#000000" points="761.86,-120.56 771.86,-117.06 761.86,-113.56 761.86,-120.56"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node3" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node3"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="317.41,-29.2 251.89,-29.2 251.89,-4.93 317.41,-4.93 317.41,-29.2"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-13.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge2" class="edge">
+<title>proc~map_scan&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M317.86,-11.98C394.13,-1.37 590.45,17.51 737.58,-42.06 765.82,-53.5 791.26,-78.13 807.12,-96.05"/>
+<polygon fill="#000000" stroke="#000000" points="804.38,-98.22 813.53,-103.56 809.7,-93.68 804.38,-98.22"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node4" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node4"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="516.43,-211.2 415.66,-211.2 415.66,-186.93 516.43,-186.93 516.43,-211.2"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-195.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge3" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M516.88,-203.62C572.48,-206.89 664.27,-206.81 737.58,-180.06 762.76,-170.88 787.04,-152.04 803.43,-137.34"/>
+<polygon fill="#000000" stroke="#000000" points="805.62,-140.08 810.57,-130.72 800.86,-134.95 805.62,-140.08"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge8" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M488.48,-186.49C511.95,-173.11 550.99,-152 586.56,-138.06 591.12,-136.28 595.89,-134.58 600.71,-132.97"/>
+<polygon fill="#000000" stroke="#000000" points="601.4,-136.42 609.88,-130.07 599.29,-129.75 601.4,-136.42"/>
+</g>
+<!-- proc~parameter_scan_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node6" class="node">
+<title>proc~parameter_scan_workflow</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node6"><a xlink:href="../proc/parameter_scan_workflow.html" xlink:title="parameter_scan_workflow">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="737.58,-171.2 586.56,-171.2 586.56,-146.93 737.58,-146.93 737.58,-171.2"/>
+<text xml:space="preserve" text-anchor="middle" x="662.07" y="-155.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parameter_scan_workflow</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~parameter_scan_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge15" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~parameter_scan_workflow</title>
+<path fill="none" stroke="#000000" d="M516.76,-188.82C538.67,-184.3 564.83,-178.91 588.83,-173.96"/>
+<polygon fill="#000000" stroke="#000000" points="589.47,-177.4 598.56,-171.95 588.06,-170.54 589.47,-177.4"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node5" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node5"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="495.43,-253.2 436.66,-253.2 436.66,-228.93 495.43,-228.93 495.43,-253.2"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-237.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge4" class="edge">
+<title>proc~om_scan&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M495.68,-243.32C547.07,-246.11 657.12,-246.34 737.58,-206.06 768.35,-190.66 794.4,-159.84 809.64,-138.83"/>
+<polygon fill="#000000" stroke="#000000" points="812.31,-141.13 815.18,-130.93 806.57,-137.11 812.31,-141.13"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge9" class="edge">
+<title>proc~om_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M495.84,-240.07C513.43,-238.07 535.37,-232.9 550.56,-220.06 580.96,-194.37 556.53,-164.19 586.56,-138.06 587.64,-137.12 588.77,-136.22 589.92,-135.36"/>
+<polygon fill="#000000" stroke="#000000" points="591.42,-138.55 598.09,-130.32 587.75,-132.59 591.42,-138.55"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~parameter_scan_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge16" class="edge">
+<title>proc~om_scan&#45;&gt;proc~parameter_scan_workflow</title>
+<path fill="none" stroke="#000000" d="M495.84,-235.74C512.21,-232.25 532.9,-227.03 550.56,-220.06 579.6,-208.62 610.54,-191.03 632.27,-177.67"/>
+<polygon fill="#000000" stroke="#000000" points="633.95,-180.75 640.57,-172.48 630.24,-174.81 633.95,-180.75"/>
+</g>
+<!-- proc~parameter_scan_workflow&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge5" class="edge">
+<title>proc~parameter_scan_workflow&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M711.38,-146.46C728.26,-142.06 747.4,-137.07 765.05,-132.47"/>
+<polygon fill="#000000" stroke="#000000" points="765.56,-135.95 774.35,-130.04 763.79,-129.18 765.56,-135.95"/>
+</g>
+<!-- proc~validate_parameter_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node7" class="node">
+<title>proc~validate_parameter_workflow</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node7"><a xlink:href="../proc/validate_parameter_workflow.html" xlink:title="validate_parameter_workflow">
+<polygon fill="#d9534f" stroke="#d9534f" points="550.56,-89.2 381.54,-89.2 381.54,-64.93 550.56,-64.93 550.56,-89.2"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-73.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_parameter_workflow</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_parameter_workflow&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge6" class="edge">
+<title>proc~validate_parameter_workflow&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M550.94,-79.32C604.57,-81.66 675.47,-86.42 737.58,-96.06 747.34,-97.58 757.63,-99.65 767.56,-101.9"/>
+<polygon fill="#000000" stroke="#000000" points="766.57,-105.26 777.11,-104.15 768.18,-98.45 766.57,-105.26"/>
+</g>
+<!-- proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge11" class="edge">
+<title>proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M528.17,-89.67C547.39,-93.63 568.79,-98.04 588.71,-102.15"/>
+<polygon fill="#000000" stroke="#000000" points="587.94,-105.56 598.44,-104.15 589.35,-98.71 587.94,-105.56"/>
+</g>
+<!-- proc~validate_scan_inputs -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node8" class="node">
+<title>proc~validate_scan_inputs</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node8"><a xlink:href="../proc/validate_scan_inputs.html" xlink:title="validate_scan_inputs">
+<polygon fill="#d9534f" stroke="#d9534f" points="345.54,-90.2 223.77,-90.2 223.77,-65.93 345.54,-65.93 345.54,-90.2"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-74.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_scan_inputs</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge7" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M330.65,-65.54C346.59,-61.69 364.74,-57.97 381.54,-56.06 539.05,-38.23 584.91,-34.41 737.58,-77.06 756.4,-82.32 776.28,-91.25 792.22,-99.33"/>
+<polygon fill="#000000" stroke="#000000" points="790.25,-102.25 800.74,-103.78 793.49,-96.05 790.25,-102.25"/>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~parameter_scan_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge18" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~parameter_scan_workflow</title>
+<path fill="none" stroke="#000000" d="M299.71,-90.49C317.4,-105.3 349.37,-129.37 381.54,-140.06 443.94,-160.81 518.39,-164.94 574.76,-164.22"/>
+<polygon fill="#000000" stroke="#000000" points="574.69,-167.72 584.63,-164.04 574.56,-160.73 574.69,-167.72"/>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge19" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow</title>
+<path fill="none" stroke="#000000" d="M345.89,-77.73C353.57,-77.69 361.57,-77.64 369.64,-77.6"/>
+<polygon fill="#000000" stroke="#000000" points="369.56,-81.1 379.54,-77.54 369.52,-74.1 369.56,-81.1"/>
+</g>
+<!-- proc~prepare_scan_start -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node9" class="node">
+<title>proc~prepare_scan_start</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node9"><a xlink:href="../proc/prepare_scan_start.html" xlink:title="prepare_scan_start">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.06,-131.2 410.04,-131.2 410.04,-106.93 522.06,-106.93 522.06,-131.2"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-115.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">prepare_scan_start</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge10" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M522.39,-118.49C541.11,-118.3 562.38,-118.08 582.55,-117.87"/>
+<polygon fill="#000000" stroke="#000000" points="582.47,-121.38 592.43,-117.77 582.39,-114.38 582.47,-121.38"/>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~parameter_scan_workflow -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge17" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~parameter_scan_workflow</title>
+<path fill="none" stroke="#000000" d="M522.39,-130.47C542.99,-134.72 566.69,-139.61 588.6,-144.12"/>
+<polygon fill="#000000" stroke="#000000" points="587.89,-147.55 598.39,-146.14 589.3,-140.69 587.89,-147.55"/>
+</g>
+<!-- proc~read_scan_input -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node10" class="node">
+<title>proc~read_scan_input</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node10"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="187.77,-91.2 90,-91.2 90,-66.93 187.77,-66.93 187.77,-91.2"/>
+<text xml:space="preserve" text-anchor="middle" x="138.88" y="-75.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_scan_input&#45;&gt;proc~validate_scan_inputs -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge20" class="edge">
+<title>proc~read_scan_input&#45;&gt;proc~validate_scan_inputs</title>
+<path fill="none" stroke="#000000" d="M188.16,-78.73C195.87,-78.68 203.98,-78.62 212.09,-78.56"/>
+<polygon fill="#000000" stroke="#000000" points="212.02,-82.06 221.99,-78.49 211.97,-75.06 212.02,-82.06"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~wavevector_scan~~CalledByGraph_node11" class="node">
+<title>program~plume</title>
+<g id="a_proc~~wavevector_scan~~CalledByGraph_node11"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-131.2 0,-131.2 0,-106.93 54,-106.93 54,-131.2"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-115.46" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge12" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M37.02,-106.65C47.93,-92.59 67.65,-70.07 90,-58.06 137.39,-32.61 199.24,-22.95 240.14,-19.29"/>
+<polygon fill="#000000" stroke="#000000" points="240.41,-22.78 250.1,-18.5 239.85,-15.81 240.41,-22.78"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge13" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M54.49,-125.34C65.46,-127.86 78.32,-130.72 90,-133.06 200.52,-155.25 330.18,-177.16 404.47,-189.32"/>
+<polygon fill="#000000" stroke="#000000" points="403.53,-192.71 413.97,-190.87 404.66,-185.81 403.53,-192.71"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge14" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M45.66,-131.66C57.66,-139.69 74.17,-149.73 90,-156.06 206.91,-202.82 355.11,-226.82 425.05,-236.21"/>
+<polygon fill="#000000" stroke="#000000" points="424.51,-239.67 434.88,-237.5 425.42,-232.73 424.51,-239.67"/>
+</g>
+<!-- program~plume&#45;&gt;proc~prepare_scan_start -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge21" class="edge">
+<title>program~plume&#45;&gt;proc~prepare_scan_start</title>
+<path fill="none" stroke="#000000" d="M54.36,-119.06C121.46,-119.06 300.38,-119.06 398.46,-119.06"/>
+<polygon fill="#000000" stroke="#000000" points="398.2,-122.56 408.2,-119.06 398.2,-115.56 398.2,-122.56"/>
+</g>
+<!-- program~plume&#45;&gt;proc~read_scan_input -->
+<g id="proc~~wavevector_scan~~CalledByGraph_edge22" class="edge">
+<title>program~plume&#45;&gt;proc~read_scan_input</title>
+<path fill="none" stroke="#000000" d="M54.32,-109.48C65.83,-105.29 79.66,-100.26 92.73,-95.5"/>
+<polygon fill="#000000" stroke="#000000" points="93.84,-98.82 102.04,-92.11 91.44,-92.25 93.84,-98.82"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocwavevector_scanCalledByGraph = svgPanZoom('#procwavevector_scanCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

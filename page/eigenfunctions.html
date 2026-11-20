@@ -1,0 +1,330 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Electromagnetic eigenfunctions and species moments &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Electromagnetic eigenfunctions and species moments</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Electromagnetic eigenfunctions and species moments</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link active disabled" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="electromagnetic-eigenfunctions-and-species-moments"></a></p>
+<h1>Electromagnetic eigenfunctions and species moments</h1>
+<p><a href="index.html">Manual home</a> · <a href="normalization.html">Normalization</a> · <a href="output.html">Output columns</a></p>
+<p><a id="field-eigenfunction"></a></p>
+<h2>Field eigenfunction</h2>
+<p>For the species susceptibilities <script type="math/tex">\chi_s</script>,
+PLUME forms <script type="math/tex">\epsilon=I+\sum_s \chi_s</script> and
+the complete electromagnetic matrix
+<script type="math/tex">\Lambda=\epsilon+\mathbf n\mathbf n^T-n^2I</script>, with
+<script type="math/tex">\mathbf n=\mathbf K_d/(a w)</script>. The definitions of <script type="math/tex">w</script>, <script type="math/tex">K_d</script> and <script type="math/tex">a</script> are
+on <a href="normalization.html">Normalization</a>.
+A mode has <script type="math/tex">{\rm det}(\Lambda)=0</script> and
+<script type="math/tex">\Lambda\mathbf E=0</script>.
+This uses <strong>all</strong> cold and kinetic populations;
+species-resolved tensors are retained.</p>
+<p>The historical solver constructs component ratios using two-by-two minors
+(cofactor elimination), with <strong><script type="math/tex">E_x=1+0i</script></strong>. It is not a general eigenvalue solver.
+The cold-containing field module uses the same algebra, row scaling and equivalent
+cofactor pivots to handle cases such as exact-parallel transverse polarization.
+It tests the null residual and rejects unresolved rank/gauge cases. The legacy
+all-kinetic path retains its arithmetic for exact comparisons.</p>
+<p>
+<script type="math/tex">E=\delta E/\delta E_x</script> fixes the otherwise arbitrary overall complex amplitude and phase.
+The relative complex component phases describe polarization.
+Compare component ratios or vectors aligned by an overall phase; unaligned raw vectors from another eigensolver need not match.
+Coordinate order is <script type="math/tex">x,y,z</script> with <script type="math/tex">B_0</script> along
+positive <script type="math/tex">z</script> and <script type="math/tex">k=(k_\perp,0,k_\parallel)</script>.
+Interpret handedness using these axes and the
+<script type="math/tex">\exp(i k\cdot r-i \omega t)</script> convention.</p>
+<p><a id="magnetic-conversion-and-units"></a></p>
+<h3>Magnetic conversion and units</h3>
+<p>In Gaussian units physical Faraday's law is
+<script type="math/tex">\omega\,\delta\mathbf B=c\mathbf k\times\delta\mathbf E</script>.
+For <script type="math/tex">B=\delta B/\delta E_x</script>, the output relationship is</p>
+<p>
+<script type="math/tex; mode=display">
+ w\mathbf B=\frac{\boldsymbol K_d\times\mathbf E}{a}
+ =\frac{\mathbf K_\rho\times\mathbf E}
+        {\mathrm{vtp}_{\rho}\sqrt{\alpha_R}}.
+</script>
+</p>
+<p>The last form applies only to a finite thermal reference with <code>rho_ref</code> inputs;
+<script type="math/tex">K_\rho=k \rho_R</script> and
+<script type="math/tex">\mathrm{vtp}_{\rho}=v_{t,\parallel,R}/c</script>.
+The first form applies to <code>d_ref</code>, including cold references.
+<script type="math/tex">B</script> here is not normalized to <script type="math/tex">B_0</script>.
+If observations use SI, convert physical fields consistently before comparing electric/magnetic amplitudes.</p>
+<p>For <script type="math/tex">E=(1,E_y,E_z)</script> and <script type="math/tex">k_y=0</script>, <script type="math/tex">B_x=-K_{d,\parallel} E_y/(a w)</script>,
+<script type="math/tex">B_y=(K_{d,\parallel}-K_{d,\perp} E_z)/(a w)</script>,
+and <script type="math/tex">B_z=K_{d,\perp} E_y/(a w)</script>.
+At complex <script type="math/tex">w</script> these are complex field ratios.
+Heating energy uses a distinct real-frequency magnetic reconstruction, discussed in <a href="heating.html">Heating</a>.</p>
+<p><a id="ex1-is-a-restriction"></a></p>
+<h3>
+<script type="math/tex">E_x=1</script> is a restriction</h3>
+<p>A mode with <script type="math/tex">E_x=0</script> cannot be represented by this gauge. Examples include an
+exactly perpendicular cold ordinary mode and certain longitudinal/degenerate
+polarizations. A dispersion root can be valid while its <script type="math/tex">E_x=1</script> field is unavailable.
+PLUME does not introduce another field normalization or a small <script type="math/tex">E_x</script> floor.
+Off-mode matrices, unresolved nullvectors and nonfinite evaluations also yield
+unavailable fields. Do not mistake NaN for a physical zero polarization.
+<strong>This is another planned update to the code.</strong></p>
+<p>For cold-containing fields, status meanings are: 0 success; 1 invalid
+input/dispersion; 2 unresolved rank; 3 unavailable <script type="math/tex">E_x</script> gauge; 4 no acceptable
+nullvector; 5 nonfinite arithmetic. The field module accepts a maximum
+row-normalized null residual of <script type="math/tex">10^{-8}</script> and uses a <script type="math/tex">64\epsilon</script> gauge/rank check.
+These checks are not guarantees of root accuracy or independent branch identity.
+A legacy kinetic output should still be checked for finite components and an
+independent matrix residual where accuracy matters.</p>
+<p><a id="species-density-and-velocity-normalization"></a></p>
+<h2>Species density and velocity normalization</h2>
+<p>Let <script type="math/tex">e_0=\delta E_x/B_0</script>, <script type="math/tex">\mathbf v_s=\delta\mathbf U_s/(c e_0)</script>, and
+<script type="math/tex">\eta_s=(\delta n_s/n_{0s})/e_0</script>. These are exactly the complex velocity and
+density output slots. They are not velocity divided by thermal speed or <script type="math/tex">v_A</script>,
+and density is relative to <strong>that species'</strong> <script type="math/tex">n_{0s}</script>, not <script type="math/tex">n_R</script>. The same normalization
+applies to <code>rho_ref</code> and <code>d_ref</code>, warm and cold references, and either model.</p>
+<p><a id="kinetic-currentcontinuity-method"></a></p>
+<h3>Kinetic current/continuity method</h3>
+<p>The existing kinetic moment calculation obtains the normalized current from
+that population's ordinary susceptibility at the accepted <strong>complex mode</strong> <script type="math/tex">w</script>:</p>
+<p>
+<script type="math/tex; mode=display">
+ \mathbf F_s=-i w a^2\frac{Q_s}{D_s}\chi_s\mathbf E,
+ \qquad
+ \eta_s=\frac{\boldsymbol\kappa\cdot\mathbf F_s}{a w},\qquad
+ \mathbf v_s=\mathbf F_s-a u_s\eta_s\hat{\mathbf z}.
+</script>
+</p>
+<p>Here <script type="math/tex">Q_s</script> is the signed input charge ratio, <script type="math/tex">D_s</script> the density ratio and <script type="math/tex">u_s</script> the
+Alfvén-normalized parallel drift. <script type="math/tex">\mathbf F_s</script> includes the equilibrium-density current.
+This compact current removal/continuity form is used in the mixed path and is
+algebraically equivalent to the historical kinetic formulas where their
+intermediate divisions are regular. It reuses each kinetic susceptibility,
+not a duplicate harmonic moment solver. The all-kinetic path preserves its
+historical arithmetic. For <script type="math/tex">D_s=0</script> relative density/bulk moments of an absent
+population are undefined and marked unavailable on guarded paths.</p>
+<p><a id="cold-fluid-momentum-and-continuity"></a></p>
+<h3>Cold-fluid momentum and continuity</h3>
+<p>Define <script type="math/tex">\delta_s=w-\kappa_\parallel u_s</script> and <script type="math/tex">g_s=\mu_s/Q_s</script>.
+The independently normalized cold equations are</p>
+<p>
+<script type="math/tex; mode=display">
+ -i\delta_s\mathbf v_s=g_s\left[
+ \mathbf E+\mathbf v_s\times\hat{\mathbf z}
+          +a u_s\hat{\mathbf z}\times\mathbf B\right],\qquad
+ \delta_s\eta_s=\frac{\boldsymbol\kappa\cdot\mathbf v_s}{a}.
+</script>
+</p>
+<p>The magnetic drift force is essential for oblique waves. PLUME solves the
+three-component momentum matrix and then continuity, without thermal speeds,
+<script type="math/tex">Z</script> or Bessel sums. No cold anisotropy placeholder enters. The signs follow the
+same Fourier convention and signed charge as the susceptibility kernel.
+Exact <script type="math/tex">\delta_s=0</script> and <script type="math/tex">\delta_s=\pm g_s</script> are poles; no frequency offset or damping hides them.
+Nearby finite complex frequencies are evaluated directly.</p>
+<p>The complete species current is</p>
+<p>
+<script type="math/tex; mode=display">
+ \delta\mathbf J_s=q_s[n_{0s}\delta\mathbf U_s
+                 +\delta n_s U_s\hat{\mathbf z}],
+ \qquad
+ \frac{D_s}{Q_s}[\mathbf v_s+a u_s\eta_s\hat{\mathbf z}]
+       =-i w a^2\chi_s\mathbf E.
+</script>
+</p>
+<p>Dropping the density-drift term breaks consistency even if the transverse
+velocities look plausible. The cold moment kernel is independently validated
+against this susceptibility current, momentum and continuity. Individual
+species indices remain those of the input; neither electrons nor cold species
+are assumed to occupy particular slots.</p>
+<p><a id="requests-failure-isolation-and-examples"></a></p>
+<h2>Requests, failure isolation and examples</h2>
+<p>Serial scans use <code>eigen=.true.</code> in the relevant <code>scan_input_N</code>; two-dimensional
+grids use <code>scan_input_2</code> for eigen/heating flags. Direct <code>option=-1</code> attempts
+available diagnostics at the supplied frequency. <code>option=1</code> with <code>nscan=0</code> does
+not write a standalone eigenfunction table. Map eigen/tensor requests are
+ignored with warnings, not converted into diagnostic files.</p>
+<p>Cold-containing dispatch calculates fields, then each species' warm or cold
+moment. A failed species moment leaves that block NaN without overwriting valid
+<script type="math/tex">E/B</script> or other species. A failed field leaves all associated moments unavailable.</p>
+<p>Moment statuses: </p>
+<ul>
+<li>0 valid; </li>
+<li>1 input/classification; </li>
+<li>2 zero <script type="math/tex">w</script>; </li>
+<li>3 cold Doppler pole;</li>
+<li>4 cold cyclotron pole; </li>
+<li>5 nonfinite arithmetic; </li>
+<li>6 absent population. </li>
+</ul>
+<p>Diagnostics must not contaminate subsequent scan points. 
+Corrected heating has separately isolated state and cannot invalidate accepted roots/moments on failure.</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>data/example
+./plume.e<span class="w"> </span>inputs/example/mixed_fields_warm_reference.in
+./plume.e<span class="w"> </span>inputs/example/mixed_fields_cold_reference.in
+./plume.e<span class="w"> </span>inputs/example/cold_fields_parallel.in
+./plume.e<span class="w"> </span>inputs/example/mixed_moments_multispecies.in
+</code></pre></div>
+
+<p>These bounded examples write <script type="math/tex">E/B</script> plus kinetic/fluid moments in existing mode
+columns; see <a href="examples.html">Examples</a> for their actual inputs and benchmarks.
+The cold parallel field example's first written root is approximately
+<script type="math/tex">0.05820986</script> in units of <script type="math/tex">\Omega_R</script>, with imaginary part about <script type="math/tex">-1.3\times10^{-19}</script> (numerical
+roundoff about a real cold branch). It is a transverse circular mode; no
+kinetic damping should be inferred from that tiny imaginary value.</p>
+<p>For an independent check, reconstruct <script type="math/tex">\Lambda</script> from species <script type="math/tex">\chi_s</script> and compare
+<script type="math/tex">|\Lambda E\|/(|\Lambda\||E\|)</script>, or the stricter row-scaled residual used by
+the field module. Verify Faraday's law and align any independent nullvector to
+<script type="math/tex">E_x=1</script>. A small raw determinant alone is insufficient when the matrix is badly
+scaled. <a href="output.html">Output</a> gives the column order; pressure perturbations,
+new gauge choices and cold kinetic heating/FPC are not implemented.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

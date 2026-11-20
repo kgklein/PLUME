@@ -1,0 +1,459 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Calculation modes, maps and continuation &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Calculation modes, maps and continuation</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Calculation modes, maps and continuation</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link active disabled" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="calculation-modes-maps-and-continuation"></a></p>
+<h1>Calculation modes, maps and continuation</h1>
+<p><a href="index.html">Manual home</a> · <a href="input.html">Input reference</a> · <a href="output.html">Output schemas</a></p>
+<p>The executable reads one input file, builds species responses, and follows
+the calculation dictated by <code>option</code>. 
+The same production dispersion evaluator and secant root method serve
+kinetic, cold and mixed systems. 
+Note that the cold and kinetic geometry restrictions differ, so consult the
+<a href="models.html#capability-matrix">capability matrix</a> before requesting diagnostics.
+<em>Create the input's <code>data/&lt;dataName&gt;</code> directory and use distinct output names.</em></p>
+<p><a id="workflow-selector"></a></p>
+<h2>Workflow selector</h2>
+<table>
+<thead>
+<tr>
+<th>option</th>
+<th>Operation</th>
+<th>Root initialization</th>
+<th>Supplementary output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>Evaluate at supplied complex frequency, without refining it</td>
+<td>guess_N</td>
+<td>Text diagnostics and corrected .energy where valid</td>
+</tr>
+<tr>
+<td>0</td>
+<td>Single-wavevector frequency map and root search</td>
+<td>maps</td>
+<td>.map and .roots; no scan eigen/heating/tensor blocks</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Supplied roots or map initialization, then serial scans</td>
+<td>use_map chooses maps or guess_N chooses initial roots</td>
+<td>.modeN; eigen/heating/tensor according to each scan</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Two-coordinate grid, nscan=2</td>
+<td>use_map chooses maps or guess_N chooses initial roots</td>
+<td>.modeN grid blocks; special flag rules below</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Deprecated historical hard-wired calculation</td>
+<td>none</td>
+<td>Stops; not a supported workflow</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Repeat frequency maps along one scan, nscan=1</td>
+<td>maps at each point</td>
+<td>Tagged .map/.roots files only</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Experimental 'radial-model' continuation</td>
+<td>maps or guess_N</td>
+<td>Historical radial files; all kinetic only</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Gyrotropic FPC</td>
+<td>maps or guess_N</td>
+<td>Gyro velocity-grid files; all kinetic only</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Cartesian FPC</td>
+<td>maps or guess_N</td>
+<td>Projection/distribution/debug files; all kinetic only</td>
+</tr>
+</tbody>
+</table>
+<p><a id="supplied-guesses-and-direct-evaluation"></a></p>
+<h2>Supplied guesses and direct evaluation</h2>
+<p>Provide <code>guess_1</code> through <code>guess_nroot_max</code> with <code>g_om=omega_r/Omega_R</code> and
+<code>g_gam=gamma/Omega_R</code>. 
+For root refinement, two nearby points are constructed
+from the guess and passed to the existing complex secant method. 
+These are not guaranteed brackets. 
+Several guesses can converge to the same branch or fail.
+A negative gamma is a damped mode under exp(-i omega t).</p>
+<p>Existing single-wavevector examples:</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>data/example
+./plume.e<span class="w"> </span>inputs/example/cold_proton_electron.in
+./plume.e<span class="w"> </span>inputs/example/mixed_cold_protons_warm_electrons.in
+</code></pre></div>
+
+<p>For <code>option</code>=-1, <code>test_disp</code> evaluates <em>only</em> the first supplied frequency as-is and prints the determinant and default diagnostics. </p>
+<p>The raw API determinant is <script type="math/tex">{\rm det}(\Lambda)</script>. 
+Direct stdout for a warm reference historically displays 
+det(Lambda)*solver_vtp^6, while a cold reference displays
+the raw determinant. 
+<a href="numerics.html#tensors-and-the-determinant">Numerical methods</a>
+defines the matrices and scaling. 
+Never compare these differently scaled numbers as if they were the same residual.</p>
+<p><a id="frequency-map-search"></a></p>
+<h2>Frequency-map search</h2>
+<p>A map samples complex frequency grid points at fixed plasma and wavevector <script type="math/tex">k</script>. 
+Local minima of determinant magnitude serve as the seeds for secant refinement. 
+Successful candidates are deduplicated using the historical absolute frequency gap 1e-5.
+The internal candidate storage is 500, not a user-selectable input.
+A minimum is not necessarily a physical zero, and a map cannot guarantee that
+all branches were found. 
+Map resolution and bounds require carefuly user selection, some physics knowledge, and/or a convergence study.</p>
+<p>The workflow distinguishes:</p>
+<ol>
+<li><strong>Grid points:</strong> every sampled determinant, written to .map, including invalid points as NaN on guarded paths.</li>
+<li><strong>Refined candidates:</strong> roots found and deduplicated before final selection,
+   written to .roots. These are not grid frequencies.</li>
+<li><strong>Selected roots:</strong> subsequent filters include <script type="math/tex">\gamma/\Omega_R<1</script> and,<br>
+when <code>positive_roots</code>=true, <script type="math/tex">\omega_r/\Omega_R>-1\times 10^{-10}</script>.</li>
+<li><strong>Continued branch slots:</strong> scans follow nroot_max slots using the existing
+   continuation. <em>They do not continue every .roots row.</em></li>
+</ol>
+<p><code>nroot_max</code> is the supplied-guess/continuation count, <strong>not</strong> a cap on lines in .roots. 
+The file is written before the later map filters. 
+The optional internal sorting block is disabled by default, so do not assume branches are automatically ranked by least damping.<br>
+For incomplete searches, inspect candidates and initialize a
+bounded supplied-guess run deliberately. </p>
+<p>The existing <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_map_par.in">example_map_par.in</a>
+is a secondary map lesson, not the introductory run:</p>
+<div class="codehilite"><pre><span></span><code>./plume.e<span class="w"> </span>inputs/example/example_map_par.in
+</code></pre></div>
+
+<p>It writes <code>data/example/dispersion_map_par.map</code> and <code>.roots</code> (and any scans
+requested by the file). Use the matching input to interpret units. The audit
+found more .roots rows than nroot_max here; this is expected from writer order.</p>
+<p><a id="linear-versus-historical-logarithmic-maps"></a></p>
+<h3>Linear versus historical logarithmic maps</h3>
+<p>For linear flags, i=0..nr and j=0..ni give</p>
+<p>
+<script type="math/tex; mode=display">
+ w_{r,i}=\mathrm{omi}+i\frac{\mathrm{omf}-\mathrm{omi}}{\mathrm{nr}},\qquad
+ w_{i,j}=\mathrm{gami}+j\frac{\mathrm{gamf}-\mathrm{gami}}{\mathrm{ni}}.
+</script>
+</p>
+<p>All coordinates are <script type="math/tex">\omega/\Omega_R</script>. <code>nr</code> and <code>ni</code> count intervals, meaning there are
+<script type="math/tex">(nr+1)(ni+1)</script> grid points. 
+Signed imaginary endpoints are ordinary linear bounds.</p>
+<p><strong>Use linear map grids for physical endpoint control.</strong> 
+Logarithmic
+maps have an unresolved implementation inconsistency, intentionally not changed
+by the documentation or reader corrections. If the respective log flag is true,
+the actual code instead evaluates</p>
+<p>
+<script type="math/tex; mode=display">
+ w_{r,i}=10^{\mathrm{omi}+i[\log_{10}(\mathrm{omf})-\log_{10}(\mathrm{omi})]/\mathrm{nr}},
+</script>
+<script type="math/tex; mode=display">
+ w_{i,j}=-10^{|\mathrm{gami}|+j[\log_{10}|\mathrm{gamf}|-\log_{10}|\mathrm{gami}|]/\mathrm{ni}}.
+</script>
+</p>
+<p>The origins are exponent-like, while increments use physical-bound ratios.
+Neither an exponent-bound convention nor a physical-endpoint convention
+explains both. Real logarithmic endpoints must be positive and imaginary
+magnitudes nonzero for these logarithms to exist; all imaginary input signs are
+discarded and the result is negative. For omi=.1, omf=1 the range is approximately
+1.258925..12.58925; for gami=-1e-4, gamf=-1e-2 it is -1.000230..-100.0230.</p>
+<p><a id="serial-wavevector-scans"></a></p>
+<h2>Serial wavevector scans</h2>
+<p>Set <code>option</code>=1 and give <code>nscan</code> indexed <code>scan_input_N</code> groups. 
+After initialization, they run <strong>serially</strong>, 
+passing the last state into the next scan. 
+<em>These scans are not independent resets.</em> 
+Match the initial input wavevector and supplied root to the
+first scan point, particularly for the unchanged kinetic-only initialization.</p>
+<p>For an ordinary scan, M=<code>ns</code>*<code>nres</code> continuation intervals are traversed. 
+The code writes the endpoints and every <code>nres</code>-th point, normally <code>ns</code>+1 rows per branch.
+Hidden substeps help continuation but do not add rows. 
+Positive logarithmic wavevector scans interpolate log10 of coordinates consistently.</p>
+<table>
+<thead>
+<tr>
+<th>scan_style</th>
+<th>scan_type</th>
+<th>Meaning of <code>swi</code>/<code>swf</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0 or 1</td>
+<td>Initial/final native <code>kperp</code> or <code>kpar</code></td>
+</tr>
+<tr>
+<td>-1</td>
+<td>0</td>
+<td>Target vector (<code>swi</code>=kperp_final, <code>swf</code>=kpar_final); start is the current wavevector</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>1</td>
+<td>Target angle in degrees in <code>swi</code>; <code>swf</code> unused; <script type="math/tex">k</script> magnitude fixed</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>2</td>
+<td>Target signed <script type="math/tex">k</script> magnitude in <code>swf</code>; <code>swi</code> unused; angle fixed</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2 or 3</td>
+<td>Historical all-kinetic <code>beta</code> or <code>vtp</code> scan</td>
+</tr>
+<tr>
+<td>s=1..nspec</td>
+<td>0..5</td>
+<td>Historical population-s <code>tau</code>, <code>mu</code>, <code>alpha</code>, <code>Q</code>, <code>D</code> or drift scan</td>
+</tr>
+</tbody>
+</table>
+<p>The compound angle <script type="math/tex">\phi</script> is <script type="math/tex">\atan(k_\perp/k_\par)</script>, with magnitude
+<script type="math/tex">k_par/\cos(\phi)</script>, not a new quadrant-independent atan2 convention. 
+Negative parallel propagation is supported for nonzero points. 
+Logarithmic scanned coordinates must be positive, so use linear traversal for negative kpar.</p>
+<p>Supported mixed/cold scans change wavevectors only. They keep temperatures,
+reference normalization and drifts fixed. kpar=0 is rejected even at hidden
+points; there is no small-kpar substitution. <strong>Will work on getting paramters scans for mixed and colds cases working as future step.</strong></p>
+<div class="codehilite"><pre><span></span><code>./plume.e<span class="w"> </span>inputs/example/mixed_scan_warm_reference.in
+./plume.e<span class="w"> </span>inputs/example/fully_cold_scan.in
+</code></pre></div>
+
+<p>These write branch <code>.modeN</code> files. </p>
+<p><a id="two-dimensional-wavevector-grids"></a></p>
+<h2>Two-dimensional wavevector grids</h2>
+<p>Use <code>option</code>=2, <code>nscan</code>=2. 
+Supported coordinate pairs are distinct Cartesian
+kperp/kpar axes, or ordered polar axes (scan_input_1 angle, scan_input_2 magnitude).
+The first scan is outer and the second is inner. Each coordinate uses its own
+ns/nres; output has blank separators between outer blocks. The existing large
+<a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_guess_double.in">example_guess_double.in</a> provides an example,
+see the <a href="examples.html">examples index</a> for more.</p>
+<p>Eigenfunctions and heating in the grid use <strong>scan_input_2</strong> switches. 
+Tensor output requires <code>tensor=.true.</code> in <strong>both</strong> groups. 
+The code preserves original species order and native coordinates. </p>
+<p><a id="root-failure-and-continuation"></a></p>
+<h2>Root failure and continuation</h2>
+<p>Successful points reuse the existing last-root continuation strategy. 
+Guarded scan refinement checks finite roots/tensors, status and a determinant scaled by the maximum wave-matrix element. 
+A failed written point has NaN root/diagnostic slots, with parameters retained; a failed hidden point warns without adding a row. 
+The continuation seed remains the last valid one.</p>
+<p>Near crossings, poles, strong damping or genuine branch termination, forward and reverse traversal can choose
+different branches. 
+Check residuals, polarization and isolated single-wavevector
+refinements; reduce step size deliberately rather than assuming file continuity
+proves branch identity.</p>
+<p><a id="repeated-maps-and-historical-parameterradial-workflows"></a></p>
+<h2>Repeated maps and historical parameter/radial workflows</h2>
+<p><code>Option</code>=4 remaps at each scanned point rather than continuing a root. 
+It accepts only one scan. 
+Eigen/tensor flags and legacy heating are ignored with warnings;
+corrected map heating is rejected. 
+Files remain determinant maps and candidate
+roots, without supplementary blocks. 
+Use a separately initialized supported
+root/scan workflow for diagnostics. No heating is added to maps.</p>
+<p>Collisionless, all-kinetic <code>rho_ref</code> runs support corrected heating in serial
+parameter scans and 2D grids. Global beta and <code>vtp</code>, and each population's
+<code>tauS</code>, <code>muS</code>, <code>alphS</code>, <code>Qs</code>, <code>Ds</code> and <code>vvS</code>, retain their existing input meanings.
+Scalar axes may appear in either order; both axes are validated, while
+<code>scan_input_2</code> alone selects grid eigenfunctions and heating. The existing
+ordered theta/magnitude geometry convention is retained.</p>
+<p>Each point is constructed from the segment or grid's initial native state, then
+the derived solver normalization is refreshed. Initial root selection uses the
+first scan point. Inner-axis parameters are reset before continuing the outer
+axis; later serial segments retain the preceding segment's final parameters.
+Frequency derivatives hold the current plasma and physical wavevector fixed,
+not a neighboring point along the parameter trajectory.</p>
+<p>Parameter bounds must be finite, with positive beta, <code>vtp</code>, temperature ratios,
+mass ratios and anisotropies, nonnegative density ratios, and charge ratios
+that neither reach nor cross zero. Logarithmic coordinates require positive
+bounds; signed charge and drift scans can use linear spacing. Scan counts must
+be positive and their product must fit the integration index. Duplicate grid
+targets and overlapping wavevector axes are rejected. No wavevector floor is
+introduced.</p>
+<p>Changing density, charge or drift does not automatically compensate another
+population or change reference frame. Charge/current imbalance and reference
+drift produce warnings, not enforced neutrality conditions. A zero-density
+population has unavailable relative density/bulk moments and kinetic heating;
+its parameters and availability statuses remain in the output. Field/growth
+applicability restrictions still apply independently of scan support.</p>
+<p>Corrected parameter heating remains restricted to all-kinetic <code>rho_ref</code> runs;
+existing <code>d_ref</code> parameter scans retain their historical behavior. <code>d_ref</code> beta
+and reference <code>tau</code> scans synchronize each other; independent 2D variation is
+rejected. Temperature scans cannot reach or leave <code>tauS</code>=0.
+<a href="normalization.html#scan-paths">Normalization</a> explains why a beta scan follows different physics in the two conventions.</p>
+<p><code>Option</code>=5 is experimental radial interpolation. It reads <code>modelName0.rad</code> for
+radius/beta/vtp and <code>modelNameN.rad</code> for each species' six parameters, and selects
+one of seven <code>k_range</code> layouts using <code>k_scan</code>=0..6. 
+It is all-kinetic, with legacy
+radial heating only; corrected heating and cold species are not <strong>yet</strong> supported.
+Input fields and exact old record layouts are retained
+in <a href="input.html#experimental-radial-controls">Input</a> and <a href="output.html#experimental-radial-output">Output</a>.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,725 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>dynamic_harmonics &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>dynamic_harmonics
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.0% of total for procedures.">3 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/adaptive_kinetic.html'>adaptive_kinetic</a></li>
+            <li class="breadcrumb-item active" aria-current="page">dynamic_harmonics</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function dynamic_harmonics()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-dynamic_harmonics"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~dynamic_harmonics~~CalledByGraph Pages: 1 -->
+<svg id="procdynamic_harmonicsCalledByGraph" width="641pt" height="203pt"
+ viewBox="0.00 0.00 641.00 203.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~dynamic_harmonics~~CalledByGraph" class="graph" transform="scale(0.569707 0.569707) rotate(0) translate(4 352.27)">
+<title>proc~~dynamic_harmonics~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-352.27 1121.14,-352.27 1121.14,4 -4,4"/>
+<!-- proc~dynamic_harmonics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node1" class="node">
+<title>proc~dynamic_harmonics</title>
+<polygon fill="none" stroke="black" points="1117.14,-122.27 998.37,-122.27 998.37,-98 1117.14,-98 1117.14,-122.27"/>
+<text xml:space="preserve" text-anchor="middle" x="1057.75" y="-106.54" font-family="Helvetica,sans-Serif" font-size="10.50">dynamic_harmonics</text>
+</g>
+<!-- proc~calc_warm_auxiliary -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node2" class="node">
+<title>proc~calc_warm_auxiliary</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node2"><a xlink:href="../proc/calc_warm_auxiliary.html" xlink:title="calc_warm_auxiliary">
+<polygon fill="#d9534f" stroke="#d9534f" points="962.37,-101.27 842.85,-101.27 842.85,-77 962.37,-77 962.37,-101.27"/>
+<text xml:space="preserve" text-anchor="middle" x="902.61" y="-85.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_warm_auxiliary</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_warm_auxiliary&#45;&gt;proc~dynamic_harmonics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge1" class="edge">
+<title>proc~calc_warm_auxiliary&#45;&gt;proc~dynamic_harmonics</title>
+<path fill="none" stroke="#000000" d="M962.82,-97.25C970.66,-98.33 978.75,-99.44 986.75,-100.54"/>
+<polygon fill="#000000" stroke="#000000" points="986.07,-103.98 996.46,-101.87 987.02,-97.04 986.07,-103.98"/>
+</g>
+<!-- proc~disp0 -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node3" class="node">
+<title>proc~disp0</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node3"><a xlink:href="../proc/disp0.html" xlink:title="disp0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="929.61,-143.27 875.61,-143.27 875.61,-119 929.61,-119 929.61,-143.27"/>
+<text xml:space="preserve" text-anchor="middle" x="902.61" y="-127.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp0</text>
+</a>
+</g>
+</g>
+<!-- proc~disp0&#45;&gt;proc~dynamic_harmonics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge2" class="edge">
+<title>proc~disp0&#45;&gt;proc~dynamic_harmonics</title>
+<path fill="none" stroke="#000000" d="M929.94,-127.52C945.74,-125.36 966.65,-122.49 986.93,-119.71"/>
+<polygon fill="#000000" stroke="#000000" points="987.16,-123.21 996.6,-118.38 986.21,-116.28 987.16,-123.21"/>
+</g>
+<!-- proc~disp1 -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node4" class="node">
+<title>proc~disp1</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node4"><a xlink:href="../proc/disp1.html" xlink:title="disp1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="929.61,-203.27 875.61,-203.27 875.61,-179 929.61,-179 929.61,-203.27"/>
+<text xml:space="preserve" text-anchor="middle" x="902.61" y="-187.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp1</text>
+</a>
+</g>
+</g>
+<!-- proc~disp1&#45;&gt;proc~dynamic_harmonics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge3" class="edge">
+<title>proc~disp1&#45;&gt;proc~dynamic_harmonics</title>
+<path fill="none" stroke="#000000" d="M927.2,-178.66C952.76,-165.14 993.76,-143.45 1022.78,-128.1"/>
+<polygon fill="#000000" stroke="#000000" points="1024.34,-131.24 1031.54,-123.47 1021.07,-125.05 1024.34,-131.24"/>
+</g>
+<!-- proc~finish_bessel_diagnostics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node5" class="node">
+<title>proc~finish_bessel_diagnostics</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node5"><a xlink:href="../proc/finish_bessel_diagnostics.html" xlink:title="finish_bessel_diagnostics">
+<polygon fill="#d9534f" stroke="#d9534f" points="516.06,-24.27 371.79,-24.27 371.79,0 516.06,0 516.06,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="443.92" y="-8.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">finish_bessel_diagnostics</text>
+</a>
+</g>
+</g>
+<!-- proc~finish_bessel_diagnostics&#45;&gt;proc~dynamic_harmonics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge4" class="edge">
+<title>proc~finish_bessel_diagnostics&#45;&gt;proc~dynamic_harmonics</title>
+<path fill="none" stroke="#000000" d="M516.51,-12.91C617.57,-15.56 807.07,-26.28 962.37,-68.14 983.65,-73.87 1006.25,-83.78 1024,-92.53"/>
+<polygon fill="#000000" stroke="#000000" points="1021.98,-95.43 1032.49,-96.82 1025.14,-89.19 1021.98,-95.43"/>
+</g>
+<!-- proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node6" class="node">
+<title>proc~disp</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node6"><a xlink:href="../proc/disp.html" xlink:title="disp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="632.07,-183.27 578.07,-183.27 578.07,-159 632.07,-159 632.07,-183.27"/>
+<text xml:space="preserve" text-anchor="middle" x="605.07" y="-167.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
+</a>
+</g>
+</g>
+<!-- proc~disp&#45;&gt;proc~disp0 -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge7" class="edge">
+<title>proc~disp&#45;&gt;proc~disp0</title>
+<path fill="none" stroke="#000000" d="M632.51,-169.68C671.03,-167.32 744.77,-161.91 806.85,-152.13 825.97,-149.12 847,-144.59 864.39,-140.5"/>
+<polygon fill="#000000" stroke="#000000" points="864.85,-143.99 873.76,-138.25 863.22,-137.18 864.85,-143.99"/>
+</g>
+<!-- proc~disp&#45;&gt;proc~disp1 -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge9" class="edge">
+<title>proc~disp&#45;&gt;proc~disp1</title>
+<path fill="none" stroke="#000000" d="M632.53,-176.26C649.95,-179.4 673.28,-183.19 694.08,-185.13 753.2,-190.67 822.17,-191.57 863.83,-191.5"/>
+<polygon fill="#000000" stroke="#000000" points="863.84,-195 873.82,-191.46 863.81,-188 863.84,-195"/>
+</g>
+<!-- proc~disp_mixed -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node7" class="node">
+<title>proc~disp_mixed</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node7"><a xlink:href="../proc/disp_mixed.html" xlink:title="disp_mixed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="786.22,-143.27 714.7,-143.27 714.7,-119 786.22,-119 786.22,-143.27"/>
+<text xml:space="preserve" text-anchor="middle" x="750.46" y="-127.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed</text>
+</a>
+</g>
+</g>
+<!-- proc~disp&#45;&gt;proc~disp_mixed -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge17" class="edge">
+<title>proc~disp&#45;&gt;proc~disp_mixed</title>
+<path fill="none" stroke="#000000" d="M632.37,-163.8C652.26,-158.25 680.08,-150.49 703.6,-143.93"/>
+<polygon fill="#000000" stroke="#000000" points="704.26,-147.38 712.95,-141.32 702.38,-140.64 704.26,-147.38"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;proc~calc_warm_auxiliary -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge5" class="edge">
+<title>proc~disp_mixed&#45;&gt;proc~calc_warm_auxiliary</title>
+<path fill="none" stroke="#000000" d="M786.67,-121.29C804.21,-116.38 825.85,-110.33 845.6,-104.8"/>
+<polygon fill="#000000" stroke="#000000" points="846.5,-108.18 855.19,-102.12 844.62,-101.44 846.5,-108.18"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;proc~disp0 -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge8" class="edge">
+<title>proc~disp_mixed&#45;&gt;proc~disp0</title>
+<path fill="none" stroke="#000000" d="M786.67,-131.13C809.95,-131.13 840.44,-131.13 864.17,-131.13"/>
+<polygon fill="#000000" stroke="#000000" points="864.03,-134.64 874.03,-131.14 864.03,-127.64 864.03,-134.64"/>
+</g>
+<!-- proc~response_snapshot -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node8" class="node">
+<title>proc~response_snapshot</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node8"><a xlink:href="../proc/response_snapshot.html" xlink:title="response_snapshot">
+<polygon fill="#d9534f" stroke="#d9534f" points="806.85,-101.27 694.08,-101.27 694.08,-77 806.85,-77 806.85,-101.27"/>
+<text xml:space="preserve" text-anchor="middle" x="750.46" y="-85.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">response_snapshot</text>
+</a>
+</g>
+</g>
+<!-- proc~response_snapshot&#45;&gt;proc~calc_warm_auxiliary -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge6" class="edge">
+<title>proc~response_snapshot&#45;&gt;proc~calc_warm_auxiliary</title>
+<path fill="none" stroke="#000000" d="M806.95,-89.14C814.84,-89.14 823.04,-89.14 831.17,-89.14"/>
+<polygon fill="#000000" stroke="#000000" points="831.06,-92.64 841.06,-89.14 831.06,-85.64 831.06,-92.64"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node9" class="node">
+<title>program~plume</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node9"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-184.27 0,-184.27 0,-160 54,-160 54,-184.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-168.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~finish_bessel_diagnostics -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge10" class="edge">
+<title>program~plume&#45;&gt;proc~finish_bessel_diagnostics</title>
+<path fill="none" stroke="#000000" d="M31.08,-159.59C37.58,-135.88 55.1,-84.57 90,-59.14 168.32,-2.05 283.09,2.74 360.28,-2.12"/>
+<polygon fill="#000000" stroke="#000000" points="359.66,-5.58 369.88,-2.8 360.15,1.4 359.66,-5.58"/>
+</g>
+<!-- proc~map_search -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node12" class="node">
+<title>proc~map_search</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node12"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
+<polygon fill="#d9534f" stroke="#d9534f" points="323.41,-308.27 247.39,-308.27 247.39,-284 323.41,-284 323.41,-308.27"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-292.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_search -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge27" class="edge">
+<title>program~plume&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M31.26,-184.45C37.99,-207.15 55.72,-255.29 90,-277.13 133.52,-304.87 194.01,-306.35 235.9,-302.98"/>
+<polygon fill="#000000" stroke="#000000" points="236.06,-306.48 245.69,-302.06 235.4,-299.51 236.06,-306.48"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node13" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node13"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.79,-64.27 235.02,-64.27 235.02,-40 335.79,-40 335.79,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-48.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge28" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M35.54,-159.53C45.81,-143.47 65.72,-116.02 90,-101.14 130.6,-76.25 183.33,-63.97 223.63,-57.92"/>
+<polygon fill="#000000" stroke="#000000" points="223.99,-61.41 233.41,-56.56 223.02,-54.48 223.99,-61.41"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node15" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node15"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.79,-148.27 256.02,-148.27 256.02,-124 314.79,-124 314.79,-148.27"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-132.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge30" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M54.45,-161.55C65.3,-157.64 78.09,-153.57 90,-151.13 142.71,-140.35 204.9,-137.18 244.49,-136.32"/>
+<polygon fill="#000000" stroke="#000000" points="244.31,-139.82 254.25,-136.15 244.19,-132.82 244.31,-139.82"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node16" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node16"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.41,-106.27 256.39,-106.27 256.39,-82 314.41,-82 314.41,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge31" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M44.79,-159.62C56.8,-151.23 73.68,-140.59 90,-134.13 141.37,-113.83 204.63,-103.27 244.75,-98.21"/>
+<polygon fill="#000000" stroke="#000000" points="245.15,-101.69 254.67,-97.02 244.32,-94.74 245.15,-101.69"/>
+</g>
+<!-- proc~compute_fpc_cart -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node18" class="node">
+<title>proc~compute_fpc_cart</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node18"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="197.89,-226.27 91.12,-226.27 91.12,-202 197.89,-202 197.89,-226.27"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-210.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_cart -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge35" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_cart</title>
+<path fill="none" stroke="#000000" d="M54.21,-181.67C67.28,-186.42 83.46,-192.3 98.44,-197.75"/>
+<polygon fill="#000000" stroke="#000000" points="97.06,-200.97 107.65,-201.1 99.45,-194.39 97.06,-200.97"/>
+</g>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node19" class="node">
+<title>proc~compute_fpc_gyro</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node19"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.02,-184.27 90,-184.27 90,-160 199.02,-160 199.02,-184.27"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-168.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_gyro -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge36" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_gyro</title>
+<path fill="none" stroke="#000000" d="M54.21,-172.13C61.52,-172.13 69.81,-172.13 78.31,-172.13"/>
+<polygon fill="#000000" stroke="#000000" points="78.04,-175.64 88.04,-172.14 78.04,-168.64 78.04,-175.64"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node20" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node20"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="177.27,-348.27 111.75,-348.27 111.75,-324 177.27,-324 177.27,-348.27"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-332.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge37" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M30.53,-184.43C36.5,-210.67 53.78,-272.81 90,-310.13 93.36,-313.6 97.27,-316.66 101.42,-319.35"/>
+<polygon fill="#000000" stroke="#000000" points="99.66,-322.38 110.09,-324.25 103.1,-316.28 99.66,-322.38"/>
+</g>
+<!-- proc~radial_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node21" class="node">
+<title>proc~radial_scan</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node21"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="180.64,-268.27 108.38,-268.27 108.38,-244 180.64,-244 180.64,-268.27"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-252.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~radial_scan -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge38" class="edge">
+<title>program~plume&#45;&gt;proc~radial_scan</title>
+<path fill="none" stroke="#000000" d="M37.52,-184.56C48.75,-198.51 68.62,-221.01 90,-235.13 92.4,-236.72 94.95,-238.22 97.57,-239.63"/>
+<polygon fill="#000000" stroke="#000000" points="96.03,-242.77 106.55,-243.95 99.06,-236.46 96.03,-242.77"/>
+</g>
+<!-- proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node10" class="node">
+<title>proc~calc_eigen</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node10"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="478.18,-222.27 409.66,-222.27 409.66,-198 478.18,-198 478.18,-222.27"/>
+<text xml:space="preserve" text-anchor="middle" x="443.92" y="-206.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_eigen&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge11" class="edge">
+<title>proc~calc_eigen&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M478.68,-201.86C504.54,-195.53 540.21,-186.78 566.89,-180.25"/>
+<polygon fill="#000000" stroke="#000000" points="567.37,-183.73 576.25,-177.95 565.71,-176.93 567.37,-183.73"/>
+</g>
+<!-- proc~calculate_heating -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node11" class="node">
+<title>proc~calculate_heating</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node11"><a xlink:href="../proc/calculate_heating.html" xlink:title="calculate_heating">
+<polygon fill="#d9534f" stroke="#d9534f" points="658.08,-102.27 552.06,-102.27 552.06,-78 658.08,-78 658.08,-102.27"/>
+<text xml:space="preserve" text-anchor="middle" x="605.07" y="-86.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calculate_heating</text>
+</a>
+</g>
+</g>
+<!-- proc~calculate_heating&#45;&gt;proc~response_snapshot -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge18" class="edge">
+<title>proc~calculate_heating&#45;&gt;proc~response_snapshot</title>
+<path fill="none" stroke="#000000" d="M658.24,-89.77C666.08,-89.72 674.26,-89.66 682.35,-89.6"/>
+<polygon fill="#000000" stroke="#000000" points="682.22,-93.1 692.19,-89.53 682.17,-86.1 682.22,-93.1"/>
+</g>
+<!-- proc~map_search&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge12" class="edge">
+<title>proc~map_search&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M323.51,-296.51C370.75,-295.53 453.72,-288.88 516.06,-257.13 546.16,-241.81 572.66,-212.6 588.51,-192.51"/>
+<polygon fill="#000000" stroke="#000000" points="591.2,-194.76 594.49,-184.69 585.64,-190.51 591.2,-194.76"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge13" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M335.85,-45.95C384.4,-42.15 459.23,-42.56 516.06,-71.14 518.38,-72.3 560.75,-121.03 585.84,-150.03"/>
+<polygon fill="#000000" stroke="#000000" points="583.13,-152.24 592.32,-157.52 588.42,-147.66 583.13,-152.24"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge21" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M322.16,-64.74C326.96,-67.17 331.65,-69.96 335.79,-73.14 347.11,-81.83 400.17,-152.43 427.12,-188.74"/>
+<polygon fill="#000000" stroke="#000000" points="424.01,-190.41 432.77,-196.37 429.63,-186.25 424.01,-190.41"/>
+</g>
+<!-- proc~calc_corrected_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node17" class="node">
+<title>proc~calc_corrected_eigen</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node17"><a xlink:href="../proc/calc_corrected_eigen.html" xlink:title="calc_corrected_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="506.31,-104.27 381.54,-104.27 381.54,-80 506.31,-80 506.31,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="443.92" y="-88.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_corrected_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge32" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M335.5,-64.68C350.43,-68.5 367.02,-72.74 382.6,-76.72"/>
+<polygon fill="#000000" stroke="#000000" points="381.71,-80.1 392.27,-79.19 383.45,-73.32 381.71,-80.1"/>
+</g>
+<!-- proc~om_radial -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_node14" class="node">
+<title>proc~om_radial</title>
+<g id="a_proc~~dynamic_harmonics~~CalledByGraph_node14"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
+<polygon fill="#d9534f" stroke="#d9534f" points="317.79,-266.27 253.02,-266.27 253.02,-242 317.79,-242 317.79,-266.27"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-250.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
+</a>
+</g>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge14" class="edge">
+<title>proc~om_radial&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M317.94,-255.8C363.24,-257.14 448.66,-255.67 516.06,-231.13 540.69,-222.17 565.03,-204.74 581.85,-190.96"/>
+<polygon fill="#000000" stroke="#000000" points="583.83,-193.87 589.21,-184.74 579.32,-188.52 583.83,-193.87"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge22" class="edge">
+<title>proc~om_radial&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M318.08,-245.23C341.19,-238.73 372.82,-229.84 398.46,-222.63"/>
+<polygon fill="#000000" stroke="#000000" points="399.27,-226.04 407.95,-219.97 397.37,-219.3 399.27,-226.04"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge15" class="edge">
+<title>proc~om_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M315.25,-139.58C331.79,-141.54 352.95,-144.02 371.79,-146.13 440.38,-153.84 520.43,-162.35 566.39,-167.19"/>
+<polygon fill="#000000" stroke="#000000" points="565.77,-170.64 576.08,-168.21 566.5,-163.68 565.77,-170.64"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge23" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M310.94,-148.66C318.92,-152.84 327.79,-157.59 335.79,-162.13 352.09,-171.4 354.9,-175.99 371.79,-184.13 380.29,-188.24 389.62,-192.08 398.65,-195.5"/>
+<polygon fill="#000000" stroke="#000000" points="397.41,-198.77 408,-198.91 399.81,-192.19 397.41,-198.77"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge33" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M315.11,-128.06C335.24,-122.41 362.8,-114.66 387.17,-107.81"/>
+<polygon fill="#000000" stroke="#000000" points="387.97,-111.22 396.65,-105.14 386.08,-104.48 387.97,-111.22"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~disp -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge16" class="edge">
+<title>proc~test_disp&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M314.7,-100.45C371.71,-113.19 496.6,-141.17 516.06,-146.13 532.78,-150.4 551.16,-155.55 566.78,-160.06"/>
+<polygon fill="#000000" stroke="#000000" points="565.56,-163.35 576.14,-162.79 567.52,-156.63 565.56,-163.35"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge24" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M314.89,-104.39C321.94,-107.43 329.33,-111.05 335.79,-115.14 340.5,-118.11 391.17,-163.52 421.11,-190.46"/>
+<polygon fill="#000000" stroke="#000000" points="418.4,-192.74 428.18,-196.83 423.09,-187.54 418.4,-192.74"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_corrected_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge34" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_corrected_eigen</title>
+<path fill="none" stroke="#000000" d="M314.75,-93.77C330.21,-93.58 350.14,-93.32 369.66,-93.07"/>
+<polygon fill="#000000" stroke="#000000" points="369.59,-96.57 379.55,-92.94 369.5,-89.57 369.59,-96.57"/>
+</g>
+<!-- proc~calc_corrected_eigen&#45;&gt;proc~calculate_heating -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge25" class="edge">
+<title>proc~calc_corrected_eigen&#45;&gt;proc~calculate_heating</title>
+<path fill="none" stroke="#000000" d="M506.45,-91.36C517.56,-91.22 529.15,-91.08 540.31,-90.94"/>
+<polygon fill="#000000" stroke="#000000" points="540.28,-94.44 550.24,-90.81 540.19,-87.44 540.28,-94.44"/>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge19" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M198.34,-213.42C255.14,-212.66 344.47,-211.46 398,-210.74"/>
+<polygon fill="#000000" stroke="#000000" points="398.04,-214.24 407.99,-210.6 397.95,-207.24 398.04,-214.24"/>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge20" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M199.37,-179.02C256.29,-186.29 345.04,-197.63 398.23,-204.42"/>
+<polygon fill="#000000" stroke="#000000" points="397.47,-207.86 407.83,-205.65 398.36,-200.91 397.47,-207.86"/>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~map_search -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge26" class="edge">
+<title>proc~map_scan&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M177.72,-326.86C195.01,-321.88 216.66,-315.64 235.93,-310.09"/>
+<polygon fill="#000000" stroke="#000000" points="236.86,-313.47 245.5,-307.34 234.92,-306.74 236.86,-313.47"/>
+</g>
+<!-- proc~radial_scan&#45;&gt;proc~om_radial -->
+<g id="proc~~dynamic_harmonics~~CalledByGraph_edge29" class="edge">
+<title>proc~radial_scan&#45;&gt;proc~om_radial</title>
+<path fill="none" stroke="#000000" d="M180.92,-255.63C199.38,-255.36 222.09,-255.03 241.54,-254.75"/>
+<polygon fill="#000000" stroke="#000000" points="241.39,-258.25 251.34,-254.61 241.29,-251.26 241.39,-258.25"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocdynamic_harmonicsCalledByGraph = svgPanZoom('#procdynamic_harmonicsCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

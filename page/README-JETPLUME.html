@@ -1,0 +1,337 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>JET-PLUME: historical field-particle correlations &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>JET-PLUME: historical field-particle correlations</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">JET-PLUME: historical field-particle correlations</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link active disabled" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="jet-plume-historical-field-particle-correlations"></a></p>
+<h1>JET-PLUME: historical field-particle correlations</h1>
+<p><a href="index.html">Manual home</a> · <a href="input.html#fpc-fpc">Input reference</a> · <a href="output.html#fpc-and-debug-families">Output readers</a></p>
+<p>JET-PLUME (Judging Energy Transfer in a Plasma in a Linear Uniform Magnetized
+Environment) reconstructs linear velocity-space distribution perturbations and
+field-particle correlation (FPC) signatures. It is an <strong>all-kinetic historical
+pathway</strong>, separate from corrected species Ps and wave energy. Cold/mixed FPC is
+not implemented, including warm populations in a mixture. New density/velocity
+moments and corrected heating do not enable that future functionality.</p>
+<p>Original JET-PLUME contributions are credited to Collin Brown, Gregory Howes,
+Kristopher Klein and Jason TenBarge. The <a href="index.html#authors-scientific-references-and-citation">PLUME paper and existing scientific
+references</a> provide context.</p>
+<p><a id="workflows-and-coordinates"></a></p>
+<h2>Workflows and coordinates</h2>
+<p><code>option=6</code> invokes <code>compute_fpc_gyro</code>: distributions/correlations are reduced over
+velocity gyrophase to a (vperp,vpar) grid. <code>option=7</code> invokes <code>compute_fpc_cart</code>:
+Cartesian velocity-space reconstruction, three projected planes, and 3D/debug
+outputs. Earlier prose reversing these routines was incorrect. In both cases
+use_map selects map initialization versus supplied guesses refined by the solver;
+there is not an independent mixed/cold FPC root solver.</p>
+<p>The background field is z, k lies in x-z, x is perpendicular in the wave/field
+plane, y is its second perpendicular direction, and z is parallel. Grid velocities
+use the historical species <strong>parallel thermal-speed</strong> coordinates, not the
+species-moment output normalization. FPC grid construction/header values still
+use the derived rho_ref solver convention for d_ref inputs.</p>
+<p>Add <code>&amp;fpc</code> to an otherwise valid all-kinetic input. This is a parameter fragment,
+not a standalone runnable plasma:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">&amp;</span><span class="n">fpc</span>
+<span class="n">vperpmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vperpmax</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vparmin</span><span class="o">=-</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vparmax</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span>
+<span class="n">vxmin</span><span class="o">=-</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vxmax</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vymin</span><span class="o">=-</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vymax</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vzmin</span><span class="o">=-</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">vzmax</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span>
+<span class="n">delv</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">elecdircontribution</span><span class="o">=</span><span class="mi">0</span>
+<span class="o">/</span>
+</code></pre></div>
+
+<p>Those bounds/spacing are exercised by the existing FPC normalization test:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">PYTHONPATH</span><span class="o">=</span>tests<span class="w"> </span><span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>test_normalization.NormalizationTests.test_fpc_diagnostics<span class="w"> </span>-v
+</code></pre></div>
+
+<p>A curated standalone public FPC lesson is still outstanding. The existing
+<a href="https://github.com/kgklein/PLUME/blob/main/examplelinfpc.ipynb">example notebook</a>
+shows the optional wrapper's historical workflow; review mode/schema assumptions
+before reuse. This stage does not create or rewrite input examples.</p>
+<p>Use positive delv and integer-compatible bounds. The writer derives integer grid
+indices; noninteger-multiple bounds warn and may cause off-by-one reader behavior.
+Gyro bounds matter for option6; Cartesian bounds for option7. delv is shared across
+directions. elecdircontribution is a debug forcing selector: 1 keeps Ex, 2 Ey,
+3 Ez, and 0/other leaves forcing unchanged. It is not a heating-channel selector.</p>
+<p><a id="meaning-and-normalization-caveats"></a></p>
+<h2>Meaning and normalization caveats</h2>
+<p>The distribution files contain real/imaginary parts of the internally normalized
+linear Fourier coefficient f_s1, not an independent physical measured distribution.
+For Cartesian internal thermal-coordinate velocity vhat_i and distribution
+coefficient fhat_1, the literal implemented weight is</p>
+<p>
+<script type="math/tex; mode=display">
+ \widehat C_i=-\frac{Q_s}{2}\widehat v_i^2
+ \operatorname{Re}\!\left[E_i^*
+                 \frac{\partial\widehat f_1}{\partial\widehat v_i}\right].
+</script>
+</p>
+<p>Here Q_s is <strong>the code's input charge ratio</strong> q_R/q_s, E_i is the Ex=1 field
+component, and vhat/fhat are the FPC routine's internal thermal variables. This
+states the implemented nondimensional weight, not a new dimensional-power
+normalization. Projection integrates the omitted coordinate with the grid
+weights; gyro reduction includes the cylindrical Jacobian/gyrophase weights
+and a special near-zero radial cell treatment. There are existing finite-grid,
+harmonic and normalization limitations. Do not equate these raw weights or their
+debug integrals with corrected Ps or entropy production without a separate
+normalization/closure analysis. A universal dimensional conversion for these
+historical FPC outputs is not newly validated by this manual.</p>
+<p>Headers labeled omega.r/omega.i literally contain real/imaginary parts of
+w sqrt(beta_R)/Kpar, where w=omega/Omega_R and Kpar=kpar rho_R in solver
+coordinates. Since rho_R/d_R=sqrt(beta_R alpha_R), this equals
+<script type="math/tex">(w/\kappa_\parallel)/\sqrt{\alpha_R}</script>, <strong>not</strong> the physical phase speed in
+v_A,R units when alpha_R differs from one. Old stdout/plot labels claiming an
+unqualified Alfvén-normalized phase speed need that caveat. A future FPC audit
+must address the full header/grid/normalization contract before broader use.</p>
+<p>FPC reconstruction has fixed internal harmonic range nbesmax=15; adaptive
+susceptibility Bessels do not change it. Numerical distribution moments/debug
+integrals are not the validated analytic current/continuity species moments.
+Their quadrature can be inaccurate. No mixed FPC or new collisional accuracy
+claim is made here.</p>
+<p><a id="files-and-array-orientation"></a></p>
+<h2>Files and array orientation</h2>
+<p>One indexed set is produced per population and root, with species in the original
+input order, generally <code>.specieSS.modeMM</code>. Old readers use index-based electron
+labels and offset recovery; those heuristics are not arbitrary-mixture validation.</p>
+<p><a id="gyro-files-option6"></a></p>
+<h3>Gyro files: option6</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity suffix</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.cpar</td>
+<td>Parallel-field correlation</td>
+</tr>
+<tr>
+<td>.cperp</td>
+<td>Perpendicular-field correlation</td>
+</tr>
+<tr>
+<td>.df1gyro.real</td>
+<td>Real reduced perturbed distribution coefficient</td>
+</tr>
+<tr>
+<td>.df1gyro.imag</td>
+<td>Imaginary reduced perturbed distribution coefficient</td>
+</tr>
+</tbody>
+</table>
+<p>Each has eight physical/thermal header labels/values, five grid labels/values,
+a separator, then a matrix. vperp advances by row, vpar by column; the first
+entry corresponds to the minimum grid values. The matrix is a gyro-reduced
+velocity-space object, not a projected Cartesian map mislabeled as gyro.</p>
+<p><a id="cartesian-files-option7"></a></p>
+<h3>Cartesian files: option7</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity suffix</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.cparcart</td>
+<td>Ez correlation, projected into three planes</td>
+</tr>
+<tr>
+<td>.cperp1</td>
+<td>Ex correlation, projected into three planes</td>
+</tr>
+<tr>
+<td>.cperp2</td>
+<td>Ey correlation, projected into three planes</td>
+</tr>
+<tr>
+<td>.dfs.real, .dfs.imag</td>
+<td>Real/imaginary distribution projected into those planes</td>
+</tr>
+<tr>
+<td>.dfs3D.real, .dfs3D.imag</td>
+<td>Real/imaginary full 3D distribution blocks</td>
+</tr>
+</tbody>
+</table>
+<p>Projection files contain (x,y), (x,z), (z,y) array layouts separated by <code>---</code>.
+The first has rows x / columns y; second rows x / columns z; third rows z /
+columns y. This last historical orientation assumes compatible y/z grids;
+it is not a reason to transpose every loaded diagnostic blindly. The old
+<code>.df1.real/.imag</code> naming in prose does not match the current <code>.dfs</code> writer.</p>
+<p>Three-dimensional blocks use reader storage (z,y,x), one writer line per (x,y)
+containing z values. They have a separate block contract and must not be passed
+to the projected-file parser. Source/header-specific debug <code>.eigen</code>/<code>.mom</code> files
+are described on <a href="output.html#fpc-and-debug-families">Output</a>; they have no ordinary
+scan species-parameter suffix and are unsuitable as a general scientific reader.</p>
+<p>Some FPC <strong>writers</strong> already zero extremely small values and saturate large ones
+(typical thresholds 9.999e-99 and 9.999e99). Reader corrections cannot reconstruct
+values lost by that historical formatting. A zero in such a file is not proof of
+an exactly vanishing physical correlation; inspect its source/precision regime.
+No clipping thresholds or numerical FPC calculation are changed by this manual.</p>
+<p><a id="reading-and-missing-values"></a></p>
+<h2>Reading and missing values</h2>
+<p>Use <code>loadlinfpccepar</code>, <code>loadlinfpcceperp</code>, <code>loadlinfpcgyro_dist</code> for gyro;
+<code>loadlinfpccart</code>/<code>loadlinfpccart_dist</code> for projections;
+<code>loadlinfpc3d</code>/<code>loadlinfpc3d_dist</code> for full Cartesian distribution blocks.
+Readers preserve NaNs, infinities, genuine finite zeros, signs and shape by
+default. <code>visualization_nan_to_zero=True</code> explicitly replaces <strong>only NaNs</strong> for
+plots; it is not a physical value or analysis correction. The 3D reader no
+longer clips representable finite samples itself, though old writers may already
+have done so. Distinguish a missing diagnostic from a physical calculated zero.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

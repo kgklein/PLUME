@@ -53,12 +53,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/types.html">Derived Types</a>
@@ -88,43 +91,138 @@
 			 <thead><tr><th>Module</th><th>Source File</th><th>Description</th></tr></thead>
 			 <tbody>
 			   <tr class="active">
-                 <td><a href='../module/bessels.html'>bessels</a></td>
-                 <td>../../bessel.f90</td>
-                 <td><p>Calculates Bessel Functions necessary for the dispersion calculation.</p></td>
+                 <td><a href='../module/adaptive_kinetic.html'>adaptive_kinetic</a></td>
+                 <td>../../../adaptive_kinetic.f90</td>
+                 <td><p>Runtime harmonic ranges around the shared, unchanged susceptibility algebra.</p></td>
                </tr>
 <!--active-->			   <tr class="">
+                 <td><a href='../module/auxiliary_normalization.html'>auxiliary_normalization</a></td>
+                 <td>../../../auxiliary_normalization.f90</td>
+                 <td><p>Auxiliary thermal adapter, validated in Stage 3B.1 and integrated in 3B.2.
+Native d_ref inputs retain the physical reference mass/charge/density.
+No plasma globals, reference temperature, or reference anisotropy are read.</p></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/bessel_cache.html'>bessel_cache</a></td>
+                 <td>../../../bessel_cache.f90</td>
+                 <td><p>Per-species, in-memory coefficient storage. Frequency never enters a key.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/bessels.html'>bessels</a></td>
+                 <td>../../../bessel.f90</td>
+                 <td><p>Calculates Bessel Functions necessary for the dispersion calculation.</p></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/cold_reference.html'>cold_reference</a></td>
+                 <td>../../../cold_reference.f90</td>
+                 <td><p>Auxiliary warm responses only. Cold preflight, wave assembly and root
+handling remain in disprels. No authoritative input or solver_* state changes.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/cold_susceptibility.html'>cold_susceptibility</a></td>
+                 <td>../../../cold_susceptibility.f90</td>
+                 <td><p>Standalone, single-species cold-fluid susceptibility in inertial units.
+Independently implements Verscharen &amp; Chandran, ApJ 764, 88 (2013),
+equations (5)-(9). See tests/COLD_SUSCEPTIBILITY_DESIGN.md for conventions.
+Called before thermal evaluation for cold components in Stage 2.</p></td>
+               </tr>
+<!---->			   <tr class="active">
                  <td><a href='../module/disprels.html'>disprels</a></td>
-                 <td>../../disprels.f90</td>
+                 <td>../../../disprels.f90</td>
                  <td><p>Dispersion relation function and associated eigenfunction and minimization
  calculations.
  Required for fpc.f90
  (Consider reducing scope with submodule or
  other approach- fine for now)</p><a href="../module/disprels.html" class="pull-right"><emph>Read more&hellip;</emph></a></td>
                </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/electromagnetic_fields.html'>electromagnetic_fields</a></td>
+                 <td>../../../electromagnetic_fields.f90</td>
+                 <td><p>Existing PLUME cofactor polarization and Faraday fields, isolated from
+kinetic moments/heating and from the reference thermal normalization.</p></td>
+               </tr>
 <!---->			   <tr class="active">
                  <td><a href='../module/fpc.html'>fpc</a></td>
-                 <td>../../fpc.f90</td>
+                 <td>../../../fpc.f90</td>
                  <td><p>Perturbed distribution function calculation from eigenfunctions and
 associated routines to calculate the FPC from it</p></td>
                </tr>
 <!--active-->			   <tr class="">
                  <td><a href='../module/functions.html'>functions</a></td>
-                 <td>../../functions.f90</td>
+                 <td>../../../functions.f90</td>
                  <td><p>Calculates Misc. functions, esp. I/O operations.</p></td>
                </tr>
 <!---->			   <tr class="active">
-                 <td><a href='../module/nrtype.html'>nrtype</a></td>
-                 <td>../../nrtype.f90</td>
-                 <td><p>Numerical Recipes Types Utilized in PLUME.</p></td>
+                 <td><a href='../module/harmonic_selection.html'>harmonic_selection</a></td>
+                 <td>../../../harmonic_selection.f90</td>
+                 <td><p>Positive Chernoff bounds for the ordinary and n**2-weighted Skellam tails.
+No subtraction from unity, Bessel approximation, or thermal normalization.</p></td>
                </tr>
 <!--active-->			   <tr class="">
-                 <td><a href='../module/nrutil_trim.html'>nrutil_trim</a></td>
-                 <td>../../nrutil_trim.f90</td>
+                 <td><a href='../module/heating_diagnostics.html'>heating_diagnostics</a></td>
+                 <td>../../../heating_diagnostics.f90</td>
+                 <td><p>Production corrected workflow and versioned companion IO, kept separate
+from the historical calc_eigen/FPC and the root/dispersion implementation.</p></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/heating_energy.html'>heating_energy</a></td>
+                 <td>../../../heating_energy.f90</td>
+                 <td><p>Corrected collisionless absorption and formal real-frequency wave energy.
+No production dispersion/root state is read or written by this module.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/heating_response.html'>heating_response</a></td>
+                 <td>../../../heating_response.f90</td>
+                 <td><p>Explicit collisionless diagnostic snapshots. Never writes production
+susc/lam/solver_* state; shared kinetic equations and caches are reused.</p></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/kinetic_core.html'>kinetic_core</a></td>
+                 <td>../../../kinetic_core.f90</td>
+                 <td><p>Explicit ordinary kinetic susceptibility; shares the legacy expressions.
+No physical input globals, reference-species lookup, or persistent cache.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/nrtype.html'>nrtype</a></td>
+                 <td>../../../nrtype.f90</td>
                  <td><p>Numerical Recipes Types Utilized in PLUME.</p></td>
                </tr>
 <!---->			   <tr class="active">
+                 <td><a href='../module/nrutil_trim.html'>nrutil_trim</a></td>
+                 <td>../../../nrutil_trim.f90</td>
+                 <td><p>Numerical Recipes Types Utilized in PLUME.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/plasma_z_backend.html'>plasma_z_backend</a></td>
+                 <td>../../../plasma_z_backend.f90</td>
+                 <td><p>Backend adapter and accurate-path evaluation guards. Legacy math is untouched.</p></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/plasma_z_faddeeva.html'>plasma_z_faddeeva</a></td>
+                 <td>../../../plasma_z_faddeeva.f90</td>
+                 <td><p>Standalone binary64 Landau Z=i<em>sqrt(pi)</em>w(z), with signed k convention.
+No plasma globals. The C bridge preserves the caller's floating-point state,
+including FTZ/DAZ and traps, and returns assigned quiet NaNs on failure.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/plasma_z_legacy.html'>plasma_z_legacy</a></td>
+                 <td>../../../plasma_z_legacy.f90</td>
+                 <td></td>
+               </tr>
+<!---->			   <tr class="active">
+                 <td><a href='../module/scan_support.html'>scan_support</a></td>
+                 <td>../../../scan_support.f90</td>
+                 <td><p>Native scan-state application, geometry validation and guarded root refinement.</p></td>
+               </tr>
+<!--active-->			   <tr class="">
+                 <td><a href='../module/species_moments.html'>species_moments</a></td>
+                 <td>../../../species_moments.f90</td>
+                 <td><p>Species moments in the historical units v=deltaU/(c*deltaEx/B0),
+density=(delta n/n0)/(deltaEx/B0). All inputs use physical d_ref units.</p></td>
+               </tr>
+<!---->			   <tr class="active">
                  <td><a href='../module/vars.html'>vars</a></td>
-                 <td>../../vars.f90</td>
+                 <td>../../../vars.f90</td>
                  <td><p>Contains all global variables.</p></td>
                </tr>
 <!--active-->			 </tbody></table>
@@ -134,889 +232,1743 @@ associated routines to calculate the FPC from it</p></td>
 <!-- Generated by graphviz version 14.1.2 (0)
  -->
 <!-- Title: module~~graph~~ModuleGraph Pages: 1 -->
-<svg id="modulegraphModuleGraph" width="325pt" height="1874pt"
- viewBox="0.00 0.00 325.00 1874.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="module~~graph~~ModuleGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 1870.27)">
+<svg id="modulegraphModuleGraph" width="855pt" height="1534pt"
+ viewBox="0.00 0.00 855.00 1534.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~graph~~ModuleGraph" class="graph" transform="scale(0.645195 0.645195) rotate(0) translate(4 2373.11)">
 <title>module~~graph~~ModuleGraph</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-1870.27 321.31,-1870.27 321.31,4 -4,4"/>
-<!-- module~bessels -->
+<polygon fill="white" stroke="none" points="-4,4 -4,-2373.11 1321.18,-2373.11 1321.18,4 -4,4"/>
+<!-- module~adaptive_kinetic -->
 <g id="module~~graph~~ModuleGraph_node1" class="node">
-<title>module~bessels</title>
-<g id="a_module~~graph~~ModuleGraph_node1"><a xlink:href="../module/bessels.html" xlink:title="bessels">
-<polygon fill="#337ab7" stroke="#337ab7" points="57.13,-1823.27 3.13,-1823.27 3.13,-1799 57.13,-1799 57.13,-1823.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-1807.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessels</text>
+<title>module~adaptive_kinetic</title>
+<g id="a_module~~graph~~ModuleGraph_node1"><a xlink:href="../module/adaptive_kinetic.html" xlink:title="adaptive_kinetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="563.2,-1667.11 464.68,-1667.11 464.68,-1642.84 563.2,-1642.84 563.2,-1667.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1651.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">adaptive_kinetic</text>
 </a>
 </g>
 </g>
-<!-- module~disprels -->
-<g id="module~~graph~~ModuleGraph_node2" class="node">
-<title>module~disprels</title>
-<g id="a_module~~graph~~ModuleGraph_node2"><a xlink:href="../module/disprels.html" xlink:title="disprels">
-<polygon fill="#337ab7" stroke="#337ab7" points="57.13,-213.27 3.13,-213.27 3.13,-189 57.13,-189 57.13,-213.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-197.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disprels</text>
-</a>
-</g>
-</g>
-<!-- module~fpc -->
+<!-- module~bessel_cache -->
 <g id="module~~graph~~ModuleGraph_node3" class="node">
-<title>module~fpc</title>
-<g id="a_module~~graph~~ModuleGraph_node3"><a xlink:href="../module/fpc.html" xlink:title="fpc">
-<polygon fill="#337ab7" stroke="#337ab7" points="57.13,-24.27 3.13,-24.27 3.13,0 57.13,0 57.13,-24.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fpc</text>
+<title>module~bessel_cache</title>
+<g id="a_module~~graph~~ModuleGraph_node3"><a xlink:href="../module/bessel_cache.html" xlink:title="bessel_cache">
+<polygon fill="#337ab7" stroke="#337ab7" points="392.68,-1703.11 309.91,-1703.11 309.91,-1678.84 392.68,-1678.84 392.68,-1703.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1687.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessel_cache</text>
 </a>
 </g>
 </g>
-<!-- module~functions -->
-<g id="module~~graph~~ModuleGraph_node4" class="node">
-<title>module~functions</title>
-<g id="a_module~~graph~~ModuleGraph_node4"><a xlink:href="../module/functions.html" xlink:title="functions">
-<polygon fill="#337ab7" stroke="#337ab7" points="60.27,-87.27 0,-87.27 0,-63 60.27,-63 60.27,-87.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-71.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">functions</text>
+<!-- module~adaptive_kinetic&#45;&gt;module~bessel_cache -->
+<g id="module~~graph~~ModuleGraph_edge3" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~bessel_cache</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M464.31,-1665.87C445.24,-1670.15 423.34,-1675.06 403.98,-1679.39"/>
+<polygon fill="#000000" stroke="#000000" points="403.4,-1675.94 394.4,-1681.54 404.93,-1682.77 403.4,-1675.94"/>
+</g>
+<!-- module~harmonic_selection -->
+<g id="module~~graph~~ModuleGraph_node11" class="node">
+<title>module~harmonic_selection</title>
+<g id="a_module~~graph~~ModuleGraph_node11"><a xlink:href="../module/harmonic_selection.html" xlink:title="harmonic_selection">
+<polygon fill="#337ab7" stroke="#337ab7" points="246.91,-1703.11 131.14,-1703.11 131.14,-1678.84 246.91,-1678.84 246.91,-1703.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-1687.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">harmonic_selection</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~harmonic_selection -->
+<g id="module~~graph~~ModuleGraph_edge4" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M501.9,-1667.37C479.35,-1692.57 429.27,-1747.94 419.31,-1753.98 392.83,-1770.02 382.7,-1767.13 352.3,-1772.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1772.98C319.9,-1778.82 309.36,-1770.66 283.29,-1753.98 262.58,-1740.72 267.49,-1726 247.29,-1711.98 245.53,-1710.75 243.69,-1709.59 241.79,-1708.49"/>
+<polygon fill="#000000" stroke="#000000" points="243.8,-1705.59 233.3,-1704.16 240.62,-1711.82 243.8,-1705.59"/>
+</g>
+<!-- module~kinetic_core -->
+<g id="module~~graph~~ModuleGraph_node15" class="node">
+<title>module~kinetic_core</title>
+<g id="a_module~~graph~~ModuleGraph_node15"><a xlink:href="../module/kinetic_core.html" xlink:title="kinetic_core">
+<polygon fill="#337ab7" stroke="#337ab7" points="388.93,-1981.11 313.66,-1981.11 313.66,-1956.84 388.93,-1956.84 388.93,-1981.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1965.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">kinetic_core</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~kinetic_core -->
+<g id="module~~graph~~ModuleGraph_edge5" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M510.34,-1667.6C501.99,-1705.89 473.31,-1823.16 419.31,-1904.98 408.12,-1921.94 391.65,-1937.74 377.84,-1949.4"/>
+<polygon fill="#000000" stroke="#000000" points="375.94,-1946.44 370.41,-1955.48 380.37,-1951.86 375.94,-1946.44"/>
+</g>
+<!-- module~vars -->
+<g id="module~~graph~~ModuleGraph_node23" class="node">
+<title>module~vars</title>
+<g id="a_module~~graph~~ModuleGraph_node23"><a xlink:href="../module/vars.html" xlink:title="vars">
+<polygon fill="#337ab7" stroke="#337ab7" points="216.03,-988.11 162.03,-988.11 162.03,-963.84 216.03,-963.84 216.03,-988.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-972.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vars</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge6" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M505.93,-1642.72C486.41,-1608.8 432.09,-1515.55 419.31,-1505.98 394.54,-1487.41 375.76,-1507.18 352.3,-1486.98"/>
+</g>
+<!-- ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_node78" class="node">
+<title>ieee_arithmetic</title>
+<g id="a_module~~graph~~ModuleGraph_node78"><a xlink:href="http://fortranwiki.org/fortran/show/ieee_arithmetic" xlink:title="ieee_arithmetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.77,-1744.11 0,-1744.11 0,-1719.84 94.77,-1719.84 94.77,-1744.11"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-1728.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_arithmetic</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge1" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1772.98C280.35,-1786.43 259.81,-1787.28 190.03,-1772.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M188.03,-1772.98C156.81,-1766.58 122.46,-1756.53 95.64,-1747.99"/>
+<polygon fill="#000000" stroke="#000000" points="97.04,-1744.76 86.45,-1745.02 94.89,-1751.42 97.04,-1744.76"/>
+</g>
+<!-- ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_node79" class="node">
+<title>ieee_exceptions</title>
+<g id="a_module~~graph~~ModuleGraph_node79"><a xlink:href="http://fortranwiki.org/fortran/show/IEEE+arithmetic" xlink:title="ieee_exceptions">
+<polygon fill="#337ab7" stroke="#337ab7" points="237.54,-1876.11 140.52,-1876.11 140.52,-1851.84 237.54,-1851.84 237.54,-1876.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-1860.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_exceptions</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge2" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M505.53,-1667.37C494.24,-1686.4 472.27,-1724.07 455.31,-1756.98 438,-1790.56 449.8,-1811.67 419.31,-1833.98 370.32,-1869.83 299.2,-1873.79 249.2,-1871.03"/>
+<polygon fill="#000000" stroke="#000000" points="249.64,-1867.55 239.43,-1870.38 249.17,-1874.54 249.64,-1867.55"/>
+</g>
+<!-- module~auxiliary_normalization -->
+<g id="module~~graph~~ModuleGraph_node2" class="node">
+<title>module~auxiliary_normalization</title>
+<g id="a_module~~graph~~ModuleGraph_node2"><a xlink:href="../module/auxiliary_normalization.html" xlink:title="auxiliary_normalization">
+<polygon fill="#337ab7" stroke="#337ab7" points="419.31,-2023.11 283.29,-2023.11 283.29,-1998.84 419.31,-1998.84 419.31,-2023.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-2007.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">auxiliary_normalization</text>
 </a>
 </g>
 </g>
 <!-- module~nrtype -->
-<g id="module~~graph~~ModuleGraph_node5" class="node">
+<g id="module~~graph~~ModuleGraph_node16" class="node">
 <title>module~nrtype</title>
-<g id="a_module~~graph~~ModuleGraph_node5"><a xlink:href="../module/nrtype.html" xlink:title="nrtype">
-<polygon fill="#337ab7" stroke="#337ab7" points="57.13,-1740.27 3.13,-1740.27 3.13,-1716 57.13,-1716 57.13,-1740.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-1724.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrtype</text>
+<g id="a_module~~graph~~ModuleGraph_node16"><a xlink:href="../module/nrtype.html" xlink:title="nrtype">
+<polygon fill="#337ab7" stroke="#337ab7" points="216.03,-2183.11 162.03,-2183.11 162.03,-2158.84 216.03,-2158.84 216.03,-2183.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-2167.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrtype</text>
 </a>
 </g>
 </g>
-<!-- module~nrutil_trim -->
+<!-- module~auxiliary_normalization&#45;&gt;module~nrtype -->
+<g id="module~~graph~~ModuleGraph_edge8" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M341.79,-2023.28C319.41,-2055.53 259.74,-2140.67 247.29,-2149.98 241.27,-2154.48 234.17,-2158.11 227.07,-2160.99"/>
+<polygon fill="#000000" stroke="#000000" points="226.08,-2157.63 217.85,-2164.3 228.44,-2164.21 226.08,-2157.63"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge9" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M292.7,-1998.47C289.17,-1996.1 285.97,-1993.3 283.29,-1989.98 275.21,-1979.97 204.76,-1150.28 192,-999.38"/>
+<polygon fill="#000000" stroke="#000000" points="195.53,-999.48 191.2,-989.81 188.55,-1000.07 195.53,-999.48"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge7" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M303.01,-1998.34C296.24,-1995.91 289.48,-1993.13 283.29,-1989.98 237.33,-1966.61 231.63,-1951.44 190.03,-1920.98"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~harmonic_selection -->
+<g id="module~~graph~~ModuleGraph_edge11" class="edge">
+<title>module~bessel_cache&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.44,-1690.98C293.92,-1690.98 275.79,-1690.98 258.41,-1690.98"/>
+<polygon fill="#000000" stroke="#000000" points="258.65,-1687.48 248.65,-1690.98 258.65,-1694.48 258.65,-1687.48"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge12" class="edge">
+<title>module~bessel_cache&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.69,-1682.96C299.68,-1679.1 289.93,-1673.4 283.29,-1664.98 199.36,-1558.52 190.92,-1108.49 190.11,-999.72"/>
+<polygon fill="#000000" stroke="#000000" points="193.61,-999.94 190.05,-989.96 186.61,-999.98 193.61,-999.94"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge10" class="edge">
+<title>module~bessel_cache&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M316.17,-1678.35C276.53,-1664.41 213.59,-1644.72 190.03,-1650.98"/>
+</g>
+<!-- module~bessels -->
+<g id="module~~graph~~ModuleGraph_node4" class="node">
+<title>module~bessels</title>
+<g id="a_module~~graph~~ModuleGraph_node4"><a xlink:href="../module/bessels.html" xlink:title="bessels">
+<polygon fill="#337ab7" stroke="#337ab7" points="216.03,-2141.11 162.03,-2141.11 162.03,-2116.84 216.03,-2116.84 216.03,-2141.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-2125.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessels</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference -->
+<g id="module~~graph~~ModuleGraph_node5" class="node">
+<title>module~cold_reference</title>
+<g id="a_module~~graph~~ModuleGraph_node5"><a xlink:href="../module/cold_reference.html" xlink:title="cold_reference">
+<polygon fill="#337ab7" stroke="#337ab7" points="708.22,-1669.11 617.95,-1669.11 617.95,-1644.84 708.22,-1644.84 708.22,-1669.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1653.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cold_reference</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~graph~~ModuleGraph_edge14" class="edge">
+<title>module~cold_reference&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M617.54,-1656.37C604.13,-1656.19 589.18,-1655.99 574.93,-1655.79"/>
+<polygon fill="#000000" stroke="#000000" points="575.26,-1652.3 565.22,-1655.66 575.17,-1659.29 575.26,-1652.3"/>
+</g>
+<!-- module~cold_reference&#45;&gt;module~auxiliary_normalization -->
+<g id="module~~graph~~ModuleGraph_edge15" class="edge">
+<title>module~cold_reference&#45;&gt;module~auxiliary_normalization</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-1922.98C474.65,-1956.92 465.11,-1967.15 419.31,-1989.98 416.24,-1991.5 413.04,-1992.95 409.78,-1994.31"/>
+<polygon fill="#000000" stroke="#000000" points="408.68,-1990.98 400.6,-1997.84 411.19,-1997.52 408.68,-1990.98"/>
+</g>
+<!-- module~cold_reference&#45;&gt;module~kinetic_core -->
+<g id="module~~graph~~ModuleGraph_edge16" class="edge">
+<title>module~cold_reference&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M624.86,-1669.46C618.67,-1672.99 612.88,-1677.42 608.58,-1682.98 559.16,-1746.79 609.44,-1789.17 572.58,-1860.98 555.4,-1894.45 543.1,-1898.02 514.94,-1922.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-1922.98C481.93,-1950.47 435.51,-1961.6 400.53,-1966.07"/>
+<polygon fill="#000000" stroke="#000000" points="400.2,-1962.59 390.65,-1967.18 400.98,-1969.54 400.2,-1962.59"/>
+</g>
+<!-- module~cold_reference&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge17" class="edge">
+<title>module~cold_reference&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M628.23,-1669.59C591.82,-1682.46 536.28,-1699.91 514.94,-1694.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-1694.98C510.69,-1694.46 353.71,-1652.81 352.3,-1650.98"/>
+</g>
+<!-- module~cold_reference&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge13" class="edge">
+<title>module~cold_reference&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M626.3,-1669.52C619.76,-1673.07 613.46,-1677.51 608.58,-1682.98 576.56,-1718.83 600.63,-1745.93 572.58,-1784.98 522.11,-1855.24 500.06,-1873.94 419.31,-1904.98 371.64,-1923.3 231.26,-1951.12 190.03,-1920.98"/>
+</g>
+<!-- module~cold_susceptibility -->
 <g id="module~~graph~~ModuleGraph_node6" class="node">
+<title>module~cold_susceptibility</title>
+<g id="a_module~~graph~~ModuleGraph_node6"><a xlink:href="../module/cold_susceptibility.html" xlink:title="cold_susceptibility">
+<polygon fill="#337ab7" stroke="#337ab7" points="405.43,-1623.11 297.16,-1623.11 297.16,-1598.84 405.43,-1598.84 405.43,-1623.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1607.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cold_susceptibility</text>
+</a>
+</g>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;module~nrtype -->
+<g id="module~~graph~~ModuleGraph_edge19" class="edge">
+<title>module~cold_susceptibility&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M328.76,-1623.5C313.2,-1633.82 293.24,-1649.99 283.29,-1669.98 235.62,-1765.73 311.77,-2064.63 247.29,-2149.98 242.24,-2156.66 234.85,-2161.21 227.05,-2164.32"/>
+<polygon fill="#000000" stroke="#000000" points="226.24,-2160.9 217.77,-2167.27 228.36,-2167.58 226.24,-2160.9"/>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge20" class="edge">
+<title>module~cold_susceptibility&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M296.7,-1600.54C291.64,-1597.79 287.02,-1594.33 283.29,-1589.98 205.04,-1498.74 192.35,-1100.67 190.38,-999.45"/>
+<polygon fill="#000000" stroke="#000000" points="193.88,-999.59 190.21,-989.66 186.88,-999.72 193.88,-999.59"/>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge18" class="edge">
+<title>module~cold_susceptibility&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M298.23,-1623.55C266.83,-1631.24 226.06,-1641.4 190.03,-1650.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M188.03,-1650.98C162.12,-1657.86 153.12,-1655.16 130.77,-1669.98 110.56,-1683.37 114.25,-1696.54 94.77,-1710.98 93.44,-1711.96 92.05,-1712.92 90.63,-1713.84"/>
+<polygon fill="#000000" stroke="#000000" points="89.08,-1710.69 82.14,-1718.7 92.56,-1716.77 89.08,-1710.69"/>
+</g>
+<!-- module~disprels -->
+<g id="module~~graph~~ModuleGraph_node7" class="node">
+<title>module~disprels</title>
+<g id="a_module~~graph~~ModuleGraph_node7"><a xlink:href="../module/disprels.html" xlink:title="disprels">
+<polygon fill="#337ab7" stroke="#337ab7" points="540.94,-1051.11 486.94,-1051.11 486.94,-1026.84 540.94,-1026.84 540.94,-1051.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1035.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disprels</text>
+</a>
+</g>
+</g>
+<!-- module~plasma_z_backend -->
+<g id="module~~graph~~ModuleGraph_node18" class="node">
+<title>module~plasma_z_backend</title>
+<g id="a_module~~graph~~ModuleGraph_node18"><a xlink:href="../module/plasma_z_backend.html" xlink:title="plasma_z_backend">
+<polygon fill="#337ab7" stroke="#337ab7" points="407.31,-1825.11 295.29,-1825.11 295.29,-1800.84 407.31,-1800.84 407.31,-1825.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1809.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plasma_z_backend</text>
+</a>
+</g>
+</g>
+<!-- module~disprels&#45;&gt;module~plasma_z_backend -->
+<g id="module~~graph~~ModuleGraph_edge21" class="edge">
+<title>module~disprels&#45;&gt;module~plasma_z_backend</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.75,-1051.51C489.1,-1069.14 465.41,-1102.81 455.31,-1135.98 434.2,-1205.28 461.87,-1728.35 419.31,-1786.98 417.39,-1789.63 415.15,-1792.01 412.69,-1794.15"/>
+<polygon fill="#000000" stroke="#000000" points="411.01,-1791.05 404.82,-1799.65 415.02,-1796.79 411.01,-1791.05"/>
+</g>
+<!-- module~disprels&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge22" class="edge">
+<title>module~disprels&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.46,-1048.83C447.74,-1062.68 377.55,-1085.52 352.3,-1078.98"/>
+</g>
+<!-- module~electromagnetic_fields -->
+<g id="module~~graph~~ModuleGraph_node8" class="node">
+<title>module~electromagnetic_fields</title>
+<g id="a_module~~graph~~ModuleGraph_node8"><a xlink:href="../module/electromagnetic_fields.html" xlink:title="electromagnetic_fields">
+<polygon fill="#337ab7" stroke="#337ab7" points="1027.14,-1789.11 894.87,-1789.11 894.87,-1764.84 1027.14,-1764.84 1027.14,-1789.11"/>
+<text xml:space="preserve" text-anchor="middle" x="961" y="-1773.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">electromagnetic_fields</text>
+</a>
+</g>
+</g>
+<!-- module~species_moments -->
+<g id="module~~graph~~ModuleGraph_node22" class="node">
+<title>module~species_moments</title>
+<g id="a_module~~graph~~ModuleGraph_node22"><a xlink:href="../module/species_moments.html" xlink:title="species_moments">
+<polygon fill="#337ab7" stroke="#337ab7" points="716.47,-1749.11 609.7,-1749.11 609.7,-1724.84 716.47,-1724.84 716.47,-1749.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1733.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">species_moments</text>
+</a>
+</g>
+</g>
+<!-- module~electromagnetic_fields&#45;&gt;module~species_moments -->
+<g id="module~~graph~~ModuleGraph_edge25" class="edge">
+<title>module~electromagnetic_fields&#45;&gt;module~species_moments</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M956.35,-1764.58C939.12,-1707.34 864.52,-1472.5 807.23,-1496.98"/>
+</g>
+<!-- module~electromagnetic_fields&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge26" class="edge">
+<title>module~electromagnetic_fields&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M894.6,-1783.62C822.53,-1788.63 704.18,-1789.99 608.58,-1757.98 561.02,-1742.05 563.82,-1706.27 514.94,-1694.98"/>
+</g>
+<!-- module~electromagnetic_fields&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge23" class="edge">
+<title>module~electromagnetic_fields&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-2074.98C597.42,-2084.71 573.2,-2045.25 514.94,-2074.98"/>
+</g>
+<!-- module~electromagnetic_fields&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge24" class="edge">
+<title>module~electromagnetic_fields&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M955.24,-1789.48C932.33,-1847.29 827.81,-2085.36 664.09,-2074.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-2074.98C595.3,-2085.03 576.95,-2010.18 514.94,-2036.98"/>
+</g>
+<!-- module~fpc -->
+<g id="module~~graph~~ModuleGraph_node9" class="node">
+<title>module~fpc</title>
+<g id="a_module~~graph~~ModuleGraph_node9"><a xlink:href="../module/fpc.html" xlink:title="fpc">
+<polygon fill="#337ab7" stroke="#337ab7" points="540.94,-1169.11 486.94,-1169.11 486.94,-1144.84 540.94,-1144.84 540.94,-1169.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1153.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">fpc</text>
+</a>
+</g>
+</g>
+<!-- module~fpc&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge27" class="edge">
+<title>module~fpc&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.49,-1147.13C476.36,-1142.83 464.93,-1137.32 455.31,-1130.98 437.19,-1119.03 438.26,-1108.56 419.31,-1097.98 392.28,-1082.89 382.27,-1086.74 352.3,-1078.98"/>
+</g>
+<!-- module~functions -->
+<g id="module~~graph~~ModuleGraph_node10" class="node">
+<title>module~functions</title>
+<g id="a_module~~graph~~ModuleGraph_node10"><a xlink:href="../module/functions.html" xlink:title="functions">
+<polygon fill="#337ab7" stroke="#337ab7" points="544.08,-643.11 483.81,-643.11 483.81,-618.84 544.08,-618.84 544.08,-643.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-627.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">functions</text>
+</a>
+</g>
+</g>
+<!-- module~functions&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge28" class="edge">
+<title>module~functions&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M509.49,-618.48C500.49,-588.64 473.16,-513.52 419.31,-483.98 366.31,-454.9 329.85,-445.41 283.29,-483.98 209.83,-544.82 193.78,-862.87 190.7,-952.47"/>
+<polygon fill="#000000" stroke="#000000" points="187.21,-952.14 190.39,-962.24 194.2,-952.36 187.21,-952.14"/>
+</g>
+<!-- module~harmonic_selection&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge29" class="edge">
+<title>module~harmonic_selection&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M145.37,-1703.5C131.69,-1707.52 116.37,-1712.02 102.01,-1716.23"/>
+<polygon fill="#000000" stroke="#000000" points="101.32,-1712.79 92.71,-1718.96 103.3,-1719.5 101.32,-1712.79"/>
+</g>
+<!-- module~heating_diagnostics -->
+<g id="module~~graph~~ModuleGraph_node12" class="node">
+<title>module~heating_diagnostics</title>
+<g id="a_module~~graph~~ModuleGraph_node12"><a xlink:href="../module/heating_diagnostics.html" xlink:title="heating_diagnostics">
+<polygon fill="#337ab7" stroke="#337ab7" points="1180.41,-1299.11 1063.14,-1299.11 1063.14,-1274.84 1180.41,-1274.84 1180.41,-1299.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1121.77" y="-1283.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_diagnostics</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~electromagnetic_fields -->
+<g id="module~~graph~~ModuleGraph_edge31" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~electromagnetic_fields</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1117.65,-1299.56C1108.56,-1336.39 1081.61,-1447.19 1063.14,-1539.98 1044.57,-1633.28 1086.96,-1677 1027.14,-1750.98 1024.95,-1753.68 1022.44,-1756.11 1019.71,-1758.28"/>
+<polygon fill="#000000" stroke="#000000" points="1018.06,-1755.18 1011.6,-1763.58 1021.88,-1761.04 1018.06,-1755.18"/>
+</g>
+<!-- module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_node13" class="node">
+<title>module~heating_energy</title>
+<g id="a_module~~graph~~ModuleGraph_node13"><a xlink:href="../module/heating_energy.html" xlink:title="heating_energy">
+<polygon fill="#337ab7" stroke="#337ab7" points="1008.39,-1152.11 913.62,-1152.11 913.62,-1127.84 1008.39,-1127.84 1008.39,-1152.11"/>
+<text xml:space="preserve" text-anchor="middle" x="961" y="-1136.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_energy</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_edge32" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1086.13,-1274.39C1078.18,-1270.7 1070.05,-1266.22 1063.14,-1260.98 1025.98,-1232.78 993.49,-1188.51 975.91,-1162.06"/>
+<polygon fill="#000000" stroke="#000000" points="978.93,-1160.29 970.54,-1153.82 973.06,-1164.11 978.93,-1160.29"/>
+</g>
+<!-- module~heating_response -->
+<g id="module~~graph~~ModuleGraph_node14" class="node">
+<title>module~heating_response</title>
+<g id="a_module~~graph~~ModuleGraph_node14"><a xlink:href="../module/heating_response.html" xlink:title="heating_response">
+<polygon fill="#337ab7" stroke="#337ab7" points="858.87,-1300.11 753.6,-1300.11 753.6,-1275.84 858.87,-1275.84 858.87,-1300.11"/>
+<text xml:space="preserve" text-anchor="middle" x="806.23" y="-1284.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_response</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~heating_response -->
+<g id="module~~graph~~ModuleGraph_edge33" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-1287.98C930.65,-1287.47 898.12,-1287.4 870.65,-1287.48"/>
+<polygon fill="#000000" stroke="#000000" points="870.71,-1283.98 860.72,-1287.52 870.74,-1290.98 870.71,-1283.98"/>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~species_moments -->
+<g id="module~~graph~~ModuleGraph_edge34" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~species_moments</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-1287.98C864.36,-1286.32 930.97,-1415.11 858.87,-1477.98 840.44,-1494.05 829.72,-1487.37 807.23,-1496.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M805.23,-1496.98C710.72,-1537.36 787.93,-1636.03 717.6,-1710.98 715.06,-1713.69 712.17,-1716.15 709.09,-1718.38"/>
+<polygon fill="#000000" stroke="#000000" points="707.33,-1715.35 700.68,-1723.6 711.03,-1721.3 707.33,-1715.35"/>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge35" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1062.71,-1288C1032.65,-1288.36 995.35,-1288.55 962,-1287.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-1287.98C870.1,-1286.42 770.5,-1036.69 717.6,-963.98 672.63,-902.17 650.52,-894.87 608.58,-830.98 589.38,-801.73 596.05,-786.92 572.58,-760.98 530.91,-714.92 503.33,-724.37 455.31,-684.98 437.57,-670.42 439.02,-659.73 419.31,-647.98 392.72,-632.12 381.5,-618.71 352.3,-628.98"/>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge30" class="edge">
+<title>module~heating_diagnostics&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1099.38,-1299.58C1087.87,-1306.97 1073.87,-1317 1063.14,-1327.98 791.62,-1605.58 873.4,-1805.42 572.58,-2050.98 551.08,-2068.52 539.66,-2062.37 514.94,-2074.98"/>
+</g>
+<!-- module~heating_energy&#45;&gt;module~heating_response -->
+<g id="module~~graph~~ModuleGraph_edge37" class="edge">
+<title>module~heating_energy&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M946.98,-1152.59C920.49,-1178.26 860.12,-1236.74 828.09,-1267.77"/>
+<polygon fill="#000000" stroke="#000000" points="826.06,-1264.86 821.31,-1274.34 830.93,-1269.89 826.06,-1264.86"/>
+</g>
+<!-- module~heating_energy&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge38" class="edge">
+<title>module~heating_energy&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M947.06,-1127.64C927.97,-1109.52 891.04,-1074.73 858.87,-1045.98 749.52,-948.26 698.14,-947.1 608.58,-830.98 586.24,-802.01 601.33,-779.58 572.58,-756.98 493.81,-695.05 444.94,-670.78 352.3,-708.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-708.98C321.42,-720.12 306.07,-707.02 283.29,-727.98 216.64,-789.28 197.35,-902.96 191.99,-952.2"/>
+<polygon fill="#000000" stroke="#000000" points="188.52,-951.72 191.03,-962.02 195.49,-952.4 188.52,-951.72"/>
+</g>
+<!-- module~heating_energy&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge36" class="edge">
+<title>module~heating_energy&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M957.87,-1127.62C946.23,-1063.8 884.64,-768.35 717.6,-609.98 679.8,-574.14 640.36,-608.24 608.58,-566.98 525.29,-458.84 619.98,-389.98 572.58,-261.98 530.18,-147.47 524.61,-95.79 419.31,-33.98 331.13,17.79 291.39,-1.49 190.03,-14.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M188.03,-14.98C84.3,-28.74 136.44,-850.49 130.77,-954.98 126.21,-1038.95 142.02,-1641.41 94.77,-1710.98 94.63,-1711.19 94.48,-1711.39 94.33,-1711.6"/>
+<polygon fill="#000000" stroke="#000000" points="91.98,-1709 87.28,-1718.5 96.88,-1714.01 91.98,-1709"/>
+</g>
+<!-- module~heating_response&#45;&gt;module~cold_reference -->
+<g id="module~~graph~~ModuleGraph_edge41" class="edge">
+<title>module~heating_response&#45;&gt;module~cold_reference</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M800.15,-1300.44C790.04,-1325.66 767.2,-1384.68 753.6,-1435.98 731.02,-1521.17 770.97,-1560.84 717.6,-1630.98 715.64,-1633.56 713.35,-1635.9 710.85,-1638.01"/>
+<polygon fill="#000000" stroke="#000000" points="709.13,-1634.95 702.91,-1643.53 713.12,-1640.69 709.13,-1634.95"/>
+</g>
+<!-- module~heating_response&#45;&gt;module~cold_susceptibility -->
+<g id="module~~graph~~ModuleGraph_edge42" class="edge">
+<title>module~heating_response&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-1354.98C599.54,-1376.58 624.53,-1432.98 572.58,-1473.98 527.96,-1509.18 497.37,-1486.75 455.31,-1524.98 430.87,-1547.19 444.9,-1569.1 419.31,-1589.98 418.17,-1590.91 416.98,-1591.8 415.76,-1592.65"/>
+<polygon fill="#000000" stroke="#000000" points="414.02,-1589.62 407.14,-1597.67 417.55,-1595.66 414.02,-1589.62"/>
+</g>
+<!-- module~heating_response&#45;&gt;module~species_moments -->
+<g id="module~~graph~~ModuleGraph_edge43" class="edge">
+<title>module~heating_response&#45;&gt;module~species_moments</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M799.92,-1300.39C789.4,-1325.5 765.85,-1384.34 753.6,-1435.98 725.15,-1555.91 789.66,-1610.96 717.6,-1710.98 715.73,-1713.57 713.53,-1715.91 711.11,-1718.03"/>
+<polygon fill="#000000" stroke="#000000" points="709.52,-1714.87 703.41,-1723.53 713.58,-1720.57 709.52,-1714.87"/>
+</g>
+<!-- module~heating_response&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge44" class="edge">
+<title>module~heating_response&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M782.37,-1300.59C754.95,-1315.3 707.26,-1339.57 664.09,-1354.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-1354.98C619.17,-1370.29 616.11,-1318.44 572.58,-1304.98 525.62,-1290.45 392.65,-1313.05 352.3,-1284.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1284.98C325.33,-1266.68 305.56,-1287.48 283.29,-1265.98 206.7,-1192.01 192.9,-1055.04 190.49,-999.89"/>
+<polygon fill="#000000" stroke="#000000" points="194,-999.96 190.17,-990.08 187,-1000.19 194,-999.96"/>
+</g>
+<!-- module~heating_response&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge39" class="edge">
+<title>module~heating_response&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1890.98C346.02,-1892.45 193.7,-1923.63 190.03,-1920.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M188.03,-1920.98C163.66,-1903.37 151.3,-1906.94 130.77,-1884.98 94.07,-1845.72 68.56,-1787.02 56.43,-1754.94"/>
+<polygon fill="#000000" stroke="#000000" points="59.82,-1754.02 53.09,-1745.83 53.25,-1756.42 59.82,-1754.02"/>
+</g>
+<!-- module~heating_response&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge40" class="edge">
+<title>module~heating_response&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M800.31,-1300.49C790.48,-1325.78 768.12,-1384.94 753.6,-1435.98 733.42,-1506.92 766.62,-1542.87 717.6,-1597.98 683.49,-1636.31 644.47,-1599.3 608.58,-1635.98 572.31,-1673.05 609.26,-1710.31 572.58,-1746.98 533.83,-1785.71 495.94,-1748.23 455.31,-1784.98 425.79,-1811.67 448.42,-1839.83 419.31,-1866.98 396.17,-1888.55 382.3,-1880.95 352.3,-1890.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1890.98C309.8,-1904.95 260.96,-1892.85 227.92,-1880.69"/>
+<polygon fill="#000000" stroke="#000000" points="229.36,-1877.49 218.77,-1877.15 226.83,-1884.02 229.36,-1877.49"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~nrtype -->
+<g id="module~~graph~~ModuleGraph_edge47" class="edge">
+<title>module~kinetic_core&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M313.43,-1973.34C302.39,-1976.37 291.14,-1981.46 283.29,-1989.98 233.92,-2043.59 295.37,-2095.19 247.29,-2149.98 241.93,-2156.09 234.63,-2160.42 227.04,-2163.5"/>
+<polygon fill="#000000" stroke="#000000" points="226.11,-2160.12 217.72,-2166.58 228.31,-2166.76 226.11,-2160.12"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge48" class="edge">
+<title>module~kinetic_core&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M331.11,-1956.52C315.35,-1945.15 293.95,-1926.8 283.29,-1904.98 262.75,-1862.91 203.33,-1140.18 191.93,-999.57"/>
+<polygon fill="#000000" stroke="#000000" points="195.45,-999.66 191.16,-989.97 188.47,-1000.22 195.45,-999.66"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge45" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M313.44,-1965.08C278.76,-1959.87 226.82,-1947.92 190.03,-1920.98"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge46" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M331.29,-1956.52C303.33,-1938.21 250.95,-1903.89 218.43,-1882.58"/>
+<polygon fill="#000000" stroke="#000000" points="220.57,-1879.8 210.29,-1877.25 216.73,-1885.65 220.57,-1879.8"/>
+</g>
+<!-- module~nrutil_trim -->
+<g id="module~~graph~~ModuleGraph_node17" class="node">
 <title>module~nrutil_trim</title>
-<g id="a_module~~graph~~ModuleGraph_node6"><a xlink:href="../module/nrutil_trim.html" xlink:title="nrutil_trim">
-<polygon fill="#337ab7" stroke="#337ab7" points="194.04,-1780.27 127.77,-1780.27 127.77,-1756 194.04,-1756 194.04,-1780.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1764.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrutil_trim</text>
+<g id="a_module~~graph~~ModuleGraph_node17"><a xlink:href="../module/nrutil_trim.html" xlink:title="nrutil_trim">
+<polygon fill="#337ab7" stroke="#337ab7" points="384.43,-2263.11 318.16,-2263.11 318.16,-2238.84 384.43,-2238.84 384.43,-2263.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-2247.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrutil_trim</text>
 </a>
 </g>
 </g>
 <!-- module~nrutil_trim&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge1" class="edge">
+<g id="module~~graph~~ModuleGraph_edge49" class="edge">
 <title>module~nrutil_trim&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M127.41,-1758.04C109.43,-1752.46 87.02,-1745.49 68.34,-1739.69"/>
-<polygon fill="#000000" stroke="#000000" points="69.59,-1736.41 59,-1736.79 67.51,-1743.1 69.59,-1736.41"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M317.83,-2239.54C306.72,-2235.32 294.32,-2230.27 283.29,-2224.98 261.19,-2214.37 237.29,-2200.48 219.21,-2189.44"/>
+<polygon fill="#000000" stroke="#000000" points="221.19,-2186.55 210.85,-2184.27 217.52,-2192.5 221.19,-2186.55"/>
 </g>
-<!-- module~vars -->
-<g id="module~~graph~~ModuleGraph_node7" class="node">
-<title>module~vars</title>
-<g id="a_module~~graph~~ModuleGraph_node7"><a xlink:href="../module/vars.html" xlink:title="vars">
-<polygon fill="#337ab7" stroke="#337ab7" points="57.13,-843.27 3.13,-843.27 3.13,-819 57.13,-819 57.13,-843.27"/>
-<text xml:space="preserve" text-anchor="middle" x="30.13" y="-827.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vars</text>
+<!-- module~plasma_z_faddeeva -->
+<g id="module~~graph~~ModuleGraph_node19" class="node">
+<title>module~plasma_z_faddeeva</title>
+<g id="a_module~~graph~~ModuleGraph_node19"><a xlink:href="../module/plasma_z_faddeeva.html" xlink:title="plasma_z_faddeeva">
+<polygon fill="#337ab7" stroke="#337ab7" points="247.29,-1745.11 130.77,-1745.11 130.77,-1720.84 247.29,-1720.84 247.29,-1745.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-1729.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plasma_z_faddeeva</text>
 </a>
 </g>
 </g>
+<!-- module~plasma_z_backend&#45;&gt;module~plasma_z_faddeeva -->
+<g id="module~~graph~~ModuleGraph_edge52" class="edge">
+<title>module~plasma_z_backend&#45;&gt;module~plasma_z_faddeeva</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.2,-1800.4C302.51,-1796.61 292.3,-1792.08 283.29,-1786.98 265.66,-1776.98 264.64,-1769.46 247.29,-1758.98 242.34,-1755.98 236.98,-1753.11 231.6,-1750.45"/>
+<polygon fill="#000000" stroke="#000000" points="233.22,-1747.34 222.69,-1746.23 230.23,-1753.67 233.22,-1747.34"/>
+</g>
+<!-- module~plasma_z_legacy -->
+<g id="module~~graph~~ModuleGraph_node20" class="node">
+<title>module~plasma_z_legacy</title>
+<g id="a_module~~graph~~ModuleGraph_node20"><a xlink:href="../module/plasma_z_legacy.html" xlink:title="plasma_z_legacy">
+<polygon fill="#337ab7" stroke="#337ab7" points="239.79,-1825.11 138.27,-1825.11 138.27,-1800.84 239.79,-1800.84 239.79,-1825.11"/>
+<text xml:space="preserve" text-anchor="middle" x="189.03" y="-1809.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plasma_z_legacy</text>
+</a>
+</g>
+</g>
+<!-- module~plasma_z_backend&#45;&gt;module~plasma_z_legacy -->
+<g id="module~~graph~~ModuleGraph_edge53" class="edge">
+<title>module~plasma_z_backend&#45;&gt;module~plasma_z_legacy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M295.14,-1812.98C281.07,-1812.98 265.85,-1812.98 251.48,-1812.98"/>
+<polygon fill="#000000" stroke="#000000" points="251.69,-1809.48 241.69,-1812.98 251.69,-1816.48 251.69,-1809.48"/>
+</g>
+<!-- module~plasma_z_backend&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge54" class="edge">
+<title>module~plasma_z_backend&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M299.66,-1800.47C293.37,-1797.02 287.64,-1792.61 283.29,-1786.98 258.48,-1754.85 203.38,-1130.6 192.08,-999.86"/>
+<polygon fill="#000000" stroke="#000000" points="195.57,-999.65 191.23,-989.99 188.6,-1000.25 195.57,-999.65"/>
+</g>
+<!-- module~plasma_z_backend&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge50" class="edge">
+<title>module~plasma_z_backend&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M304.25,-1800.38C272.34,-1791.93 228.8,-1780.92 190.03,-1772.98"/>
+</g>
+<!-- module~plasma_z_backend&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge51" class="edge">
+<title>module~plasma_z_backend&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M310.68,-1825.58C289.41,-1832.35 262.98,-1840.76 240.27,-1847.99"/>
+<polygon fill="#000000" stroke="#000000" points="239.38,-1844.6 230.91,-1850.97 241.5,-1851.27 239.38,-1844.6"/>
+</g>
+<!-- iso_c_binding -->
+<g id="module~~graph~~ModuleGraph_node80" class="node">
+<title>iso_c_binding</title>
+<g id="a_module~~graph~~ModuleGraph_node80"><a xlink:href="http://fortranwiki.org/fortran/show/iso_c_binding" xlink:title="iso_c_binding">
+<polygon fill="#337ab7" stroke="#337ab7" points="88.77,-1702.11 6,-1702.11 6,-1677.84 88.77,-1677.84 88.77,-1702.11"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-1686.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_c_binding</text>
+</a>
+</g>
+</g>
+<!-- module~plasma_z_faddeeva&#45;&gt;iso_c_binding -->
+<g id="module~~graph~~ModuleGraph_edge55" class="edge">
+<title>module~plasma_z_faddeeva&#45;&gt;iso_c_binding</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M147.26,-1720.42C132.35,-1715.83 115.28,-1710.58 99.58,-1705.74"/>
+<polygon fill="#000000" stroke="#000000" points="100.99,-1702.51 90.41,-1702.92 98.93,-1709.2 100.99,-1702.51"/>
+</g>
+<!-- module~scan_support -->
+<g id="module~~graph~~ModuleGraph_node21" class="node">
+<title>module~scan_support</title>
+<g id="a_module~~graph~~ModuleGraph_node21"><a xlink:href="../module/scan_support.html" xlink:title="scan_support">
+<polygon fill="#337ab7" stroke="#337ab7" points="392.31,-925.11 310.29,-925.11 310.29,-900.84 392.31,-900.84 392.31,-925.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-909.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_support</text>
+</a>
+</g>
+</g>
+<!-- module~scan_support&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge58" class="edge">
+<title>module~scan_support&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.99,-924.75C301.13,-927.58 291.84,-930.73 283.29,-933.98 264.05,-941.29 243.11,-950.6 225.95,-958.59"/>
+<polygon fill="#000000" stroke="#000000" points="224.73,-955.29 217.18,-962.72 227.72,-961.63 224.73,-955.29"/>
+</g>
+<!-- module~scan_support&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge56" class="edge">
+<title>module~scan_support&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M310.04,-908.33C299.91,-905.23 290.01,-900.18 283.29,-891.98 159.06,-740.39 384.31,10.87 190.03,-14.98"/>
+</g>
+<!-- module~scan_support&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge57" class="edge">
+<title>module~scan_support&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M310.03,-917.23C299.77,-920.31 289.81,-925.46 283.29,-933.98 222.44,-1013.43 300.8,-1749.4 247.29,-1833.98 244.58,-1838.25 241.06,-1841.95 237.08,-1845.15"/>
+<polygon fill="#000000" stroke="#000000" points="235.41,-1842.05 229.05,-1850.52 239.31,-1847.87 235.41,-1842.05"/>
+</g>
+<!-- module~species_moments&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge61" class="edge">
+<title>module~species_moments&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M622.09,-1724.36C592.66,-1715.38 551.57,-1703.44 514.94,-1694.98"/>
+</g>
+<!-- module~species_moments&#45;&gt;ieee_arithmetic -->
+<g id="module~~graph~~ModuleGraph_edge59" class="edge">
+<title>module~species_moments&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M656.3,-1749.27C645.53,-1772.55 622.27,-1824.87 608.58,-1870.98 585.36,-1949.18 624.31,-1987.89 572.58,-2050.98 554.99,-2072.43 539.6,-2062.24 514.94,-2074.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-2074.98C422.21,-2121.85 371.99,-2117.6 283.29,-2066.98 216.42,-2028.81 252.15,-1966.47 190.03,-1920.98"/>
+</g>
+<!-- module~species_moments&#45;&gt;ieee_exceptions -->
+<g id="module~~graph~~ModuleGraph_edge60" class="edge">
+<title>module~species_moments&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M656.52,-1749.34C646.11,-1772.73 623.44,-1825.23 608.58,-1870.98 588.46,-1932.9 615.13,-1963.7 572.58,-2012.98 554.45,-2033.98 540.47,-2026.09 514.94,-2036.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-2036.98C419.04,-2077.04 364.19,-2094.25 283.29,-2031.98 237.48,-1996.71 280.1,-1954.58 247.29,-1906.98 240.85,-1897.63 231.72,-1889.48 222.64,-1882.87"/>
+<polygon fill="#000000" stroke="#000000" points="224.8,-1880.11 214.56,-1877.39 220.87,-1885.9 224.8,-1880.11"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~graph~~ModuleGraph_node81" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~graph~~ModuleGraph_node81"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.02,-988.11 0.75,-988.11 0.75,-963.84 94.02,-963.84 94.02,-988.11"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-972.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~vars&#45;&gt;iso_fortran_env -->
+<g id="module~~graph~~ModuleGraph_edge62" class="edge">
+<title>module~vars&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M161.76,-975.98C145.91,-975.98 125.08,-975.98 105.59,-975.98"/>
+<polygon fill="#000000" stroke="#000000" points="105.84,-972.48 95.84,-975.98 105.84,-979.48 105.84,-972.48"/>
+</g>
 <!-- proc~bessel -->
-<g id="module~~graph~~ModuleGraph_node8" class="node">
+<g id="module~~graph~~ModuleGraph_node24" class="node">
 <title>proc~bessel</title>
-<g id="a_module~~graph~~ModuleGraph_node8"><a xlink:href="../proc/bessel.html" xlink:title="bessel">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="187.91,-1864.27 133.91,-1864.27 133.91,-1840 187.91,-1840 187.91,-1864.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1848.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessel</text>
+<g id="a_module~~graph~~ModuleGraph_node24"><a xlink:href="../proc/bessel.html" xlink:title="bessel">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="378.3,-2183.11 324.3,-2183.11 324.3,-2158.84 378.3,-2158.84 378.3,-2183.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-2167.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessel</text>
 </a>
 </g>
 </g>
 <!-- proc~bessel&#45;&gt;module~bessels -->
-<g id="module~~graph~~ModuleGraph_edge2" class="edge">
+<g id="module~~graph~~ModuleGraph_edge63" class="edge">
 <title>proc~bessel&#45;&gt;module~bessels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.54,-1843.74C114.7,-1837.74 89.1,-1829.59 68.21,-1822.94"/>
-<polygon fill="#000000" stroke="#000000" points="69.5,-1819.68 58.91,-1819.98 67.38,-1826.35 69.5,-1819.68"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.83,-2164.04C297.54,-2157.15 256.98,-2146.52 227.41,-2138.77"/>
+<polygon fill="#000000" stroke="#000000" points="228.29,-2135.39 217.73,-2136.24 226.52,-2142.16 228.29,-2135.39"/>
 </g>
 <!-- proc~bessim -->
-<g id="module~~graph~~ModuleGraph_node9" class="node">
+<g id="module~~graph~~ModuleGraph_node25" class="node">
 <title>proc~bessim</title>
-<g id="a_module~~graph~~ModuleGraph_node9"><a xlink:href="../proc/bessim.html" xlink:title="bessim">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="316.43,-1866.27 262.43,-1866.27 262.43,-1842 316.43,-1842 316.43,-1866.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1850.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim</text>
+<g id="a_module~~graph~~ModuleGraph_node25"><a xlink:href="../proc/bessim.html" xlink:title="bessim">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="540.94,-2243.11 486.94,-2243.11 486.94,-2218.84 540.94,-2218.84 540.94,-2243.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2227.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim</text>
 </a>
 </g>
 </g>
 <!-- proc~bessim&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge3" class="edge">
+<g id="module~~graph~~ModuleGraph_edge64" class="edge">
 <title>proc~bessim&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M261.93,-1844.04C250.75,-1839.89 237.57,-1835.13 225.54,-1831.13 197.53,-1821.84 190.23,-1820.45 161.91,-1812.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.61,-2226.54C454.87,-2221.47 399.87,-2213.53 352.3,-2210.98"/>
 </g>
 <!-- proc~bessim&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge4" class="edge">
+<g id="module~~graph~~ModuleGraph_edge65" class="edge">
 <title>proc~bessim&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M271.7,-1841.53C268.29,-1838.83 264.75,-1835.94 261.54,-1833.13 244.72,-1818.47 243.88,-1810.84 225.54,-1798.13 218.92,-1793.55 211.49,-1789.34 204.11,-1785.61"/>
-<polygon fill="#000000" stroke="#000000" points="205.68,-1782.48 195.15,-1781.32 202.66,-1788.8 205.68,-1782.48"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.78,-2234.23C462.21,-2237.29 424.99,-2241.93 395.93,-2245.54"/>
+<polygon fill="#000000" stroke="#000000" points="395.83,-2242.03 386.34,-2246.74 396.7,-2248.98 395.83,-2242.03"/>
 </g>
 <!-- proc~bessim0 -->
-<g id="module~~graph~~ModuleGraph_node10" class="node">
+<g id="module~~graph~~ModuleGraph_node26" class="node">
 <title>proc~bessim0</title>
-<g id="a_module~~graph~~ModuleGraph_node10"><a xlink:href="../proc/bessim0.html" xlink:title="bessim0">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="317.31,-1824.27 261.54,-1824.27 261.54,-1800 317.31,-1800 317.31,-1824.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1808.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim0</text>
+<g id="a_module~~graph~~ModuleGraph_node26"><a xlink:href="../proc/bessim0.html" xlink:title="bessim0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="541.83,-2201.11 486.06,-2201.11 486.06,-2176.84 541.83,-2176.84 541.83,-2201.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2185.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim0</text>
 </a>
 </g>
 </g>
 <!-- proc~bessim0&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge5" class="edge">
+<g id="module~~graph~~ModuleGraph_edge66" class="edge">
 <title>proc~bessim0&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M261.14,-1816.49C235.08,-1819.65 194.99,-1821.85 161.91,-1812.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M485.79,-2195.89C453.95,-2203.24 399.52,-2213.51 352.3,-2210.98"/>
 </g>
 <!-- proc~bessim0&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge6" class="edge">
+<g id="module~~graph~~ModuleGraph_edge67" class="edge">
 <title>proc~bessim0&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M261.28,-1802.7C244.9,-1797 223.64,-1789.61 205,-1783.12"/>
-<polygon fill="#000000" stroke="#000000" points="206.41,-1779.91 195.81,-1779.93 204.11,-1786.52 206.41,-1779.91"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M485.58,-2198.66C475.98,-2202.13 465.13,-2206.14 455.31,-2209.98 439.16,-2216.28 435.39,-2218.51 419.31,-2224.98 411.59,-2228.08 403.34,-2231.33 395.37,-2234.44"/>
+<polygon fill="#000000" stroke="#000000" points="394.21,-2231.14 386.15,-2238.03 396.74,-2237.67 394.21,-2231.14"/>
 </g>
 <!-- proc~bessim1 -->
-<g id="module~~graph~~ModuleGraph_node11" class="node">
+<g id="module~~graph~~ModuleGraph_node27" class="node">
 <title>proc~bessim1</title>
-<g id="a_module~~graph~~ModuleGraph_node11"><a xlink:href="../proc/bessim1.html" xlink:title="bessim1">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="317.31,-1782.27 261.54,-1782.27 261.54,-1758 317.31,-1758 317.31,-1782.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1766.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim1</text>
+<g id="a_module~~graph~~ModuleGraph_node27"><a xlink:href="../proc/bessim1.html" xlink:title="bessim1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="541.83,-2159.11 486.06,-2159.11 486.06,-2134.84 541.83,-2134.84 541.83,-2159.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2143.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessim1</text>
 </a>
 </g>
 </g>
 <!-- proc~bessim1&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge7" class="edge">
+<g id="module~~graph~~ModuleGraph_edge68" class="edge">
 <title>proc~bessim1&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M271.36,-1782.69C247.16,-1798.9 201.43,-1823.74 161.91,-1812.13"/>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M159.91,-1812.13C131.05,-1803.67 121.91,-1804.85 96.27,-1789.13 78.45,-1778.22 61.33,-1761.87 49.12,-1748.85"/>
-<polygon fill="#000000" stroke="#000000" points="51.83,-1746.63 42.51,-1741.59 46.65,-1751.34 51.83,-1746.63"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M485.7,-2155.41C475.9,-2158.82 464.91,-2163.12 455.31,-2167.98 438.15,-2176.66 436.77,-2183.92 419.31,-2191.98 391.2,-2204.94 383.21,-2212.64 352.3,-2210.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-2210.98C307.14,-2208.66 259.24,-2195.2 227.15,-2184.53"/>
+<polygon fill="#000000" stroke="#000000" points="228.52,-2181.3 217.92,-2181.38 226.26,-2187.92 228.52,-2181.3"/>
 </g>
 <!-- proc~bessim1&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge8" class="edge">
+<g id="module~~graph~~ModuleGraph_edge69" class="edge">
 <title>proc~bessim1&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M261.28,-1769.71C245.12,-1769.45 224.24,-1769.12 205.79,-1768.83"/>
-<polygon fill="#000000" stroke="#000000" points="205.95,-1765.33 195.9,-1768.67 205.84,-1772.33 205.95,-1765.33"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M485.82,-2152.86C475.49,-2156.07 464.1,-2160.89 455.31,-2167.98 431.98,-2186.78 442.44,-2205.93 419.31,-2224.98 412.33,-2230.72 403.94,-2235.3 395.49,-2238.9"/>
+<polygon fill="#000000" stroke="#000000" points="394.37,-2235.59 386.28,-2242.43 396.87,-2242.12 394.37,-2235.59"/>
 </g>
 <!-- proc~bessj0 -->
-<g id="module~~graph~~ModuleGraph_node12" class="node">
+<g id="module~~graph~~ModuleGraph_node28" class="node">
 <title>proc~bessj0</title>
-<g id="a_module~~graph~~ModuleGraph_node12"><a xlink:href="../proc/bessj0.html" xlink:title="bessj0">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="316.43,-1740.27 262.43,-1740.27 262.43,-1716 316.43,-1716 316.43,-1740.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1724.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj0</text>
+<g id="a_module~~graph~~ModuleGraph_node28"><a xlink:href="../proc/bessj0.html" xlink:title="bessj0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="540.94,-2369.11 486.94,-2369.11 486.94,-2344.84 540.94,-2344.84 540.94,-2369.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2353.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj0</text>
 </a>
 </g>
 </g>
 <!-- proc~bessj0&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge9" class="edge">
+<g id="module~~graph~~ModuleGraph_edge70" class="edge">
 <title>proc~bessj0&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M262.21,-1726.9C236.58,-1725.99 196.5,-1725.33 161.91,-1728.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.53,-2351.89C454.25,-2345.26 398.25,-2332.42 352.3,-2314.98"/>
 </g>
 <!-- proc~bessj0&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge10" class="edge">
+<g id="module~~graph~~ModuleGraph_edge71" class="edge">
 <title>proc~bessj0&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M262.21,-1736.42C245.75,-1741.63 224.13,-1748.46 205.18,-1754.45"/>
-<polygon fill="#000000" stroke="#000000" points="204.31,-1751.06 195.83,-1757.41 206.42,-1757.73 204.31,-1751.06"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.62,-2349.98C476.4,-2346.61 464.87,-2341.98 455.31,-2335.98 436.41,-2324.12 436.29,-2315.46 419.31,-2300.98 406.64,-2290.17 391.86,-2279 379.41,-2269.97"/>
+<polygon fill="#000000" stroke="#000000" points="381.82,-2267.39 371.65,-2264.41 377.74,-2273.08 381.82,-2267.39"/>
 </g>
 <!-- proc~bessj1 -->
-<g id="module~~graph~~ModuleGraph_node13" class="node">
+<g id="module~~graph~~ModuleGraph_node29" class="node">
 <title>proc~bessj1</title>
-<g id="a_module~~graph~~ModuleGraph_node13"><a xlink:href="../proc/bessj1.html" xlink:title="bessj1">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="316.43,-1698.27 262.43,-1698.27 262.43,-1674 316.43,-1674 316.43,-1698.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1682.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj1</text>
+<g id="a_module~~graph~~ModuleGraph_node29"><a xlink:href="../proc/bessj1.html" xlink:title="bessj1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="540.94,-2327.11 486.94,-2327.11 486.94,-2302.84 540.94,-2302.84 540.94,-2327.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2311.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj1</text>
 </a>
 </g>
 </g>
 <!-- proc~bessj1&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge11" class="edge">
+<g id="module~~graph~~ModuleGraph_edge72" class="edge">
 <title>proc~bessj1&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M263.02,-1698.59C238,-1709.87 198.35,-1725.18 161.91,-1728.13"/>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M159.91,-1728.13C129.32,-1730.62 94.51,-1730.44 68.8,-1729.74"/>
-<polygon fill="#000000" stroke="#000000" points="68.95,-1726.24 58.84,-1729.42 68.72,-1733.24 68.95,-1726.24"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.61,-2320.53C453.92,-2326.19 397.02,-2331.96 352.3,-2314.98"/>
 </g>
 <!-- proc~bessj1&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge12" class="edge">
+<g id="module~~graph~~ModuleGraph_edge73" class="edge">
 <title>proc~bessj1&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M271.7,-1698.74C268.29,-1701.44 264.75,-1704.33 261.54,-1707.13 244.72,-1721.8 244.21,-1729.91 225.54,-1742.13 219.17,-1746.31 212.02,-1750.01 204.87,-1753.23"/>
-<polygon fill="#000000" stroke="#000000" points="203.76,-1749.9 195.89,-1757 206.47,-1756.36 203.76,-1749.9"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.45,-2305.61C476.63,-2302.07 465.43,-2297.93 455.31,-2293.98 434.24,-2285.74 410.96,-2276.08 391.88,-2268"/>
+<polygon fill="#000000" stroke="#000000" points="393.42,-2264.85 382.85,-2264.16 390.69,-2271.29 393.42,-2264.85"/>
 </g>
 <!-- proc~bessj_s -->
-<g id="module~~graph~~ModuleGraph_node14" class="node">
+<g id="module~~graph~~ModuleGraph_node30" class="node">
 <title>proc~bessj_s</title>
-<g id="a_module~~graph~~ModuleGraph_node14"><a xlink:href="../proc/bessj_s.html" xlink:title="bessj_s">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="316.43,-1656.27 262.43,-1656.27 262.43,-1632 316.43,-1632 316.43,-1656.27"/>
-<text xml:space="preserve" text-anchor="middle" x="289.43" y="-1640.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj_s</text>
+<g id="a_module~~graph~~ModuleGraph_node30"><a xlink:href="../proc/bessj_s.html" xlink:title="bessj_s">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="540.94,-2285.11 486.94,-2285.11 486.94,-2260.84 540.94,-2260.84 540.94,-2285.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-2269.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessj_s</text>
 </a>
 </g>
 </g>
 <!-- proc~bessj_s&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge13" class="edge">
+<g id="module~~graph~~ModuleGraph_edge74" class="edge">
 <title>proc~bessj_s&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M262.17,-1642.26C223.82,-1640.6 151.09,-1641.6 96.27,-1667.13 76.8,-1676.2 59.32,-1693.34 47.38,-1707.14"/>
-<polygon fill="#000000" stroke="#000000" points="45.01,-1704.52 41.33,-1714.45 50.4,-1708.98 45.01,-1704.52"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.63,-2281.64C444.38,-2295.28 364.87,-2319.75 352.3,-2314.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-2314.98C285.69,-2290.44 230.86,-2226.31 205.35,-2192.52"/>
+<polygon fill="#000000" stroke="#000000" points="208.32,-2190.66 199.56,-2184.69 202.69,-2194.81 208.32,-2190.66"/>
 </g>
 <!-- proc~bessj_s&#45;&gt;module~nrutil_trim -->
-<g id="module~~graph~~ModuleGraph_edge14" class="edge">
+<g id="module~~graph~~ModuleGraph_edge75" class="edge">
 <title>proc~bessj_s&#45;&gt;module~nrutil_trim</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M270,-1656.61C266.94,-1659.2 263.98,-1662.08 261.54,-1665.13 238.01,-1694.69 252.91,-1716.09 225.54,-1742.13 219.66,-1747.73 212.42,-1752.18 204.95,-1755.71"/>
-<polygon fill="#000000" stroke="#000000" points="203.66,-1752.46 195.76,-1759.52 206.34,-1758.92 203.66,-1752.46"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.78,-2269.39C462.21,-2266.03 424.99,-2260.93 395.93,-2256.95"/>
+<polygon fill="#000000" stroke="#000000" points="396.72,-2253.53 386.34,-2255.64 395.77,-2260.46 396.72,-2253.53"/>
+</g>
+<!-- proc~calc_corrected_eigen -->
+<g id="module~~graph~~ModuleGraph_node31" class="node">
+<title>proc~calc_corrected_eigen</title>
+<g id="a_module~~graph~~ModuleGraph_node31"><a xlink:href="../proc/calc_corrected_eigen.html" xlink:title="calc_corrected_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="413.68,-1337.11 288.91,-1337.11 288.91,-1312.84 413.68,-1312.84 413.68,-1337.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1321.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_corrected_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~calc_corrected_eigen&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge76" class="edge">
+<title>proc~calc_corrected_eigen&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M301.83,-1312.48C294.92,-1309.01 288.43,-1304.59 283.29,-1298.98 202.91,-1211.11 191.42,-1058.13 190.06,-999.64"/>
+<polygon fill="#000000" stroke="#000000" points="193.57,-999.82 189.93,-989.87 186.57,-999.92 193.57,-999.82"/>
 </g>
 <!-- proc~calc_eigen -->
-<g id="module~~graph~~ModuleGraph_node15" class="node">
+<g id="module~~graph~~ModuleGraph_node32" class="node">
 <title>proc~calc_eigen</title>
-<g id="a_module~~graph~~ModuleGraph_node15"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
-<polygon fill="#d9534f" stroke="#d9534f" points="195.16,-948.27 126.65,-948.27 126.65,-924 195.16,-924 195.16,-948.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-932.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+<g id="a_module~~graph~~ModuleGraph_node32"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="385.56,-1257.11 317.04,-1257.11 317.04,-1232.84 385.56,-1232.84 385.56,-1257.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1241.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
 </a>
 </g>
 </g>
 <!-- proc~calc_eigen&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge15" class="edge">
+<g id="module~~graph~~ModuleGraph_edge77" class="edge">
 <title>proc~calc_eigen&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M126.44,-929.13C116.15,-925.95 105.2,-921.44 96.27,-915.13 73.36,-898.95 54.69,-872.37 43.3,-853.44"/>
-<polygon fill="#000000" stroke="#000000" points="46.4,-851.8 38.36,-844.89 40.33,-855.3 46.4,-851.8"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M316.88,-1240.68C305.04,-1237.69 292.41,-1232.6 283.29,-1223.98 217.49,-1161.76 197.74,-1048.58 192.13,-999.6"/>
+<polygon fill="#000000" stroke="#000000" points="195.63,-999.44 191.12,-989.86 188.67,-1000.16 195.63,-999.44"/>
 </g>
 <!-- proc~calc_fs1 -->
-<g id="module~~graph~~ModuleGraph_node16" class="node">
+<g id="module~~graph~~ModuleGraph_node33" class="node">
 <title>proc~calc_fs1</title>
-<g id="a_module~~graph~~ModuleGraph_node16"><a xlink:href="../proc/calc_fs1.html" xlink:title="calc_fs1">
-<polygon fill="#d9534f" stroke="#d9534f" points="188.04,-1700.27 133.77,-1700.27 133.77,-1676 188.04,-1676 188.04,-1700.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1684.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_fs1</text>
+<g id="a_module~~graph~~ModuleGraph_node33"><a xlink:href="../proc/calc_fs1.html" xlink:title="calc_fs1">
+<polygon fill="#d9534f" stroke="#d9534f" points="378.43,-2141.11 324.16,-2141.11 324.16,-2116.84 378.43,-2116.84 378.43,-2141.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-2125.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_fs1</text>
 </a>
 </g>
 </g>
 <!-- proc~calc_fs1&#45;&gt;module~bessels -->
-<g id="module~~graph~~ModuleGraph_edge16" class="edge">
+<g id="module~~graph~~ModuleGraph_edge78" class="edge">
 <title>proc~calc_fs1&#45;&gt;module~bessels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M146.14,-1700.68C133.18,-1712.55 113.27,-1730.91 96.27,-1747.13 81.18,-1761.54 64.38,-1778.05 51.63,-1790.7"/>
-<polygon fill="#000000" stroke="#000000" points="49.22,-1788.16 44.59,-1797.69 54.15,-1793.13 49.22,-1788.16"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.83,-2128.98C297.54,-2128.98 256.98,-2128.98 227.41,-2128.98"/>
+<polygon fill="#000000" stroke="#000000" points="227.78,-2125.48 217.78,-2128.98 227.78,-2132.48 227.78,-2125.48"/>
 </g>
 <!-- proc~calc_fs1&#45;&gt;module~nrtype -->
-<g id="module~~graph~~ModuleGraph_edge17" class="edge">
+<g id="module~~graph~~ModuleGraph_edge79" class="edge">
 <title>proc~calc_fs1&#45;&gt;module~nrtype</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.54,-1696.33C114.7,-1702.18 89.1,-1710.13 68.21,-1716.62"/>
-<polygon fill="#000000" stroke="#000000" points="67.43,-1713.2 58.91,-1719.51 69.5,-1719.88 67.43,-1713.2"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.83,-2135.91C297.54,-2142.8 256.98,-2153.43 227.41,-2161.18"/>
+<polygon fill="#000000" stroke="#000000" points="226.52,-2157.8 217.73,-2163.72 228.29,-2164.57 226.52,-2157.8"/>
 </g>
 <!-- proc~calc_fs1&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge18" class="edge">
+<g id="module~~graph~~ModuleGraph_edge80" class="edge">
 <title>proc~calc_fs1&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M139.77,-1675.56C124.96,-1665.1 105.82,-1648.78 96.27,-1629.13 27.47,-1487.55 29.43,-971.83 30.79,-854.85"/>
-<polygon fill="#000000" stroke="#000000" points="34.28,-855.24 30.91,-845.2 27.29,-855.15 34.28,-855.24"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M338.34,-2116.41C322.6,-2099 295.52,-2065.86 283.29,-2031.98 281.01,-2025.67 205.51,-1154.69 192.07,-999.49"/>
+<polygon fill="#000000" stroke="#000000" points="195.59,-999.66 191.24,-990 188.62,-1000.26 195.59,-999.66"/>
 </g>
 <!-- proc~calc_wparth -->
-<g id="module~~graph~~ModuleGraph_node17" class="node">
+<g id="module~~graph~~ModuleGraph_node34" class="node">
 <title>proc~calc_wparth</title>
-<g id="a_module~~graph~~ModuleGraph_node17"><a xlink:href="../proc/calc_wparth.html" xlink:title="calc_wparth">
-<polygon fill="#d9534f" stroke="#d9534f" points="198.54,-906.27 123.27,-906.27 123.27,-882 198.54,-882 198.54,-906.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-890.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_wparth</text>
+<g id="a_module~~graph~~ModuleGraph_node34"><a xlink:href="../proc/calc_wparth.html" xlink:title="calc_wparth">
+<polygon fill="#d9534f" stroke="#d9534f" points="388.93,-1215.11 313.66,-1215.11 313.66,-1190.84 388.93,-1190.84 388.93,-1215.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1199.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_wparth</text>
 </a>
 </g>
 </g>
 <!-- proc~calc_wparth&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge19" class="edge">
+<g id="module~~graph~~ModuleGraph_edge81" class="edge">
 <title>proc~calc_wparth&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M122.94,-883.7C114.03,-880.7 104.67,-877.15 96.27,-873.13 82.84,-866.72 68.86,-858.01 57.31,-850.18"/>
-<polygon fill="#000000" stroke="#000000" points="59.31,-847.31 49.1,-844.48 55.31,-853.06 59.31,-847.31"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M313.37,-1197.32C302.7,-1194.21 291.69,-1189.41 283.29,-1181.98 227.24,-1132.35 202.95,-1042.37 194.2,-999.68"/>
+<polygon fill="#000000" stroke="#000000" points="197.66,-999.14 192.33,-989.99 190.79,-1000.47 197.66,-999.14"/>
 </g>
 <!-- proc~check_nbesmax -->
-<g id="module~~graph~~ModuleGraph_node18" class="node">
+<g id="module~~graph~~ModuleGraph_node35" class="node">
 <title>proc~check_nbesmax</title>
-<g id="a_module~~graph~~ModuleGraph_node18"><a xlink:href="../proc/check_nbesmax.html" xlink:title="check_nbesmax">
-<polygon fill="#d9534f" stroke="#d9534f" points="209.42,-864.27 112.39,-864.27 112.39,-840 209.42,-840 209.42,-864.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-848.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_nbesmax</text>
+<g id="a_module~~graph~~ModuleGraph_node35"><a xlink:href="../proc/check_nbesmax.html" xlink:title="check_nbesmax">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.81,-1173.11 302.79,-1173.11 302.79,-1148.84 399.81,-1148.84 399.81,-1173.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1157.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_nbesmax</text>
 </a>
 </g>
 </g>
 <!-- proc~check_nbesmax&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge20" class="edge">
+<g id="module~~graph~~ModuleGraph_edge82" class="edge">
 <title>proc~check_nbesmax&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M111.96,-844.32C97.69,-841.99 82.26,-839.47 68.75,-837.27"/>
-<polygon fill="#000000" stroke="#000000" points="69.38,-833.83 58.94,-835.67 68.25,-840.73 69.38,-833.83"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M302.62,-1150.97C295.69,-1148.16 288.98,-1144.57 283.29,-1139.98 236.56,-1102.29 208.94,-1034.5 197.02,-999.03"/>
+<polygon fill="#000000" stroke="#000000" points="200.43,-998.22 194.04,-989.78 193.77,-1000.37 200.43,-998.22"/>
 </g>
 <!-- proc~compute_fpc_cart -->
-<g id="module~~graph~~ModuleGraph_node19" class="node">
+<g id="module~~graph~~ModuleGraph_node36" class="node">
 <title>proc~compute_fpc_cart</title>
-<g id="a_module~~graph~~ModuleGraph_node19"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
-<polygon fill="#d9534f" stroke="#d9534f" points="214.29,-276.27 107.52,-276.27 107.52,-252 214.29,-252 214.29,-276.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-260.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+<g id="a_module~~graph~~ModuleGraph_node36"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="716.47,-1090.11 609.7,-1090.11 609.7,-1065.84 716.47,-1065.84 716.47,-1090.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1074.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
 </a>
 </g>
 </g>
 <!-- proc~compute_fpc_cart&#45;&gt;module~disprels -->
-<g id="module~~graph~~ModuleGraph_edge21" class="edge">
+<g id="module~~graph~~ModuleGraph_edge83" class="edge">
 <title>proc~compute_fpc_cart&#45;&gt;module~disprels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M116.87,-251.59C109.87,-249.08 102.78,-246.24 96.27,-243.13 82.84,-236.72 68.86,-228.01 57.31,-220.18"/>
-<polygon fill="#000000" stroke="#000000" points="59.31,-217.31 49.1,-214.48 55.31,-223.06 59.31,-217.31"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M614.72,-1065.42C594.45,-1060.05 571.13,-1053.87 552.13,-1048.83"/>
+<polygon fill="#000000" stroke="#000000" points="553.24,-1045.5 542.67,-1046.33 551.44,-1052.27 553.24,-1045.5"/>
 </g>
 <!-- proc~compute_fpc_cart&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge22" class="edge">
+<g id="module~~graph~~ModuleGraph_edge84" class="edge">
 <title>proc~compute_fpc_cart&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M107.03,-275.88C102.97,-278.39 99.29,-281.44 96.27,-285.13 29.54,-366.74 29.47,-713.9 30.71,-807.7"/>
-<polygon fill="#000000" stroke="#000000" points="27.2,-807.51 30.86,-817.46 34.2,-807.41 27.2,-807.51"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M609.23,-1086.37C546.7,-1094.43 440.01,-1102.29 352.3,-1078.98"/>
 </g>
 <!-- proc~compute_fpc_gyro -->
-<g id="module~~graph~~ModuleGraph_node20" class="node">
+<g id="module~~graph~~ModuleGraph_node37" class="node">
 <title>proc~compute_fpc_gyro</title>
-<g id="a_module~~graph~~ModuleGraph_node20"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
-<polygon fill="#d9534f" stroke="#d9534f" points="215.42,-234.27 106.39,-234.27 106.39,-210 215.42,-210 215.42,-234.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-218.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+<g id="a_module~~graph~~ModuleGraph_node37"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="717.6,-1045.11 608.58,-1045.11 608.58,-1020.84 717.6,-1020.84 717.6,-1045.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1029.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
 </a>
 </g>
 </g>
 <!-- proc~compute_fpc_gyro&#45;&gt;module~disprels -->
-<g id="module~~graph~~ModuleGraph_edge23" class="edge">
+<g id="module~~graph~~ModuleGraph_edge85" class="edge">
 <title>proc~compute_fpc_gyro&#45;&gt;module~disprels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M106.04,-213.35C93.43,-211.29 80.26,-209.15 68.55,-207.24"/>
-<polygon fill="#000000" stroke="#000000" points="69.32,-203.82 58.89,-205.66 68.2,-210.73 69.32,-203.82"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M608.13,-1035.18C589.61,-1035.93 569.29,-1036.76 552.37,-1037.45"/>
+<polygon fill="#000000" stroke="#000000" points="552.62,-1033.94 542.77,-1037.84 552.91,-1040.93 552.62,-1033.94"/>
 </g>
 <!-- proc~compute_fpc_gyro&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge24" class="edge">
+<g id="module~~graph~~ModuleGraph_edge86" class="edge">
 <title>proc~compute_fpc_gyro&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M106.12,-234.41C102.41,-236.82 99.05,-239.7 96.27,-243.13 60.14,-287.7 37.46,-702.38 32.28,-807.17"/>
-<polygon fill="#000000" stroke="#000000" points="28.78,-806.94 31.79,-817.1 35.77,-807.29 28.78,-806.94"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M626.58,-1020.38C583.85,-1007.41 510.9,-992.41 455.31,-1017.98 432.97,-1028.25 440.02,-1046.72 419.31,-1059.98 393.24,-1076.66 382.27,-1086.74 352.3,-1078.98"/>
 </g>
 <!-- proc~disp -->
-<g id="module~~graph~~ModuleGraph_node21" class="node">
+<g id="module~~graph~~ModuleGraph_node38" class="node">
 <title>proc~disp</title>
-<g id="a_module~~graph~~ModuleGraph_node21"><a xlink:href="../proc/disp.html" xlink:title="disp">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="187.91,-822.27 133.91,-822.27 133.91,-798 187.91,-798 187.91,-822.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-806.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
+<g id="a_module~~graph~~ModuleGraph_node38"><a xlink:href="../proc/disp.html" xlink:title="disp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="378.3,-1131.11 324.3,-1131.11 324.3,-1106.84 378.3,-1106.84 378.3,-1131.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1115.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
 </a>
 </g>
 </g>
 <!-- proc~disp&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge25" class="edge">
+<g id="module~~graph~~ModuleGraph_edge87" class="edge">
 <title>proc~disp&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.54,-814.44C114.87,-817.48 89.57,-821.61 68.79,-824.99"/>
-<polygon fill="#000000" stroke="#000000" points="68.27,-821.53 58.96,-826.6 69.4,-828.44 68.27,-821.53"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.87,-1112.27C310.83,-1108.11 295.35,-1101.85 283.29,-1092.98 247.79,-1066.88 218.39,-1023.99 202.59,-998.03"/>
+<polygon fill="#000000" stroke="#000000" points="205.74,-996.47 197.63,-989.65 199.71,-1000.04 205.74,-996.47"/>
 </g>
 <!-- proc~disp0 -->
-<g id="module~~graph~~ModuleGraph_node22" class="node">
+<g id="module~~graph~~ModuleGraph_node39" class="node">
 <title>proc~disp0</title>
-<g id="a_module~~graph~~ModuleGraph_node22"><a xlink:href="../proc/disp0.html" xlink:title="disp0">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="187.91,-780.27 133.91,-780.27 133.91,-756 187.91,-756 187.91,-780.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-764.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp0</text>
+<g id="a_module~~graph~~ModuleGraph_node39"><a xlink:href="../proc/disp0.html" xlink:title="disp0">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="690.09,-1589.11 636.09,-1589.11 636.09,-1564.84 690.09,-1564.84 690.09,-1589.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1573.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp0</text>
 </a>
 </g>
+</g>
+<!-- proc~disp0&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~graph~~ModuleGraph_edge88" class="edge">
+<title>proc~disp0&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.76,-1588.66C626.94,-1592.86 617.18,-1597.83 608.58,-1602.98 591.64,-1613.1 589.66,-1619.09 572.58,-1628.98 567.3,-1632.03 561.59,-1634.99 555.89,-1637.75"/>
+<polygon fill="#000000" stroke="#000000" points="554.7,-1634.44 547.1,-1641.83 557.65,-1640.79 554.7,-1634.44"/>
+</g>
+<!-- proc~disp0&#45;&gt;module~plasma_z_backend -->
+<g id="module~~graph~~ModuleGraph_edge89" class="edge">
+<title>proc~disp0&#45;&gt;module~plasma_z_backend</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.69,-1584.95C626.05,-1589.01 615.76,-1594.84 608.58,-1602.98 575.66,-1640.28 606.67,-1672.74 572.58,-1708.98 533.99,-1750 503.57,-1727.94 455.31,-1756.98 437.46,-1767.71 437.25,-1776.4 419.31,-1786.98 413.66,-1790.3 407.51,-1793.36 401.3,-1796.12"/>
+<polygon fill="#000000" stroke="#000000" points="400.15,-1792.81 392.27,-1799.89 402.84,-1799.27 400.15,-1792.81"/>
 </g>
 <!-- proc~disp0&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge26" class="edge">
+<g id="module~~graph~~ModuleGraph_edge90" class="edge">
 <title>proc~disp0&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.62,-775.17C121.92,-778.71 108.13,-783.47 96.27,-789.13 82.84,-795.55 68.86,-804.26 57.31,-812.09"/>
-<polygon fill="#000000" stroke="#000000" points="55.31,-809.21 49.1,-817.79 59.31,-814.96 55.31,-809.21"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.77,-1584.61C562.57,-1605.66 361.32,-1662.28 352.3,-1650.98"/>
 </g>
 <!-- proc~disp1 -->
-<g id="module~~graph~~ModuleGraph_node23" class="node">
+<g id="module~~graph~~ModuleGraph_node40" class="node">
 <title>proc~disp1</title>
-<g id="a_module~~graph~~ModuleGraph_node23"><a xlink:href="../proc/disp1.html" xlink:title="disp1">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="187.91,-738.27 133.91,-738.27 133.91,-714 187.91,-714 187.91,-738.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-722.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp1</text>
+<g id="a_module~~graph~~ModuleGraph_node40"><a xlink:href="../proc/disp1.html" xlink:title="disp1">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="690.09,-1509.11 636.09,-1509.11 636.09,-1484.84 690.09,-1484.84 690.09,-1509.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1493.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp1</text>
 </a>
 </g>
 </g>
+<!-- proc~disp1&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~graph~~ModuleGraph_edge91" class="edge">
+<title>proc~disp1&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.69,-1504.95C626.05,-1509.01 615.76,-1514.84 608.58,-1522.98 575.66,-1560.28 606.03,-1592.14 572.58,-1628.98 570.07,-1631.74 567.21,-1634.23 564.14,-1636.46"/>
+<polygon fill="#000000" stroke="#000000" points="562.39,-1633.43 555.71,-1641.65 566.06,-1639.39 562.39,-1633.43"/>
+</g>
+<!-- proc~disp1&#45;&gt;module~plasma_z_backend -->
+<g id="module~~graph~~ModuleGraph_edge92" class="edge">
+<title>proc~disp1&#45;&gt;module~plasma_z_backend</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.82,-1508.19C626.92,-1512.39 617.08,-1517.48 608.58,-1522.98 591.09,-1534.28 589.17,-1540.38 572.58,-1552.98 522.14,-1591.29 491.01,-1581.65 455.31,-1633.98 415.94,-1691.68 465.16,-1734.27 419.31,-1786.98 416.97,-1789.67 414.32,-1792.08 411.45,-1794.25"/>
+<polygon fill="#000000" stroke="#000000" points="409.59,-1791.28 402.97,-1799.55 413.31,-1797.21 409.59,-1791.28"/>
+</g>
 <!-- proc~disp1&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge27" class="edge">
+<g id="module~~graph~~ModuleGraph_edge93" class="edge">
 <title>proc~disp1&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.52,-731.12C121.39,-734.31 107.29,-739.35 96.27,-747.13 73.36,-763.32 54.69,-789.9 43.3,-808.83"/>
-<polygon fill="#000000" stroke="#000000" points="40.33,-806.97 38.36,-817.38 46.4,-810.47 40.33,-806.97"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M656.37,-1484.69C644.6,-1461.06 615.15,-1409.86 572.58,-1389.98 525.36,-1367.91 499.21,-1361.89 455.31,-1389.98 423.15,-1410.55 448.33,-1443.17 419.31,-1467.98 395.78,-1488.09 375.76,-1507.18 352.3,-1486.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1486.98C327.13,-1466.44 304.18,-1490.82 283.29,-1467.98 219.11,-1397.82 196.52,-1088.34 191.3,-999.75"/>
+<polygon fill="#000000" stroke="#000000" points="194.8,-999.63 190.74,-989.85 187.81,-1000.03 194.8,-999.63"/>
+</g>
+<!-- proc~disp_all_cold -->
+<g id="module~~graph~~ModuleGraph_node41" class="node">
+<title>proc~disp_all_cold</title>
+<g id="a_module~~graph~~ModuleGraph_node41"><a xlink:href="../proc/disp_all_cold.html" xlink:title="disp_all_cold">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="390.81,-1051.11 311.79,-1051.11 311.79,-1026.84 390.81,-1026.84 390.81,-1051.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1035.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_all_cold</text>
+</a>
+</g>
+</g>
+<!-- proc~disp_all_cold&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge94" class="edge">
+<title>proc~disp_all_cold&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M311.41,-1027.65C302.12,-1024.71 292.29,-1021.4 283.29,-1017.98 264.05,-1010.66 243.11,-1001.35 225.95,-993.36"/>
+<polygon fill="#000000" stroke="#000000" points="227.72,-990.33 217.18,-989.23 224.73,-996.66 227.72,-990.33"/>
+</g>
+<!-- proc~disp_mixed -->
+<g id="module~~graph~~ModuleGraph_node42" class="node">
+<title>proc~disp_mixed</title>
+<g id="a_module~~graph~~ModuleGraph_node42"><a xlink:href="../proc/disp_mixed.html" xlink:title="disp_mixed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="841.99,-1469.11 770.47,-1469.11 770.47,-1444.84 841.99,-1444.84 841.99,-1469.11"/>
+<text xml:space="preserve" text-anchor="middle" x="806.23" y="-1453.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed</text>
+</a>
+</g>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~cold_reference -->
+<g id="module~~graph~~ModuleGraph_edge95" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~cold_reference</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M769.99,-1469.5C763.81,-1473.04 757.97,-1477.48 753.6,-1482.98 711.48,-1535.98 760.09,-1578.28 717.6,-1630.98 715.53,-1633.54 713.15,-1635.87 710.57,-1637.98"/>
+<polygon fill="#000000" stroke="#000000" points="708.72,-1635 702.4,-1643.5 712.64,-1640.8 708.72,-1635"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~cold_susceptibility -->
+<g id="module~~graph~~ModuleGraph_edge96" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M770.28,-1454.15C729.71,-1452.23 661.57,-1453.34 608.58,-1475.98 589.16,-1484.27 589.9,-1494.9 572.58,-1506.98 548.55,-1523.73 540.53,-1524.71 514.94,-1538.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-1538.98C488.42,-1551.96 479.4,-1549.21 455.31,-1562.98 437.94,-1572.9 437.11,-1580.85 419.31,-1589.98 416.41,-1591.46 413.39,-1592.87 410.3,-1594.19"/>
+<polygon fill="#000000" stroke="#000000" points="409.05,-1590.92 401.02,-1597.83 411.61,-1597.43 409.05,-1590.92"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~kinetic_core -->
+<g id="module~~graph~~ModuleGraph_edge97" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-1696.98C647.73,-1717.73 624.75,-1696.6 608.58,-1715.98 544.81,-1792.38 643.55,-1867.22 572.58,-1936.98 527.58,-1981.21 450.37,-1982.03 400.35,-1976.83"/>
+<polygon fill="#000000" stroke="#000000" points="401.02,-1973.39 390.68,-1975.7 400.21,-1980.34 401.02,-1973.39"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~plasma_z_backend -->
+<g id="module~~graph~~ModuleGraph_edge98" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~plasma_z_backend</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M770.01,-1469.15C763.75,-1472.74 757.88,-1477.27 753.6,-1482.98 700.73,-1553.48 774.78,-1610.92 717.6,-1677.98 701.22,-1697.18 677.94,-1675.88 664.09,-1696.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-1696.98C648.24,-1718.07 630.4,-1703.3 608.58,-1715.98 590.32,-1726.58 591.1,-1736.83 572.58,-1746.98 524.32,-1773.4 464.18,-1790.5 418.94,-1800.66"/>
+<polygon fill="#000000" stroke="#000000" points="418.27,-1797.22 409.25,-1802.77 419.77,-1804.06 418.27,-1797.22"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge99" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M512.94,-1538.98C436.03,-1579.72 405.22,-1720.08 352.3,-1650.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1650.98C331.48,-1626.4 303.65,-1655.29 283.29,-1631.98 198.58,-1534.98 190.71,-1105.85 190.07,-999.76"/>
+<polygon fill="#000000" stroke="#000000" points="193.57,-999.96 190.02,-989.98 186.57,-999.99 193.57,-999.96"/>
+</g>
+<!-- proc~disp_mixed_parallel -->
+<g id="module~~graph~~ModuleGraph_node43" class="node">
+<title>proc~disp_mixed_parallel</title>
+<g id="a_module~~graph~~ModuleGraph_node43"><a xlink:href="../proc/disp_mixed_parallel.html" xlink:title="disp_mixed_parallel">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="572.58,-1465.11 455.31,-1465.11 455.31,-1440.84 572.58,-1440.84 572.58,-1465.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1449.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed_parallel</text>
+</a>
+</g>
+</g>
+<!-- proc~disp_mixed_parallel&#45;&gt;module~cold_susceptibility -->
+<g id="module~~graph~~ModuleGraph_edge100" class="edge">
+<title>proc~disp_mixed_parallel&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M473.11,-1465.61C466.5,-1469.11 460.22,-1473.5 455.31,-1478.98 420.71,-1517.61 456.16,-1553.49 419.31,-1589.98 418.09,-1591.18 416.81,-1592.32 415.46,-1593.39"/>
+<polygon fill="#000000" stroke="#000000" points="413.67,-1590.38 407.15,-1598.74 417.46,-1596.27 413.67,-1590.38"/>
+</g>
+<!-- proc~disp_mixed_parallel&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge101" class="edge">
+<title>proc~disp_mixed_parallel&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M469.6,-1440.43C453.78,-1435.87 435.74,-1430.67 419.31,-1425.98 389.55,-1417.47 376.34,-1426.48 352.3,-1406.98"/>
 </g>
 <!-- proc~find_minima -->
-<g id="module~~graph~~ModuleGraph_node24" class="node">
+<g id="module~~graph~~ModuleGraph_node44" class="node">
 <title>proc~find_minima</title>
-<g id="a_module~~graph~~ModuleGraph_node24"><a xlink:href="../proc/find_minima.html" xlink:title="find_minima">
-<polygon fill="#d9534f" stroke="#d9534f" points="199.66,-696.27 122.15,-696.27 122.15,-672 199.66,-672 199.66,-696.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-680.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_minima</text>
+<g id="a_module~~graph~~ModuleGraph_node44"><a xlink:href="../proc/find_minima.html" xlink:title="find_minima">
+<polygon fill="#d9534f" stroke="#d9534f" points="390.06,-1009.11 312.54,-1009.11 312.54,-984.84 390.06,-984.84 390.06,-1009.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-993.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">find_minima</text>
 </a>
 </g>
 </g>
 <!-- proc~find_minima&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge28" class="edge">
+<g id="module~~graph~~ModuleGraph_edge102" class="edge">
 <title>proc~find_minima&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M121.73,-691.47C112.67,-694.56 103.53,-698.94 96.27,-705.13 64.14,-732.54 45.83,-779.78 37.24,-807.97"/>
-<polygon fill="#000000" stroke="#000000" points="33.95,-806.74 34.56,-817.32 40.68,-808.67 33.95,-806.74"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.32,-992C286.63,-988.63 252.87,-984.21 227.32,-980.86"/>
+<polygon fill="#000000" stroke="#000000" points="228.1,-977.43 217.73,-979.61 227.19,-984.37 228.1,-977.43"/>
 </g>
 <!-- proc~get_double_out_name -->
-<g id="module~~graph~~ModuleGraph_node25" class="node">
+<g id="module~~graph~~ModuleGraph_node45" class="node">
 <title>proc~get_double_out_name</title>
-<g id="a_module~~graph~~ModuleGraph_node25"><a xlink:href="../proc/get_double_out_name.html" xlink:title="get_double_out_name">
-<polygon fill="#d9534f" stroke="#d9534f" points="225.54,-654.27 96.27,-654.27 96.27,-630 225.54,-630 225.54,-654.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-638.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_double_out_name</text>
+<g id="a_module~~graph~~ModuleGraph_node45"><a xlink:href="../proc/get_double_out_name.html" xlink:title="get_double_out_name">
+<polygon fill="#d9534f" stroke="#d9534f" points="415.93,-967.11 286.66,-967.11 286.66,-942.84 415.93,-942.84 415.93,-967.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-951.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_double_out_name</text>
 </a>
 </g>
 </g>
 <!-- proc~get_double_out_name&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge29" class="edge">
+<g id="module~~graph~~ModuleGraph_edge103" class="edge">
 <title>proc~get_double_out_name&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M107.96,-654.74C103.71,-657.08 99.73,-659.85 96.27,-663.13 54.89,-702.46 39.41,-771.08 33.93,-807.26"/>
-<polygon fill="#000000" stroke="#000000" points="30.47,-806.72 32.58,-817.1 37.4,-807.66 30.47,-806.72"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M286.5,-963.34C266.54,-965.95 245.18,-968.75 227.64,-971.05"/>
+<polygon fill="#000000" stroke="#000000" points="227.41,-967.55 217.95,-972.32 228.32,-974.49 227.41,-967.55"/>
 </g>
 <!-- proc~get_out_name -->
-<g id="module~~graph~~ModuleGraph_node26" class="node">
+<g id="module~~graph~~ModuleGraph_node46" class="node">
 <title>proc~get_out_name</title>
-<g id="a_module~~graph~~ModuleGraph_node26"><a xlink:href="../proc/get_out_name.html" xlink:title="get_out_name">
-<polygon fill="#d9534f" stroke="#d9534f" points="204.54,-612.27 117.27,-612.27 117.27,-588 204.54,-588 204.54,-612.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-596.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_out_name</text>
+<g id="a_module~~graph~~ModuleGraph_node46"><a xlink:href="../proc/get_out_name.html" xlink:title="get_out_name">
+<polygon fill="#d9534f" stroke="#d9534f" points="394.93,-883.11 307.66,-883.11 307.66,-858.84 394.93,-858.84 394.93,-883.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-867.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">get_out_name</text>
 </a>
 </g>
 </g>
 <!-- proc~get_out_name&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge30" class="edge">
+<g id="module~~graph~~ModuleGraph_edge104" class="edge">
 <title>proc~get_out_name&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M116.98,-608.08C109.32,-611.12 101.98,-615.32 96.27,-621.13 45.27,-673.06 34.11,-764.14 31.73,-807.24"/>
-<polygon fill="#000000" stroke="#000000" points="28.24,-806.86 31.32,-817 35.24,-807.16 28.24,-806.86"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M307.32,-881.43C299.07,-884.26 290.7,-887.75 283.29,-891.98 253.85,-908.77 225.76,-936.17 208.24,-955.08"/>
+<polygon fill="#000000" stroke="#000000" points="205.66,-952.72 201.55,-962.48 210.85,-957.41 205.66,-952.72"/>
 </g>
 <!-- proc~map_read -->
-<g id="module~~graph~~ModuleGraph_node27" class="node">
+<g id="module~~graph~~ModuleGraph_node47" class="node">
 <title>proc~map_read</title>
-<g id="a_module~~graph~~ModuleGraph_node27"><a xlink:href="../proc/map_read.html" xlink:title="map_read">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.29,-570.27 128.52,-570.27 128.52,-546 193.29,-546 193.29,-570.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-554.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_read</text>
+<g id="a_module~~graph~~ModuleGraph_node47"><a xlink:href="../proc/map_read.html" xlink:title="map_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="383.68,-841.11 318.91,-841.11 318.91,-816.84 383.68,-816.84 383.68,-841.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-825.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_read</text>
 </a>
 </g>
 </g>
 <!-- proc~map_read&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge31" class="edge">
+<g id="module~~graph~~ModuleGraph_edge105" class="edge">
 <title>proc~map_read&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M128.32,-562.13C116.82,-565.08 104.62,-570.22 96.27,-579.13 35.47,-644.07 29.66,-758.16 30.22,-807.4"/>
-<polygon fill="#000000" stroke="#000000" points="26.72,-807.28 30.45,-817.2 33.72,-807.12 26.72,-807.28"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M318.75,-834.53C306.87,-837.69 293.72,-842.55 283.29,-849.98 244.93,-877.29 215.82,-925.24 200.98,-953.46"/>
+<polygon fill="#000000" stroke="#000000" points="197.94,-951.71 196.52,-962.21 204.18,-954.88 197.94,-951.71"/>
 </g>
 <!-- proc~map_scan -->
-<g id="module~~graph~~ModuleGraph_node28" class="node">
+<g id="module~~graph~~ModuleGraph_node48" class="node">
 <title>proc~map_scan</title>
-<g id="a_module~~graph~~ModuleGraph_node28"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.66,-528.27 128.15,-528.27 128.15,-504 193.66,-504 193.66,-528.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-512.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+<g id="a_module~~graph~~ModuleGraph_node48"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="546.7,-958.11 481.18,-958.11 481.18,-933.84 546.7,-933.84 546.7,-958.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-942.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
 </a>
 </g>
+</g>
+<!-- proc~map_scan&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge106" class="edge">
+<title>proc~map_scan&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M480.82,-939.38C458.83,-934.86 429.18,-928.77 403.91,-923.58"/>
+<polygon fill="#000000" stroke="#000000" points="404.62,-920.15 394.12,-921.57 403.22,-927.01 404.62,-920.15"/>
 </g>
 <!-- proc~map_scan&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge32" class="edge">
+<g id="module~~graph~~ModuleGraph_edge107" class="edge">
 <title>proc~map_scan&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M127.83,-520.06C116.41,-523.01 104.38,-528.16 96.27,-537.13 60.03,-577.23 39.84,-744.33 33.41,-807.13"/>
-<polygon fill="#000000" stroke="#000000" points="29.94,-806.75 32.43,-817.05 36.9,-807.44 29.94,-806.75"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M488.59,-958.52C477.37,-965.21 464.54,-974.27 455.31,-984.98 431.16,-1012.97 447.59,-1036.16 419.31,-1059.98 395.63,-1079.91 382.27,-1086.74 352.3,-1078.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1078.98C320.33,-1071.21 310.39,-1074.95 283.29,-1059.98 253.49,-1043.51 225.32,-1015.85 207.9,-996.8"/>
+<polygon fill="#000000" stroke="#000000" points="210.74,-994.73 201.47,-989.6 205.52,-999.39 210.74,-994.73"/>
 </g>
 <!-- proc~map_search -->
-<g id="module~~graph~~ModuleGraph_node29" class="node">
+<g id="module~~graph~~ModuleGraph_node49" class="node">
 <title>proc~map_search</title>
-<g id="a_module~~graph~~ModuleGraph_node29"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
-<polygon fill="#d9534f" stroke="#d9534f" points="198.91,-486.27 122.9,-486.27 122.9,-462 198.91,-462 198.91,-486.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-470.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
+<g id="a_module~~graph~~ModuleGraph_node49"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
+<polygon fill="#d9534f" stroke="#d9534f" points="551.95,-1423.11 475.93,-1423.11 475.93,-1398.84 551.95,-1398.84 551.95,-1423.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1407.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
 </a>
 </g>
+</g>
+<!-- proc~map_search&#45;&gt;module~cold_susceptibility -->
+<g id="module~~graph~~ModuleGraph_edge108" class="edge">
+<title>proc~map_search&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M475.47,-1418.52C467.92,-1421.59 460.66,-1425.91 455.31,-1431.98 407.67,-1485.99 468.17,-1537.06 419.31,-1589.98 418,-1591.39 416.6,-1592.71 415.12,-1593.95"/>
+<polygon fill="#000000" stroke="#000000" points="413.55,-1590.78 407.18,-1599.24 417.44,-1596.61 413.55,-1590.78"/>
 </g>
 <!-- proc~map_search&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge33" class="edge">
+<g id="module~~graph~~ModuleGraph_edge109" class="edge">
 <title>proc~map_search&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M122.4,-479.47C112.67,-482.57 103.03,-487.45 96.27,-495.13 54.97,-542.06 37.56,-738.82 32.67,-807.42"/>
-<polygon fill="#000000" stroke="#000000" points="29.19,-806.95 32,-817.16 36.18,-807.43 29.19,-806.95"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M475.5,-1415.12C434,-1418.85 370.5,-1421.74 352.3,-1406.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-1406.98C326.26,-1387.47 304.58,-1410.44 283.29,-1387.98 228.94,-1330.63 200.01,-1077.94 192.22,-999.37"/>
+<polygon fill="#000000" stroke="#000000" points="195.74,-999.44 191.29,-989.82 188.77,-1000.11 195.74,-999.44"/>
 </g>
-<!-- proc~om_double_scan -->
-<g id="module~~graph~~ModuleGraph_node30" class="node">
-<title>proc~om_double_scan</title>
-<g id="a_module~~graph~~ModuleGraph_node30"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
-<polygon fill="#d9534f" stroke="#d9534f" points="211.29,-150.27 110.52,-150.27 110.52,-126 211.29,-126 211.29,-150.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-134.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+<!-- proc~native_heating_state -->
+<g id="module~~graph~~ModuleGraph_node50" class="node">
+<title>proc~native_heating_state</title>
+<g id="a_module~~graph~~ModuleGraph_node50"><a xlink:href="../proc/native_heating_state.html" xlink:title="native_heating_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="412.18,-601.11 290.41,-601.11 290.41,-576.84 412.18,-576.84 412.18,-601.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-585.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">native_heating_state</text>
 </a>
 </g>
 </g>
+<!-- proc~native_heating_state&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge110" class="edge">
+<title>proc~native_heating_state&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M301.36,-601.52C294.59,-604.98 288.26,-609.38 283.29,-614.98 194.36,-715 188.25,-888.93 189.18,-952.14"/>
+<polygon fill="#000000" stroke="#000000" points="185.68,-952.15 189.42,-962.06 192.68,-951.98 185.68,-952.15"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="module~~graph~~ModuleGraph_node51" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_module~~graph~~ModuleGraph_node51"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="1317.18,-1237.11 1216.41,-1237.11 1216.41,-1212.84 1317.18,-1212.84 1317.18,-1237.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1266.79" y="-1221.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~electromagnetic_fields -->
+<g id="module~~graph~~ModuleGraph_edge111" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~electromagnetic_fields</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1227.58,-1237.35C1223.48,-1239.76 1219.63,-1242.61 1216.41,-1245.98 1174.97,-1289.26 1069.06,-1708.16 1027.14,-1750.98 1024.24,-1753.93 1020.97,-1756.57 1017.46,-1758.9"/>
+<polygon fill="#000000" stroke="#000000" points="1016.03,-1755.69 1009.08,-1763.69 1019.5,-1761.77 1016.03,-1755.69"/>
+</g>
 <!-- proc~om_double_scan&#45;&gt;module~functions -->
-<g id="module~~graph~~ModuleGraph_edge34" class="edge">
+<g id="module~~graph~~ModuleGraph_edge112" class="edge">
 <title>proc~om_double_scan&#45;&gt;module~functions</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M116.87,-125.59C109.87,-123.08 102.78,-120.24 96.27,-117.13 82.84,-110.72 68.86,-102.01 57.31,-94.18"/>
-<polygon fill="#000000" stroke="#000000" points="59.31,-91.31 49.1,-88.48 55.31,-97.06 59.31,-91.31"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1263.01,-1212.48C1255.32,-1177.83 1233.23,-1077.6 1216.41,-993.98 1199.38,-909.29 1234.81,-870.08 1180.41,-802.98 1162.94,-781.42 1144.23,-796.57 1122.77,-778.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-778.98C1099.32,-761.38 1088.31,-766.66 1063.14,-754.98 1017.3,-733.69 1009.63,-719.89 962,-702.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-702.98C873.36,-672.21 845.14,-680.36 753.6,-688.98 713.28,-692.77 704.09,-712.3 664.09,-705.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-705.98C618.23,-694.42 613.17,-677.2 572.58,-656.98 566.66,-654.03 560.34,-651.03 554.13,-648.16"/>
+<polygon fill="#000000" stroke="#000000" points="555.81,-645.08 545.26,-644.13 552.91,-651.45 555.81,-645.08"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~graph~~ModuleGraph_edge113" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1236,-1237.58C1229.54,-1240.34 1222.74,-1243.24 1216.41,-1245.98 1198.19,-1253.84 1178.03,-1262.65 1161.1,-1270.09"/>
+<polygon fill="#000000" stroke="#000000" points="1160.15,-1266.68 1152.4,-1273.91 1162.96,-1273.09 1160.15,-1266.68"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_edge114" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1237.5,-1237.53C1208,-1248.75 1160.83,-1261.39 1122.77,-1246.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1246.98C1066.92,-1226.57 1013.24,-1184.78 984.17,-1159.89"/>
+<polygon fill="#000000" stroke="#000000" points="986.61,-1157.37 976.76,-1153.45 982.01,-1162.65 986.61,-1157.37"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_response -->
+<g id="module~~graph~~ModuleGraph_edge115" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-816.98C881.86,-869.43 825.63,-1176.74 811,-1264.55"/>
+<polygon fill="#000000" stroke="#000000" points="807.58,-1263.72 809.42,-1274.15 814.49,-1264.85 807.58,-1263.72"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge116" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-778.98C1064.68,-732.96 1022.25,-776.54 962,-816.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-816.98C783.98,-935.12 515.62,-927.78 403.9,-918.51"/>
+<polygon fill="#000000" stroke="#000000" points="404.41,-915.04 394.15,-917.66 403.8,-922.01 404.41,-915.04"/>
 </g>
 <!-- proc~om_double_scan&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge35" class="edge">
+<g id="module~~graph~~ModuleGraph_edge117" class="edge">
 <title>proc~om_double_scan&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M110.28,-147.89C104.92,-150.74 100.05,-154.41 96.27,-159.13 55,-210.76 35.89,-693.09 31.93,-807.08"/>
-<polygon fill="#000000" stroke="#000000" points="28.43,-806.94 31.59,-817.06 35.43,-807.18 28.43,-806.94"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M960,-702.98C823.44,-668.15 800.02,-854.22 664.09,-816.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-816.98C597.42,-791.74 629.35,-728.93 572.58,-688.98 562.21,-681.68 364.13,-624.4 352.3,-628.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M350.3,-628.98C321.43,-640.14 305.19,-626.09 283.29,-647.98 197.47,-733.73 189.29,-892.37 189.44,-952.26"/>
+<polygon fill="#000000" stroke="#000000" points="185.93,-952 189.55,-961.96 192.93,-951.92 185.93,-952"/>
 </g>
 <!-- proc~om_radial -->
-<g id="module~~graph~~ModuleGraph_node31" class="node">
+<g id="module~~graph~~ModuleGraph_node52" class="node">
 <title>proc~om_radial</title>
-<g id="a_module~~graph~~ModuleGraph_node31"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.29,-444.27 128.52,-444.27 128.52,-420 193.29,-420 193.29,-444.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-428.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
+<g id="a_module~~graph~~ModuleGraph_node52"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
+<polygon fill="#d9534f" stroke="#d9534f" points="383.68,-189.11 318.91,-189.11 318.91,-164.84 383.68,-164.84 383.68,-189.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-173.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
 </a>
 </g>
 </g>
 <!-- proc~om_radial&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge36" class="edge">
+<g id="module~~graph~~ModuleGraph_edge118" class="edge">
 <title>proc~om_radial&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M128.26,-435.69C116.61,-438.59 104.32,-443.79 96.27,-453.13 49.93,-506.9 35.6,-733.22 32.1,-807.45"/>
-<polygon fill="#000000" stroke="#000000" points="28.62,-807.08 31.67,-817.23 35.61,-807.39 28.62,-807.08"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M318.68,-181.92C305.76,-185.58 291.86,-191.94 283.29,-202.98 189.48,-323.75 188.64,-834.9 189.72,-952"/>
+<polygon fill="#000000" stroke="#000000" points="186.22,-952 189.82,-961.96 193.21,-951.92 186.22,-952"/>
 </g>
 <!-- proc~om_read -->
-<g id="module~~graph~~ModuleGraph_node32" class="node">
+<g id="module~~graph~~ModuleGraph_node53" class="node">
 <title>proc~om_read</title>
-<g id="a_module~~graph~~ModuleGraph_node32"><a xlink:href="../proc/om_read.html" xlink:title="om_read">
-<polygon fill="#d9534f" stroke="#d9534f" points="189.91,-402.27 131.9,-402.27 131.9,-378 189.91,-378 189.91,-402.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-386.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_read</text>
+<g id="a_module~~graph~~ModuleGraph_node53"><a xlink:href="../proc/om_read.html" xlink:title="om_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="380.31,-109.11 322.29,-109.11 322.29,-84.84 380.31,-84.84 380.31,-109.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-93.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_read</text>
 </a>
 </g>
 </g>
 <!-- proc~om_read&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge37" class="edge">
+<g id="module~~graph~~ModuleGraph_edge119" class="edge">
 <title>proc~om_read&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M131.45,-392.87C118.88,-395.56 104.99,-400.84 96.27,-411.13 44.88,-471.79 33.85,-727.88 31.65,-807.45"/>
-<polygon fill="#000000" stroke="#000000" points="28.16,-807.05 31.41,-817.13 35.16,-807.23 28.16,-807.05"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M322.06,-100.96C308.21,-104.43 292.56,-110.9 283.29,-122.98 231.32,-190.66 197.67,-820.47 191.18,-951.98"/>
+<polygon fill="#000000" stroke="#000000" points="187.69,-951.75 190.7,-961.91 194.68,-952.09 187.69,-951.75"/>
 </g>
 <!-- proc~om_scan -->
-<g id="module~~graph~~ModuleGraph_node33" class="node">
+<g id="module~~graph~~ModuleGraph_node54" class="node">
 <title>proc~om_scan</title>
-<g id="a_module~~graph~~ModuleGraph_node33"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
-<polygon fill="#d9534f" stroke="#d9534f" points="190.29,-108.27 131.52,-108.27 131.52,-84 190.29,-84 190.29,-108.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-92.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+<g id="a_module~~graph~~ModuleGraph_node54"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="1296.18,-1279.11 1237.41,-1279.11 1237.41,-1254.84 1296.18,-1254.84 1296.18,-1279.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1266.79" y="-1263.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
 </a>
 </g>
 </g>
+<!-- proc~om_scan&#45;&gt;module~electromagnetic_fields -->
+<g id="module~~graph~~ModuleGraph_edge120" class="edge">
+<title>proc~om_scan&#45;&gt;module~electromagnetic_fields</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1776.98C1095.77,-1788.98 1065.89,-1791.55 1038.84,-1790.24"/>
+<polygon fill="#000000" stroke="#000000" points="1039.16,-1786.76 1028.95,-1789.57 1038.68,-1793.74 1039.16,-1786.76"/>
+</g>
 <!-- proc~om_scan&#45;&gt;module~functions -->
-<g id="module~~graph~~ModuleGraph_edge38" class="edge">
+<g id="module~~graph~~ModuleGraph_edge121" class="edge">
 <title>proc~om_scan&#45;&gt;module~functions</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M131.33,-91.47C113.82,-88.62 91.13,-84.92 71.77,-81.76"/>
-<polygon fill="#000000" stroke="#000000" points="72.45,-78.33 62.02,-80.17 71.33,-85.24 72.45,-78.33"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1236.92,-1260.29C1229.19,-1257.16 1221.56,-1252.6 1216.41,-1245.98 1151.84,-1162.89 1225.39,-1107.1 1180.41,-1011.98 1066.38,-770.83 922.04,-773.92 664.09,-705.98"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~graph~~ModuleGraph_edge122" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1237.2,-1270.98C1224.08,-1272.81 1207.91,-1275.07 1191.9,-1277.31"/>
+<polygon fill="#000000" stroke="#000000" points="1191.8,-1273.79 1182.38,-1278.64 1192.77,-1280.72 1191.8,-1273.79"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_edge123" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1236.92,-1266.67C1207.36,-1265.5 1160.52,-1261.28 1122.77,-1246.98"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_response -->
+<g id="module~~graph~~ModuleGraph_edge124" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1237.1,-1278.58C1230.26,-1281.51 1223.02,-1284.74 1216.41,-1287.98 1199.97,-1296.01 1198.13,-1303.38 1180.41,-1307.98 1074.22,-1335.49 945.53,-1317.94 870.37,-1302.85"/>
+<polygon fill="#000000" stroke="#000000" points="871.21,-1299.45 860.71,-1300.85 869.8,-1306.3 871.21,-1299.45"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge125" class="edge">
+<title>proc~om_scan&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1236.95,-1273.68C1229.21,-1276.81 1221.58,-1281.37 1216.41,-1287.98 1148.25,-1375.13 1222.51,-1729.08 1122.77,-1776.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1776.98C1005.93,-1832.13 959.77,-1344.76 858.87,-1266.98 713.4,-1154.84 580.52,-1312.35 455.31,-1177.98 380.58,-1097.78 490.5,-1017.34 419.31,-933.98 414.95,-928.87 409.36,-924.99 403.28,-922.04"/>
+<polygon fill="#000000" stroke="#000000" points="404.69,-918.84 394.11,-918.46 402.15,-925.36 404.69,-918.84"/>
 </g>
 <!-- proc~om_scan&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge39" class="edge">
+<g id="module~~graph~~ModuleGraph_edge126" class="edge">
 <title>proc~om_scan&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M131.16,-98.63C118.52,-101.27 104.67,-106.57 96.27,-117.13 52.37,-172.37 35.14,-689.87 31.77,-807.45"/>
-<polygon fill="#000000" stroke="#000000" points="28.28,-807.06 31.5,-817.15 35.28,-807.25 28.28,-807.06"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1776.98C912.95,-1869.92 827.38,-1845.86 608.58,-1782.98 535.88,-1762.08 516.09,-1754 455.31,-1708.98 436.36,-1694.93 439.41,-1682.32 419.31,-1669.98 392.93,-1653.77 371.12,-1675.55 352.3,-1650.98"/>
 </g>
 <!-- proc~radial_read -->
-<g id="module~~graph~~ModuleGraph_node34" class="node">
+<g id="module~~graph~~ModuleGraph_node55" class="node">
 <title>proc~radial_read</title>
-<g id="a_module~~graph~~ModuleGraph_node34"><a xlink:href="../proc/radial_read.html" xlink:title="radial_read">
-<polygon fill="#d9534f" stroke="#d9534f" points="196.66,-360.27 125.15,-360.27 125.15,-336 196.66,-336 196.66,-360.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-344.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read</text>
+<g id="a_module~~graph~~ModuleGraph_node55"><a xlink:href="../proc/radial_read.html" xlink:title="radial_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="387.06,-681.11 315.54,-681.11 315.54,-656.84 387.06,-656.84 387.06,-681.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-665.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge40" class="edge">
+<g id="module~~graph~~ModuleGraph_edge127" class="edge">
 <title>proc~radial_read&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M124.8,-352.45C114.17,-355.47 103.43,-360.56 96.27,-369.13 39.83,-436.68 32.28,-722.54 31.28,-807.33"/>
-<polygon fill="#000000" stroke="#000000" points="27.78,-807.2 31.19,-817.23 34.78,-807.26 27.78,-807.2"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M315.21,-676.22C303.76,-680.11 291.81,-686.03 283.29,-694.98 212.44,-769.44 195.37,-899.03 191.29,-952.19"/>
+<polygon fill="#000000" stroke="#000000" points="187.82,-951.71 190.64,-961.92 194.8,-952.18 187.82,-951.71"/>
 </g>
 <!-- proc~radial_read_0 -->
-<g id="module~~graph~~ModuleGraph_node35" class="node">
+<g id="module~~graph~~ModuleGraph_node56" class="node">
 <title>proc~radial_read_0</title>
-<g id="a_module~~graph~~ModuleGraph_node35"><a xlink:href="../proc/radial_read_0.html" xlink:title="radial_read_0">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-318.27 119.15,-318.27 119.15,-294 202.66,-294 202.66,-318.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-302.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_0</text>
+<g id="a_module~~graph~~ModuleGraph_node56"><a xlink:href="../proc/radial_read_0.html" xlink:title="radial_read_0">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-559.11 309.54,-559.11 309.54,-534.84 393.06,-534.84 393.06,-559.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-543.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_0</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_0&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge41" class="edge">
+<g id="module~~graph~~ModuleGraph_edge128" class="edge">
 <title>proc~radial_read_0&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.77,-312.33C110.21,-315.46 102.05,-320.14 96.27,-327.13 34.76,-401.62 30.82,-717.41 30.97,-807.22"/>
-<polygon fill="#000000" stroke="#000000" points="27.47,-807.06 31.01,-817.05 34.47,-807.03 27.47,-807.06"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.26,-552.6C299.62,-555.72 290.16,-560.54 283.29,-567.98 230.28,-625.34 200.53,-874.13 192.36,-952.34"/>
+<polygon fill="#000000" stroke="#000000" points="188.92,-951.57 191.39,-961.87 195.89,-952.28 188.92,-951.57"/>
 </g>
 <!-- proc~radial_read_1 -->
-<g id="module~~graph~~ModuleGraph_node36" class="node">
+<g id="module~~graph~~ModuleGraph_node57" class="node">
 <title>proc~radial_read_1</title>
-<g id="a_module~~graph~~ModuleGraph_node36"><a xlink:href="../proc/radial_read_1.html" xlink:title="radial_read_1">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1620.27 119.15,-1620.27 119.15,-1596 202.66,-1596 202.66,-1620.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1604.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_1</text>
+<g id="a_module~~graph~~ModuleGraph_node57"><a xlink:href="../proc/radial_read_1.html" xlink:title="radial_read_1">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-517.11 309.54,-517.11 309.54,-492.84 393.06,-492.84 393.06,-517.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-501.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_1</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_1&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge42" class="edge">
+<g id="module~~graph~~ModuleGraph_edge129" class="edge">
 <title>proc~radial_read_1&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.88,-1602.24C110.21,-1599.1 101.97,-1594.34 96.27,-1587.13 49.81,-1528.37 34.49,-977.25 31.65,-855.05"/>
-<polygon fill="#000000" stroke="#000000" points="35.15,-855.16 31.43,-845.24 28.16,-855.32 35.15,-855.16"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.16,-510.51C299.51,-513.63 290.08,-518.47 283.29,-525.98 225.23,-590.11 198.61,-868.52 191.83,-952.14"/>
+<polygon fill="#000000" stroke="#000000" points="188.36,-951.67 191.06,-961.91 195.34,-952.22 188.36,-951.67"/>
 </g>
 <!-- proc~radial_read_2 -->
-<g id="module~~graph~~ModuleGraph_node37" class="node">
+<g id="module~~graph~~ModuleGraph_node58" class="node">
 <title>proc~radial_read_2</title>
-<g id="a_module~~graph~~ModuleGraph_node37"><a xlink:href="../proc/radial_read_2.html" xlink:title="radial_read_2">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1578.27 119.15,-1578.27 119.15,-1554 202.66,-1554 202.66,-1578.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1562.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_2</text>
+<g id="a_module~~graph~~ModuleGraph_node58"><a xlink:href="../proc/radial_read_2.html" xlink:title="radial_read_2">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-437.11 309.54,-437.11 309.54,-412.84 393.06,-412.84 393.06,-437.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-421.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_2</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_2&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge43" class="edge">
+<g id="module~~graph~~ModuleGraph_edge130" class="edge">
 <title>proc~radial_read_2&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.91,-1560.22C110.24,-1557.08 101.99,-1552.33 96.27,-1545.13 52.37,-1489.9 35.14,-972.4 31.77,-854.82"/>
-<polygon fill="#000000" stroke="#000000" points="35.28,-855.02 31.5,-845.12 28.28,-855.21 35.28,-855.02"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.22,-433.45C299.45,-437.3 289.95,-442.88 283.29,-450.98 218.71,-529.51 196.29,-859.82 191.23,-952"/>
+<polygon fill="#000000" stroke="#000000" points="187.74,-951.69 190.71,-961.86 194.73,-952.06 187.74,-951.69"/>
 </g>
 <!-- proc~radial_read_3 -->
-<g id="module~~graph~~ModuleGraph_node38" class="node">
+<g id="module~~graph~~ModuleGraph_node59" class="node">
 <title>proc~radial_read_3</title>
-<g id="a_module~~graph~~ModuleGraph_node38"><a xlink:href="../proc/radial_read_3.html" xlink:title="radial_read_3">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1536.27 119.15,-1536.27 119.15,-1512 202.66,-1512 202.66,-1536.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1520.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_3</text>
+<g id="a_module~~graph~~ModuleGraph_node59"><a xlink:href="../proc/radial_read_3.html" xlink:title="radial_read_3">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-395.11 309.54,-395.11 309.54,-370.84 393.06,-370.84 393.06,-395.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-379.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_3</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_3&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge44" class="edge">
+<g id="module~~graph~~ModuleGraph_edge131" class="edge">
 <title>proc~radial_read_3&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.94,-1518.2C110.27,-1515.06 102.01,-1510.31 96.27,-1503.13 55,-1451.51 35.89,-969.18 31.93,-855.19"/>
-<polygon fill="#000000" stroke="#000000" points="35.43,-855.09 31.59,-845.21 28.43,-855.33 35.43,-855.09"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.29,-388.2C299.52,-391.32 290,-396.24 283.29,-403.98 210.27,-488.19 193.79,-855.06 190.67,-952.27"/>
+<polygon fill="#000000" stroke="#000000" points="187.18,-952.07 190.38,-962.17 194.18,-952.28 187.18,-952.07"/>
 </g>
 <!-- proc~radial_read_4 -->
-<g id="module~~graph~~ModuleGraph_node39" class="node">
+<g id="module~~graph~~ModuleGraph_node60" class="node">
 <title>proc~radial_read_4</title>
-<g id="a_module~~graph~~ModuleGraph_node39"><a xlink:href="../proc/radial_read_4.html" xlink:title="radial_read_4">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1494.27 119.15,-1494.27 119.15,-1470 202.66,-1470 202.66,-1494.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1478.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_4</text>
+<g id="a_module~~graph~~ModuleGraph_node60"><a xlink:href="../proc/radial_read_4.html" xlink:title="radial_read_4">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-353.11 309.54,-353.11 309.54,-328.84 393.06,-328.84 393.06,-353.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-337.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_4</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_4&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge45" class="edge">
+<g id="module~~graph~~ModuleGraph_edge132" class="edge">
 <title>proc~radial_read_4&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.97,-1476.17C110.3,-1473.04 102.03,-1468.3 96.27,-1461.13 57.56,-1413.03 36.64,-964.38 32.09,-855.06"/>
-<polygon fill="#000000" stroke="#000000" points="35.59,-855.08 31.69,-845.23 28.6,-855.37 35.59,-855.08"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.23,-346.15C299.46,-349.27 289.96,-354.2 283.29,-361.98 205.04,-453.22 192.35,-851.28 190.38,-952.5"/>
+<polygon fill="#000000" stroke="#000000" points="186.88,-952.24 190.21,-962.3 193.88,-952.36 186.88,-952.24"/>
 </g>
 <!-- proc~radial_read_5 -->
-<g id="module~~graph~~ModuleGraph_node40" class="node">
+<g id="module~~graph~~ModuleGraph_node61" class="node">
 <title>proc~radial_read_5</title>
-<g id="a_module~~graph~~ModuleGraph_node40"><a xlink:href="../proc/radial_read_5.html" xlink:title="radial_read_5">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1452.27 119.15,-1452.27 119.15,-1428 202.66,-1428 202.66,-1452.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1436.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_5</text>
+<g id="a_module~~graph~~ModuleGraph_node61"><a xlink:href="../proc/radial_read_5.html" xlink:title="radial_read_5">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-311.11 309.54,-311.11 309.54,-286.84 393.06,-286.84 393.06,-311.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-295.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_5</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_5&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge46" class="edge">
+<g id="module~~graph~~ModuleGraph_edge133" class="edge">
 <title>proc~radial_read_5&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.68,-1434.02C110.12,-1430.89 101.98,-1426.18 96.27,-1419.13 60.14,-1374.57 37.46,-959.89 32.28,-855.1"/>
-<polygon fill="#000000" stroke="#000000" points="35.77,-854.98 31.79,-845.17 28.78,-855.33 35.77,-854.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.18,-304.11C299.41,-307.23 289.92,-312.17 283.29,-319.98 199.92,-418.13 191.04,-846.39 190.13,-952.25"/>
+<polygon fill="#000000" stroke="#000000" points="186.63,-951.98 190.06,-962 193.63,-952.03 186.63,-951.98"/>
 </g>
 <!-- proc~radial_read_6 -->
-<g id="module~~graph~~ModuleGraph_node41" class="node">
+<g id="module~~graph~~ModuleGraph_node62" class="node">
 <title>proc~radial_read_6</title>
-<g id="a_module~~graph~~ModuleGraph_node41"><a xlink:href="../proc/radial_read_6.html" xlink:title="radial_read_6">
-<polygon fill="#d9534f" stroke="#d9534f" points="202.66,-1410.27 119.15,-1410.27 119.15,-1386 202.66,-1386 202.66,-1410.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1394.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_6</text>
+<g id="a_module~~graph~~ModuleGraph_node62"><a xlink:href="../proc/radial_read_6.html" xlink:title="radial_read_6">
+<polygon fill="#d9534f" stroke="#d9534f" points="393.06,-269.11 309.54,-269.11 309.54,-244.84 393.06,-244.84 393.06,-269.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-253.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_read_6</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_read_6&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge47" class="edge">
+<g id="module~~graph~~ModuleGraph_edge134" class="edge">
 <title>proc~radial_read_6&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M118.72,-1391.98C110.17,-1388.85 102.01,-1384.16 96.27,-1377.13 29.54,-1295.53 29.47,-948.37 30.71,-854.57"/>
-<polygon fill="#000000" stroke="#000000" points="34.2,-854.86 30.86,-844.81 27.2,-854.76 34.2,-854.86"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.13,-262.07C299.37,-265.19 289.89,-270.14 283.29,-277.98 194.75,-383.1 189.8,-842.02 189.9,-952.15"/>
+<polygon fill="#000000" stroke="#000000" points="186.4,-952.05 189.93,-962.04 193.4,-952.03 186.4,-952.05"/>
 </g>
 <!-- proc~radial_scan -->
-<g id="module~~graph~~ModuleGraph_node42" class="node">
+<g id="module~~graph~~ModuleGraph_node63" class="node">
 <title>proc~radial_scan</title>
-<g id="a_module~~graph~~ModuleGraph_node42"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
-<polygon fill="#d9534f" stroke="#d9534f" points="197.04,-66.27 124.77,-66.27 124.77,-42 197.04,-42 197.04,-66.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
+<g id="a_module~~graph~~ModuleGraph_node63"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="699.22,-643.11 626.95,-643.11 626.95,-618.84 699.22,-618.84 699.22,-643.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-627.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
 </a>
 </g>
 </g>
 <!-- proc~radial_scan&#45;&gt;module~functions -->
-<g id="module~~graph~~ModuleGraph_edge48" class="edge">
+<g id="module~~graph~~ModuleGraph_edge135" class="edge">
 <title>proc~radial_scan&#45;&gt;module~functions</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M124.38,-59.93C108.05,-62.59 88.59,-65.76 71.69,-68.52"/>
-<polygon fill="#000000" stroke="#000000" points="71.26,-65.04 61.96,-70.11 72.39,-71.95 71.26,-65.04"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M626.47,-630.98C605.13,-630.98 577.92,-630.98 555.72,-630.98"/>
+<polygon fill="#000000" stroke="#000000" points="555.82,-627.48 545.82,-630.98 555.82,-634.48 555.82,-627.48"/>
 </g>
 <!-- proc~radial_scan&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge49" class="edge">
+<g id="module~~graph~~ModuleGraph_edge136" class="edge">
 <title>proc~radial_scan&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M124.52,-58.22C113.88,-61.23 103.2,-66.37 96.27,-75.13 49.81,-133.9 34.49,-685.02 31.65,-807.22"/>
-<polygon fill="#000000" stroke="#000000" points="28.16,-806.95 31.43,-817.03 35.15,-807.11 28.16,-806.95"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M627.69,-618.34C620.82,-614.75 614.04,-610.32 608.58,-604.98 476.85,-476.06 576.59,-332.07 419.31,-235.98 367.72,-204.46 328.63,-195.99 283.29,-235.98 228.07,-284.68 197.35,-830.99 191.19,-952.24"/>
+<polygon fill="#000000" stroke="#000000" points="187.71,-951.8 190.7,-961.96 194.7,-952.15 187.71,-951.8"/>
 </g>
 <!-- proc~read_guess_input -->
-<g id="module~~graph~~ModuleGraph_node43" class="node">
+<g id="module~~graph~~ModuleGraph_node64" class="node">
 <title>proc~read_guess_input</title>
-<g id="a_module~~graph~~ModuleGraph_node43"><a xlink:href="../proc/read_guess_input.html" xlink:title="read_guess_input">
-<polygon fill="#d9534f" stroke="#d9534f" points="212.79,-1368.27 109.02,-1368.27 109.02,-1344 212.79,-1344 212.79,-1368.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1352.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_guess_input</text>
+<g id="a_module~~graph~~ModuleGraph_node64"><a xlink:href="../proc/read_guess_input.html" xlink:title="read_guess_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="403.18,-67.11 299.41,-67.11 299.41,-42.84 403.18,-42.84 403.18,-67.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-51.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_guess_input</text>
 </a>
 </g>
 </g>
 <!-- proc~read_guess_input&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge50" class="edge">
+<g id="module~~graph~~ModuleGraph_edge137" class="edge">
 <title>proc~read_guess_input&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.57,-1345.26C103.92,-1342.58 99.68,-1339.26 96.27,-1335.13 34.76,-1260.65 30.82,-944.86 30.97,-855.05"/>
-<polygon fill="#000000" stroke="#000000" points="34.47,-855.24 31.01,-845.22 27.47,-855.21 34.47,-855.24"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M299.09,-63.88C293.05,-66.85 287.53,-70.78 283.29,-75.98 226.17,-145.87 196.44,-815.7 190.96,-951.88"/>
+<polygon fill="#000000" stroke="#000000" points="187.47,-951.72 190.57,-961.85 194.46,-951.99 187.47,-951.72"/>
 </g>
 <!-- proc~read_in_params -->
-<g id="module~~graph~~ModuleGraph_node44" class="node">
+<g id="module~~graph~~ModuleGraph_node65" class="node">
 <title>proc~read_in_params</title>
-<g id="a_module~~graph~~ModuleGraph_node44"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
-<polygon fill="#d9534f" stroke="#d9534f" points="209.04,-1326.27 112.77,-1326.27 112.77,-1302 209.04,-1302 209.04,-1326.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1310.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+<g id="a_module~~graph~~ModuleGraph_node65"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="1314.93,-985.11 1218.66,-985.11 1218.66,-960.84 1314.93,-960.84 1314.93,-985.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1266.79" y="-969.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
 </a>
 </g>
 </g>
+<!-- proc~read_in_params&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~graph~~ModuleGraph_edge138" class="edge">
+<title>proc~read_in_params&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-740.98C1039.58,-675.8 969.5,-730.38 894.87,-802.98 740.34,-953.28 800.43,-1056.56 753.6,-1266.98 741.36,-1321.98 753.42,-1474.48 717.6,-1517.98 684.98,-1557.59 649.42,-1524.91 608.58,-1555.98 586.21,-1572.99 591.66,-1587.33 572.58,-1607.98 563.39,-1617.92 552.05,-1627.61 541.87,-1635.58"/>
+<polygon fill="#000000" stroke="#000000" points="539.99,-1632.61 534.15,-1641.45 544.23,-1638.18 539.99,-1632.61"/>
+</g>
+<!-- proc~read_in_params&#45;&gt;module~heating_diagnostics -->
+<g id="module~~graph~~ModuleGraph_edge139" class="edge">
+<title>proc~read_in_params&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1263.51,-985.56C1254.24,-1035.3 1218.22,-1217.66 1180.41,-1260.98 1177.99,-1263.75 1175.22,-1266.24 1172.23,-1268.47"/>
+<polygon fill="#000000" stroke="#000000" points="1170.61,-1265.36 1164.01,-1273.64 1174.34,-1271.28 1170.61,-1265.36"/>
+</g>
+<!-- proc~read_in_params&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge140" class="edge">
+<title>proc~read_in_params&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-552.98C580.15,-504.26 517.77,-537.96 455.31,-609.98 372.53,-705.43 500.42,-795.1 419.31,-891.98 415,-897.13 409.44,-901.03 403.37,-903.99"/>
+<polygon fill="#000000" stroke="#000000" points="402.24,-900.67 394.21,-907.58 404.8,-907.19 402.24,-900.67"/>
+</g>
 <!-- proc~read_in_params&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge51" class="edge">
+<g id="module~~graph~~ModuleGraph_edge141" class="edge">
 <title>proc~read_in_params&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M112.35,-1305.17C106.23,-1302.22 100.6,-1298.31 96.27,-1293.13 39.83,-1225.59 32.28,-939.73 31.28,-854.94"/>
-<polygon fill="#000000" stroke="#000000" points="34.78,-855.01 31.19,-845.04 27.78,-855.07 34.78,-855.01"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1264.04,-960.37C1258.45,-924.85 1237.95,-822.81 1180.41,-764.98 1160.84,-745.31 1144.84,-757.81 1122.77,-740.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-740.98C1082.93,-712.1 1070.18,-709.3 1027.14,-688.98 893.43,-625.83 858.17,-612.88 717.6,-566.98 694.23,-559.34 685.35,-565.32 664.09,-552.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M662.09,-552.98C551.41,-475.13 652.53,-371.15 572.58,-261.98 523.65,-195.15 498.37,-180.65 419.31,-155.98 361.6,-137.96 328.39,-115.72 283.29,-155.98 222.13,-210.57 195.79,-823 190.89,-952.15"/>
+<polygon fill="#000000" stroke="#000000" points="187.4,-951.77 190.53,-961.9 194.4,-952.03 187.4,-951.77"/>
 </g>
 <!-- proc~read_map_input -->
-<g id="module~~graph~~ModuleGraph_node45" class="node">
+<g id="module~~graph~~ModuleGraph_node66" class="node">
 <title>proc~read_map_input</title>
-<g id="a_module~~graph~~ModuleGraph_node45"><a xlink:href="../proc/read_map_input.html" xlink:title="read_map_input">
-<polygon fill="#d9534f" stroke="#d9534f" points="209.42,-1284.27 112.39,-1284.27 112.39,-1260 209.42,-1260 209.42,-1284.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1268.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_map_input</text>
+<g id="a_module~~graph~~ModuleGraph_node66"><a xlink:href="../proc/read_map_input.html" xlink:title="read_map_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="399.81,-1581.11 302.79,-1581.11 302.79,-1556.84 399.81,-1556.84 399.81,-1581.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1565.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_map_input</text>
 </a>
 </g>
 </g>
 <!-- proc~read_map_input&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge52" class="edge">
+<g id="module~~graph~~ModuleGraph_edge142" class="edge">
 <title>proc~read_map_input&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M112.1,-1262.97C106.09,-1260.04 100.56,-1256.19 96.27,-1251.13 44.88,-1190.48 33.85,-934.39 31.65,-854.82"/>
-<polygon fill="#000000" stroke="#000000" points="35.16,-855.04 31.41,-845.14 28.16,-855.22 35.16,-855.04"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M302.39,-1561.21C295.15,-1558.13 288.4,-1553.87 283.29,-1547.98 210.27,-1463.77 193.79,-1096.89 190.67,-999.69"/>
+<polygon fill="#000000" stroke="#000000" points="194.18,-999.68 190.38,-989.79 187.18,-999.89 194.18,-999.68"/>
 </g>
 <!-- proc~read_radial_input -->
-<g id="module~~graph~~ModuleGraph_node46" class="node">
+<g id="module~~graph~~ModuleGraph_node67" class="node">
 <title>proc~read_radial_input</title>
-<g id="a_module~~graph~~ModuleGraph_node46"><a xlink:href="../proc/read_radial_input.html" xlink:title="read_radial_input">
-<polygon fill="#d9534f" stroke="#d9534f" points="212.79,-1242.27 109.02,-1242.27 109.02,-1218 212.79,-1218 212.79,-1242.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1226.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_radial_input</text>
+<g id="a_module~~graph~~ModuleGraph_node67"><a xlink:href="../proc/read_radial_input.html" xlink:title="read_radial_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="403.18,-1539.11 299.41,-1539.11 299.41,-1514.84 403.18,-1514.84 403.18,-1539.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1523.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_radial_input</text>
 </a>
 </g>
 </g>
 <!-- proc~read_radial_input&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge53" class="edge">
+<g id="module~~graph~~ModuleGraph_edge143" class="edge">
 <title>proc~read_radial_input&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.75,-1219.11C104.06,-1216.46 99.76,-1213.19 96.27,-1209.13 49.93,-1155.37 35.6,-929.05 32.1,-854.82"/>
-<polygon fill="#000000" stroke="#000000" points="35.61,-854.88 31.67,-845.04 28.62,-855.19 35.61,-854.88"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M300.3,-1514.41C293.84,-1510.96 287.89,-1506.57 283.29,-1500.98 218.71,-1422.44 196.29,-1092.13 191.23,-999.95"/>
+<polygon fill="#000000" stroke="#000000" points="194.73,-999.89 190.71,-990.09 187.74,-1000.26 194.73,-999.89"/>
 </g>
 <!-- proc~read_scan_input -->
-<g id="module~~graph~~ModuleGraph_node47" class="node">
+<g id="module~~graph~~ModuleGraph_node68" class="node">
 <title>proc~read_scan_input</title>
-<g id="a_module~~graph~~ModuleGraph_node47"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
-<polygon fill="#d9534f" stroke="#d9534f" points="209.79,-1200.27 112.02,-1200.27 112.02,-1176 209.79,-1176 209.79,-1200.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1184.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
+<g id="a_module~~graph~~ModuleGraph_node68"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="562.83,-851.11 465.06,-851.11 465.06,-826.84 562.83,-826.84 562.83,-851.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-835.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
 </a>
 </g>
 </g>
+<!-- proc~read_scan_input&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge144" class="edge">
+<title>proc~read_scan_input&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M493.48,-851.61C474.96,-863.23 446.04,-880.38 419.31,-891.98 414.13,-894.22 408.63,-896.35 403.1,-898.31"/>
+<polygon fill="#000000" stroke="#000000" points="402.28,-894.9 393.93,-901.41 404.52,-901.53 402.28,-894.9"/>
+</g>
 <!-- proc~read_scan_input&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge54" class="edge">
+<g id="module~~graph~~ModuleGraph_edge145" class="edge">
 <title>proc~read_scan_input&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M111.64,-1178.51C105.85,-1175.65 100.5,-1171.94 96.27,-1167.13 54.97,-1120.21 37.56,-923.45 32.67,-854.85"/>
-<polygon fill="#000000" stroke="#000000" points="36.18,-854.84 32,-845.11 29.19,-855.32 36.18,-854.84"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M488.85,-826.46C444.76,-805.44 349.51,-769 283.29,-807.98 229.59,-839.58 204.61,-914.5 195.02,-952.71"/>
+<polygon fill="#000000" stroke="#000000" points="191.66,-951.71 192.78,-962.24 198.47,-953.31 191.66,-951.71"/>
 </g>
 <!-- proc~refine_guess -->
-<g id="module~~graph~~ModuleGraph_node48" class="node">
+<g id="module~~graph~~ModuleGraph_node69" class="node">
 <title>proc~refine_guess</title>
-<g id="a_module~~graph~~ModuleGraph_node48"><a xlink:href="../proc/refine_guess.html" xlink:title="refine_guess">
-<polygon fill="#d9534f" stroke="#d9534f" points="200.04,-1158.27 121.77,-1158.27 121.77,-1134 200.04,-1134 200.04,-1158.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1142.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">refine_guess</text>
+<g id="a_module~~graph~~ModuleGraph_node69"><a xlink:href="../proc/refine_guess.html" xlink:title="refine_guess">
+<polygon fill="#d9534f" stroke="#d9534f" points="390.43,-1459.11 312.16,-1459.11 312.16,-1434.84 390.43,-1434.84 390.43,-1459.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1443.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">refine_guess</text>
 </a>
 </g>
 </g>
 <!-- proc~refine_guess&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge55" class="edge">
+<g id="module~~graph~~ModuleGraph_edge146" class="edge">
 <title>proc~refine_guess&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M121.53,-1140.36C112.14,-1137.25 102.9,-1132.47 96.27,-1125.13 60.03,-1085.04 39.84,-917.94 33.41,-855.14"/>
-<polygon fill="#000000" stroke="#000000" points="36.9,-854.83 32.43,-845.22 29.94,-855.52 36.9,-854.83"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M311.83,-1439.29C301.23,-1435.42 290.64,-1429.63 283.29,-1420.98 227.97,-1355.78 199.49,-1082.24 192.04,-999.67"/>
+<polygon fill="#000000" stroke="#000000" points="195.54,-999.48 191.18,-989.83 188.57,-1000.1 195.54,-999.48"/>
 </g>
-<!-- proc~scan_read -->
-<g id="module~~graph~~ModuleGraph_node49" class="node">
-<title>proc~scan_read</title>
-<g id="a_module~~graph~~ModuleGraph_node49"><a xlink:href="../proc/scan_read.html" xlink:title="scan_read">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.66,-1116.27 128.15,-1116.27 128.15,-1092 193.66,-1092 193.66,-1116.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1100.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_read</text>
+<!-- proc~rtsec -->
+<g id="module~~graph~~ModuleGraph_node70" class="node">
+<title>proc~rtsec</title>
+<g id="a_module~~graph~~ModuleGraph_node70"><a xlink:href="../proc/rtsec.html" xlink:title="rtsec">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="540.94,-1338.11 486.94,-1338.11 486.94,-1313.84 540.94,-1313.84 540.94,-1338.11"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-1322.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">rtsec</text>
 </a>
 </g>
 </g>
+<!-- proc~rtsec&#45;&gt;module~cold_susceptibility -->
+<g id="module~~graph~~ModuleGraph_edge147" class="edge">
+<title>proc~rtsec&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M497.61,-1338.51C484.24,-1350.34 465.44,-1369.3 455.31,-1389.98 415.57,-1471.08 479.04,-1522.23 419.31,-1589.98 418.01,-1591.45 416.6,-1592.83 415.11,-1594.11"/>
+<polygon fill="#000000" stroke="#000000" points="413.35,-1591.07 407.04,-1599.58 417.28,-1596.87 413.35,-1591.07"/>
+</g>
+<!-- proc~rtsec&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge148" class="edge">
+<title>proc~rtsec&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M486.49,-1319.74C442.33,-1309.25 357.87,-1288.85 352.3,-1284.98"/>
+</g>
+<!-- proc~scan_read -->
+<g id="module~~graph~~ModuleGraph_node71" class="node">
+<title>proc~scan_read</title>
+<g id="a_module~~graph~~ModuleGraph_node71"><a xlink:href="../proc/scan_read.html" xlink:title="scan_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="1154.53,-1045.11 1089.01,-1045.11 1089.01,-1020.84 1154.53,-1020.84 1154.53,-1045.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1121.77" y="-1029.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_read</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_read&#45;&gt;module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_edge149" class="edge">
+<title>proc~scan_read&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1102.25,-1045.46C1074.53,-1064.14 1022.05,-1099.51 989.74,-1121.28"/>
+<polygon fill="#000000" stroke="#000000" points="988,-1118.23 981.67,-1126.73 991.91,-1124.04 988,-1118.23"/>
+</g>
 <!-- proc~scan_read&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge56" class="edge">
+<g id="module~~graph~~ModuleGraph_edge150" class="edge">
 <title>proc~scan_read&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M127.66,-1099.97C116.36,-1096.99 104.46,-1091.88 96.27,-1083.13 35.47,-1018.2 29.66,-904.11 30.22,-854.87"/>
-<polygon fill="#000000" stroke="#000000" points="33.72,-855.15 30.45,-845.07 26.72,-854.99 33.72,-855.15"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1102.79,-1020.42C1043.6,-980.02 848.12,-853.88 664.09,-816.98"/>
 </g>
 <!-- proc~set_map_pointers -->
-<g id="module~~graph~~ModuleGraph_node50" class="node">
+<g id="module~~graph~~ModuleGraph_node72" class="node">
 <title>proc~set_map_pointers</title>
-<g id="a_module~~graph~~ModuleGraph_node50"><a xlink:href="../proc/set_map_pointers.html" xlink:title="set_map_pointers">
-<polygon fill="#d9534f" stroke="#d9534f" points="213.54,-1074.27 108.27,-1074.27 108.27,-1050 213.54,-1050 213.54,-1074.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1058.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_map_pointers</text>
+<g id="a_module~~graph~~ModuleGraph_node72"><a xlink:href="../proc/set_map_pointers.html" xlink:title="set_map_pointers">
+<polygon fill="#d9534f" stroke="#d9534f" points="403.93,-1379.11 298.66,-1379.11 298.66,-1354.84 403.93,-1354.84 403.93,-1379.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1363.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_map_pointers</text>
 </a>
 </g>
 </g>
 <!-- proc~set_map_pointers&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge57" class="edge">
+<g id="module~~graph~~ModuleGraph_edge151" class="edge">
 <title>proc~set_map_pointers&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M108.02,-1049.95C103.71,-1047.53 99.69,-1044.62 96.27,-1041.13 45.27,-989.21 34.11,-898.13 31.73,-855.03"/>
-<polygon fill="#000000" stroke="#000000" points="35.24,-855.11 31.32,-845.27 28.24,-855.41 35.24,-855.11"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M298.42,-1356.84C292.79,-1354.05 287.56,-1350.5 283.29,-1345.98 234.91,-1294.77 202.54,-1073.24 192.98,-999.76"/>
+<polygon fill="#000000" stroke="#000000" points="196.48,-999.53 191.74,-990.06 189.54,-1000.42 196.48,-999.53"/>
 </g>
 <!-- proc~spec_read -->
-<g id="module~~graph~~ModuleGraph_node51" class="node">
+<g id="module~~graph~~ModuleGraph_node73" class="node">
 <title>proc~spec_read</title>
-<g id="a_module~~graph~~ModuleGraph_node51"><a xlink:href="../proc/spec_read.html" xlink:title="spec_read">
-<polygon fill="#d9534f" stroke="#d9534f" points="193.66,-1032.27 128.15,-1032.27 128.15,-1008 193.66,-1008 193.66,-1032.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-1016.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spec_read</text>
+<g id="a_module~~graph~~ModuleGraph_node73"><a xlink:href="../proc/spec_read.html" xlink:title="spec_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="384.06,-761.11 318.54,-761.11 318.54,-736.84 384.06,-736.84 384.06,-761.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-745.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">spec_read</text>
 </a>
 </g>
 </g>
 <!-- proc~spec_read&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge58" class="edge">
+<g id="module~~graph~~ModuleGraph_edge152" class="edge">
 <title>proc~spec_read&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M127.87,-1015.35C116.72,-1012.3 104.87,-1007.31 96.27,-999.13 54.89,-959.81 39.41,-891.19 33.93,-855.01"/>
-<polygon fill="#000000" stroke="#000000" points="37.4,-854.61 32.58,-845.17 30.47,-855.55 37.4,-854.61"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M318.18,-755.98C306.09,-759.92 292.94,-765.93 283.29,-774.98 230.02,-824.92 204.48,-911.31 194.83,-952.63"/>
+<polygon fill="#000000" stroke="#000000" points="191.45,-951.7 192.7,-962.22 198.28,-953.22 191.45,-951.7"/>
 </g>
 <!-- proc~test_disp -->
-<g id="module~~graph~~ModuleGraph_node52" class="node">
+<g id="module~~graph~~ModuleGraph_node74" class="node">
 <title>proc~test_disp</title>
-<g id="a_module~~graph~~ModuleGraph_node52"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
-<polygon fill="#d9534f" stroke="#d9534f" points="189.91,-990.27 131.9,-990.27 131.9,-966 189.91,-966 189.91,-990.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-974.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+<g id="a_module~~graph~~ModuleGraph_node74"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="1295.8,-1321.11 1237.78,-1321.11 1237.78,-1296.84 1295.8,-1296.84 1295.8,-1321.11"/>
+<text xml:space="preserve" text-anchor="middle" x="1266.79" y="-1305.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
 </a>
 </g>
 </g>
+<!-- proc~test_disp&#45;&gt;module~electromagnetic_fields -->
+<g id="module~~graph~~ModuleGraph_edge153" class="edge">
+<title>proc~test_disp&#45;&gt;module~electromagnetic_fields</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1265.56,-1321.38C1263.59,-1406.8 1246.79,-1906.17 1122.77,-1960.98"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1960.98C1041.69,-1995.92 987.48,-1857.02 969,-1800.2"/>
+<polygon fill="#000000" stroke="#000000" points="972.4,-1799.34 966.06,-1790.86 965.72,-1801.45 972.4,-1799.34"/>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_diagnostics -->
+<g id="module~~graph~~ModuleGraph_edge154" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1237.54,-1304.63C1224.38,-1302.6 1208.08,-1300.1 1191.95,-1297.62"/>
+<polygon fill="#000000" stroke="#000000" points="1192.75,-1294.2 1182.34,-1296.14 1191.69,-1301.12 1192.75,-1294.2"/>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_energy -->
+<g id="module~~graph~~ModuleGraph_edge155" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1237.52,-1297.79C1230.53,-1294.8 1223.12,-1291.43 1216.41,-1287.98 1199.74,-1279.4 1197.43,-1273.85 1180.41,-1265.98 1155.93,-1254.65 1148,-1256.53 1122.77,-1246.98"/>
+</g>
 <!-- proc~test_disp&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge59" class="edge">
+<g id="module~~graph~~ModuleGraph_edge156" class="edge">
 <title>proc~test_disp&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M131.56,-973.7C119.6,-970.67 106.18,-965.59 96.27,-957.13 64.14,-929.73 45.83,-882.49 37.24,-854.3"/>
-<polygon fill="#000000" stroke="#000000" points="40.68,-853.6 34.56,-844.95 33.95,-855.53 40.68,-853.6"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M1120.77,-1960.98C993.31,-2017.3 946.59,-1960.98 807.23,-1960.98 807.23,-1960.98 807.23,-1960.98 662.09,-1960.98 569.57,-1960.98 521.33,-2001.79 455.31,-1936.98 369.86,-1853.09 497.75,-1760.45 419.31,-1669.98 399.03,-1646.59 372.87,-1674.11 352.3,-1650.98"/>
 </g>
 <!-- proc~wparth_from_ratio -->
-<g id="module~~graph~~ModuleGraph_node53" class="node">
+<g id="module~~graph~~ModuleGraph_node75" class="node">
 <title>proc~wparth_from_ratio</title>
-<g id="a_module~~graph~~ModuleGraph_node53"><a xlink:href="../proc/wparth_from_ratio.html" xlink:title="wparth_from_ratio">
-<polygon fill="#d94e8f" stroke="#d94e8f" points="215.04,-192.27 106.77,-192.27 106.77,-168 215.04,-168 215.04,-192.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-176.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wparth_from_ratio</text>
+<g id="a_module~~graph~~ModuleGraph_node75"><a xlink:href="../proc/wparth_from_ratio.html" xlink:title="wparth_from_ratio">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="717.22,-997.11 608.95,-997.11 608.95,-972.84 717.22,-972.84 717.22,-997.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-981.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wparth_from_ratio</text>
 </a>
 </g>
 </g>
 <!-- proc~wparth_from_ratio&#45;&gt;module~disprels -->
-<g id="module~~graph~~ModuleGraph_edge60" class="edge">
+<g id="module~~graph~~ModuleGraph_edge157" class="edge">
 <title>proc~wparth_from_ratio&#45;&gt;module~disprels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M106.41,-188.86C93.77,-190.92 80.55,-193.08 68.77,-195"/>
-<polygon fill="#000000" stroke="#000000" points="68.36,-191.52 59.05,-196.58 69.49,-198.43 68.36,-191.52"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M627.96,-997.5C605.1,-1005.89 575.01,-1016.93 551.63,-1025.51"/>
+<polygon fill="#000000" stroke="#000000" points="550.68,-1022.13 542.5,-1028.86 553.1,-1028.7 550.68,-1022.13"/>
 </g>
 <!-- proc~wparth_from_ratio&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge61" class="edge">
+<g id="module~~graph~~ModuleGraph_edge158" class="edge">
 <title>proc~wparth_from_ratio&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M106.38,-192.2C102.57,-194.65 99.11,-197.6 96.27,-201.13 57.56,-249.24 36.64,-697.89 32.09,-807.21"/>
-<polygon fill="#000000" stroke="#000000" points="28.6,-806.9 31.69,-817.04 35.59,-807.19 28.6,-806.9"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M637.31,-972.34C627.08,-965.99 615.92,-957.42 608.58,-946.98 574.35,-898.28 610.71,-863.68 572.58,-817.98 535.46,-773.48 503.23,-793.56 455.31,-760.98 437.36,-748.77 438.26,-738.56 419.31,-727.98 392.28,-712.89 380.84,-696.99 352.3,-708.98"/>
 </g>
-<!-- program~plume -->
-<g id="module~~graph~~ModuleGraph_node54" class="node">
-<title>program~plume</title>
-<g id="a_module~~graph~~ModuleGraph_node54"><a xlink:href="../program/plume.html" xlink:title="plume">
-<polygon fill="#f0ad4e" stroke="#f0ad4e" points="187.91,-24.27 133.91,-24.27 133.91,0 187.91,0 187.91,-24.27"/>
-<text xml:space="preserve" text-anchor="middle" x="160.91" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+<!-- proc~zet_in -->
+<g id="module~~graph~~ModuleGraph_node76" class="node">
+<title>proc~zet_in</title>
+<g id="a_module~~graph~~ModuleGraph_node76"><a xlink:href="../proc/zet_in.html" xlink:title="zet_in">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="378.3,-1745.11 324.3,-1745.11 324.3,-1720.84 378.3,-1720.84 378.3,-1745.11"/>
+<text xml:space="preserve" text-anchor="middle" x="351.3" y="-1729.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">zet_in</text>
 </a>
 </g>
 </g>
+<!-- proc~zet_in&#45;&gt;module~plasma_z_faddeeva -->
+<g id="module~~graph~~ModuleGraph_edge159" class="edge">
+<title>proc~zet_in&#45;&gt;module~plasma_z_faddeeva</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.83,-1732.98C306.11,-1732.98 281.91,-1732.98 258.96,-1732.98"/>
+<polygon fill="#000000" stroke="#000000" points="258.98,-1729.48 248.98,-1732.98 258.98,-1736.48 258.98,-1729.48"/>
+</g>
+<!-- proc~zet_in&#45;&gt;module~vars -->
+<g id="module~~graph~~ModuleGraph_edge160" class="edge">
+<title>proc~zet_in&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.97,-1731.4C309.79,-1729.11 293.22,-1723.85 283.29,-1711.98 236.35,-1655.86 199.27,-1119.59 191.52,-999.68"/>
+<polygon fill="#000000" stroke="#000000" points="195.04,-999.82 190.91,-990.06 188.05,-1000.27 195.04,-999.82"/>
+</g>
+<!-- program~plume -->
+<g id="module~~graph~~ModuleGraph_node77" class="node">
+<title>program~plume</title>
+<g id="a_module~~graph~~ModuleGraph_node77"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="690.09,-1150.11 636.09,-1150.11 636.09,-1125.84 690.09,-1125.84 690.09,-1150.11"/>
+<text xml:space="preserve" text-anchor="middle" x="663.09" y="-1134.38" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~graph~~ModuleGraph_edge161" class="edge">
+<title>program~plume&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M658.45,-1150.24C649.19,-1181.71 624.37,-1267.95 608.58,-1340.98 588.38,-1434.39 604.57,-1462.92 572.58,-1552.98 562.15,-1582.36 543.54,-1613.12 530.3,-1633.08"/>
+<polygon fill="#000000" stroke="#000000" points="527.5,-1630.97 524.78,-1641.21 533.29,-1634.9 527.5,-1630.97"/>
+</g>
 <!-- program~plume&#45;&gt;module~disprels -->
-<g id="module~~graph~~ModuleGraph_edge62" class="edge">
+<g id="module~~graph~~ModuleGraph_edge162" class="edge">
 <title>program~plume&#45;&gt;module~disprels</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.68,-15.48C121.01,-18.3 106.39,-23.52 96.27,-33.13 74.7,-53.63 49.22,-136.43 37.55,-177.62"/>
-<polygon fill="#000000" stroke="#000000" points="34.24,-176.47 34.93,-187.05 40.98,-178.35 34.24,-176.47"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M643.45,-1125.44C618.02,-1108.33 572.25,-1077.53 542.76,-1057.69"/>
+<polygon fill="#000000" stroke="#000000" points="544.94,-1054.94 534.69,-1052.26 541.03,-1060.74 544.94,-1054.94"/>
 </g>
 <!-- program~plume&#45;&gt;module~fpc -->
-<g id="module~~graph~~ModuleGraph_edge63" class="edge">
+<g id="module~~graph~~ModuleGraph_edge163" class="edge">
 <title>program~plume&#45;&gt;module~fpc</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.54,-12.13C114.87,-12.13 89.57,-12.13 68.79,-12.13"/>
-<polygon fill="#000000" stroke="#000000" points="68.98,-8.64 58.98,-12.14 68.98,-15.64 68.98,-8.64"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.78,-1141.37C612.56,-1144.37 578.43,-1148.78 552.37,-1152.14"/>
+<polygon fill="#000000" stroke="#000000" points="551.99,-1148.66 542.52,-1153.41 552.89,-1155.61 551.99,-1148.66"/>
 </g>
 <!-- program~plume&#45;&gt;module~functions -->
-<g id="module~~graph~~ModuleGraph_edge64" class="edge">
+<g id="module~~graph~~ModuleGraph_edge164" class="edge">
 <title>program~plume&#45;&gt;module~functions</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.62,-19.17C121.92,-22.71 108.13,-27.47 96.27,-33.13 82.84,-39.55 68.86,-48.26 57.31,-56.09"/>
-<polygon fill="#000000" stroke="#000000" points="55.31,-53.21 49.1,-61.79 59.31,-58.96 55.31,-53.21"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M636.57,-1125.36C626.2,-1118.91 615.14,-1110.06 608.58,-1098.98 544.47,-990.61 599.22,-941.04 572.58,-817.98 559.53,-757.72 536.02,-688.92 523.44,-653.97"/>
+<polygon fill="#000000" stroke="#000000" points="526.84,-653.1 520.14,-644.9 520.27,-655.49 526.84,-653.1"/>
+</g>
+<!-- program~plume&#45;&gt;module~scan_support -->
+<g id="module~~graph~~ModuleGraph_edge165" class="edge">
+<title>program~plume&#45;&gt;module~scan_support</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M635.71,-1135.53C591.84,-1130.05 503.91,-1112.76 455.31,-1059.98 415.86,-1017.13 459.97,-975.68 419.31,-933.98 414.73,-929.28 409.11,-925.63 403.1,-922.79"/>
+<polygon fill="#000000" stroke="#000000" points="404.72,-919.67 394.13,-919.3 402.18,-926.19 404.72,-919.67"/>
 </g>
 <!-- program~plume&#45;&gt;module~vars -->
-<g id="module~~graph~~ModuleGraph_edge65" class="edge">
+<g id="module~~graph~~ModuleGraph_edge166" class="edge">
 <title>program~plume&#45;&gt;module~vars</title>
-<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M133.71,-14.08C120.4,-16.52 105.19,-21.8 96.27,-33.13 71.68,-64.39 38.99,-677.63 32.35,-807.21"/>
-<polygon fill="#000000" stroke="#000000" points="28.86,-806.84 31.85,-817 35.85,-807.19 28.86,-806.84"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M642.36,-1150.48C603.37,-1173.44 515.03,-1216.59 455.31,-1177.98 422.57,-1156.81 448.82,-1123.45 419.31,-1097.98 395.88,-1077.75 382.16,-1087.13 352.3,-1078.98"/>
 </g>
 </g>
 </svg>
-</div>          <div>
+</div>                <script>
+                  var panmodulegraphModuleGraph = svgPanZoom('#modulegraphModuleGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
             <a type="button" class="graph-help" data-bs-toggle="modal" href="#ModuleGraph-help-text">Help</a>
           </div>
           <div class="modal fade" id="ModuleGraph-help-text" tabindex="-1" role="dialog">

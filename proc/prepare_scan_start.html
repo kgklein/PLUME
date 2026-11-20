@@ -1,0 +1,764 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>prepare_scan_start &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>prepare_scan_start
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for procedures.">20 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/scan_support.html'>scan_support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">prepare_scan_start</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine prepare_scan_start()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~prepare_scan_start~~CallsGraph Pages: 1 -->
+<svg id="procprepare_scan_startCallsGraph" width="641pt" height="230pt"
+ viewBox="0.00 0.00 641.00 230.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~prepare_scan_start~~CallsGraph" class="graph" transform="scale(0.573915 0.573915) rotate(0) translate(4 396.68)">
+<title>proc~~prepare_scan_start~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-396.68 1112.89,-396.68 1112.89,4 -4,4"/>
+<!-- proc~prepare_scan_start -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node1" class="node">
+<title>proc~prepare_scan_start</title>
+<polygon fill="none" stroke="black" points="112.02,-140.83 0,-140.83 0,-116.56 112.02,-116.56 112.02,-140.83"/>
+<text xml:space="preserve" text-anchor="middle" x="56.01" y="-125.09" font-family="Helvetica,sans-Serif" font-size="10.50">prepare_scan_start</text>
+</g>
+<!-- proc~apply_parameter_point -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node2" class="node">
+<title>proc~apply_parameter_point</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node2"><a xlink:href="../proc/apply_parameter_point.html" xlink:title="apply_parameter_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="291.16,-231.83 155.89,-231.83 155.89,-207.56 291.16,-207.56 291.16,-231.83"/>
+<text xml:space="preserve" text-anchor="middle" x="223.53" y="-216.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_parameter_point</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge1" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M79.68,-141.16C108.12,-156.79 157.1,-183.72 189.66,-201.62"/>
+<polygon fill="#000000" stroke="#000000" points="187.83,-204.61 198.28,-206.36 191.2,-198.48 187.83,-204.61"/>
+</g>
+<!-- proc~capture_scan_state -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node3" class="node">
+<title>proc~capture_scan_state</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node3"><a xlink:href="../proc/capture_scan_state.html" xlink:title="capture_scan_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="280.29,-119.83 166.77,-119.83 166.77,-95.56 280.29,-95.56 280.29,-119.83"/>
+<text xml:space="preserve" text-anchor="middle" x="223.53" y="-104.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">capture_scan_state</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~capture_scan_state -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge2" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~capture_scan_state</title>
+<path fill="none" stroke="#000000" d="M112.13,-121.7C125.93,-119.95 140.89,-118.05 155.21,-116.23"/>
+<polygon fill="#000000" stroke="#000000" points="155.54,-119.72 165.02,-114.99 154.66,-112.78 155.54,-119.72"/>
+</g>
+<!-- proc~has_cold_species -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node4" class="node">
+<title>proc~has_cold_species</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node4"><a xlink:href="../proc/has_cold_species.html" xlink:title="has_cold_species">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="836.1,-135.83 733.08,-135.83 733.08,-111.56 836.1,-111.56 836.1,-135.83"/>
+<text xml:space="preserve" text-anchor="middle" x="784.59" y="-120.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">has_cold_species</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~has_cold_species -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge3" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~has_cold_species</title>
+<path fill="none" stroke="#000000" d="M67.02,-116.34C82.39,-98.29 113.66,-65.09 148.02,-48.69 287.81,18.02 341.35,2.41 495.06,-16.69 586.96,-28.11 612.18,-30.71 697.08,-67.69 719.29,-77.37 742.21,-92.48 758.88,-104.57"/>
+<polygon fill="#000000" stroke="#000000" points="756.58,-107.22 766.7,-110.37 760.75,-101.6 756.58,-107.22"/>
+</g>
+<!-- proc~initialize_scan_frame -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node5" class="node">
+<title>proc~initialize_scan_frame</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node5"><a xlink:href="../proc/initialize_scan_frame.html" xlink:title="initialize_scan_frame">
+<polygon fill="#d9534f" stroke="#d9534f" points="476.68,-49.83 353.41,-49.83 353.41,-25.56 476.68,-25.56 476.68,-49.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-34.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">initialize_scan_frame</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~initialize_scan_frame -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge4" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~initialize_scan_frame</title>
+<path fill="none" stroke="#000000" d="M79.94,-116.16C97.97,-106.79 123.97,-94.33 148.02,-86.69 212.06,-66.37 287.62,-53.46 341.81,-46.02"/>
+<polygon fill="#000000" stroke="#000000" points="342.09,-49.52 351.54,-44.72 341.16,-42.58 342.09,-49.52"/>
+</g>
+<!-- proc~parameter_scan_workflow -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node6" class="node">
+<title>proc~parameter_scan_workflow</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node6"><a xlink:href="../proc/parameter_scan_workflow.html" xlink:title="parameter_scan_workflow">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="299.04,-161.83 148.02,-161.83 148.02,-137.56 299.04,-137.56 299.04,-161.83"/>
+<text xml:space="preserve" text-anchor="middle" x="223.53" y="-146.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">parameter_scan_workflow</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~parameter_scan_workflow -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge5" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~parameter_scan_workflow</title>
+<path fill="none" stroke="#000000" d="M112.13,-135.69C119.95,-136.68 128.14,-137.72 136.38,-138.76"/>
+<polygon fill="#000000" stroke="#000000" points="135.76,-142.21 146.12,-140 136.64,-135.27 135.76,-142.21"/>
+</g>
+<!-- proc~scan_coordinates -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node7" class="node">
+<title>proc~scan_coordinates</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node7"><a xlink:href="../proc/scan_coordinates.html" xlink:title="scan_coordinates">
+<polygon fill="#d9534f" stroke="#d9534f" points="275.79,-331.83 171.27,-331.83 171.27,-307.56 275.79,-307.56 275.79,-331.83"/>
+<text xml:space="preserve" text-anchor="middle" x="223.53" y="-316.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_coordinates</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge6" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M66.55,-141.04C82.82,-161.93 117.15,-205.45 148.02,-240.69 165.84,-261.04 187.08,-283.39 202.32,-299.1"/>
+<polygon fill="#000000" stroke="#000000" points="199.56,-301.29 209.05,-306.02 204.58,-296.41 199.56,-301.29"/>
+</g>
+<!-- proc~apply_coordinate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node8" class="node">
+<title>proc~apply_coordinate</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node8"><a xlink:href="../proc/apply_coordinate.html" xlink:title="apply_coordinate">
+<polygon fill="#d9534f" stroke="#d9534f" points="466.93,-331.83 363.16,-331.83 363.16,-307.56 466.93,-307.56 466.93,-331.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-316.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_coordinate</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~apply_coordinate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge7" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~apply_coordinate</title>
+<path fill="none" stroke="#000000" d="M238.48,-232.24C258.47,-249.6 297.06,-280.81 335.04,-298.69 340.5,-301.26 346.32,-303.56 352.24,-305.6"/>
+<polygon fill="#000000" stroke="#000000" points="350.9,-308.85 361.49,-308.55 353.02,-302.18 350.9,-308.85"/>
+</g>
+<!-- proc~check_scan_kpar -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node9" class="node">
+<title>proc~check_scan_kpar</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node9"><a xlink:href="../proc/check_scan_kpar.html" xlink:title="check_scan_kpar">
+<polygon fill="#d9534f" stroke="#d9534f" points="466.18,-373.83 363.91,-373.83 363.91,-349.56 466.18,-349.56 466.18,-373.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-358.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_scan_kpar</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~check_scan_kpar -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge8" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~check_scan_kpar</title>
+<path fill="none" stroke="#000000" d="M236.59,-232.11C251.48,-247.53 277.48,-274.72 299.04,-298.69 315.48,-316.97 314.22,-327.61 335.04,-340.69 340.58,-344.18 346.69,-347.09 352.99,-349.52"/>
+<polygon fill="#000000" stroke="#000000" points="351.66,-352.76 362.25,-352.68 353.92,-346.14 351.66,-352.76"/>
+</g>
+<!-- proc~set_scalar_axis -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node10" class="node">
+<title>proc~set_scalar_axis</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node10"><a xlink:href="../proc/set_scalar_axis.html" xlink:title="set_scalar_axis">
+<polygon fill="#d9534f" stroke="#d9534f" points="460.56,-289.83 369.54,-289.83 369.54,-265.56 460.56,-265.56 460.56,-289.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-274.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_scalar_axis</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~set_scalar_axis -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge9" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~set_scalar_axis</title>
+<path fill="none" stroke="#000000" d="M265.65,-232.28C293.96,-240.94 331.8,-252.52 362.18,-261.82"/>
+<polygon fill="#000000" stroke="#000000" points="360.97,-265.11 371.56,-264.69 363.02,-258.42 360.97,-265.11"/>
+</g>
+<!-- proc~sync_solver_state -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node11" class="node">
+<title>proc~sync_solver_state</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node11"><a xlink:href="../proc/sync_solver_state.html" xlink:title="sync_solver_state">
+<polygon fill="#d9534f" stroke="#d9534f" points="666.33,-194.83 561.81,-194.83 561.81,-170.56 666.33,-170.56 666.33,-194.83"/>
+<text xml:space="preserve" text-anchor="middle" x="614.07" y="-179.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">sync_solver_state</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~sync_solver_state -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge10" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~sync_solver_state</title>
+<path fill="none" stroke="#000000" d="M291.32,-213.33C363.87,-206.42 478.9,-195.47 549.97,-188.7"/>
+<polygon fill="#000000" stroke="#000000" points="550.28,-192.19 559.91,-187.76 549.62,-185.22 550.28,-192.19"/>
+</g>
+<!-- proc~validate_native_parameters -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node12" class="node">
+<title>proc~validate_native_parameters</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node12"><a xlink:href="../proc/validate_native_parameters.html" xlink:title="validate_native_parameters">
+<polygon fill="#d9534f" stroke="#d9534f" points="495.06,-129.83 335.04,-129.83 335.04,-105.56 495.06,-105.56 495.06,-129.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-114.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_native_parameters</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~validate_native_parameters -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge11" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~validate_native_parameters</title>
+<path fill="none" stroke="#000000" d="M245.32,-207.16C260.58,-197.68 281.59,-184.07 299.04,-170.69 316.03,-157.67 316.18,-148.83 335.04,-138.69 337.91,-137.15 340.9,-135.71 343.97,-134.38"/>
+<polygon fill="#000000" stroke="#000000" points="345.18,-137.67 353.22,-130.77 342.63,-131.15 345.18,-137.67"/>
+</g>
+<!-- proc~warn_parameter_equilibrium -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node13" class="node">
+<title>proc~warn_parameter_equilibrium</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node13"><a xlink:href="../proc/warn_parameter_equilibrium.html" xlink:title="warn_parameter_equilibrium">
+<polygon fill="#d9534f" stroke="#d9534f" points="697.08,-265.83 531.06,-265.83 531.06,-241.56 697.08,-241.56 697.08,-265.83"/>
+<text xml:space="preserve" text-anchor="middle" x="614.07" y="-250.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">warn_parameter_equilibrium</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~warn_parameter_equilibrium -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge12" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~warn_parameter_equilibrium</title>
+<path fill="none" stroke="#000000" d="M291.32,-225.54C354.24,-231.04 449.1,-239.35 519.54,-245.51"/>
+<polygon fill="#000000" stroke="#000000" points="518.85,-248.96 529.11,-246.35 519.46,-241.99 518.85,-248.96"/>
+</g>
+<!-- proc~wavevector_scan -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node15" class="node">
+<title>proc~wavevector_scan</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node15"><a xlink:href="../proc/wavevector_scan.html" xlink:title="wavevector_scan">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="466.56,-171.83 363.54,-171.83 363.54,-147.56 466.56,-147.56 466.56,-171.83"/>
+<text xml:space="preserve" text-anchor="middle" x="415.05" y="-156.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">wavevector_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge13" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M264.26,-207.12C293.19,-197.96 332.6,-185.48 363.74,-175.62"/>
+<polygon fill="#000000" stroke="#000000" points="364.45,-179.07 372.93,-172.71 362.34,-172.39 364.45,-179.07"/>
+</g>
+<!-- proc~capture_scan_state&#45;&gt;proc~initialize_scan_frame -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge14" class="edge">
+<title>proc~capture_scan_state&#45;&gt;proc~initialize_scan_frame</title>
+<path fill="none" stroke="#000000" d="M254.36,-95.24C276.49,-86.15 307.48,-73.71 335.04,-63.69 344.11,-60.4 353.83,-57.05 363.25,-53.9"/>
+<polygon fill="#000000" stroke="#000000" points="364.27,-57.25 372.66,-50.79 362.07,-50.61 364.27,-57.25"/>
+</g>
+<!-- proc~capture_scan_state&#45;&gt;proc~validate_native_parameters -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge15" class="edge">
+<title>proc~capture_scan_state&#45;&gt;proc~validate_native_parameters</title>
+<path fill="none" stroke="#000000" d="M280.62,-110.65C294.1,-111.36 308.85,-112.14 323.46,-112.91"/>
+<polygon fill="#000000" stroke="#000000" points="322.9,-116.39 333.07,-113.42 323.27,-109.4 322.9,-116.39"/>
+</g>
+<!-- proc~parameter_scan_workflow&#45;&gt;proc~has_cold_species -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge16" class="edge">
+<title>proc~parameter_scan_workflow&#45;&gt;proc~has_cold_species</title>
+<path fill="none" stroke="#000000" d="M279.78,-137.19C286.45,-134.8 293.03,-131.98 299.04,-128.69 317.82,-118.42 315.03,-104.3 335.04,-96.69 472,-44.62 649.43,-83.49 734.23,-107.89"/>
+<polygon fill="#000000" stroke="#000000" points="733.05,-111.19 743.63,-110.65 735.02,-104.47 733.05,-111.19"/>
+</g>
+<!-- proc~parameter_scan_workflow&#45;&gt;proc~wavevector_scan -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge17" class="edge">
+<title>proc~parameter_scan_workflow&#45;&gt;proc~wavevector_scan</title>
+<path fill="none" stroke="#000000" d="M299.43,-153.65C316.83,-154.56 335.17,-155.53 351.95,-156.42"/>
+<polygon fill="#000000" stroke="#000000" points="351.61,-159.9 361.78,-156.94 351.98,-152.91 351.61,-159.9"/>
+</g>
+<!-- proc~scan_coordinates&#45;&gt;proc~apply_coordinate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge18" class="edge">
+<title>proc~scan_coordinates&#45;&gt;proc~apply_coordinate</title>
+<path fill="none" stroke="#000000" d="M275.82,-319.69C299.1,-319.69 326.85,-319.69 351.35,-319.69"/>
+<polygon fill="#000000" stroke="#000000" points="351.21,-323.19 361.21,-319.69 351.21,-316.19 351.21,-323.19"/>
+</g>
+<!-- proc~warn_unsupported_parallel -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node14" class="node">
+<title>proc~warn_unsupported_parallel</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node14"><a xlink:href="../proc/warn_unsupported_parallel.html" xlink:title="warn_unsupported_parallel">
+<polygon fill="#d9534f" stroke="#d9534f" points="692.2,-367.83 535.93,-367.83 535.93,-343.56 692.2,-343.56 692.2,-367.83"/>
+<text xml:space="preserve" text-anchor="middle" x="614.07" y="-352.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">warn_unsupported_parallel</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_coordinates&#45;&gt;proc~warn_unsupported_parallel -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge19" class="edge">
+<title>proc~scan_coordinates&#45;&gt;proc~warn_unsupported_parallel</title>
+<path fill="none" stroke="#000000" d="M240.2,-332.18C260.62,-347.58 298.11,-372.91 335.04,-382.69 412.61,-403.25 506.06,-385.95 562.45,-371.15"/>
+<polygon fill="#000000" stroke="#000000" points="563.02,-374.62 571.76,-368.63 561.19,-367.86 563.02,-374.62"/>
+</g>
+<!-- proc~interpolate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node17" class="node">
+<title>proc~interpolate</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node17"><a xlink:href="../proc/interpolate.html" xlink:title="interpolate">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="649.08,-319.83 579.06,-319.83 579.06,-295.56 649.08,-295.56 649.08,-319.83"/>
+<text xml:space="preserve" text-anchor="middle" x="614.07" y="-304.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">interpolate</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_coordinate&#45;&gt;proc~interpolate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge20" class="edge">
+<title>proc~apply_coordinate&#45;&gt;proc~interpolate</title>
+<path fill="none" stroke="#000000" d="M467.3,-316.57C498.3,-314.68 537.49,-312.3 567.42,-310.47"/>
+<polygon fill="#000000" stroke="#000000" points="567.53,-313.97 577.3,-309.87 567.11,-306.99 567.53,-313.97"/>
+</g>
+<!-- proc~check_scan_kpar&#45;&gt;proc~warn_unsupported_parallel -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge21" class="edge">
+<title>proc~check_scan_kpar&#45;&gt;proc~warn_unsupported_parallel</title>
+<path fill="none" stroke="#000000" d="M466.53,-360.16C484.15,-359.62 504.48,-359 524.29,-358.4"/>
+<polygon fill="#000000" stroke="#000000" points="524.13,-361.9 534.02,-358.1 523.92,-354.91 524.13,-361.9"/>
+</g>
+<!-- proc~set_scalar_axis&#45;&gt;proc~interpolate -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge22" class="edge">
+<title>proc~set_scalar_axis&#45;&gt;proc~interpolate</title>
+<path fill="none" stroke="#000000" d="M460.76,-284.5C492.61,-289.35 535.28,-295.85 567.36,-300.73"/>
+<polygon fill="#000000" stroke="#000000" points="566.75,-304.18 577.16,-302.23 567.8,-297.26 566.75,-304.18"/>
+</g>
+<!-- proc~sync_solver_state&#45;&gt;proc~has_cold_species -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge23" class="edge">
+<title>proc~sync_solver_state&#45;&gt;proc~has_cold_species</title>
+<path fill="none" stroke="#000000" d="M650.81,-170.18C675.86,-161.41 709.59,-149.6 736.78,-140.08"/>
+<polygon fill="#000000" stroke="#000000" points="737.9,-143.4 746.18,-136.79 735.59,-136.79 737.9,-143.4"/>
+</g>
+<!-- proc~emit_warning -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node16" class="node">
+<title>proc~emit_warning</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node16"><a xlink:href="../proc/emit_warning.html" xlink:title="emit_warning">
+<polygon fill="#d9534f" stroke="#d9534f" points="826.35,-307.83 742.83,-307.83 742.83,-283.56 826.35,-283.56 826.35,-307.83"/>
+<text xml:space="preserve" text-anchor="middle" x="784.59" y="-292.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">emit_warning</text>
+</a>
+</g>
+</g>
+<!-- proc~warn_parameter_equilibrium&#45;&gt;proc~emit_warning -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge24" class="edge">
+<title>proc~warn_parameter_equilibrium&#45;&gt;proc~emit_warning</title>
+<path fill="none" stroke="#000000" d="M665.63,-266.3C686.42,-271.48 710.49,-277.48 731.45,-282.7"/>
+<polygon fill="#000000" stroke="#000000" points="730.39,-286.04 740.94,-285.06 732.08,-279.25 730.39,-286.04"/>
+</g>
+<!-- proc~warn_unsupported_parallel&#45;&gt;proc~has_cold_species -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge26" class="edge">
+<title>proc~warn_unsupported_parallel&#45;&gt;proc~has_cold_species</title>
+<path fill="none" stroke="#000000" d="M674.05,-343.17C682.45,-339.51 690.47,-334.79 697.08,-328.69 725.1,-302.87 761.31,-195.1 776.45,-147.03"/>
+<polygon fill="#000000" stroke="#000000" points="779.74,-148.21 779.37,-137.62 773.06,-146.13 779.74,-148.21"/>
+</g>
+<!-- proc~warn_unsupported_parallel&#45;&gt;proc~emit_warning -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge25" class="edge">
+<title>proc~warn_unsupported_parallel&#45;&gt;proc~emit_warning</title>
+<path fill="none" stroke="#000000" d="M654.41,-343.15C667.97,-338.72 683.24,-333.61 697.08,-328.69 711.57,-323.55 727.3,-317.64 741.33,-312.26"/>
+<polygon fill="#000000" stroke="#000000" points="742.19,-315.68 750.26,-308.82 739.67,-309.15 742.19,-315.68"/>
+</g>
+<!-- proc~close_warnings -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node18" class="node">
+<title>proc~close_warnings</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node18"><a xlink:href="../proc/close_warnings.html" xlink:title="close_warnings">
+<polygon fill="#d9534f" stroke="#d9534f" points="964.62,-287.83 872.1,-287.83 872.1,-263.56 964.62,-263.56 964.62,-287.83"/>
+<text xml:space="preserve" text-anchor="middle" x="918.36" y="-272.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">close_warnings</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~close_warnings -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge27" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~close_warnings</title>
+<path fill="none" stroke="#000000" d="M826.56,-289.48C837.33,-287.84 849.13,-286.05 860.57,-284.31"/>
+<polygon fill="#000000" stroke="#000000" points="860.97,-287.79 870.33,-282.83 859.92,-280.87 860.97,-287.79"/>
+</g>
+<!-- proc~warning_io_failure -->
+<g id="proc~~prepare_scan_start~~CallsGraph_node19" class="node">
+<title>proc~warning_io_failure</title>
+<g id="a_proc~~prepare_scan_start~~CallsGraph_node19"><a xlink:href="../proc/warning_io_failure.html" xlink:title="warning_io_failure">
+<polygon fill="#d9534f" stroke="#d9534f" points="1108.89,-307.83 1000.62,-307.83 1000.62,-283.56 1108.89,-283.56 1108.89,-307.83"/>
+<text xml:space="preserve" text-anchor="middle" x="1054.75" y="-292.09" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">warning_io_failure</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge28" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M826.52,-296.26C840.92,-296.44 857.23,-296.61 872.1,-296.69 913.22,-296.93 923.5,-296.92 964.62,-296.69 972.51,-296.65 980.79,-296.58 989,-296.51"/>
+<polygon fill="#000000" stroke="#000000" points="989.02,-300.01 998.98,-296.4 988.95,-293.01 989.02,-300.01"/>
+</g>
+<!-- proc~close_warnings&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~prepare_scan_start~~CallsGraph_edge29" class="edge">
+<title>proc~close_warnings&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M964.86,-282.46C972.71,-283.63 981.01,-284.87 989.25,-286.09"/>
+<polygon fill="#000000" stroke="#000000" points="988.51,-289.52 998.91,-287.53 989.54,-282.6 988.51,-289.52"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocprepare_scan_startCallsGraph = svgPanZoom('#procprepare_scan_startCallsGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~prepare_scan_start~~CalledByGraph Pages: 1 -->
+<svg id="procprepare_scan_startCalledByGraph" width="210pt" height="32pt"
+ viewBox="0.00 0.00 210.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~prepare_scan_start~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 28.27)">
+<title>proc~~prepare_scan_start~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 206.02,-28.27 206.02,4 -4,4"/>
+<!-- proc~prepare_scan_start -->
+<g id="proc~~prepare_scan_start~~CalledByGraph_node1" class="node">
+<title>proc~prepare_scan_start</title>
+<polygon fill="none" stroke="black" points="202.02,-24.27 90,-24.27 90,0 202.02,0 202.02,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="146.01" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">prepare_scan_start</text>
+</g>
+<!-- program~plume -->
+<g id="proc~~prepare_scan_start~~CalledByGraph_node2" class="node">
+<title>program~plume</title>
+<g id="a_proc~~prepare_scan_start~~CalledByGraph_node2"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-24.27 0,-24.27 0,0 54,0 54,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~prepare_scan_start -->
+<g id="proc~~prepare_scan_start~~CalledByGraph_edge1" class="edge">
+<title>program~plume&#45;&gt;proc~prepare_scan_start</title>
+<path fill="none" stroke="#000000" d="M54.26,-12.13C61.57,-12.13 69.85,-12.13 78.37,-12.13"/>
+<polygon fill="#000000" stroke="#000000" points="78.13,-15.64 88.13,-12.14 78.13,-8.64 78.13,-15.64"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

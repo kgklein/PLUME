@@ -52,12 +52,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="page/index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="./lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="./lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="./lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="./lists/types.html">Derived Types</a>
@@ -96,44 +99,17 @@
       <div class="row" id='text'>
         <div class=col-md-8>
           <h1>PLUME</h1>
-          <hr>
-<p><a href="https://doi.org/10.5281/zenodo.15215514"><img alt="DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.15215514.svg"></a></p>
-<h2>Plasma in a Linear Uniform Magnetized Environment</h2>
-<p><img src="./page/PLUME_logo.png" alt="drawing" width="200"/>
-<img src="./page/qrcode_plume_github.png" alt="drawing" width="200"/></p>
-<p>PLUME is a parallelised numerical code that solves the Vlasov-Maxwell dispersion
-relation in hot (even relativistic) magnetised plasma.</p>
-<p>If you use the code for a science publication, please provide the code website
-<a href="https://github.com/kgklein/PLUME">github.com/kgklein/PLUME</a> in the acknowledgements of your publication, and cite the code:</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">@software</span><span class="err">{</span><span class="n">PLUME_2025</span><span class="p">,</span>
-<span class="w">  </span><span class="n">author</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="err">{{</span><span class="n">Klein</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">.</span><span class="w"> </span><span class="n">G</span><span class="p">.</span><span class="w"> </span><span class="ow">and</span>
-<span class="w">                  </span><span class="err">{</span><span class="n">Howes</span><span class="err">}</span><span class="p">,</span><span class="w"> </span><span class="n">G</span><span class="p">.</span><span class="w"> </span><span class="n">G</span><span class="p">.</span><span class="err">}</span><span class="p">,</span>
-<span class="w">  </span><span class="n">title</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="n">kgklein</span><span class="o">/</span><span class="nl">PLUME</span><span class="p">:</span><span class="w"> </span><span class="n">Zenodo</span><span class="w"> </span><span class="k">release</span><span class="err">}</span><span class="p">,</span>
-<span class="w">  </span><span class="nf">month</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">April</span><span class="p">,</span>
-<span class="w">  </span><span class="nf">year</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mi">2025</span><span class="p">,</span>
-<span class="w">  </span><span class="n">publisher</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="n">Zenodo</span><span class="err">}</span><span class="p">,</span>
-<span class="w">  </span><span class="n">version</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="n">v1</span><span class="mf">.0.1</span><span class="err">}</span><span class="p">,</span>
-<span class="w">  </span><span class="n">doi</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.15215514</span><span class="err">}</span><span class="p">,</span>
-<span class="w">  </span><span class="n">url</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="err">{</span><span class="nl">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.15215514</span><span class="err">}</span>
-<span class="err">}</span>
-</code></pre></div>
-
-<p>and code paper 
-<a href="https://iopscience.iop.org/article/10.3847/2515-5172/add1c2">Klein, K. G., Howes, G. G.,
-and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAAS, 2025</a></p>
-<p>Publications using the PLUME code can be found in our <a href="https://ui.adsabs.harvard.edu/public-libraries/RWGonkVgRpOaTizvWwsjKg">NASA ADS Library</a>.</p>
-<p>For first-time users, we recommend working through our <a href="./page/tutorial.html">PLUME Tutorial</a>.</p>
-<p>The key input parameters for PLUME are described on the <a href="./page/input.html">PLUME Input</a> page.</p>
-<p>The output format of PLUME is described on the <a href="./page/output.html">PLUME Output</a> page.</p>
-<h2>Judging Energy Transfer in a - Plasma in a Linear Uniform Magnetized Environment</h2>
-<p><img src="./page/Jet-Plume_Logo.svg" alt="JetPlumeLogoDrawing" width="200"/></p>
-<p>JET-PLUME is an extension to PLUME that predicts wave-particle energy transfer in velocity space using the field-particle correlation technique and linear theory. Please see the <a href="./page/README-JETPLUME.html">README for JET-PLUME</a>.</p>
-<p>JET-PLUME is operated in a similar manner to PLUME, either using command line or the python wrapper. See Section 4 above on how to operate and <a href="./README-JETPLUME.html">README for JET-PLUME</a> for the additional inputs.</p>
-<p>Details</p>
-<p>If you use this code for a science publication, please provide the same code website as plume
-<a href="https://github.com/kgklein/PLUME">github.com/kgklein/PLUME</a> in the acknowledgements of your publication and cite the code paper for JET-PLUME: ...</p>
-<h2>Python wrapper (linfpclib)</h2>
-<p>With the creation of JET-PLUME, a wrapper to use PLUME and JET-PLUME in a jupyter notebook was created. It aids in the creation of input files and running of the code with said input files. Please see the <a href="./page/examplelinfpc.html">example notebook</a> to see the key features of this wrapper. The use of the wrapper is entirely optional. NOTE: Please create and run notebooks from the main directory of the repository. This is necessary because the notebooks import key functions directly from the linfpclib module located there.</p>
+          <h1>Plasma in a Linear Uniform Magnetized Environment</h1>
+<p><img src="./page/assets/PLUME_logo.png" alt="PLUME logo" width="200"/>
+<img src="./page/assets/qrcode_plume_github.png" alt="Repository QR code" width="200"/></p>
+<p>PLUME is a Fortran solver for linear electromagnetic dispersion
+relations in homogeneous, nonrelativistic, magnetized plasmas,
+supporting kinetic bi-Maxwellian and cold-fluid populations.</p>
+<p><strong><a href="./page/index.html">User Manual</a></strong> |
+<strong><a href="./page/tutorial.html">Quick Start</a></strong> |
+<strong><a href="https://github.com/kgklein/PLUME">GitHub Repository</a></strong></p>
+<p>The documentation also includes the automatically generated
+Fortran API reference.</p>
         </div>
           <div class="col-md-4">
             <div class="card card-body bg-light">
@@ -159,7 +135,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col-xs-6 col-sm-4">
             <div>
               <h3>Modules</h3>
-              <ul><li><a href='module/bessels.html'>bessels</a></li><li><a href='module/disprels.html'>disprels</a></li><li><a href='module/fpc.html'>fpc</a></li><li><a href='module/functions.html'>functions</a></li><li><a href='module/nrtype.html'>nrtype</a></li><li><a href='module/nrutil_trim.html'>nrutil_trim</a></li><li><a href='module/vars.html'>vars</a></li></ul>
+              <ul><li><a href='module/adaptive_kinetic.html'>adaptive_kinetic</a></li><li><a href='module/auxiliary_normalization.html'>auxiliary_normalization</a></li><li><a href='module/bessel_cache.html'>bessel_cache</a></li><li><a href='module/bessels.html'>bessels</a></li><li><a href='module/cold_reference.html'>cold_reference</a></li><li><a href='module/cold_susceptibility.html'>cold_susceptibility</a></li><li><a href='module/disprels.html'>disprels</a></li><li><a href='module/electromagnetic_fields.html'>electromagnetic_fields</a></li><li><a href='module/fpc.html'>fpc</a></li><li><a href='module/functions.html'>functions</a></li></ul>
             </div>
             <div>
               <ul>
@@ -170,7 +146,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col-xs-6 col-sm-4">
             <div>
               <h3>Procedures</h3>
-              <ul><li><a href='interface/assert.html'>assert</a></li><li><a href='proc/assert1.html'>assert1</a></li><li><a href='proc/assert2.html'>assert2</a></li><li><a href='proc/assert3.html'>assert3</a></li><li><a href='proc/assert4.html'>assert4</a></li><li><a href='proc/assert_v.html'>assert_v</a></li><li><a href='proc/bess0_s_prime.html'>bess0_s_prime</a></li><li><a href='proc/bessel.html'>bessel</a></li><li><a href='proc/bessim.html'>bessim</a></li><li><a href='proc/bessim0.html'>bessim0</a></li></ul>
+              <ul><li><a href='proc/absorptive.html'>absorptive</a></li><li><a href='proc/all_species_cold.html'>all_species_cold</a></li><li><a href='proc/apply_coordinate.html'>apply_coordinate</a></li><li><a href='proc/apply_parameter_point.html'>apply_parameter_point</a></li><li><a href='interface/assert.html'>assert</a></li><li><a href='proc/assert1.html'>assert1</a></li><li><a href='proc/assert2.html'>assert2</a></li><li><a href='proc/assert3.html'>assert3</a></li><li><a href='proc/assert4.html'>assert4</a></li><li><a href='proc/assert_v.html'>assert_v</a></li></ul>
             </div>
             <div>
               <ul>
@@ -181,7 +157,7 @@ and Brown, C. R.: PLUME: Plasma in a Linear Uniform Magnetized Environment, RNAA
           <div class="col-xs-6 col-sm-4">
             <div>
               <h3>Derived Types</h3>
-              <ul><li><a href='type/scanner.html'>scanner</a></li><li><a href='type/specie.html'>specie</a></li><li><a href='type/sprs2_dp.html'>sprs2_dp</a></li><li><a href='type/sprs2_sp.html'>sprs2_sp</a></li></ul>
+              <ul><li><a href='type/arithmetic_guard.html'>arithmetic_guard</a></li><li><a href='type/auxiliary_scale.html'>auxiliary_scale</a></li><li><a href='type/bessel_entry.html'>bessel_entry</a></li><li><a href='type/cap_record.html'>cap_record</a></li><li><a href='type/diagnostic_guard.html'>diagnostic_guard</a></li><li><a href='type/heating_result.html'>heating_result</a></li><li><a href='type/kinetic_normalization.html'>kinetic_normalization</a></li><li><a href='type/parameter_scan_state.html'>parameter_scan_state</a></li><li><a href='type/scan_frame.html'>scan_frame</a></li><li><a href='type/scanner.html'>scanner</a></li></ul>
             </div>
             <div>
               <ul>

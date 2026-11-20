@@ -1,0 +1,428 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Plasma Models &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Plasma Models</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Plasma Models</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link active disabled" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="plasma-species-models-and-capabilities"></a></p>
+<h1>Plasma species, models and capabilities</h1>
+<p><a href="index.html">Manual home</a> · <a href="normalization.html">Normalization</a> · <a href="modes.html">Modes and scans</a></p>
+<p><a id="kinetic-populations"></a></p>
+<p>PLUME supports bi-Maxwellian and cold populations in mixtures,
+subject to the restrictions below.
+If you use one or more cold populations, you <strong>must</strong> use the <code>d_ref</code> normalization.</p>
+<h2>Kinetic populations</h2>
+<p>We define a warm population <script type="math/tex">s</script> as a drifting gyrotropic bi-Maxwellian
+with number density <script type="math/tex">n_{0s}</script>, 
+parallel drift <script type="math/tex">U_s</script> and 
+thermal speeds 
+<script type="math/tex">v_{t\parallel,s}=\sqrt{2T_{\parallel,s}/m_s}</script>,
+<script type="math/tex">v_{t\perp,s}=\sqrt{2T_{\perp,s}/m_s}</script>. 
+Its equilibrium distribution is</p>
+<p>
+<script type="math/tex; mode=display">
+ f_{0s}(v_\parallel,v_\perp)=
+ \frac{n_{0s}}{\pi^{3/2}v_{t\perp,s}^{2}v_{t\parallel,s}}
+ \exp\!\left[-\frac{v_\perp^2}{v_{t\perp,s}^2}
+              -\frac{(v_\parallel-U_s)^2}{v_{t\parallel,s}^2}\right].
+</script>
+</p>
+<p>The magnetic field and drift are oriented along z. 
+Kinetic anisotropy <script type="math/tex">\alpha_s = T_{\perp,s}/T_{\parallel,s}>0</script>. 
+In <code>d_ref</code>, <script type="math/tex">theta_s</script>=<code>tauS</code>&gt;0 sets the population to be warm, 
+while <code>tauS=0</code> sets the population to be cold.<br>
+In <code>rho_ref</code> <code>tauS</code> is the reference-to-species temperature ratio and must be positive. 
+<em>No threshold switches a sufficiently narrow Maxwellian to cold fluid.</em>
+Multiple components of the same particle species may be separated into individual componets, with each population having separate temperatures,
+densities and drifts.</p>
+<p><a id="cold-fluid-populations"></a></p>
+<h2>Cold-fluid populations</h2>
+<p>Under <code>d_ref</code>, setting <code>tauS=0</code> selects a cold fluid model. 
+<em>Negative tauS is invalid.</em>
+A cold population has zero thermal pressure, 
+and thus <code>alphS</code> is physically undefined and ignored by its response. 
+Supply it with 1 as a  placeholder.</p>
+<p>Cold species retain finite inertia, signed cyclotron frequency, density,
+charge and parallel drift. 
+Their response includes oblique drift coupling, not just the stationary Stix transverse terms. 
+The response supports complex frequencies, fully cold systems and a cold reference population. </p>
+<p>Cold populations have fluid density/velocity eigenfunctions when the Ex=1 field
+solution and response are valid. 
+<strong>Kinetic</strong> heating, kinetic harmonic heating and FPC are unavailable for cold species, and report NaN.
+Their reversible response does, however, contribute to formal wave energy.</p>
+<p><a id="mixtures-and-species-ordering"></a></p>
+<h2>Mixtures and species ordering</h2>
+<p>PLUME stores ordinary susceptibility <script type="math/tex">chi_s</script> separately for each population.
+The dielectric response is <script type="math/tex">\epsilon=I+\sum_s \chi_s</script>, 
+adding the vacuum identity and forming the electromagnetic wave matrix. 
+The full plasma determines the common field polarization, 
+with moments and kinetic absorption use that field with the appropriate per-species response. 
+See <a href="eigenfunctions.html">Eigenfunctions</a>
+and <a href="heating.html">Heating</a> for the full expressions.</p>
+<p><code>Species_1</code> remains the physical reference even if cold. 
+Cold-reference/warm mixtures use the internal auxiliary scale described in <a href="normalization.html#cold-references-and-the-auxiliary-thermal-scale">Normalization</a>,
+so there is no need to reorder species merely to obtain a warm reference. Interleaved warm/cold species and several warm populations are supported, subject to the capability below.</p>
+<p><a id="capability-matrix"></a></p>
+<h2>Capability matrix</h2>
+<p>A list of current and future planned capabilities.</p>
+<ul>
+<li>S = supported in the current release; </li>
+<li>P = partially supported with conditions;</li>
+<li>U = unsupported; </li>
+<li>NV = not fully validated. </li>
+</ul>
+<p>All cold columns require
+<code>normalization='d_ref'</code> and <code>collision_type=0</code>. 
+The fully kinetic solutions allow for either normalization. </p>
+<table>
+<thead>
+<tr>
+<th>Workflow/geometry</th>
+<th>Kinetic only</th>
+<th>Fully cold</th>
+<th>Mixed, warm reference</th>
+<th>Mixed, cold reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oblique direct evaluation / supplied roots</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Frequency-map root search</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Serial / 2D wavevector scans</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+<td>S</td>
+</tr>
+<tr>
+<td>Repeated frequency maps</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+</tr>
+<tr>
+<td>Exact parallel kperp=0</td>
+<td>U</td>
+<td>S</td>
+<td>S</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Exact perpendicular kpar=0 single wavevector</td>
+<td>U</td>
+<td>P: Ex=1 gauge may fail</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Any wavevector scan containing kpar=0</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Plasma-parameter scans</td>
+<td>S: corrected collisionless <code>rho_ref</code>; historical restrictions otherwise</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Radial scans</td>
+<td>P: legacy restrictions</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Finite-rate Krook response</td>
+<td>P / NV off-diagonal accuracy</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>General collision operator</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+</tbody>
+</table>
+<p>For scans, even an intermediate step at kpar=0 is prohibited. 
+Fully cold perpendicular single-point O/X dispersion does not imply perpendicular scans.
+Parallel longitudinal or perpendicular ordinary modes may have Ex=0 and thus
+no output eigenfunction in PLUME's chosen gauge. </p>
+<table>
+<thead>
+<tr>
+<th>Diagnostic</th>
+<th>Kinetic only</th>
+<th>Fully cold</th>
+<th>Either mixed reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E/B polarization</td>
+<td>S for valid supported Ex=1 modes</td>
+<td>S subject to gauge/poles</td>
+<td>S subject to gauge/poles</td>
+</tr>
+<tr>
+<td>Species U and density</td>
+<td>S</td>
+<td>S fluid moments</td>
+<td>S kinetic/fluid per population</td>
+</tr>
+<tr>
+<td>Total species kinetic absorption + seven channels</td>
+<td>Corrected collisionless; legacy optional</td>
+<td>NaN</td>
+<td>Corrected warm species only; cold NaN</td>
+</tr>
+<tr>
+<td>Complete formal wave energy</td>
+<td>S with real-frequency weak-mode qualifications</td>
+<td>S with same qualifications</td>
+<td>S including all physical species</td>
+</tr>
+<tr>
+<td>Corrected finite-rate heating</td>
+<td>U</td>
+<td>U</td>
+<td>U</td>
+</tr>
+<tr>
+<td>Gyro/Cartesian FPC</td>
+<td>P: historical all-kinetic pathway</td>
+<td>U</td>
+<td>U, including warm members</td>
+</tr>
+<tr>
+<td>General FPC energy/moment closure</td>
+<td>NV</td>
+<td>U</td>
+<td>U</td>
+</tr>
+</tbody>
+</table>
+<p><a id="equilibrium-checks-are-warnings"></a></p>
+<h2>Equilibrium checks are warnings</h2>
+<p>With the symbols defined in <a href="normalization.html">Normalization</a>, charge and current
+imbalance are proportional to <script type="math/tex">\sum_s D_s/Q_s</script> and <script type="math/tex">\sum_s D_su_s/Q_s</script>, respectively.
+Input validation warns at absolute magnitude at least 1e-6. 
+A drifting reference also produces a warning. 
+None of these checks changes density, drift, species order or reference frame, and neither charge neutrality nor zero current is mandatory.
+Some nonstandard homogeneous equilibria require external charge, currents or
+forces to maintain the assumed background. 
+Users must make that equilibrium interpretation explicit.</p>
+<p><a id="existing-examples"></a></p>
+<h2>Existing examples</h2>
+<p>Run from the repository root after <code>mkdir -p data/example</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Composition</th>
+<th>Command</th>
+<th>Inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kinetic proton/electron</td>
+<td><code>./plume.e inputs/example/heating_corrected_kinetic.in</code></td>
+<td>Mode E/B/moments; kinetic Ps; .energy</td>
+</tr>
+<tr>
+<td>Warm proton / cold electron</td>
+<td><code>./plume.e inputs/example/mixed_fields_warm_reference.in</code></td>
+<td>Three finite field/moment rows</td>
+</tr>
+<tr>
+<td>Cold proton / warm electron</td>
+<td><code>./plume.e inputs/example/mixed_fields_cold_reference.in</code></td>
+<td>Same units, beta_R=0, no fictitious reference temperature</td>
+</tr>
+<tr>
+<td>Fully cold</td>
+<td><code>./plume.e inputs/example/heating_corrected_cold.in</code></td>
+<td>Fluid moments, finite formal energy, NaN kinetic heat</td>
+</tr>
+<tr>
+<td>Multiple interleaved populations</td>
+<td><code>./plume.e inputs/example/mixed_moments_multispecies.in</code></td>
+<td>All species in original order, signed drift currents</td>
+</tr>
+</tbody>
+</table>
+<p><a href="examples.html">Examples and expected results</a> lists additional input files for users to explore.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,436 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>energy_path &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>energy_path
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">4 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/heating_diagnostics.html'>heating_diagnostics</a></li>
+            <li class="breadcrumb-item active" aria-current="page">energy_path</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function energy_path() result(path)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-path~2"></span>
+          character(len=300)
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~energy_path~~CalledByGraph Pages: 1 -->
+<svg id="procenergy_pathCalledByGraph" width="469pt" height="158pt"
+ viewBox="0.00 0.00 469.00 158.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~energy_path~~CalledByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 154.27)">
+<title>proc~~energy_path~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-154.27 465.31,-154.27 465.31,4 -4,4"/>
+<!-- proc~energy_path -->
+<g id="proc~~energy_path~~CalledByGraph_node1" class="node">
+<title>proc~energy_path</title>
+<polygon fill="none" stroke="black" points="461.31,-66.27 383.04,-66.27 383.04,-42 461.31,-42 461.31,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="422.17" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50">energy_path</text>
+</g>
+<!-- proc~reset_energy_output -->
+<g id="proc~~energy_path~~CalledByGraph_node2" class="node">
+<title>proc~reset_energy_output</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node2"><a xlink:href="../proc/reset_energy_output.html" xlink:title="reset_energy_output">
+<polygon fill="#d9534f" stroke="#d9534f" points="347.04,-45.27 226.77,-45.27 226.77,-21 347.04,-21 347.04,-45.27"/>
+<text xml:space="preserve" text-anchor="middle" x="286.9" y="-29.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">reset_energy_output</text>
+</a>
+</g>
+</g>
+<!-- proc~reset_energy_output&#45;&gt;proc~energy_path -->
+<g id="proc~~energy_path~~CalledByGraph_edge1" class="edge">
+<title>proc~reset_energy_output&#45;&gt;proc~energy_path</title>
+<path fill="none" stroke="#000000" d="M347.52,-42.53C355.53,-43.79 363.68,-45.07 371.49,-46.31"/>
+<polygon fill="#000000" stroke="#000000" points="370.73,-49.73 381.15,-47.83 371.82,-42.81 370.73,-49.73"/>
+</g>
+<!-- proc~write_energy_record -->
+<g id="proc~~energy_path~~CalledByGraph_node3" class="node">
+<title>proc~write_energy_record</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node3"><a xlink:href="../proc/write_energy_record.html" xlink:title="write_energy_record">
+<polygon fill="#d9534f" stroke="#d9534f" points="347.04,-97.27 226.77,-97.27 226.77,-73 347.04,-73 347.04,-97.27"/>
+<text xml:space="preserve" text-anchor="middle" x="286.9" y="-81.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_energy_record</text>
+</a>
+</g>
+</g>
+<!-- proc~write_energy_record&#45;&gt;proc~energy_path -->
+<g id="proc~~energy_path~~CalledByGraph_edge2" class="edge">
+<title>proc~write_energy_record&#45;&gt;proc~energy_path</title>
+<path fill="none" stroke="#000000" d="M342.11,-72.53C351.95,-70.24 362.17,-67.86 371.86,-65.61"/>
+<polygon fill="#000000" stroke="#000000" points="372.52,-69.05 381.47,-63.37 370.93,-62.23 372.52,-69.05"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~energy_path~~CalledByGraph_node4" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node4"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="190.77,-150.27 90,-150.27 90,-126 190.77,-126 190.77,-150.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-134.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~write_energy_record -->
+<g id="proc~~energy_path~~CalledByGraph_edge4" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~write_energy_record</title>
+<path fill="none" stroke="#000000" d="M175.63,-125.57C195.18,-118.41 219.92,-109.34 241,-101.6"/>
+<polygon fill="#000000" stroke="#000000" points="242.05,-104.95 250.23,-98.22 239.64,-98.38 242.05,-104.95"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~energy_path~~CalledByGraph_node5" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node5"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="169.77,-108.27 111,-108.27 111,-84 169.77,-84 169.77,-108.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-92.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~write_energy_record -->
+<g id="proc~~energy_path~~CalledByGraph_edge5" class="edge">
+<title>proc~om_scan&#45;&gt;proc~write_energy_record</title>
+<path fill="none" stroke="#000000" d="M169.94,-93.96C183.04,-92.96 199.21,-91.73 215.27,-90.51"/>
+<polygon fill="#000000" stroke="#000000" points="215.12,-94.03 224.83,-89.78 214.59,-87.05 215.12,-94.03"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="proc~~energy_path~~CalledByGraph_node6" class="node">
+<title>proc~read_in_params</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node6"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="188.52,-24.27 92.25,-24.27 92.25,0 188.52,0 188.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;proc~reset_energy_output -->
+<g id="proc~~energy_path~~CalledByGraph_edge3" class="edge">
+<title>proc~read_in_params&#45;&gt;proc~reset_energy_output</title>
+<path fill="none" stroke="#000000" d="M188.71,-19.01C197.16,-20.24 206.13,-21.54 215.07,-22.84"/>
+<polygon fill="#000000" stroke="#000000" points="214.44,-26.29 224.84,-24.26 215.44,-19.36 214.44,-26.29"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~energy_path~~CalledByGraph_node7" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node7"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="169.39,-66.27 111.38,-66.27 111.38,-42 169.39,-42 169.39,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="140.38" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~write_energy_record -->
+<g id="proc~~energy_path~~CalledByGraph_edge6" class="edge">
+<title>proc~test_disp&#45;&gt;proc~write_energy_record</title>
+<path fill="none" stroke="#000000" d="M169.59,-60.19C183.07,-63.08 199.85,-66.68 216.44,-70.23"/>
+<polygon fill="#000000" stroke="#000000" points="215.28,-73.57 225.79,-72.24 216.75,-66.72 215.28,-73.57"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~energy_path~~CalledByGraph_node8" class="node">
+<title>program~plume</title>
+<g id="a_proc~~energy_path~~CalledByGraph_node8"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-87.27 0,-87.27 0,-63 54,-63 54,-87.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-71.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~energy_path~~CalledByGraph_edge7" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M44.55,-87.64C56.73,-96.52 73.9,-108.37 90,-117.14 92.31,-118.39 94.72,-119.63 97.16,-120.84"/>
+<polygon fill="#000000" stroke="#000000" points="95.43,-123.89 105.97,-124.94 98.38,-117.54 95.43,-123.89"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~energy_path~~CalledByGraph_edge8" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M54.4,-80.11C67.93,-82.66 84.69,-85.82 99.74,-88.66"/>
+<polygon fill="#000000" stroke="#000000" points="98.87,-92.06 109.35,-90.47 100.17,-85.18 98.87,-92.06"/>
+</g>
+<!-- program~plume&#45;&gt;proc~read_in_params -->
+<g id="proc~~energy_path~~CalledByGraph_edge9" class="edge">
+<title>program~plume&#45;&gt;proc~read_in_params</title>
+<path fill="none" stroke="#000000" d="M44.55,-62.63C56.73,-53.75 73.9,-41.9 90,-33.13 92.31,-31.88 94.72,-30.64 97.16,-29.43"/>
+<polygon fill="#000000" stroke="#000000" points="98.38,-32.73 105.97,-25.33 95.43,-26.38 98.38,-32.73"/>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~energy_path~~CalledByGraph_edge10" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M54.4,-70.16C68.03,-67.59 84.95,-64.4 100.08,-61.54"/>
+<polygon fill="#000000" stroke="#000000" points="100.56,-65.02 109.74,-59.72 99.27,-58.14 100.56,-65.02"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

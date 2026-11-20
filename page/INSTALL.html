@@ -10,7 +10,7 @@
     <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
     <link rel="icon" href="../favicon.png">
 
-    <title>Installing PLUME &ndash; PLUME</title>
+    <title>Installation and verification &ndash; PLUME</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -52,12 +52,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/types.html">Derived Types</a>
@@ -81,7 +84,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>Installing PLUME</h1>
+    <h1>Installation and verification</h1>
     <div class="container p-2 mb-4 bg-light border rounded-3">
       <div class="row align-items-center justify-content-between">
         <div class="col">
@@ -91,8 +94,8 @@
         <div class="col">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='index.html'>Readme</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Installing PLUME</li>
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Installation and verification</li>
             </ol>
           </nav>
         </div>
@@ -105,100 +108,141 @@
         <div class="card card-body bg-light" id="sidebar-toc">
           <ul class="nav flex-column align-items">
             <li class="nav-item">
-              <a class="nav-link" href="index.html">Readme</a>
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
             </li>
           </ul>
           <hr>
           <nav class="nav nav-pills flex-column">
-              <a class="nav-link active disabled" href="INSTALL.html">Installing PLUME</a>
-              <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
-              <a class="nav-link" href="input.html">PLUME Input</a>
-              <a class="nav-link" href="normalization.html">Dual Normalization Audit</a>
-              <a class="nav-link" href="output.html">PLUME Output</a>
-              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+              <a class="nav-link active disabled" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
           </nav>
         </div>
       </div>
 
     <div class="col-9" id='text'>
-      <h1>PLUME: Plasma in a Linear Uniform Magnetized Environment</h1>
-<p>These are the install instructions for the PLUME code: the Plasma in a Linear Uniform Magnetized Environment.</p>
-<h2>Authors</h2>
-<p>Kristopher Klein   (kgklein@arizona.edu)
-Gregory Howes      (gregory-howes@uiowa.edu)</p>
-<h2>CONTENTS</h2>
-<ol>
-<li>Requirements and Dependencies</li>
-<li>Getting the PLUME Code</li>
-<li>Installing the PLUME Code</li>
-<li>Execution of Test Runs</li>
-</ol>
-<h2>REQUIREMENTS AND DEPENDENCIES</h2>
-<p>PLUME has the following requirements:</p>
-<ul>
-<li>A UNIX, Linux, or macOS operating system with a working shell.</li>
-<li>GNU make.</li>
-<li>Fortran 90 compiler (e.g., gfortran) - we recommend using the latest version
-  of the compiler to avoid any surprises in the evaluation.</li>
-</ul>
-<h2>GETTING THE PLUME CODE</h2>
-<p>We recommend pulling the latest version of PLUME from GitHub. For this, go to
-the directory where you want to install PLUME and execute the following command:</p>
-<div class="codehilite"><pre><span></span><code>git clone https://github.com/kgklein/PLUME.git
+      <p><a id="installation-and-verification"></a></p>
+<h1>Installation and verification</h1>
+<p><a href="index.html">Manual home</a> · <a href="tutorial.html">Next: Quick Start</a></p>
+<p><a id="requirements-by-activity"></a></p>
+<h2>System Requirements</h2>
+<table>
+<thead>
+<tr>
+<th>Activity</th>
+<th>Requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compile/run the solver</td>
+<td>GNU Fortran, an ordinary C99 compiler, GNU make, standard Fortran/C runtime libraries and libm</td>
+</tr>
+<tr>
+<td>Read/write inputs and analyze output w/ Python</td>
+<td>Python 3, NumPy, Matplotlib</td>
+</tr>
+<tr>
+<td>Field Particle Correlation analysis w/ Python</td>
+<td>Python 3, NumPy, Matplotlib</td>
+</tr>
+<tr>
+<td>Independent reference tests</td>
+<td>SciPy, NumPy, Matplotlib; Python's unittest is built in</td>
+</tr>
+<tr>
+<td>Optional high-precision tests</td>
+<td>mpmath; tests fall back or skip the specific optional references when unavailable</td>
+</tr>
+<tr>
+<td>Plotting</td>
+<td>Matplotlib; historical <code>.plt</code> examples require gnuplot</td>
+</tr>
+<tr>
+<td>Local documentation</td>
+<td>FORD and its Python dependencies; Graphviz for API graphs</td>
+</tr>
+</tbody>
+</table>
+<p>The PLUME plasma dispersion function is bundled and compiled into the executable.
+Users do not need SciPy, libcerf, a C++ runtime, CMake, Python, or a
+package manager <strong>to run the solver</strong>.
+Python packages were was used as an external, independent validation of some of the underlying methods.</p>
+<p><em>Caveats:</em> GNU Fortran/C 11.4.0 and GNU make 4.3 have been exercised on Linux.
+Recent validation used Python 3.10.12, NumPy 2.2.6, SciPy 1.15.3 and Matplotlib 3.10.8.
+Other platforms/compilers are not certified by the presence of an alternative Makefile rule.
+Preserve the project's promoted-double and strict-IEEE rules,
+as changing precision or optimization can alter legacy regressions and validation.</p>
+<p><a id="get-the-source-and-compile"></a></p>
+<h2>Get the source and compile</h2>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/kgklein/PLUME.git
+<span class="nb">cd</span><span class="w"> </span>PLUME
+make<span class="w"> </span>-j2
 </code></pre></div>
 
-<p>Alternatively, you can also go to the website https://https://github.com/kgklein/PLUME</p>
-<p>directly and download the source code from there. The advantage of using the git
-command is that you can now contribute to the development of the PLUME code. If
-you make any changes to the code, GitHub will run automatic tests (via workflows)
-to ensure that the changes do not break the code.</p>
-<h2>INSTALLING THE PLUME CODE</h2>
-<p>There are no additional dependencies for compiling the code, so running</p>
-<div class="codehilite"><pre><span></span><code>make
+<p>The resulting executable is <code>plume.e</code>. To rebuild from source:</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>clean
+make<span class="w"> </span>-j2
 </code></pre></div>
 
-<p>should be sufficent if using gfortran.
-If using another FORTRAN90 compiler, simply add that compiler to the Makefile and compile.</p>
-<p>Running</p>
-<div class="codehilite"><pre><span></span><code>make tidyup
+<p>The default Makefile selects its GNU configuration. The existing flags promote
+Fortran default real to binary64; several numerical modules are built with
+strict floating-point semantics. The C99 Faddeeva sources and ABI bridge are
+built automatically. Do not link arbitrary kind/precision variants together.
+The <a href="numerics.html">numerical-method notes</a> explain the precision interface.</p>
+<p><a id="run-from-the-repository-root"></a></p>
+<h2>Run from the repository root</h2>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>data/example
+./plume.e<span class="w"> </span>inputs/example/mixed_fields_warm_reference.in
 </code></pre></div>
 
-<p>will move the extraneous <em>.o and </em>.mod files to the include directory.</p>
-<p><strong>If you need a clean compilations</strong>, run</p>
-<div class="codehilite"><pre><span></span><code>make clean
+<p>The command takes an input filename ending in <code>.in</code>.
+Its indexed namelist extractor creates a scratch file beside that input,
+so that directory must be writable.
+It also has a historical 100-character argument buffer, so avoid very
+long input paths. <strong>This will be fixed in future revisions.</strong>
+The input's <code>dataName='example'</code> selects <code>data/example/</code>
+relative to the <strong>working directory</strong>, not relative to the input file.</p>
+<p><em>PLUME does not create directories automatically.</em>
+Files and numerical metadata may be opened even with <code>writeOut=.false.</code>
+as this flag reduces <code>stdout</code> verbosity and is not a master file-output switch.
+Use a unique <code>outputName</code> and an isolated directory for exploratory runs.
+Files with matching names are replaced</p>
+<p>Follow the <a href="tutorial.html">Quick Start</a> before attempting anything major.</p>
+<p><a id="python-environment-and-tests"></a></p>
+<p><a id="documentation-sources-and-local-builds"></a></p>
+<h2>Documentation sources and local builds</h2>
+<p>The editable user-manual sources live in <code>docs/</code>, with the homepage in
+<code>docs/index.md</code> and images in <code>docs/assets/</code>. 
+The root <code>README.md</code> is the GitHub project overview, 
+and <code>ford_project.md</code> contains the FORD configuration and API landing-page body. 
+Edit the Markdown sources, not the generated HTML.</p>
+<p>Install FORD in a separate environment if desired (<code>python3 -m pip install ford</code>)
+and provide Graphviz <code>dot</code> for graphs. 
+From the repository root, build and open the complete local manual with:</p>
+<div class="codehilite"><pre><span></span><code>./scripts/build_docs.sh
+xdg-open<span class="w"> </span>docs_out/page/index.html
 </code></pre></div>
 
-<p>This will remove all of the files from the <code>include</code> directory as well as the compiled executable, enabling a clean recompilation if necessary.</p>
-<h2>EXECUTION OF TEST RUNS</h2>
-<p>PLUME comes with a selection of test runs that cycle through various test
-problems.
-To execute a small set of tests, navigate to <code>inputs/example/</code> and execute the following shell script:</p>
-<div class="codehilite"><pre><span></span><code>./run_example.sh
-</code></pre></div>
-
-<p>This script will run a simple parallel wavevector scan after identifying four modes at MHD length scales.</p>
-<p>To run the automated dual-normalization suite (requires Python, NumPy, and
-Matplotlib as well as gfortran), run from the repository root:</p>
-<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>-j2
-<span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>tests<span class="w"> </span>-p<span class="w"> </span><span class="s1">'test_*.py'</span><span class="w"> </span>-v
-</code></pre></div>
-
-<p>The legacy regression comparison needs the pre-normalization commit
-<code>c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20</code> in the local Git history.
-See <a href="normalization.html">normalization.md</a> for coverage and tolerances.</p>
-<h2>Building the documentation</h2>
-<p>PLUME uses <a href="https://forddocs.readthedocs.io/en/latest/">Ford</a> to build its documentation. The documentation is automatically built and deployed to <a href="https://kgklein.github.io/PLUME/">github.io</a> by the <a href="https://github.com/kgklein/PLUME/blob/main/.github/workflows/doc.yml">doc workflow</a>. To build the documentation locally, follow the <a href="https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow, summarized here:
-1. Install <code>ford</code> by e.g. <code>pip install ford</code>. See <a href="https://forddocs.readthedocs.io/en/latest/">Ford documentation</a> for details
-2. Create a <code>docs</code> directory by <code>mkdir docs</code>
-3. Add a line <code>title: Readme</code> to the top of <a href="./README.html">README.md</a> and copy it to <code>docs/index.md</code>
-4. Add a line <code>title: Install</code> to the top of <a href="./INSTALL.html">INSTALL.md</a> and copy it to <code>docs/INSTALL.md</code>
-5. Run <code>ford ford_project.md</code>
-6. Open <code>docs/index.html</code> in a browser to view the documentation</p>
-<h3>Adding static pages to documentation</h3>
-<p>The <a href="./README.html">README.md</a> and <a href="./INSTALL.html">INSTALL.md</a> files are added to the <a href="https://kgklein.github.io/PLUME/">Ford documentation</a> as static pages. You can add more static pages to the documentation by
-1. Add the content in a markdown file to the repository.
-2. Add a <code>title:</code> line to the beginning of the file and copy it to <code>docs/</code> in the <a href="https://github.com/kgklein/PLUME/blob/master/.github/workflows/doc.yml">doc workflow</a>. See steps 3-4 in the previous section, or the <a href="https://github.com/kgklein/PLUME/blob/07a4f8dc996ff76729edeedf5c2a0dc1a5c3028b/.github/workflows/doc.yml#L25-L32">Build documentation</a> step in the workflow.
-3. Add the name of the markdown file as a new line under <code>ordered_subpage</code> in <a href="./ford_project.html">ford_project.md</a></p>
+<p>The builder stages copies in a temporary directory, converts local Markdown
+links, copies required assets, and validates the manual before replacing
+<code>docs_out/</code>. 
+The previous output is preserved in a uniquely named backup.
+The same builder runs in documentation CI; building locally does not publish a
+website. See <a href="development.html#local-documentation-build">Developer documentation</a>
+for validation details and remaining FORD limitations.</p>
     </div>
   </div>
       <hr>

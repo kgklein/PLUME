@@ -1,0 +1,46 @@
+Preprocessing /home/runner/work/PLUME/PLUME/src/electromagnetic_fields.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/nrutil_trim.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/functions.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/scan_support.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/plasma_z_backend.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/bessel.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/disprels.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/heating_diagnostics.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/vars.f90
+Warning: In 'vars.f90:vtp': Ignoring unknown Ford metadata key 'rho_ref'
+Warning: In 'vars.f90:tau_s': Ignoring unknown Ford metadata key 'rho_ref'
+Warning: In 'vars.f90:tau_s': Ignoring unknown Ford metadata key 'd_ref'
+Preprocessing /home/runner/work/PLUME/PLUME/src/auxiliary_normalization.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/nrtype.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/adaptive_kinetic.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/species_moments.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/cold_susceptibility.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/bessel_cache.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/heating_response.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/heating_energy.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/kinetic_core.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/cold_reference.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/plasma_z_legacy.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/plume.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/harmonic_selection.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/gk_disp_gf.f90
+Warning: Error parsing src/gk_disp_gf.f90.
+        In file /home/runner/work/PLUME/PLUME/src/gk_disp_gf.f90
+682|  real, intent(out) :: eprho, bprho             !|E_perp|rho_i, 
+|B_perp|rho_i
+                                                          ^
+Preceding alternate documentation lines can not be inline
+Use the docmark '!!' instead
+Preprocessing /home/runner/work/PLUME/PLUME/src/plasma_z_faddeeva.f90
+Preprocessing /home/runner/work/PLUME/PLUME/src/fpc.f90
+  Parsing files         ━━━━━━━━━━━━━━━━━ 100% 25/25 0:00:00 0:00:01 src/fpc.f90
+  Correlating information from different parts of your project...
+  ...done in 0.011s
+  Processing comments   ━━━━━━━━━━━━━━━━━━━━━ 100% 2285/2285 0:00:00 0:00:00 b_s
+  Processing pages      ━ 100%  …  .docs-build-rf_ybexf/pages/README-JETPLUME.md
+  Creating HTML documentation... done in 0.004s
+  Generating graphs     ━━━━━━━━━━━━━ 100% 230/230 0:00:00 0:00:04 zetout_legacy
+  Creating search index ━━━━━ 100% 246/2… 0:00… 0:00:… page/README-JETPLUME.html
+  Writing files         ━━━ 100% 2… 0:… 0… .docs-build-rf_ybexf/site/search.html
+
+Browse the generated documentation: file:///home/runner/work/PLUME/PLUME/.docs-build-rf_ybexf/site/index.html

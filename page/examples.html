@@ -1,0 +1,311 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Examples: a twelve-lesson curriculum &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Examples: a twelve-lesson curriculum</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Examples: a twelve-lesson curriculum</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link active disabled" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="examples-a-twelve-lesson-curriculum"></a></p>
+<h1>Examples: a twelve-lesson curriculum</h1>
+<p><a href="index.html">Manual home</a> · <a href="tutorial.html">Quick Start</a> · <a href="modes.html">Modes</a></p>
+<p>All commands below assume the repository root, a completed <code>make -j2</code>, and
+<code>mkdir -p data/example</code>. Links point to existing input sources; no new input
+files are invented by this manual. Match each reader to the file's species count
+and flags. Benchmarks below are current locally verified printed values or
+explicitly labeled developer references, not universal dispersion relations.
+A process finishing is not by itself validation of every mode/diagnostic.</p>
+<p><a id="lessons-with-existing-bounded-inputs"></a>
+<a id="planned-lessons-do-not-present-missing-inputs-as-working-files"></a></p>
+<h2>Lessons with existing inputs</h2>
+<table>
+<thead>
+<tr>
+<th>Lesson</th>
+<th>Input and physical purpose</th>
+<th>Normalization / populations</th>
+<th>Run and inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Standard kinetic plasma and equivalent units</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_rho_ref.in">normalization_rho_ref.in</a>, <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_d_ref.in">normalization_d_ref.in</a></td>
+<td>Equivalent rho_ref/d_ref proton-electron inputs; alpha_R=1.5, electron drift .02</td>
+<td>Run both files; compare converted k columns, all three frequencies and E/B/moments; first w=.06024424-.0004186511i</td>
+</tr>
+<tr>
+<td>2. Low-frequency Alfvénic/kinetic-Alfvén response and channels</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_kinetic.in">heating_corrected_kinetic.in</a></td>
+<td>rho_ref, two warm populations, anisotropic reference/electrons</td>
+<td>Run file; inspect .mode1 and .energy; first w=.06098715-1.270997e-5i, H about 20342.68; identify branch by polarization, not filename alone</td>
+</tr>
+<tr>
+<td>3. Cold parallel ion-cyclotron/circular response</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_fields_parallel.in">cold_fields_parallel.in</a>, <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_proton_electron.in">cold_proton_electron.in</a></td>
+<td>d_ref, stationary cold proton/electron, finite electron mass</td>
+<td>Field scan: first w about .05820986 with roundoff imaginary part; compare cold circular n^2=R/L and transverse polarization. The single supplied-root file only prints roots</td>
+</tr>
+<tr>
+<td>4. Fully cold perpendicular electromagnetic mode</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/cold_proton_electron_perpendicular.in">cold_proton_electron_perpendicular.in</a></td>
+<td>d_ref, fully cold, exact kpar=0, single wavevector</td>
+<td>Run file; inspect printed root against O/X relations. Do not infer perpendicular scans or an Ex=1 O-mode eigenfunction are supported</td>
+</tr>
+<tr>
+<td>5. Warm ions / cold electrons</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_warm_reference.in">heating_corrected_warm_reference.in</a></td>
+<td>d_ref, warm reference, cold electrons</td>
+<td>.mode1 and .energy; first w=.06153842-5.564326e-6i, H about 20384.80; electron Ps/channels NaN while H_e is present</td>
+</tr>
+<tr>
+<td>6. Cold ions / warm electrons</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_cold_reference.in">heating_corrected_cold_reference.in</a></td>
+<td>d_ref, betap=0, cold protons, warm electrons</td>
+<td>First w=.05916735-1.588769e-6i, H about 20516.88; proton kinetic heat NaN, electron heat available; auxiliary scale is not physical temperature</td>
+</tr>
+<tr>
+<td>7. Several populations and parallel drift currents</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_moments_multispecies.in">mixed_moments_multispecies.in</a></td>
+<td>d_ref, interleaved cold protons, warm electrons/alphas, cold alphas</td>
+<td>First w=.05440212-1.366260e-6i; inspect every species' U/n; reconstruct current including density times equilibrium drift</td>
+</tr>
+<tr>
+<td>8. Temperature-anisotropy instability</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_anisotropy_par.in">example_anisotropy_par.in</a></td>
+<td><code>rho_ref</code>, warm protons/electrons; <script type="math/tex">\beta_{\parallel,R}=3</script>, <script type="math/tex">T_{\perp,p}/T_{\parallel,p}=3</script>, isotropic electrons, no drifts</td>
+<td>Inspect <code>.mode1</code>, <code>.mode2</code> and <code>.energy</code>; locate intervals with <script type="math/tex">\gamma>0</script>, identify the unstable branch by polarization, and check heating applicability before interpreting absorption</td>
+</tr>
+<tr>
+<td>9. Whistler/R branch</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_anisotropy_par.in">example_anisotropy_par.in</a></td>
+<td>Same plasma and scan as lesson 8; two supplied frequency guesses</td>
+<td>Follow the whistler/R branch using its frequency and field polarization as <script type="math/tex">k_\parallel</script> increases; check branch continuity and warnings rather than identifying the branch by mode slot alone</td>
+</tr>
+<tr>
+<td>10. Two-dimensional scale and beta scan</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_simple_grid.in">example_simple_grid.in</a></td>
+<td><code>rho_ref</code>, warm protons/electrons; logarithmic <script type="math/tex">k_\perp\rho_R</script> and <script type="math/tex">\beta_{\parallel,R}</script> axes at fixed <script type="math/tex">k_\parallel\rho_R=10^{-3}</script>
+</td>
+<td>Inspect <code>simple_grid_kperp_betap.mode1</code>, <code>simple_grid.energy</code> and <code>simple_grid.warn</code>; reconstruct the 2D grid from coordinate columns and check energy status/applicability before interpreting heating</td>
+</tr>
+<tr>
+<td>11. Vacuum electric energy and fully cold energy</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_corrected_cold.in">heating_corrected_cold.in</a></td>
+<td>d_ref, physical proton/electron mass ratio, stationary fully cold</td>
+<td>First w about .05972252; H about 20607.63; H_E about 1.00721 and f_E about 4.88755e-5; kinetic heat remains unavailable</td>
+</tr>
+<tr>
+<td>12. Historical numerical/diagnostic replay</td>
+<td><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/heating_legacy.in">heating_legacy.in</a></td>
+<td>rho_ref all kinetic; explicit legacy Z/fixed128/legacy heat</td>
+<td>Inspect old mode Ps/channels, not a corrected .energy; record source revision and all flags</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><code>./plume.e<span class="w"> </span>inputs/example/heating_corrected_warm_reference.in
+./plume.e<span class="w"> </span>inputs/example/heating_corrected_cold_reference.in
+./plume.e<span class="w"> </span>inputs/example/example_anisotropy_par.in
+./plume.e<span class="w"> </span>inputs/example/example_simple_grid.in
+</code></pre></div>
+
+<p>Lessons 8 and 9 share a logarithmic scan from <script type="math/tex">k_\parallel\rho_R=10^{-3}</script>
+to <script type="math/tex">10^2</script>, at fixed <script type="math/tex">k_\perp\rho_R=10^{-3}</script>. The input requests 400 output
+steps and 32 substeps per output step for each of two branches, with eigenfunctions
+and corrected heating enabled. This is a longer continuation example than the
+bounded single-branch inputs above; inspect failed points and diagnostic statuses
+throughout the scan.</p>
+<p>Lesson 10 scans <script type="math/tex">k_\perp\rho_R</script> from <script type="math/tex">10^{-3}</script> to <script type="math/tex">10^2</script> and
+<script type="math/tex">\beta_{\parallel,R}</script> from 1 to 10, with corrected heating and eigenfunctions.
+Its 200 by 30 output intervals produce a <script type="math/tex">201\times31</script> grid, or 6,231 rows
+per branch. The <code>.energy</code> companion records exact parameter states in comments.
+Valid roots can have unavailable heating; inspect the companion statuses and
+warning log throughout the grid.</p>
+<p>Energy is only a formal weak-mode diagnostic; check energy_status and applicability
+in the companion before interpreting normalized absorption. Lesson 11's ordinary
+cold example has a small electric fraction. The <strong>separate test-only</strong> moderate-a,
+artificial mass-ratio-4 case has f_E about .500000281; do not attribute that number
+to the supplied physical-mass-ratio example. Creating its explicit public input
+is later curated-example work.</p>
+<p>The field-only warm/cold mixed files used by the <a href="tutorial.html">Quick Start</a> are
+simpler companions to lessons 5/6, not new physics examples. They are useful when
+you want E/B/moments without introducing heating/energy interpretation.</p>
+<p><a id="secondary-numerical-and-historical-examples"></a></p>
+<h2>Secondary numerical and historical examples</h2>
+<ul>
+<li><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/adaptive_bessel.in">adaptive_bessel.in</a>
+  and <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/faddeeva_accuracy.in">faddeeva_accuracy.in</a>
+  are numerical stress/convergence exercises, not beginner benchmarks. Examine
+  harmonic counts, cap warnings and tensor accuracy as described in <a href="numerics.html">Numerics</a>.</li>
+<li><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_scan_warm_reference.in">mixed_scan_warm_reference.in</a>
+  and <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/fully_cold_scan.in">fully_cold_scan.in</a>
+  are existing serial continuation examples with no failed points in this replay.</li>
+<li><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/mixed_scan_cold_reference.in">mixed_scan_cold_reference.in</a>
+  finishes but has a failed written point in current replay. Study NaN/recovery
+  deliberately; use mixed_fields_cold_reference.in for an all-success bounded
+  first scan instead.</li>
+<li><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_map_par.in">example_map_par.in</a>
+  is an existing linear-map lesson; examine sampled determinants versus refined
+  candidates and branch slots. It is larger than the Quick Start.</li>
+<li><a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/example_guess_double.in">example_guess_double.in</a>
+  is a large historical 2D scan; the previous audit interrupted it at its short
+  runtime limit. It is not certified as a small, all-success new-user example.</li>
+<li>Historical radial/parameter/FPC fixtures retain their specialized limitations.
+  No new curated radial/FPC input or scientific extension is claimed here.</li>
+</ul>
+<p>Further example work will automate benchmarks and document branch identity.
+Existing inputs are not rewritten by this manual task. Current execution evidence and all linked-input existence
+checks are recorded in the <a href="https://github.com/kgklein/PLUME/blob/main/tests/PLUME_5B1_MANUAL_REPORT.md">manual report</a>.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

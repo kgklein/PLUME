@@ -10,7 +10,7 @@
     <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
     <link rel="icon" href="../favicon.png">
 
-    <title>Dual Normalization Audit &ndash; PLUME</title>
+    <title>Normalization and physical units &ndash; PLUME</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -52,12 +52,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/types.html">Derived Types</a>
@@ -81,7 +84,7 @@
 
     <div class="container">
   <div class="row">
-    <h1>Dual Normalization Audit</h1>
+    <h1>Normalization and physical units</h1>
     <div class="container p-2 mb-4 bg-light border rounded-3">
       <div class="row align-items-center justify-content-between">
         <div class="col">
@@ -91,8 +94,8 @@
         <div class="col">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='index.html'>Readme</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Dual Normalization Audit</li>
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Normalization and physical units</li>
             </ol>
           </nav>
         </div>
@@ -105,183 +108,343 @@
         <div class="card card-body bg-light" id="sidebar-toc">
           <ul class="nav flex-column align-items">
             <li class="nav-item">
-              <a class="nav-link" href="index.html">Readme</a>
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
             </li>
           </ul>
           <hr>
           <nav class="nav nav-pills flex-column">
-              <a class="nav-link" href="INSTALL.html">Installing PLUME</a>
-              <a class="nav-link" href="citingpapers.html">Papers citing PLUME</a>
-              <a class="nav-link" href="input.html">PLUME Input</a>
-              <a class="nav-link active disabled" href="normalization.html">Dual Normalization Audit</a>
-              <a class="nav-link" href="output.html">PLUME Output</a>
-              <a class="nav-link" href="tutorial.html">PLUME Tutorial</a>
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link active disabled" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
           </nav>
         </div>
       </div>
 
     <div class="col-9" id='text'>
-      <h1>Dual normalization: source audit and implementation report</h1>
-<p>PLUME accepts <code>rho_ref</code> and <code>d_ref</code> inputs while retaining the finite-temperature
-kinetic calculation in its existing variables. The parameter definitions and a
-matched input pair are documented in <a href="README.html">README.md</a> and <a href="input.html">input.md</a>.</p>
-<h2>Source audit</h2>
+      <p><a id="normalization-and-physical-units"></a></p>
+<h1>Normalization and physical units</h1>
+<p><a href="index.html">Manual home</a> · <a href="input.html">Input reference</a> · <a href="models.html">Species models</a></p>
+<p>Here, we define the temporal and spatial scales used in PLUME.
+For brevity, temperatures are in energy units (Boltzmann's constant is absorbed into T).
+Electromagnetic formulas are in Gaussian units. </p>
+<p>The equilibrium is homogeneous, with
+mean magnetic field
+<script type="math/tex">\mathbf B_0=B_0\hat{\mathbf z}</script> and
+wavevector
+<script type="math/tex">\mathbf k=(k_\perp,0,k_\parallel)</script>. 
+Time dependence is given by <script type="math/tex">\exp(-i\omega t)</script>.
+The solution <script type="math/tex">\omega=\omega_r+i\gamma</script> grows when <script type="math/tex">\gamma>0</script>.</p>
+<p><a id="reference-scales"></a></p>
+<h2>Reference scales</h2>
+<p>PLUME always treats <code>species_1</code> as reference R.
+This species has a positive reference gyrofrequency scale (a positive reference charge and B0), 
+with the other speices retaining signed charge ratios for other populations. </p>
+<p>For completeness, we define</p>
+<p>
+<script type="math/tex; mode=display">
+ \Omega_R=\frac{q_R B_0}{m_R c},\qquad
+ \omega_{pR}^2=\frac{4\pi n_R q_R^2}{m_R},\qquad
+ v_{A,R}=\frac{B_0}{\sqrt{4\pi n_R m_R}},\qquad
+ d_R=\frac{c}{\omega_{pR}}=\frac{v_{A,R}}{\Omega_R}.
+</script>
+</p>
+<p>Here c is the speed of light, and
+<script type="math/tex">m_R</script>, <script type="math/tex">q_R</script>, and <script type="math/tex">n_R</script> set 
+the reference mass, charge, and number density. 
+For the thermal reference define</p>
+<p>
+<script type="math/tex; mode=display">
+ v_{t\parallel,R}=\sqrt{\frac{2T_{\parallel,R}}{m_R}},\quad
+ \alpha_R=\frac{T_{\perp,R}}{T_{\parallel,R}},\quad
+ \rho_R=\frac{v_{t\perp,R}}{|\Omega_R|},\quad
+ \beta_R=\frac{8\pi n_R T_{\parallel,R}}{B_0^2}.
+</script>
+</p>
+<p>The gyroradius uses the <strong>perpendicular</strong> thermal speed, while plasma beta uses the <strong>parallel</strong> reference temperature.
+This yields <script type="math/tex">v_{t\parallel,R}/v_{A,R}=\sqrt{\beta_R}</script> and
+<script type="math/tex">\rho_R/d_R=\sqrt{\beta_R\alpha_R}</script>.
+PLUME's Alfvén speed uses reference density/mass, <strong>not</strong> the mixture's total mass density.
+<em>Do not substitute a total-mixture Alfvén speed without converting all normalized inputs.</em></p>
+<p><a id="inputs-in-the-two-conventions"></a></p>
+<h2>Inputs in the two conventions</h2>
+<p>The normalizations are selected using <code>normalization='rho_ref'</code> (default) or <code>'d_ref'</code> in <code>&amp;params</code>.
+Let
+<script type="math/tex">w=\omega/\Omega_R</script>, <script type="math/tex">a=v_{A,R}/c</script>,
+<script type="math/tex">K_{\rho,j}=k_j\rho_R</script>, and <script type="math/tex">K_{d,j}=k_jd_R</script>, with j parallel or perpendicular.
+For a physical population s, use <script type="math/tex">\mu_s=m_R/m_s</script>,
+<script type="math/tex">Q_s=q_R/q_s</script> (signed), <script type="math/tex">D_s=n_s/n_R</script>,
+<script type="math/tex">u_s=U_s/v_{A,R}</script>, and <script type="math/tex">\alpha_s=T_{\perp,s}/T_{\parallel,s}</script>.</p>
 <table>
 <thead>
 <tr>
-<th>Subsystem</th>
-<th>Findings</th>
+<th>Input</th>
+<th><code>rho_ref</code></th>
+<th><code>d_ref</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Parameter storage and input</td>
-<td><code>src/vars.f90</code> declares global parameters, the <code>specie</code> type, and scan state. <code>read_in_params</code> and <code>spec_read</code> in <code>src/functions.f90</code> read <code>&amp;params</code> and indexed species namelists. Validation precedes kinetic evaluation.</td>
+<td><code>betap</code></td>
+<td>Reference parallel beta, beta_R</td>
+<td>Same; zero for a cold reference</td>
 </tr>
 <tr>
-<td>Reference species</td>
-<td>Species 1 supplies the reference anisotropy and reference frame checks. The Python wrapper likewise assumes species 1 is the reference. No new reference selector was introduced.</td>
+<td><code>kperp</code>, <code>kpar</code></td>
+<td>
+<script type="math/tex">k_\perp \rho_R</script>, <script type="math/tex">k_\parallel \rho_R</script>
+</td>
+<td>
+<script type="math/tex">k_\perp d_R</script>, <script type="math/tex">k_\parallel d_R</script>
+</td>
 </tr>
 <tr>
-<td>Susceptibility</td>
-<td><code>disp0</code> and <code>disp1</code> in <code>src/disprels.f90</code> implement collisionless and weakly collisional kinetic responses. Both use <code>betap/vtp**2</code> for the plasma-frequency scale, signed <code>muS/Qs</code> for gyrofrequency, thermal Bessel arguments, and thermal resonance arguments.</td>
+<td><code>vtp</code></td>
+<td>
+<script type="math/tex">v_{t,\parallel,R}/c</script>
+</td>
+<td>
+<script type="math/tex">a=v_{A,R}/c</script>
+</td>
 </tr>
 <tr>
-<td>Dispersion and roots</td>
-<td><code>disp</code> dispatches the susceptibility calculation. <code>map_search</code>, <code>refine_guess</code>, and <code>rtsec</code> use dimensionless frequency <code>omega/Omega_R</code>. The determinant and susceptibility are identical for physically equivalent inputs.</td>
+<td><code>tauS</code></td>
+<td>
+<script type="math/tex">\tau_{\rho,s}=T_{\parallel,R}/T_{\parallel,s}</script>
+</td>
+<td>
+<script type="math/tex">\theta_s=2T_{\parallel,s}/(m_R v_{A,R}^2)</script>
+</td>
 </tr>
 <tr>
-<td>Eigenfunctions and heating</td>
-<td><code>calc_eigen</code> uses the wave tensor, susceptibility, and derived thermal state for fields, density, velocity, total heating, and seven resonance heating channels. Its finite-frequency derivative calculation is unchanged.</td>
+<td><code>muS</code></td>
+<td>
+<script type="math/tex">m_R/m_s</script>
+</td>
+<td>Same</td>
 </tr>
 <tr>
-<td>Diagnostics</td>
-<td><code>src/fpc.f90</code> uses thermal velocities for gyrotropic and Cartesian distributions and correlations. Its file headers describe derived legacy parameters even for a <code>d_ref</code> input. The public single-frequency diagnostic uses the same derived state.</td>
+<td><code>Qs</code></td>
+<td>
+<script type="math/tex">q_R/q_s</script>, signed</td>
+<td>Same</td>
 </tr>
 <tr>
-<td>Scans</td>
-<td><code>om_scan</code>, <code>om_double_scan</code>, and <code>map_scan</code> mutate input parameters through scan pointers. Their setup helpers cover both wavevectors, magnitude/angle, beta, global velocity, and all six species parameters. <code>read_radial_input</code> reads <code>.rad</code> tables; <code>radial_scan</code> interpolates their values and continues roots through wavevector scans.</td>
+<td><code>Ds</code></td>
+<td>
+<script type="math/tex">n_s/n_R</script>
+</td>
+<td>Same</td>
 </tr>
 <tr>
-<td>Python</td>
-<td><code>linfpclib/linfpc.py</code> constructs and reads namelists, computes collision frequencies, and loads numeric outputs. <code>contours/plot_plume_resonances.py</code> interprets temperature widths, drift/resonance velocities, and wavevector labels.</td>
+<td><code>alphS</code></td>
+<td>
+<script type="math/tex">T_{\perp,s}/T_{\parallel,s}</script>
+</td>
+<td>Same for warm species; ignored for cold</td>
+</tr>
+<tr>
+<td><code>vvS</code></td>
+<td>
+<script type="math/tex">u_s=U_s/v_{A,R}</script>
+</td>
+<td>Same; never thermal-speed-normalized</td>
+</tr>
+<tr>
+<td><code>g_om</code>, <code>g_gam</code></td>
+<td>
+<script type="math/tex">\omega_r/\Omega_R</script>, <script type="math/tex">\gamma/\Omega_R</script>
+</td>
+<td>Same</td>
+</tr>
+<tr>
+<td><code>Kn</code></td>
+<td>Neutral mean free path/<script type="math/tex">\rho_R</script>
+</td>
+<td>Neutral mean free path/<script type="math/tex">d_R</script>
+</td>
 </tr>
 </tbody>
 </table>
-<p>The existing gyroradius is <strong>perpendicular</strong>:
-<code>rho_R = v_tperp,R / abs(Omega_R)</code>. For an anisotropic reference,</p>
+<p>We use <script type="math/tex">\theta_s</script> as a symbol for the temperature definition <code>d_ref</code> <code>tauS</code> in this manual
+to avoid confusing a physical temperature with the inverse ratio in <code>rho_ref</code>.
+<em>Both use the same Fortran input name.</em>
+Self ratios for the reference population are <code>mu_1</code>=<code>Q_1</code>=<code>D_1</code>=1.
+The solver does not enforce self-ratio or reference-density consistency;
+unusual component decompositions require a clearly specified reference density.
+<strong>There is no automatic renormalization.</strong></p>
+<p>For <code>d_ref</code> the physical thermal and species frequency relations are</p>
 <p>
 <script type="math/tex; mode=display">
-k d_R=\frac{k\rho_R}{\sqrt{\beta_{\parallel,R}\alpha_R}},\qquad
-\alpha_R=T_{\perp,R}/T_{\parallel,R}.
+ \frac{v_{t\parallel,s}^2}{v_{A,R}^2}=\mu_s\theta_s,\quad
+ \beta_{\parallel,s}=D_s\theta_s,\quad
+ \frac{\Omega_s}{\Omega_R}=\frac{\mu_s}{Q_s},\quad
+ \frac{\omega_{ps}^2}{\Omega_R^2}=\frac{D_s\mu_s}{Q_s^2a^2}.
 </script>
 </p>
-<p>Omitting the anisotropy factor changes the physical system when <code>alphS</code> for
-species 1 differs from unity. The sign of <code>Qs</code> is retained in cyclotron terms;
-plasma-frequency magnitudes use <code>Qs**2</code>.</p>
-<p>Temperature-sensitive expressions include the Bessel argument proportional to
-<code>1/tauS</code>, the thermal resonance argument, the drift factor
-<code>kpar*vvS/sqrt(betap*alpha_R)</code>, eigenfunction factors <code>vtp**2/betap</code>, and FPC
-factors containing <code>sqrt(tauS/(muS*betap))</code>. None is a cold susceptibility.
-Zero and negative kinetic temperatures are rejected before evaluating them.</p>
-<h2>Architecture and scan semantics</h2>
-<p>Approach A was selected for this stage. It requires fewer changes than
-rewriting both susceptibility kernels and their diagnostics in inertial units,
-and retains the legacy floating-point expressions. Approach B would avoid a
-thermal adapter at very small beta and offer a more direct cold-reference path,
-but would change substantially more numerical code.</p>
-<p>The public globals remain the authoritative input state in the chosen
-convention. <code>sync_solver_state</code> derives <code>solver_*</code> values before every <code>disp</code>
-evaluation. Susceptibility, eigenfunction, and FPC routines read that derived
-state. In <code>rho_ref</code>, the adapter copies inputs without changing their values.
-In <code>d_ref</code>, it uses</p>
+<p>The Doppler-shifted frequency is <script type="math/tex">\delta_s=w-\kappa_\parallel u_s</script>.
+The gyrofrequency is signed; the plasma-frequency coefficient uses Q_s squared.
+These definitions apply to kinetic and cold species. theta_s=0 means cold fluid,
+not a small positive kinetic temperature.</p>
+<p><a id="converting-equivalent-physical-states"></a></p>
+<h2>Converting equivalent physical states</h2>
+<p>When <script type="math/tex">beta_R>0</script> and <script type="math/tex">alpha_R>0</script>,</p>
 <p>
 <script type="math/tex; mode=display">
-k\rho_R=(kd_R)\sqrt{\beta_R\alpha_R},\qquad
-v_{t\parallel,R}/c=\sqrt{\beta_R}\,(v_{A,R}/c),\qquad
-\tau_s^{(\rho)}=\beta_R/\tau_s^{(d)}.
+ k_{\rho,j}=k_{d,j}\sqrt{\beta_R\alpha_R},\qquad
+ v_{t,\parallel,R}/c=a\sqrt{\beta_R},\qquad
+ \tau_{\rho,s}=\frac{\beta_R}{\theta_s}.
 </script>
 </p>
-<p>The input state can represent zero temperature independently of a thermal
-reference length. This release's kinetic adapter deliberately rejects it. A
-future cold-reference calculation must dispatch before this adapter rather than
-create a fictitious reference temperature. Extremely small positive beta still
-inherits the conditioning limits of the legacy thermal calculation.</p>
-<p><code>d_ref</code> beta scans and species-1 temperature scans update both redundant
-parameters. Other input values stay fixed. Scanning both independently in a
-two-dimensional run is rejected. A legacy beta scan instead holds its legacy
-wavevectors, thermal velocity, and temperature ratios fixed. To compare those
-physical paths, convert <strong>every point</strong>, including all affected inputs.
-Radial tables use the selected input convention; linear interpolation of
-reciprocal temperatures in one convention generally differs from linear
-interpolation in the other. Matching endpoints alone does not establish an
-identical interpolated physical path.</p>
-<p><code>Kn</code> uses the selected length. With
-<code>Kn_d = Kn_rho * sqrt(beta_R*alpha_R)</code>, the equivalent collision frequency is
-<code>sqrt(muS*tauS_d)/(sqrt(2)*Kn_d)</code>. Numeric scan output remains in input units.
-FPC output retains its documented derived thermal units. Reusing an output name
-for a legacy run removes a stale <code>d_ref</code> metadata file.</p>
-<h2>Verification</h2>
-<p>Run the available automated suite with:</p>
-<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>-j2
-<span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>tests<span class="w"> </span>-p<span class="w"> </span><span class="s1">'test_*.py'</span><span class="w"> </span>-v
+<p>
+<script type="math/tex">\mu_s</script>, <script type="math/tex">Q_s</script>, <script type="math/tex">D_s</script>, <script type="math/tex">\alpha_s</script>, <script type="math/tex">u_s</script> and <script type="math/tex">w</script> are unchanged.
+Matching collision frequencies additionally requires
+<script type="math/tex">\mathrm{Kn}_d=\mathrm{Kn}_\rho\sqrt{\beta_R\alpha_R}</script>.
+The existing derived rates are</p>
+<p>
+<script type="math/tex; mode=display">
+ \frac{\nu_s}{\Omega_R}=\frac{1}{\sqrt{2}\,\mathrm{Kn}_\rho}
+       \sqrt{\frac{\mu_s}{\tau_s^{(\rho)}\alpha_R}}
+   =\frac{\sqrt{\mu_s\theta_s}}{\sqrt{2}\,\mathrm{Kn}_d}.
+</script>
+</p>
+<p>These rates belong only to the restricted all-kinetic Krook implementation,
+<strong>which is a work in progress.</strong></p>
+<p><a id="worked-equivalent-inputs"></a></p>
+<h3>Worked equivalent inputs</h3>
+<p>The unchanged
+<a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_rho_ref.in">normalization_rho_ref.in</a>
+and <a href="https://raw.githubusercontent.com/kgklein/PLUME/main/inputs/example/normalization_d_ref.in">normalization_d_ref.in</a>
+represent a proton/electron system with beta_R=.4, alpha_R=1.5,
+a=1e-4, alpha_e=1, u_e=.02, and theta_e=.2.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align: right;">rho_ref input</th>
+<th style="text-align: right;">d_ref input</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial kperp</td>
+<td style="text-align: right;">.03872983346207417</td>
+<td style="text-align: right;">.05</td>
+</tr>
+<tr>
+<td>Initial kpar</td>
+<td style="text-align: right;">.046475800154489</td>
+<td style="text-align: right;">.06</td>
+</tr>
+<tr>
+<td>vtp</td>
+<td style="text-align: right;">.00006324555320336759</td>
+<td style="text-align: right;">.0001</td>
+</tr>
+<tr>
+<td>Proton tauS</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">.4</td>
+</tr>
+<tr>
+<td>Electron tauS</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">.2</td>
+</tr>
+</tbody>
+</table>
+<p>The length ratio is sqrt(.4*1.5)=sqrt(.6).
+Run both from the repository root:</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>data/example
+./plume.e<span class="w"> </span>inputs/example/normalization_rho_ref.in
+./plume.e<span class="w"> </span>inputs/example/normalization_d_ref.in
 </code></pre></div>
 
-<p>The suite compares raw complex determinants, every susceptibility element,
-electric/magnetic fields, polarization, density/velocity fluctuations, heating
-and all seven heating channels, and converged complex roots. Cases include
-isotropic and anisotropic proton/electron plasmas, electron drift, drifting
-alpha particles, oblique propagation, and reference beta 1, 0.3, and 0.02.
-Root checks also require convergence before the secant iteration limit and a
-scaled determinant below <code>1e-8</code>.</p>
-<p>Integration checks cover parallel/perpendicular wavevector scans,
-two-dimensional scans, frequency maps, beta scans converted point by point,
-velocity and species-temperature scans, radial interpolation, both FPC
-coordinate systems, weak collisions, example inputs, Python round trips, input
-validation, and metadata when an output name is reused.</p>
-<p>High-precision comparisons use <code>1e-10 + 5e-8*max(abs(a),abs(b))</code>. Rounded mode
-files use <code>1e-4*max(1,abs(a),abs(b))</code>; FPC files use their printed precision.
-The existing map fixtures contain singular grid points, so the map comparison
-requires finite values in its nonsingular test grid.</p>
-<p>The completed automated run passes <strong>15 tests</strong>. Across the high-precision
-equivalence cases, the maximum <code>abs(a-b)/max(1,abs(a),abs(b))</code> is <code>4.668e-13</code>;
-the maximum absolute difference in a frequency component is <code>6.939e-18</code>.
-The legacy probe comparison is exact. Python compilation and <code>git diff --check</code>
-also pass. FORD is not installed in the local environment, so its rendered
-documentation build was not run locally; the report is included in the existing
-documentation workflow.</p>
-<p>Legacy regression builds commit
-<code>c6c7616e1fc58eb6118e1f9423a3f0df6d52ef20</code>, the last pre-normalization revision,
-and requires exact probe records for two existing input files. The reference
-commit is pinned so merging this feature cannot turn the test into a comparison
-against itself. Existing expected data files are not modified.</p>
-<p>The full-resolution <code>example_map_par.in</code> was also run in isolation during the
-initial implementation: its dispersion map and all four mode files matched the
-pre-change build byte for byte. The first six <code>.roots</code> columns matched exactly.
-Some remaining legacy <code>.roots</code> species columns differ because the old
-non-map-scan path writes an uninitialized parameter array. The new <code>d_ref</code> path
-initializes those columns. The tracked golden files additionally correspond to
-older input ranges and do not reproduce the current example; they were retained.</p>
-<h2>Modified files and future cold-fluid requirements</h2>
-<p>The initial implementation changed <code>src/vars.f90</code>, <code>src/functions.f90</code>,
-<code>src/disprels.f90</code>, <code>src/fpc.f90</code>, <code>linfpclib/linfpc.py</code>, and
-<code>contours/plot_plume_resonances.py</code>. It added the Fortran probe, Python test suite,
-and matched example pair, and updated README, input/output documentation, FORD
-source comments, and <code>.gitignore</code>. This follow-up pins the regression baseline,
-extends path coverage, fixes the single-frequency heating array allocation,
-aligns Python's beta/temperature tolerance with Fortran, and completes this
-report.</p>
-<p>The future cold-fluid stage must:</p>
-<ul>
-<li>Add cold susceptibility and dispatch each species to its kinetic or fluid response.</li>
-<li>Permit <code>tauS=0</code> and <code>betap=0</code> through a path independent of the thermal adapter,
-  including a fully cold proton/electron plasma.</li>
-<li>Define cold-species eigenfunction, heating, collision, and FPC behavior;
-  thermal distributions and temperature anisotropy are undefined for a cold species.</li>
-<li>Extend scan, diagnostic, and limiting-case tests across mixed kinetic/fluid
-  systems and cold reference species without adding an artificial temperature.</li>
-</ul>
-<p>No cold susceptibility has been added in this stage.</p>
+<p>Both first mode rows give, at printed precision,
+<script type="math/tex">w=0.06024424-0.0004186511i</script>.</p>
+<p><strong>Show that these two solutions match.</strong>
+Their native wavevector and vtp columns differ by the factors above.
+Convert those columns and then plot overlaying curves. </p>
+<p><a id="scan-paths"></a></p>
+<h3>Scan paths</h3>
+<p><em>Caveat:</em> One of the useful aspects of PLUME is the ability to serially or in parallel
+scan dispersion relation solutions over wavevector and plasma parameters.
+Generally, the user can select any sets of parameters for these scans.
+The exception is for a beta_R and theta_s <code>d_ref</code> scans.
+By definition for the <code>d_ref</code> normalization, changing beta_R also updates theta_1.
+A reference theta_1 scan updates beta_R in return.
+Varying both independently in a 2D scan is rejected.
+A beta-only <code>rho_ref</code> scan traces different a different physical system than that in <code>d_ref</code>.
+Convert every point, including endpoint and interpolation rules, before making a physical comparison.</p>
+<p><a id="cold-references-and-the-auxiliary-thermal-scale"></a></p>
+<h2>Cold references and the auxiliary thermal scale</h2>
+<p>Cold-containing calculations require selecting the <code>d_ref</code> normalization.
+For a cold reference use <code>betap=0</code> and species_1 <code>tauS=0</code>.
+All species may be cold, or some may be kinetic.
+No physical reference thermal speed or gyroradius exists in that limit,
+but <script type="math/tex">d_R</script>, <script type="math/tex">v_{A,R}</script> and <script type="math/tex">\Omega_R</script> remain finite.</p>
+<p>For warm species with a cold reference,
+the existing kinetic algebra uses an internal positive scale <script type="math/tex">b_{\rm star}</script> selected from the <strong>first warm species'</strong> theta.
+It constructs auxiliary beta <script type="math/tex">B=b_{\rm star}</script>,
+thermal velocity over c, <script type="math/tex">V=a \sqrt(b_{\rm star})</script>,
+wavevector <script type="math/tex">k_{\rm star}=K_{d,R} \sqrt(b_{\rm star}</script>),
+inverse temperature <script type="math/tex">t_s=b_{\rm star}/\theta_s</script>,
+and normalization anisotropy <script type="math/tex">\alpha_{\rm star}=1</script>.
+The physical <script type="math/tex">\alpha_s</script> is unchanged.
+This is simply a coordinate transformation.
+Fully cold calculations bypass this thermal conversion entirely.</p>
+<p>There is no public <script type="math/tex">b_{\rm star}</script>/auxiliary-temperature namelist control.
+Reordering warm non-reference populations can change the internally chosen scale,
+but results should remain physically equivalent within the documented numerical conditioning.</p>
+<p><a id="diagnostic-units"></a></p>
+<h2>Diagnostic units</h2>
+<p>Let <script type="math/tex"> E=\delta E/\delta E_x</script>, <script type="math/tex">B=\delta B/\delta E_x</script> and <script type="math/tex">e_0=\delta E_x/B_0</script>.
+We choose the <script type="math/tex">E_x=1</script> gauge to fix the shared phase and amplitude eigenvalue convention.
+This lets us write:</p>
+<p>
+<script type="math/tex; mode=display">
+ w\mathbf B=\frac{\boldsymbolK_{d}\times\mathbf E}{a},\qquad
+ \delta \mathbf v_s=\frac{\delta\mathbf U_s}{c e_0},\qquad
+ \eta_s=\frac{\delta n_s/n_{0s}}{e_0}.
+</script>
+</p>
+<p><strong>Double check velocity perturbation normalization in <code>d_ref</code> units.</strong></p>
+<p>E and B are Gaussian field ratios.
+Species velocity fluctuations are <strong>not</strong> v_A-normalized
+or thermal-speed-normalized.
+Density uses each species' own equilibrium <script type="math/tex">n_0s</script>.
+The physical moments follow by multiplying <script type="math/tex">v_s</script> by <script type="math/tex">c e_0</script> and <script type="math/tex">\eta_s</script> by <script type="math/tex">n_0 e_0</script>.
+All amplitudes are generally complex.
+For drifting populations the current is
+<script type="math/tex">q_s(n_{0s} \delta U_s+\delta n_s U_s \hat{z})</script>,
+not just <script type="math/tex">q_s n_{0s} \delta U_s</script>.</p>
+<p>Heating uses dimensionless</p>
+<p>
+<script type="math/tex; mode=display">
+P_s=\Im\frac{\left(E^{\dagger} \chi_s E\right)}{H}.
+</script>
+</p>
+<p>Formal energy is</p>
+<p>
+<script type="math/tex; mode=display">
+W={\rm abs}\frac{(\delta E_x)^2 H}{16 \pi}
+</script>
+</p>
+<p>where H has separate vacuum electric, magnetic and species terms.
+Their full definitions and applicability live in <a href="heating.html">Heating and wave energy</a>.
+FPC grids and header variables retain historical thermal units;
+see the <a href="README-JETPLUME.html">FPC appendix</a>.</p>
     </div>
   </div>
       <hr>

@@ -1,0 +1,181 @@
+{
+  "source": {
+    "parameter_names": 91,
+    "parameter_records": 91,
+    "manual_pages": 16,
+    "source_links": 258,
+    "downloadable_inputs": [
+      "inputs/example/adaptive_bessel.in",
+      "inputs/example/cold_fields_parallel.in",
+      "inputs/example/cold_proton_electron.in",
+      "inputs/example/cold_proton_electron_perpendicular.in",
+      "inputs/example/example_anisotropy_par.in",
+      "inputs/example/example_guess_double.in",
+      "inputs/example/example_map_par.in",
+      "inputs/example/example_simple_grid.in",
+      "inputs/example/faddeeva_accuracy.in",
+      "inputs/example/fully_cold_scan.in",
+      "inputs/example/heating_corrected_cold.in",
+      "inputs/example/heating_corrected_cold_reference.in",
+      "inputs/example/heating_corrected_kinetic.in",
+      "inputs/example/heating_corrected_warm_reference.in",
+      "inputs/example/heating_legacy.in",
+      "inputs/example/mixed_fields_warm_reference.in",
+      "inputs/example/mixed_moments_multispecies.in",
+      "inputs/example/mixed_scan_cold_reference.in",
+      "inputs/example/mixed_scan_warm_reference.in",
+      "inputs/example/normalization_d_ref.in",
+      "inputs/example/normalization_rho_ref.in"
+    ],
+    "errors": []
+  },
+  "site": {
+    "site": "/home/runner/work/PLUME/PLUME/docs_out",
+    "missing_pages": [],
+    "broken_links": [],
+    "math_scripts": {
+      "ford_project.md": 0,
+      "docs/index.md": 0,
+      "docs/INSTALL.md": 0,
+      "docs/tutorial.md": 4,
+      "docs/input.md": 0,
+      "docs/normalization.md": 78,
+      "docs/models.md": 12,
+      "docs/modes.md": 14,
+      "docs/eigenfunctions.md": 66,
+      "docs/heating.md": 117,
+      "docs/output.md": 4,
+      "docs/examples.md": 15,
+      "docs/numerics.md": 13,
+      "docs/limitations.md": 0,
+      "docs/reproducibility.md": 0,
+      "docs/development.md": 0,
+      "docs/README-JETPLUME.md": 2
+    },
+    "tables": {
+      "ford_project.md": 0,
+      "docs/index.md": 1,
+      "docs/INSTALL.md": 1,
+      "docs/tutorial.md": 0,
+      "docs/input.md": 9,
+      "docs/normalization.md": 2,
+      "docs/models.md": 3,
+      "docs/modes.md": 2,
+      "docs/eigenfunctions.md": 0,
+      "docs/heating.md": 2,
+      "docs/output.md": 6,
+      "docs/examples.md": 1,
+      "docs/numerics.md": 0,
+      "docs/limitations.md": 1,
+      "docs/reproducibility.md": 1,
+      "docs/development.md": 2,
+      "docs/README-JETPLUME.md": 2
+    },
+    "valid_api_destinations": [
+      "lists/absint.html",
+      "lists/modules.html",
+      "lists/namelists.html",
+      "lists/procedures.html",
+      "lists/types.html",
+      "module/adaptive_kinetic.html",
+      "module/auxiliary_normalization.html",
+      "module/bessel_cache.html",
+      "module/bessels.html",
+      "module/cold_reference.html",
+      "module/cold_susceptibility.html",
+      "module/disprels.html",
+      "module/electromagnetic_fields.html",
+      "module/fpc.html",
+      "module/functions.html",
+      "module/vars.html",
+      "proc/absorptive.html",
+      "proc/all_species_cold.html",
+      "proc/apply_coordinate.html",
+      "proc/apply_parameter_point.html",
+      "proc/assert1.html",
+      "proc/assert2.html",
+      "proc/assert3.html",
+      "proc/assert4.html",
+      "proc/assert_v.html",
+      "proc/calc_chi_cold.html",
+      "proc/calc_cold_moments.html",
+      "proc/calc_em_eigen.html",
+      "proc/calc_em_fields.html",
+      "proc/calc_kinetic_moments.html",
+      "proc/calc_warm_auxiliary.html",
+      "proc/calculate_heating.html",
+      "proc/disp.html",
+      "proc/read_in_params.html",
+      "proc/rtsec.html",
+      "proc/write_energy_record.html",
+      "proc/zet_in.html"
+    ]
+  },
+  "api_issues": [
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_rr~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_rrv~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_dd~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_ddv~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_rc~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_cc~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_msk_rrv~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/poly.html",
+      "target": "../interface/poly.html#moduleprocedure-poly_msk_ddv~2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/assert.html",
+      "target": "../interface/assert.html#moduleprocedure-assert1",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/assert.html",
+      "target": "../interface/assert.html#moduleprocedure-assert2",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/assert.html",
+      "target": "../interface/assert.html#moduleprocedure-assert3",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/assert.html",
+      "target": "../interface/assert.html#moduleprocedure-assert4",
+      "error": "missing anchor"
+    },
+    {
+      "page": "interface/assert.html",
+      "target": "../interface/assert.html#moduleprocedure-assert_v",
+      "error": "missing anchor"
+    }
+  ]
+}

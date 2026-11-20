@@ -1,0 +1,2151 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>heating_energy &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>heating_energy
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 3.5% of total for modules and submodules.">294 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">heating_energy</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_ok">heat_ok</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_invalid">heat_invalid</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_no_field">heat_no_field</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_zero_real">heat_zero_real</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_response">heat_response</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_derivative">heat_derivative</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_unresolved">heat_unresolved</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_collision">heat_collision</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_root_failed">heat_root_failed</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-heat_arithmetic">heat_arithmetic</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_ok">species_heat_ok</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_cold">species_heat_cold</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_absent">species_heat_absent</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_failed">species_heat_failed</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_derivative">species_heat_derivative</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_energy">species_heat_energy</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-species_heat_applicability">species_heat_applicability</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-derivative_tolerance">derivative_tolerance</a>
+            <a class="list-group-item" href="../module/heating_energy.html#variable-derivative_levels">derivative_levels</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#types-0"
+         aria-expanded="false" aria-controls="types-0">
+         <h4 class="card-header bg-primary text-white">Derived Types</h4>
+      </a>
+      <div id="types-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/heating_energy.html#type-heating_result">heating_result</a>
+        </div>
+      </div>
+    </div>
+
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/heating_energy.html#proc-validate_heating_gamma_ratio_max">validate_heating_gamma_ratio_max</a>
+            <a class="list-group-item" href="../module/heating_energy.html#proc-reset_heating">reset_heating</a>
+            <a class="list-group-item" href="../module/heating_energy.html#proc-calculate_heating">calculate_heating</a>
+            <a class="list-group-item" href="../module/heating_energy.html#proc-finish_energy">finish_energy</a>
+            <a class="list-group-item" href="../module/heating_energy.html#proc-heating_channels">heating_channels</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Corrected collisionless absorption and formal real-frequency wave energy.
+No production dispersion/root state is read or written by this module.</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='vars.html'>vars</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/ieee_arithmetic'>ieee_arithmetic</a></li>
+                  <li class="list-inline-item"><a href='heating_response.html'>heating_response</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: module~~heating_energy~~UsesGraph Pages: 1 -->
+<svg id="moduleheating_energyUsesGraph" width="641pt" height="280pt"
+ viewBox="0.00 0.00 641.00 280.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~heating_energy~~UsesGraph" class="graph" transform="scale(0.668133 0.668133) rotate(0) translate(4 415.51)">
+<title>module~~heating_energy~~UsesGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-415.51 955.39,-415.51 955.39,4 -4,4"/>
+<!-- module~heating_energy -->
+<g id="module~~heating_energy~~UsesGraph_node1" class="node">
+<title>module~heating_energy</title>
+<polygon fill="none" stroke="black" points="951.39,-64.27 856.62,-64.27 856.62,-40 951.39,-40 951.39,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="904" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50">heating_energy</text>
+</g>
+<!-- ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_node2" class="node">
+<title>ieee_arithmetic</title>
+<g id="a_module~~heating_energy~~UsesGraph_node2"><a xlink:href="http://fortranwiki.org/fortran/show/ieee_arithmetic" xlink:title="ieee_arithmetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.77,-226.27 0,-226.27 0,-202 94.77,-202 94.77,-226.27"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-210.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_arithmetic</text>
+</a>
+</g>
+</g>
+<!-- module~heating_energy&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge1" class="edge">
+<title>module~heating_energy&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M900.35,-64.46C886.02,-127.41 811.79,-410.13 635.21,-410.13 635.21,-410.13 635.21,-410.13 502.82,-410.13 362.61,-410.13 320.76,-421.83 189.65,-372.13"/>
+</g>
+<!-- module~heating_response -->
+<g id="module~~heating_energy~~UsesGraph_node3" class="node">
+<title>module~heating_response</title>
+<g id="a_module~~heating_energy~~UsesGraph_node3"><a xlink:href="../module/heating_response.html" xlink:title="heating_response">
+<polygon fill="#337ab7" stroke="#337ab7" points="820.62,-64.27 715.35,-64.27 715.35,-40 820.62,-40 820.62,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="767.98" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_response</text>
+</a>
+</g>
+</g>
+<!-- module~heating_energy&#45;&gt;module~heating_response -->
+<g id="module~~heating_energy~~UsesGraph_edge2" class="edge">
+<title>module~heating_energy&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M856.13,-52.13C848.44,-52.13 840.35,-52.13 832.33,-52.13"/>
+<polygon fill="#000000" stroke="#000000" points="832.61,-48.64 822.61,-52.14 832.61,-55.64 832.61,-48.64"/>
+</g>
+<!-- module~vars -->
+<g id="module~~heating_energy~~UsesGraph_node4" class="node">
+<title>module~vars</title>
+<g id="a_module~~heating_energy~~UsesGraph_node4"><a xlink:href="../module/vars.html" xlink:title="vars">
+<polygon fill="#337ab7" stroke="#337ab7" points="215.65,-145.27 161.65,-145.27 161.65,-121 215.65,-121 215.65,-145.27"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-129.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vars</text>
+</a>
+</g>
+</g>
+<!-- module~heating_energy&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge3" class="edge">
+<title>module~heating_energy&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M861.9,-39.51C848.84,-36.08 834.24,-32.84 820.62,-31.13 774.2,-25.31 761.75,-25.16 715.35,-31.13 678.83,-35.84 671.93,-49.41 635.21,-52.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M633.21,-52.13C508.15,-57.55 474.96,-31.12 351.55,-52.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-52.13C319.07,-57.55 308.71,-54.61 282.54,-71.14 262.04,-84.08 266.53,-98.4 246.54,-112.14 240.5,-116.28 233.55,-119.73 226.62,-122.54"/>
+<polygon fill="#000000" stroke="#000000" points="225.5,-119.22 217.31,-125.94 227.9,-125.8 225.5,-119.22"/>
+</g>
+<!-- module~heating_response&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge4" class="edge">
+<title>module~heating_response&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-372.13C279.35,-361.08 256.11,-397.32 189.65,-372.13"/>
+</g>
+<!-- module~heating_response&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge9" class="edge">
+<title>module~heating_response&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M714.97,-50.36C690.71,-49.99 661.45,-50.18 635.21,-52.13"/>
+</g>
+<!-- ieee_exceptions -->
+<g id="module~~heating_energy~~UsesGraph_node5" class="node">
+<title>ieee_exceptions</title>
+<g id="a_module~~heating_energy~~UsesGraph_node5"><a xlink:href="http://fortranwiki.org/fortran/show/IEEE+arithmetic" xlink:title="ieee_exceptions">
+<polygon fill="#337ab7" stroke="#337ab7" points="237.16,-306.27 140.14,-306.27 140.14,-282 237.16,-282 237.16,-306.27"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-290.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_exceptions</text>
+</a>
+</g>
+</g>
+<!-- module~heating_response&#45;&gt;ieee_exceptions -->
+<g id="module~~heating_energy~~UsesGraph_edge5" class="edge">
+<title>module~heating_response&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M633.21,-334.13C533.74,-411.98 476.99,-387.03 351.55,-372.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-372.13C298.84,-364.15 246.57,-333.65 216.15,-313.24"/>
+<polygon fill="#000000" stroke="#000000" points="218.18,-310.39 207.95,-307.61 214.21,-316.16 218.18,-310.39"/>
+</g>
+<!-- module~cold_reference -->
+<g id="module~~heating_energy~~UsesGraph_node7" class="node">
+<title>module~cold_reference</title>
+<g id="a_module~~heating_energy~~UsesGraph_node7"><a xlink:href="../module/cold_reference.html" xlink:title="cold_reference">
+<polygon fill="#337ab7" stroke="#337ab7" points="679.35,-144.27 589.08,-144.27 589.08,-120 679.35,-120 679.35,-144.27"/>
+<text xml:space="preserve" text-anchor="middle" x="634.21" y="-128.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cold_reference</text>
+</a>
+</g>
+</g>
+<!-- module~heating_response&#45;&gt;module~cold_reference -->
+<g id="module~~heating_energy~~UsesGraph_edge6" class="edge">
+<title>module~heating_response&#45;&gt;module~cold_reference</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M746.4,-64.64C724.64,-77.84 690.11,-98.81 665.3,-113.87"/>
+<polygon fill="#000000" stroke="#000000" points="663.68,-110.76 656.95,-118.94 667.32,-116.74 663.68,-110.76"/>
+</g>
+<!-- module~cold_susceptibility -->
+<g id="module~~heating_energy~~UsesGraph_node8" class="node">
+<title>module~cold_susceptibility</title>
+<g id="a_module~~heating_energy~~UsesGraph_node8"><a xlink:href="../module/cold_susceptibility.html" xlink:title="cold_susceptibility">
+<polygon fill="#337ab7" stroke="#337ab7" points="404.68,-24.27 296.41,-24.27 296.41,0 404.68,0 404.68,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">cold_susceptibility</text>
+</a>
+</g>
+</g>
+<!-- module~heating_response&#45;&gt;module~cold_susceptibility -->
+<g id="module~~heating_energy~~UsesGraph_edge7" class="edge">
+<title>module~heating_response&#45;&gt;module~cold_susceptibility</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M715.18,-43.16C703.42,-41.32 690.98,-39.52 679.35,-38.13 588.25,-27.26 482.35,-19.8 416.13,-15.74"/>
+<polygon fill="#000000" stroke="#000000" points="416.75,-12.27 406.56,-15.16 416.33,-19.26 416.75,-12.27"/>
+</g>
+<!-- module~species_moments -->
+<g id="module~~heating_energy~~UsesGraph_node9" class="node">
+<title>module~species_moments</title>
+<g id="a_module~~heating_energy~~UsesGraph_node9"><a xlink:href="../module/species_moments.html" xlink:title="species_moments">
+<polygon fill="#337ab7" stroke="#337ab7" points="403.93,-306.27 297.16,-306.27 297.16,-282 403.93,-282 403.93,-306.27"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-290.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">species_moments</text>
+</a>
+</g>
+</g>
+<!-- module~heating_response&#45;&gt;module~species_moments -->
+<g id="module~~heating_energy~~UsesGraph_edge8" class="edge">
+<title>module~heating_response&#45;&gt;module~species_moments</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M765.72,-64.77C760.33,-110.95 734.78,-271.17 635.21,-334.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M633.21,-334.13C554.78,-383.74 439.75,-338.98 384.1,-311.66"/>
+<polygon fill="#000000" stroke="#000000" points="385.96,-308.67 375.45,-307.3 382.81,-314.93 385.96,-308.67"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~heating_energy~~UsesGraph_node6" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~heating_energy~~UsesGraph_node6"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.02,-145.27 0.75,-145.27 0.75,-121 94.02,-121 94.02,-145.27"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-129.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~vars&#45;&gt;iso_fortran_env -->
+<g id="module~~heating_energy~~UsesGraph_edge10" class="edge">
+<title>module~vars&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M161.46,-133.13C145.79,-133.13 125.24,-133.13 105.95,-133.13"/>
+<polygon fill="#000000" stroke="#000000" points="106,-129.64 96,-133.14 106,-136.64 106,-129.64"/>
+</g>
+<!-- module~cold_reference&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge11" class="edge">
+<title>module~cold_reference&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M622.54,-144.59C593.42,-177.74 508.71,-268.77 418.56,-315.13 395.25,-327.12 214.18,-381.39 189.65,-372.13"/>
+</g>
+<!-- module~cold_reference&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge15" class="edge">
+<title>module~cold_reference&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M605.38,-119.61C579.84,-109 540.65,-94.94 504.82,-91.14"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-91.14C433.78,-83.81 419.99,-40.48 351.55,-52.13"/>
+</g>
+<!-- module~adaptive_kinetic -->
+<g id="module~~heating_energy~~UsesGraph_node10" class="node">
+<title>module~adaptive_kinetic</title>
+<g id="a_module~~heating_energy~~UsesGraph_node10"><a xlink:href="../module/adaptive_kinetic.html" xlink:title="adaptive_kinetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="553.08,-184.27 454.56,-184.27 454.56,-160 553.08,-160 553.08,-184.27"/>
+<text xml:space="preserve" text-anchor="middle" x="503.82" y="-168.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">adaptive_kinetic</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~heating_energy~~UsesGraph_edge12" class="edge">
+<title>module~cold_reference&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M592.94,-144.68C581.11,-148.37 568.01,-152.45 555.62,-156.31"/>
+<polygon fill="#000000" stroke="#000000" points="554.9,-152.87 546.39,-159.18 556.98,-159.55 554.9,-152.87"/>
+</g>
+<!-- module~auxiliary_normalization -->
+<g id="module~~heating_energy~~UsesGraph_node11" class="node">
+<title>module~auxiliary_normalization</title>
+<g id="a_module~~heating_energy~~UsesGraph_node11"><a xlink:href="../module/auxiliary_normalization.html" xlink:title="auxiliary_normalization">
+<polygon fill="#337ab7" stroke="#337ab7" points="418.56,-104.27 282.54,-104.27 282.54,-80 418.56,-80 418.56,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-88.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">auxiliary_normalization</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~auxiliary_normalization -->
+<g id="module~~heating_energy~~UsesGraph_edge13" class="edge">
+<title>module~cold_reference&#45;&gt;module~auxiliary_normalization</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-91.14C479.25,-88.63 453.51,-88.02 430.04,-88.28"/>
+<polygon fill="#000000" stroke="#000000" points="430.18,-84.77 420.24,-88.44 430.3,-91.77 430.18,-84.77"/>
+</g>
+<!-- module~kinetic_core -->
+<g id="module~~heating_energy~~UsesGraph_node12" class="node">
+<title>module~kinetic_core</title>
+<g id="a_module~~heating_energy~~UsesGraph_node12"><a xlink:href="../module/kinetic_core.html" xlink:title="kinetic_core">
+<polygon fill="#337ab7" stroke="#337ab7" points="388.18,-184.27 312.91,-184.27 312.91,-160 388.18,-160 388.18,-184.27"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-168.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">kinetic_core</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~kinetic_core -->
+<g id="module~~heating_energy~~UsesGraph_edge14" class="edge">
+<title>module~cold_reference&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-91.14C450.43,-85.58 398.23,-126.36 370.96,-152.1"/>
+<polygon fill="#000000" stroke="#000000" points="368.81,-149.31 364.1,-158.8 373.7,-154.32 368.81,-149.31"/>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge16" class="edge">
+<title>module~cold_susceptibility&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M296.25,-13.46C247.8,-17.37 177.01,-30.19 130.77,-70.14 100.03,-96.69 115.36,-119.12 94.77,-154.13 86.64,-167.97 75.73,-182.23 66.54,-193.37"/>
+<polygon fill="#000000" stroke="#000000" points="64.08,-190.87 60.3,-200.77 69.43,-195.39 64.08,-190.87"/>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge18" class="edge">
+<title>module~cold_susceptibility&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M303.62,-24.62C295.99,-28.13 288.6,-32.56 282.54,-38.13 255.63,-62.91 273.65,-87.59 246.54,-112.14 240.89,-117.25 233.89,-121.15 226.75,-124.12"/>
+<polygon fill="#000000" stroke="#000000" points="225.66,-120.79 217.4,-127.43 227.99,-127.39 225.66,-120.79"/>
+</g>
+<!-- module~nrtype -->
+<g id="module~~heating_energy~~UsesGraph_node13" class="node">
+<title>module~nrtype</title>
+<g id="a_module~~heating_energy~~UsesGraph_node13"><a xlink:href="../module/nrtype.html" xlink:title="nrtype">
+<polygon fill="#337ab7" stroke="#337ab7" points="215.65,-103.27 161.65,-103.27 161.65,-79 215.65,-79 215.65,-103.27"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-87.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrtype</text>
+</a>
+</g>
+</g>
+<!-- module~cold_susceptibility&#45;&gt;module~nrtype -->
+<g id="module~~heating_energy~~UsesGraph_edge17" class="edge">
+<title>module~cold_susceptibility&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M314.35,-24.66C303.97,-28.66 292.68,-33.31 282.54,-38.13 260.72,-48.52 237.07,-62.05 219.1,-72.84"/>
+<polygon fill="#000000" stroke="#000000" points="217.51,-69.71 210.78,-77.89 221.15,-75.69 217.51,-69.71"/>
+</g>
+<!-- module~species_moments&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge19" class="edge">
+<title>module~species_moments&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M314.38,-306.72C304,-310.71 292.7,-315.35 282.54,-320.13 239.74,-340.3 233.92,-388.83 189.65,-372.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M187.65,-372.13C123.2,-347.82 78.18,-273.72 58.91,-236.28"/>
+<polygon fill="#000000" stroke="#000000" points="62.22,-235.09 54.63,-227.7 55.96,-238.21 62.22,-235.09"/>
+</g>
+<!-- module~species_moments&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge21" class="edge">
+<title>module~species_moments&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M301.62,-281.62C294.56,-278.15 287.88,-273.74 282.54,-268.13 247.64,-231.5 280.08,-198.02 246.54,-160.13 241.07,-153.96 233.89,-149.08 226.47,-145.27"/>
+<polygon fill="#000000" stroke="#000000" points="227.93,-142.08 217.37,-141.18 225.06,-148.47 227.93,-142.08"/>
+</g>
+<!-- module~species_moments&#45;&gt;ieee_exceptions -->
+<g id="module~~heating_energy~~UsesGraph_edge20" class="edge">
+<title>module~species_moments&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M296.75,-294.13C281.38,-294.13 264.49,-294.13 248.76,-294.13"/>
+<polygon fill="#000000" stroke="#000000" points="249.06,-290.64 239.06,-294.14 249.06,-297.64 249.06,-290.64"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge22" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-254.13C259.91,-276.61 151.9,-249.58 92.66,-230.29"/>
+<polygon fill="#000000" stroke="#000000" points="93.86,-227 83.26,-227.15 91.64,-233.64 93.86,-227"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge27" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M458.07,-159.52C445.38,-156.34 431.51,-153.24 418.56,-151.13 351.74,-140.26 272.84,-135.89 227.29,-134.18"/>
+<polygon fill="#000000" stroke="#000000" points="227.54,-130.69 217.43,-133.84 227.3,-137.69 227.54,-130.69"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_exceptions -->
+<g id="module~~heating_energy~~UsesGraph_edge23" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-254.13C316.05,-262.53 278.61,-271.9 248.38,-279.46"/>
+<polygon fill="#000000" stroke="#000000" points="247.91,-275.97 239.05,-281.79 249.6,-282.76 247.91,-275.97"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~kinetic_core -->
+<g id="module~~heating_energy~~UsesGraph_edge26" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M454.12,-172.13C436.7,-172.13 417.07,-172.13 399.69,-172.13"/>
+<polygon fill="#000000" stroke="#000000" points="400.15,-168.64 390.15,-172.14 400.15,-175.64 400.15,-168.64"/>
+</g>
+<!-- module~bessel_cache -->
+<g id="module~~heating_energy~~UsesGraph_node14" class="node">
+<title>module~bessel_cache</title>
+<g id="a_module~~heating_energy~~UsesGraph_node14"><a xlink:href="../module/bessel_cache.html" xlink:title="bessel_cache">
+<polygon fill="#337ab7" stroke="#337ab7" points="391.93,-226.27 309.16,-226.27 309.16,-202 391.93,-202 391.93,-226.27"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-210.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessel_cache</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~bessel_cache -->
+<g id="module~~heating_energy~~UsesGraph_edge24" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~bessel_cache</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M457.43,-184.74C440.36,-189.48 420.83,-194.9 403.23,-199.79"/>
+<polygon fill="#000000" stroke="#000000" points="402.43,-196.38 393.73,-202.42 404.3,-203.12 402.43,-196.38"/>
+</g>
+<!-- module~harmonic_selection -->
+<g id="module~~heating_energy~~UsesGraph_node15" class="node">
+<title>module~harmonic_selection</title>
+<g id="a_module~~heating_energy~~UsesGraph_node15"><a xlink:href="../module/harmonic_selection.html" xlink:title="harmonic_selection">
+<polygon fill="#337ab7" stroke="#337ab7" points="246.54,-226.27 130.77,-226.27 130.77,-202 246.54,-202 246.54,-226.27"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-210.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">harmonic_selection</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~harmonic_selection -->
+<g id="module~~heating_energy~~UsesGraph_edge25" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M489.55,-184.53C473.76,-198.65 446.07,-221.54 418.56,-235.13 390.81,-248.85 381.58,-246.61 351.55,-254.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-254.13C328.05,-259.53 274.01,-243.74 234.69,-230.44"/>
+<polygon fill="#000000" stroke="#000000" points="236.05,-227.2 225.46,-227.26 233.78,-233.82 236.05,-227.2"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge28" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M333.47,-104.48C305.89,-124.65 247.02,-163.51 189.65,-174.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M187.65,-174.13C156.6,-179.89 122.5,-189.62 95.82,-198.04"/>
+<polygon fill="#000000" stroke="#000000" points="94.76,-194.71 86.31,-201.1 96.9,-201.37 94.76,-194.71"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge30" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M300.71,-104.66C276.93,-110.76 248.81,-117.97 226.81,-123.61"/>
+<polygon fill="#000000" stroke="#000000" points="226.21,-120.15 217.39,-126.02 227.95,-126.93 226.21,-120.15"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;module~nrtype -->
+<g id="module~~heating_energy~~UsesGraph_edge29" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M282.2,-91.71C263.39,-91.6 243.61,-91.47 227.2,-91.37"/>
+<polygon fill="#000000" stroke="#000000" points="227.43,-87.87 217.41,-91.31 227.39,-94.87 227.43,-87.87"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge31" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.69,-169.07C280.06,-167.19 231.28,-166.42 189.65,-174.13"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge34" class="edge">
+<title>module~kinetic_core&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.46,-163.09C286.86,-156.85 252.94,-148.57 227.23,-142.3"/>
+<polygon fill="#000000" stroke="#000000" points="228.07,-138.9 217.53,-139.93 226.41,-145.7 228.07,-138.9"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_exceptions -->
+<g id="module~~heating_energy~~UsesGraph_edge32" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.42,-179.77C302.21,-182.9 291.5,-187.23 282.54,-193.13 262.01,-206.67 263.08,-216.94 246.54,-235.13 234.64,-248.22 220.88,-262.51 209.88,-273.75"/>
+<polygon fill="#000000" stroke="#000000" points="207.66,-271.02 203.14,-280.6 212.65,-275.93 207.66,-271.02"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~nrtype -->
+<g id="module~~heating_energy~~UsesGraph_edge33" class="edge">
+<title>module~kinetic_core&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M330.35,-159.59C310.06,-146.66 276.87,-126.43 246.54,-112.14 240.17,-109.13 233.24,-106.26 226.48,-103.66"/>
+<polygon fill="#000000" stroke="#000000" points="228.11,-100.54 217.52,-100.34 225.68,-107.1 228.11,-100.54"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge35" class="edge">
+<title>module~bessel_cache&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M308.88,-202.09C265.48,-189.54 201.37,-171.97 189.65,-174.13"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~vars -->
+<g id="module~~heating_energy~~UsesGraph_edge37" class="edge">
+<title>module~bessel_cache&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M309.01,-204.57C299.98,-201.59 290.67,-197.82 282.54,-193.13 263.73,-182.3 264.54,-172.26 246.54,-160.13 240.2,-155.87 233.09,-151.92 226.09,-148.43"/>
+<polygon fill="#000000" stroke="#000000" points="227.93,-145.43 217.4,-144.32 224.94,-151.76 227.93,-145.43"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~harmonic_selection -->
+<g id="module~~heating_energy~~UsesGraph_edge36" class="edge">
+<title>module~bessel_cache&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M308.79,-214.13C293.38,-214.13 275.39,-214.13 258.13,-214.13"/>
+<polygon fill="#000000" stroke="#000000" points="258.45,-210.64 248.45,-214.14 258.45,-217.64 258.45,-210.64"/>
+</g>
+<!-- module~harmonic_selection&#45;&gt;ieee_arithmetic -->
+<g id="module~~heating_energy~~UsesGraph_edge38" class="edge">
+<title>module~harmonic_selection&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M130.61,-214.13C122.63,-214.13 114.43,-214.13 106.44,-214.13"/>
+<polygon fill="#000000" stroke="#000000" points="106.44,-210.64 96.44,-214.14 106.44,-217.64 106.44,-210.64"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmoduleheating_energyUsesGraph = svgPanZoom('#moduleheating_energyUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="511pt" height="32pt"
+ viewBox="0.00 0.00 511.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 506.88,-28.27 506.88,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24.27 0,-24.27 0,0 54,0 54,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="144.13,-24.27 71.87,-24.27 71.87,0 144.13,0 144.13,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="108" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="231.63,-24.27 162.37,-24.27 162.37,0 231.63,0 231.63,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="197" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="306.26,-24.27 249.74,-24.27 249.74,0 306.26,0 306.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="278" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381.26,-24.27 324.74,-24.27 324.74,0 381.26,0 381.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="353" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="502.88,-24.27 399.12,-24.27 399.12,0 502.88,0 502.88,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="451" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: module~~heating_energy~~UsedByGraph Pages: 1 -->
+<svg id="moduleheating_energyUsedByGraph" width="393pt" height="176pt"
+ viewBox="0.00 0.00 393.00 176.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~heating_energy~~UsedByGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 172.27)">
+<title>module~~heating_energy~~UsedByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-172.27 388.81,-172.27 388.81,4 -4,4"/>
+<!-- module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_node1" class="node">
+<title>module~heating_energy</title>
+<polygon fill="none" stroke="black" points="94.77,-86.27 0,-86.27 0,-62 94.77,-62 94.77,-86.27"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-70.53" font-family="Helvetica,sans-Serif" font-size="10.50">heating_energy</text>
+</g>
+<!-- module~heating_diagnostics -->
+<g id="module~~heating_energy~~UsedByGraph_node2" class="node">
+<title>module~heating_diagnostics</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node2"><a xlink:href="../module/heating_diagnostics.html" xlink:title="heating_diagnostics">
+<polygon fill="#337ab7" stroke="#337ab7" points="248.04,-126.27 130.77,-126.27 130.77,-102 248.04,-102 248.04,-126.27"/>
+<text xml:space="preserve" text-anchor="middle" x="189.4" y="-110.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_diagnostics</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_edge1" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M144.49,-101.59C131.32,-97.83 116.72,-93.66 102.96,-89.73"/>
+<polygon fill="#000000" stroke="#000000" points="104.18,-86.43 93.6,-87.05 102.26,-93.17 104.18,-86.43"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="module~~heating_energy~~UsedByGraph_node3" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node3"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="384.81,-168.27 284.04,-168.27 284.04,-144 384.81,-144 384.81,-168.27"/>
+<text xml:space="preserve" text-anchor="middle" x="334.42" y="-152.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_edge2" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M283.82,-158.19C241.71,-158.27 180.4,-154.4 130.77,-135.13 107.33,-126.04 84.67,-108.4 69.07,-94.43"/>
+<polygon fill="#000000" stroke="#000000" points="71.57,-91.97 61.86,-87.74 66.81,-97.1 71.57,-91.97"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~heating_energy~~UsedByGraph_edge6" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M290.51,-143.53C275.95,-139.26 259.49,-134.42 244.18,-129.93"/>
+<polygon fill="#000000" stroke="#000000" points="245.32,-126.61 234.74,-127.15 243.35,-133.33 245.32,-126.61"/>
+</g>
+<!-- proc~om_scan -->
+<g id="module~~heating_energy~~UsedByGraph_node4" class="node">
+<title>proc~om_scan</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node4"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="363.81,-84.27 305.04,-84.27 305.04,-60 363.81,-60 363.81,-84.27"/>
+<text xml:space="preserve" text-anchor="middle" x="334.42" y="-68.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_edge3" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M304.79,-72.34C258.57,-72.66 166.62,-73.31 106.32,-73.73"/>
+<polygon fill="#000000" stroke="#000000" points="106.56,-70.23 96.59,-73.8 106.61,-77.23 106.56,-70.23"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~heating_energy~~UsedByGraph_edge7" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M304.83,-80.53C287.48,-85.63 264.79,-92.29 244.2,-98.34"/>
+<polygon fill="#000000" stroke="#000000" points="243.4,-94.92 234.79,-101.1 245.37,-101.64 243.4,-94.92"/>
+</g>
+<!-- proc~scan_read -->
+<g id="module~~heating_energy~~UsedByGraph_node5" class="node">
+<title>proc~scan_read</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node5"><a xlink:href="../proc/scan_read.html" xlink:title="scan_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="222.16,-46.27 156.64,-46.27 156.64,-22 222.16,-22 222.16,-46.27"/>
+<text xml:space="preserve" text-anchor="middle" x="189.4" y="-30.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_read</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_read&#45;&gt;module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_edge4" class="edge">
+<title>proc~scan_read&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M156.28,-43.31C140.64,-47.78 121.38,-53.28 103.48,-58.4"/>
+<polygon fill="#000000" stroke="#000000" points="102.67,-54.99 94.02,-61.1 104.59,-61.72 102.67,-54.99"/>
+</g>
+<!-- proc~test_disp -->
+<g id="module~~heating_energy~~UsedByGraph_node6" class="node">
+<title>proc~test_disp</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node6"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="363.43,-24.27 305.41,-24.27 305.41,0 363.43,0 363.43,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="334.42" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_energy -->
+<g id="module~~heating_energy~~UsedByGraph_edge5" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M305,-6.85C264.96,-0.61 190.2,6.63 130.77,-13.13 106.63,-21.17 83.76,-39.25 68.27,-53.65"/>
+<polygon fill="#000000" stroke="#000000" points="65.89,-51.08 61.14,-60.55 70.76,-56.11 65.89,-51.08"/>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_diagnostics -->
+<g id="module~~heating_energy~~UsedByGraph_edge9" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M315.89,-24.64C291.23,-42.23 246.09,-74.42 217.2,-95.02"/>
+<polygon fill="#000000" stroke="#000000" points="215.43,-91.99 209.32,-100.65 219.49,-97.69 215.43,-91.99"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="module~~heating_energy~~UsedByGraph_node7" class="node">
+<title>proc~read_in_params</title>
+<g id="a_module~~heating_energy~~UsedByGraph_node7"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="382.56,-126.27 286.29,-126.27 286.29,-102 382.56,-102 382.56,-126.27"/>
+<text xml:space="preserve" text-anchor="middle" x="334.42" y="-110.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;module~heating_diagnostics -->
+<g id="module~~heating_energy~~UsedByGraph_edge8" class="edge">
+<title>proc~read_in_params&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M285.8,-114.13C277.5,-114.13 268.7,-114.13 259.95,-114.13"/>
+<polygon fill="#000000" stroke="#000000" points="260.03,-110.64 250.03,-114.14 260.03,-117.64 260.03,-110.64"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="511pt" height="32pt"
+ viewBox="0.00 0.00 511.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 506.88,-28.27 506.88,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24.27 0,-24.27 0,0 54,0 54,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="144.13,-24.27 71.87,-24.27 71.87,0 144.13,0 144.13,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="108" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="231.63,-24.27 162.37,-24.27 162.37,0 231.63,0 231.63,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="197" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="306.26,-24.27 249.74,-24.27 249.74,0 306.26,0 306.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="278" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381.26,-24.27 324.74,-24.27 324.74,0 381.26,0 381.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="353" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="502.88,-24.27 399.12,-24.27 399.12,0 502.88,0 502.88,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="451" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+        <section>
+          <h2>Variables</h2>
+            <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_ok"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_ok</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_invalid"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_invalid</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_no_field"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_no_field</strong></td>
+<td> =</td>
+                <td>2</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_zero_real"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_zero_real</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_response"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_response</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_derivative"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_derivative</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_unresolved"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_unresolved</strong></td>
+<td> =</td>
+                <td>6</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_collision"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_collision</strong></td>
+<td> =</td>
+                <td>7</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_root_failed"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_root_failed</strong></td>
+<td> =</td>
+                <td>8</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heat_arithmetic"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>heat_arithmetic</strong></td>
+<td> =</td>
+                <td>9</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_ok"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_ok</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_cold"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_cold</strong></td>
+<td> =</td>
+                <td>1</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_absent"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_absent</strong></td>
+<td> =</td>
+                <td>2</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_failed"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_failed</strong></td>
+<td> =</td>
+                <td>3</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_derivative"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_derivative</strong></td>
+<td> =</td>
+                <td>4</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_energy"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_energy</strong></td>
+<td> =</td>
+                <td>5</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_heat_applicability"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>species_heat_applicability</strong></td>
+<td> =</td>
+                <td>6</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-derivative_tolerance"></span>
+              real,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>derivative_tolerance</strong></td>
+<td> =</td>
+                <td>1.e-6</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-derivative_levels"></span>
+              integer,
+            </td>
+              <td>private,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>derivative_levels</strong></td>
+<td> =</td>
+                <td>13</td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+        </section>
+        <br>
+
+
+
+
+        <section>
+          <h2>Derived Types</h2>
+              <div class="card">
+    <div class="card-header codesum">
+      <span class="anchor" id="type-heating_result"></span>
+      <h3>
+        type, public&nbsp;::&nbsp;
+        <a href='../type/heating_result.html'>heating_result</a>
+        
+      </h3>
+    </div>
+    <div class="card-body">
+      
+
+        <h4>Components</h4>
+          <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-status~6"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>status</strong></td>
+<td> =</td>
+                <td>heat_invalid</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-field_status"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>field_status</strong></td>
+<td> =</td>
+                <td>-1</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-applicability"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>applicability</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-response_status"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>response_status</strong></td>
+<td> =</td>
+                <td>0</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-total~4"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>total</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-electric~5"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>electric</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-magnetic~6"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>magnetic</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_total"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>species_total</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-f_e"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>f_e</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-f_b"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>f_b</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-f_species"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>f_species</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-f_e_abs"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>f_e_abs</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-uncertainty"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>uncertainty</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-total_power"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>total_power</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-gamma_est"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>gamma_est</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ratio"></span>
+              real,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ratio</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species~11"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>species</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-fractions"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>fractions</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-q~5"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>q</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-power~2"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>power</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-channels"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>channels</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-raw_channels"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>raw_channels</strong>(:,:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-matrix_error"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>matrix_error</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-projection_error"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>projection_error</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-step"></span>
+              real,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>step</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-species_status"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+              allocatable
+            </td>
+            <td>::</td>
+            <td><strong>species_status</strong>(:)</td>
+                <td></td>
+                <td></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-validate_heating_gamma_ratio_max"></span> <h3>public  subroutine <a href='../proc/validate_heating_gamma_ratio_max.html'>validate_heating_gamma_ratio_max</a>(value)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Kept in this IEEE-preserving module, including for optimized input readers.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-value~11"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>value</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-reset_heating"></span> <h3>public  subroutine <a href='../proc/reset_heating.html'>reset_heating</a>(r, count, status)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r~6"></span>
+              type(<a href='../type/heating_result.html'>heating_result</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>r</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-count~3"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>count</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-status~7"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>status</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-calculate_heating"></span> <h3>public  subroutine <a href='../proc/calculate_heating.html'>calculate_heating</a>(spec, w, kpar, kperp, a, e, r, bessel, zet_in, auxiliary_beta, heating_gamma_ratio_max)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~3"></span>
+              type(<a href='../type/specie.html'>specie</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-w~12"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>w</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kpar~9"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kpar</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kperp~8"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kperp</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-a~12"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>a</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-e~10"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>e</strong>(3)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r~7"></span>
+              type(<a href='../type/heating_result.html'>heating_result</a>),
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>r</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-bessel~7"></span>
+              procedure(<a href='../interface/bessel_callback.html'>bessel_callback</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>bessel</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-zet_in~7"></span>
+              procedure(<a href='../interface/z_callback.html'>z_callback</a>)
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>zet_in</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-auxiliary_beta~2"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>auxiliary_beta</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-heating_gamma_ratio_max~5"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>heating_gamma_ratio_max</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-finish_energy"></span> <h3>public  subroutine <a href='../proc/finish_energy.html'>finish_energy</a>(r)  
+</h3></div>
+    <div class="card-body">
+          
+  <p>Explicit component/fraction API, also useful for cancellation tests.</p>
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-r~8"></span>
+              type(<a href='../type/heating_result.html'>heating_result</a>),
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>r</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-heating_channels"></span> <h3>public  subroutine <a href='../proc/heating_channels.html'>heating_channels</a>(e, low, channels)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-e~11"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>e</strong>(3)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-low~4"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>low</strong>(3,3,-1:1)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-channels~2"></span>
+              real,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>channels</strong>(7)</td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

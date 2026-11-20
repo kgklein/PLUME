@@ -1,0 +1,495 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Kinetic absorption/emission and electromagnetic wave energy &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Kinetic absorption/emission and electromagnetic wave energy</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Kinetic absorption/emission and electromagnetic wave energy</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link active disabled" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="kinetic-absorptionemission-and-electromagnetic-wave-energy"></a></p>
+<h1>Kinetic absorption/emission and electromagnetic wave energy</h1>
+<p><a href="index.html">Manual home</a> · <a href="eigenfunctions.html">Eigenfunctions</a> · <a href="output.html#energy-companion">Energy file schema</a></p>
+<p><a id="what-is-calculated"></a></p>
+<h2>What is calculated</h2>
+<p><code>heating_convention='corrected'</code> is the default, independently of 
+<script type="math/tex">Z</script> method,
+Bessel mode, and input normalization. 
+It supports <strong>collisionless</strong> kinetic, cold, and mixed plasmas, 
+including cold references, at single-wavevector diagnostic calls and serial/2D wavevector scans. 
+Collisionless, all-kinetic <code>rho_ref</code> runs also support serial and 2D plasma-parameter
+scans, with the current plasma held fixed for each frequency derivative. See
+<a href="modes.html#repeated-maps-and-historical-parameterradial-workflows">scan semantics</a>.
+Each warm population retains its full species absorption/emission diagnostic and the original seven selected channels. 
+Every physical species, including cold ones, contributes to formal wave energy.</p>
+<p>These are weak-mode linear response diagnostics, not dimensional thermodynamic
+heating power, entropy production or an exact conserved energy for arbitrary
+unstable waves. Cold-fluid reversible energy exchange is not kinetic heating.
+Cold species' <script type="math/tex">P_s</script> and seven channels are NaN; a fully cold run has no available
+kinetic-heating total. This differs physically from a calculated zero for a
+warm population at a nonabsorbing point.</p>
+<p><a id="the-accepted-mode-and-real-frequency-snapshots"></a></p>
+<h2>The accepted mode and real-frequency snapshots</h2>
+<p>Use the normalized mode <script type="math/tex">w=w_r+i\gamma/\Omega_R</script>,
+<script type="math/tex">\boldsymbol\kappa=\mathbf k d_R</script>, <script type="math/tex">a=v_{A,R}/c</script>, and
+<script type="math/tex">\mathbf E=\delta\mathbf E/\delta E_x</script>, <script type="math/tex">E_x=1</script>, from the full-plasma accepted
+<strong>complex-frequency</strong> eigenfunction. In this section <script type="math/tex">w_r</script> means <script type="math/tex">\omega_r/\Omega_R</script>;
+<script type="math/tex">\gamma</script> in formulas involving <script type="math/tex">w</script> is likewise normalized. The susceptibility
+snapshots below are evaluated at <strong>real laboratory <script type="math/tex">w_r</script></strong>, with the same fixed
+physical wavevector and plasma. We do not replace that laboratory frequency by
+a species Doppler frequency for the energy derivative.</p>
+<p>Define
+<script type="math/tex">\chi_{H,s}=(\chi_s+\chi_s^\dagger)/2</script> and
+<script type="math/tex">\chi_{A,s}=(\chi_s-\chi_s^\dagger)/(2i)</script>. The dagger is complex conjugate
+transpose; this is distinct from the ordinary tensor transpose symmetries.
+The unnormalized absorption/emission quadratic form is</p>
+<p>
+<script type="math/tex; mode=display">
+ Q_{\mathrm{abs},s}=\mathbf E^\dagger\chi_{A,s}(w_r,\mathbf k)\mathbf E
+ =\operatorname{Im}[\mathbf E^\dagger\chi_s(w_r,\mathbf k)\mathbf E].
+</script>
+</p>
+<p>The companion column <code>Q_sN</code> denotes this numerator for species <script type="math/tex">N</script>, <strong>not</strong> the
+signed input charge ratio <code>Qs</code>. It is evaluated locally without overwriting the
+accepted-mode global susceptibility or wave matrix.</p>
+<p><a id="complete-formal-wave-energy"></a></p>
+<h2>Complete formal wave energy</h2>
+<p>For the conventional real-frequency homogeneous-plasma weak-mode expression,</p>
+<p>
+<script type="math/tex; mode=display">
+ W=\frac{|\delta E_x|^2}{16\pi}\,H,\qquad
+ H=H_E+H_B+\sum_s H_s,
+</script>
+<script type="math/tex; mode=display">
+ H_E=\mathbf E^\dagger\mathbf E,\quad
+ \mathbf B_r=\frac{\boldsymbol\kappa\times\mathbf E}{a w_r},\quad
+ H_B=\mathbf B_r^\dagger\mathbf B_r,\quad
+ H_s=\mathbf E^\dagger
+       \frac{\partial[w_r\chi_{H,s}(w_r,\mathbf k)]}{\partial w_r}\mathbf E.
+</script>
+</p>
+<p>
+<script type="math/tex">W</script> is in Gaussian physical field-energy units for the chosen physical <script type="math/tex">\delta E_x</script>.
+<script type="math/tex">H</script> and its terms are dimensionless. <script type="math/tex">H_E</script> is the <strong>vacuum electric-field</strong> term
+from differentiating the identity in <script type="math/tex">\epsilon</script>. <script type="math/tex">H_B</script> uses real <script type="math/tex">w_r</script> even when the
+mode has small nonzero <script type="math/tex">\gamma</script>; it is not obtained by blindly reusing the magnetic
+field evaluated with complex <script type="math/tex">w</script>. <script type="math/tex">H_s</script> includes the full species dielectric
+response, drifts and anisotropy. Every cold/kinetic species contributes once.
+No auxiliary normalization scale is a population or energy term.</p>
+<p>The derivative fixes <script type="math/tex">\mathbf k</script>, species densities/temperatures/anisotropies/drifts,
+background <script type="math/tex">B_0</script> and reference scales. Dimensionless differentiation introduces no
+extra <script type="math/tex">\Omega_R</script> factor because <script type="math/tex">d(\omega\chi)/d\omega=d(w\chi)/dw</script>. The expression
+is conventional for weakly damped/growing isolated modes; its continuation as a
+formal quadratic form is not an exact strong-mode conservation law.</p>
+<p><a id="signed-fractions-and-the-electric-magnitude-measure"></a></p>
+<p>For stationary collisionless cold species at real frequency away from poles,
+the same expression has an independent bulk-energy identity:</p>
+<p>
+<script type="math/tex; mode=display">
+ H_s=\frac{D_s}{\mu_s a^2}\,\mathbf v_s^\dagger\mathbf v_s,
+ \qquad
+ W_{\mathrm{bulk},s}=\frac{n_{0s}m_s}{4}|\delta\mathbf U_s|^2.
+</script>
+</p>
+<p>Here <script type="math/tex">\mathbf v_s</script> is the normalized fluid velocity defined on <a href="eigenfunctions.html">Eigenfunctions</a>.
+The second expression is time-averaged oscillatory bulk kinetic energy for
+complex-amplitude perturbations; multiplying <script type="math/tex">H_s</script> by <script type="math/tex">\lvert\delta E_x\rvert^2/(16\pi)</script>
+gives it. This is reversible cold bulk energy, not kinetic heating. The simple
+positive identity assumes zero equilibrium drift; drifting formal energy need
+not be positive and must use the full dielectric derivative.</p>
+<h3>Signed fractions and the electric magnitude measure</h3>
+<p>The companion exposes <code>H_total</code>, <code>H_E</code>, <code>H_B</code>, <code>H_species_total</code> and each <script type="math/tex">H_s</script>, together
+with <script type="math/tex">f_E=H_E/H</script>, <script type="math/tex">f_B=H_B/H</script>, <script type="math/tex">f_{\mathrm{species}}=\sum_s H_s/H</script> and <script type="math/tex">f_s=H_s/H</script>. These are <strong>signed
+fractions of the formal quadratic form</strong>. Negative-energy/drifting modes may
+have negative terms or fractions outside <script type="math/tex">[0,1]</script>. They are not clamped. When <script type="math/tex">H</script>
+is resolved, <script type="math/tex">f_E+f_B+f_{\mathrm{species}}=1</script> within numerical precision.</p>
+<p>A separate noncancelling contribution measure is</p>
+<p>
+<script type="math/tex; mode=display">
+ f_{E,\mathrm{abs}}=
+ \frac{H_E}{|H_E|+|H_B|+\sum_s|H_s|}.
+</script>
+</p>
+<p>It measures electric contribution relative to individual term magnitudes; it
+is <strong>not</strong> a physical energy fraction. It is useful when signed terms nearly
+cancel. A zero/nonfinite denominator is unavailable. Negative <script type="math/tex">H</script> is not itself
+failure; unresolved <script type="math/tex">H</script> or near-zero <script type="math/tex">H</script> relative to its numerical uncertainty
+makes signed fractions and normalized <script type="math/tex">P_s</script> unavailable, without a small floor.</p>
+<p><a id="species-normalization-and-energy-consistency"></a></p>
+<h2>Species normalization and energy consistency</h2>
+<p>The corrected dimensionless species diagnostic is</p>
+<p>
+<script type="math/tex; mode=display">
+ P_s=\frac{Q_{\mathrm{abs},s}}{H}.
+</script>
+</p>
+<p>There is no extra <script type="math/tex">\omega</script>, wave period, <script type="math/tex">2\pi</script> or factor of two. For a weak isolated
+mode, mutually consistent field/particle energy transfer gives approximately</p>
+<p>
+<script type="math/tex; mode=display">
+ \frac{\gamma}{\omega_r}\simeq-\sum_{s\ \mathrm{kinetic}}P_s.
+</script>
+</p>
+<p>Cold collisionless real-frequency response is Hermitian away from poles; cold
+species supply reversible energy in <script type="math/tex">H</script>, not a kinetic absorption channel in that
+sum. This approximate relation is independently <strong>checked</strong>, not imposed to
+create closure. Reactive/degenerate instabilities, strong damping, branch
+interference or unresolved responses can invalidate the interpretation.
+A good energy-balance residual alone does not prove applicability.</p>
+<p><a id="the-seven-selected-channels"></a></p>
+<h2>The seven selected channels</h2>
+<p>Each numerator uses the <strong>same</strong> <script type="math/tex">w_r</script> snapshots and the accepted mode's <script type="math/tex">\mathbf E</script>, then
+is divided by the <strong>same <script type="math/tex">H</script></strong> as the full species <script type="math/tex">P_s</script>. Here <script type="math/tex">\chi_{ij,n}</script> denotes the
+single signed harmonic susceptibility at real <script type="math/tex">w_r</script>, <script type="math/tex">\mathbf E_\perp=(E_x,E_y,0)</script>, and
+conjugate field factors are explicit.</p>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Unnormalized numerator</th>
+<th>Historical interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>
+<script type="math/tex">\lvert E_y\rvert^2\operatorname{Im}\chi_{yy,0}</script>
+</td>
+<td>
+<script type="math/tex">n=0</script> TTD</td>
+</tr>
+<tr>
+<td>2</td>
+<td>
+<script type="math/tex">\operatorname{Im}[E_y^* E_z\chi_{yz,0}]</script>
+</td>
+<td>
+<script type="math/tex">n=0</script> TTD cross</td>
+</tr>
+<tr>
+<td>3</td>
+<td>
+<script type="math/tex">\operatorname{Im}[E_z^* E_y\chi_{zy,0}]</script>
+</td>
+<td>
+<script type="math/tex">n=0</script> LD cross</td>
+</tr>
+<tr>
+<td>4</td>
+<td>
+<script type="math/tex">\lvert E_z\rvert^2\operatorname{Im}\chi_{zz,0}</script>
+</td>
+<td>
+<script type="math/tex">n=0</script> LD</td>
+</tr>
+<tr>
+<td>5</td>
+<td>
+<script type="math/tex">\operatorname{Im}[\mathbf E^\dagger\chi_0\mathbf E]</script>
+</td>
+<td>Full <script type="math/tex">n=0</script>
+</td>
+</tr>
+<tr>
+<td>6</td>
+<td>
+<script type="math/tex">\operatorname{Im}[\mathbf E_\perp^\dagger\chi_{+1}\mathbf E_\perp]</script>
+</td>
+<td>Transverse <script type="math/tex">n=+1</script> cyclotron</td>
+</tr>
+<tr>
+<td>7</td>
+<td>
+<script type="math/tex">\operatorname{Im}[\mathbf E_\perp^\dagger\chi_{-1}\mathbf E_\perp]</script>
+</td>
+<td>Transverse <script type="math/tex">n=-1</script> cyclotron</td>
+</tr>
+</tbody>
+</table>
+<p>TTD denotes transit-time damping and LD Landau damping in this diagnostic
+naming; the signed quantities can also describe emission. At the corresponding
+<script type="math/tex">n=0</script> tensor structure, channels 1–4 sum to channel 5. Channels 5–7 do <strong>not</strong>
+generally sum to species-total <script type="math/tex">P_s</script>: higher harmonics and <script type="math/tex">\pm1</script> longitudinal/cross
+components are omitted intentionally. Summing all seven double-counts <script type="math/tex">n=0</script>.
+The full species total remains separate. These selected diagnostics are not
+redefined to force total closure.</p>
+<p>Corrected snapshots initialize every harmonic tensor entry, including the five
+unused <script type="math/tex">n=0</script> entries, and retain exact-parallel analytic <script type="math/tex">n=0,\pm1</script> limits where the
+mixed/cold dispersion supports them. There are no <script type="math/tex">k_\perp</script>/<script type="math/tex">k_\parallel</script> floors. Derivative
+calls cannot overwrite the central total/harmonic snapshots. <code>low_n</code> controls
+whether seven channels are written in the old mode block; the corrected companion
+still contains all seven. FPC harmonic evaluation is a different calculation.</p>
+<p><a id="derivatives-convergence-and-isolation"></a></p>
+<h2>Derivatives, convergence and isolation</h2>
+<p>Kinetic energy derivatives use centered differences of <script type="math/tex">w_r\chi_H</script> and Richardson
+extrapolation. For a species let <script type="math/tex">F(w)=w\chi_H(w)</script>, fixed <script type="math/tex">\mathbf k</script>/plasma, and <script type="math/tex">h>0</script>:</p>
+<p>
+<script type="math/tex; mode=display">
+ C(h)=\frac{F(w_r+h)-F(w_r-h)}{2h},\qquad
+ R(h)=\frac{4C(h)-C(2h)}{3}.
+</script>
+</p>
+<p>The implementation tries 13 halving relative steps from <script type="math/tex">0.064</script> to <script type="math/tex">0.000015625</script>,
+requiring successive estimates to resolve both matrix Frobenius norm and the
+<script type="math/tex">\mathbf E</script>-contracted scalar at tolerance <script type="math/tex">10^{-6}</script>, with comparison scales <script type="math/tex">\max(1,\text{norm/value})</script>.
+It selects the best stable window, not necessarily the smallest step. Exported
+<code>dmatrix_s</code>, <code>dproject_s</code> and <code>dstep_s</code> describe that window; uncertainty is an
+empirical numerical resolution estimate, not a rigorous error bound. Poles,
+Bessel/<script type="math/tex">Z</script> errors and cancellation can defeat convergence. No fallback silently
+substitutes the historical normalizer.</p>
+<p>Cold derivatives use the analytic differentiation of the normalized fluid
+momentum/continuity response. Exact real-frequency poles remain failures.
+The finite-difference sampling of kinetic species does not unnecessarily evaluate
+cold responses at off-center frequencies. Corrected diagnostic work is local:
+accepted-mode <code>susc</code>, <code>susc_low</code>, <code>lam</code> and dispersion status remain at the converged
+mode. Failed energy/heating does not invalidate root, field or species moments.</p>
+<p><a id="availability-applicability-and-statuses"></a></p>
+<h2>Availability, applicability and statuses</h2>
+<p>Corrected diagnostics require <code>collision_type=0</code>. They reject finite-rate physics
+rather than making new collisional claims. Legacy all-kinetic collisional
+behavior can be requested explicitly, with <a href="limitations.html">known limitations</a>.</p>
+<p>Failures include <script type="math/tex">w_r=0</script>, real cold poles, nonfinite response, unresolved derivative,
+unresolved <script type="math/tex">H</script> and unavailable <script type="math/tex">E_x=1</script> field. A valid complex dispersion root may
+therefore have unavailable real-frequency energy/heating. A cold singularity at
+<script type="math/tex">w_r</script> is not concealed by the mode's finite imaginary part.</p>
+<p>Applicability bit 1 is set for <script type="math/tex">\lvert\gamma/w_r\rvert>0.05</script>. Bit 2 flags weak-balance or
+near-reactive inconsistency. Formal energy can remain resolved (<code>energy_status=0</code>)
+while an applicability bit makes normalized warm <script type="math/tex">P_s</script>/channels NaN. Raw <script type="math/tex">Q</script> and <script type="math/tex">H</script>
+terms remain informative but must not be presented as validated thermodynamic
+heating. A reactive mode is not repaired by dividing by an artificial <script type="math/tex">H</script> floor.
+Numerical energy status and physical applicability are separate fields; the
+<a href="output.html#energy-companion">output status tables</a> list both.</p>
+<p><a id="running-and-reading-existing-examples"></a></p>
+<h2>Running and reading existing examples</h2>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>data/example
+./plume.e<span class="w"> </span>inputs/example/heating_corrected_kinetic.in
+./plume.e<span class="w"> </span>inputs/example/heating_corrected_warm_reference.in
+./plume.e<span class="w"> </span>inputs/example/heating_corrected_cold_reference.in
+./plume.e<span class="w"> </span>inputs/example/heating_corrected_cold.in
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>Existing input</th>
+<th>First printed mode frequency</th>
+<th style="text-align: right;">Formal <script type="math/tex">H</script> near first point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>heating_corrected_kinetic</code></td>
+<td>
+<script type="math/tex">0.06098715-1.270997\times10^{-5}i</script>
+</td>
+<td style="text-align: right;">
+<script type="math/tex">20342.68</script>
+</td>
+</tr>
+<tr>
+<td><code>heating_corrected_warm_reference</code></td>
+<td>
+<script type="math/tex">0.06153842-5.564326\times10^{-6}i</script>
+</td>
+<td style="text-align: right;">
+<script type="math/tex">20384.80</script>
+</td>
+</tr>
+<tr>
+<td><code>heating_corrected_cold_reference</code></td>
+<td>
+<script type="math/tex">0.05916735-1.588769\times10^{-6}i</script>
+</td>
+<td style="text-align: right;">
+<script type="math/tex">20516.88</script>
+</td>
+</tr>
+<tr>
+<td><code>heating_corrected_cold</code></td>
+<td>
+<script type="math/tex">0.05972252</script> plus roundoff imaginary part</td>
+<td style="text-align: right;">
+<script type="math/tex">20607.63</script>
+</td>
+</tr>
+</tbody>
+</table>
+<p>These bounded inputs and numbers are verified against current output and the
+independent heating tests; they are not universal branch frequencies. Inspect
+statuses as well as values. For a separate moderate-<script type="math/tex">a</script> test with artificial mass
+ratio <script type="math/tex">4</script>, the independent suite finds <script type="math/tex">H_E/H</script> about <script type="math/tex">0.500000281</script>. That is a test
+benchmark, <strong>not</strong> the physical mass ratio in the supplied cold example; the
+curated public moderate-<script type="math/tex">a</script> input is still outstanding.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">linfpclib.linfpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_plume_energy</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">load_plume_energy</span><span class="p">(</span><span class="s1">'data/example/heating_corrected_cold_reference.energy'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">'H_total'</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">'H_E'</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">'f_E'</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">'f_E_abs'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">'energy_status'</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">'applicability'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">'H_s1'</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">'Ps_s1'</span><span class="p">])</span>  <span class="c1"># cold proton energy exists; kinetic Ps is NaN</span>
+</code></pre></div>
+
+<p>New energy columns are in the versioned <code>.energy</code> companion, not inserted in
+the old <code>low_n=true</code> heating blocks or in the old unassigned <code>Ew</code> slot. Output
+association and all status fields are specified in <a href="output.html">Output</a>.</p>
+<p><a id="legacy-convention"></a></p>
+<h2>Legacy convention</h2>
+<p><code>heating_convention='legacy'</code> preserves historical all-kinetic <code>calc_eigen</code>
+arithmetic, old normalizer (without vacuum electric energy), one-sided derivative,
+shifted harmonic snapshots and legacy scratch/output behavior. It does not
+silently inherit corrected mathematics, and cold/mixed legacy heating is not
+available. It is for reproducibility, not a second accurate complete energy
+convention. See <a href="reproducibility.html">Historical reproduction</a> for all three
+independent switches and the separate role of a source revision.</p>
+<p>Scientific context: <a href="https://iopscience.iop.org/article/10.3847/2515-5172/add1c2">PLUME (Klein, Howes &amp; Brown, 2025)</a>
+and <a href="https://www.cambridge.org/core/journals/journal-of-plasma-physics/article/velocityspace-signature-of-transittime-damping/60F34E118AFFC3701071477C52A81174">Huang et al. (2024)</a>.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

@@ -53,12 +53,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/types.html">Derived Types</a>
@@ -131,9 +134,10 @@
             <a class="list-group-item" href="../namelist/scan_input.html#variable-scan_style">scan_style</a>
             <a class="list-group-item" href="../namelist/scan_input.html#variable-ns">ns</a>
             <a class="list-group-item" href="../namelist/scan_input.html#variable-nres">nres</a>
-            <a class="list-group-item" href="../namelist/scan_input.html#variable-heating">heating</a>
+            <a class="list-group-item" href="../namelist/scan_input.html#variable-heating~2">heating</a>
             <a class="list-group-item" href="../namelist/scan_input.html#variable-eigen">eigen</a>
             <a class="list-group-item" href="../namelist/scan_input.html#variable-tensor">tensor</a>
+            <a class="list-group-item" href="../namelist/scan_input.html#variable-heating_gamma_ratio_max">heating_gamma_ratio_max</a>
         </div>
       </div>
     </div>
@@ -224,8 +228,8 @@
       <td><p>Scan resolution between output steps.</p></td>
     </tr>
 
-              <tr id="variable-heating">
-      <td><a href="#variable-heating">heating</a></td>
+              <tr id="variable-heating~2">
+      <td><a href="#variable-heating~2">heating</a></td>
       <td>logical</td>
       <td>None</td>
       <td><p>Controls supplementary heating calculation.</p></td>
@@ -243,6 +247,13 @@
       <td>logical</td>
       <td>None</td>
       <td><p>Controls supplementary output of susceptibility tensor.</p></td>
+    </tr>
+
+              <tr id="variable-heating_gamma_ratio_max">
+      <td><a href="#variable-heating_gamma_ratio_max">heating_gamma_ratio_max</a></td>
+      <td>real</td>
+      <td>None</td>
+      <td><p>Maximum abs(gamma/omega_r) for corrected heating.</p></td>
     </tr>
 
       </tbody>

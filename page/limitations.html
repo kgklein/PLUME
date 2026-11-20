@@ -1,0 +1,339 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Limitations and troubleshooting &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Limitations and troubleshooting</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Limitations and troubleshooting</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link active disabled" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="limitations-and-troubleshooting"></a></p>
+<h1>Limitations and troubleshooting</h1>
+<p><a href="index.html">Manual home</a> · <a href="models.html#capability-matrix">Capability matrix</a> · <a href="input.html">Input</a></p>
+<p>This page consolidates current restrictions. A warning or accepted process exit
+is not a statement that a calculation is physically supported. A valid dispersion
+root also does not imply every supplementary diagnostic is available.</p>
+<p><a id="geometry-and-plasma-models"></a></p>
+<h2>Geometry and plasma models</h2>
+<ul>
+<li>All-kinetic <strong>exact parallel kperp=0 is unsupported</strong>, in either normalization.
+  Input/scan preparation warns; the historical kinetic evaluation may return
+  invalid values. Do not use a tiny arbitrary kperp floor to claim the limit.</li>
+<li>Cold/mixed exact parallel transverse/kinetic limits are supported with nonzero
+  kpar. Their successful tests do not certify an all-kinetic exact-axis dispatcher.</li>
+<li>Exact perpendicular kpar=0 is supported only for fully cold single-wavevector
+  dispersion. Mixed/warm perpendicular response is deferred. Every wavevector
+  scan, including fully cold scans, rejects kpar=0 at written or hidden points.</li>
+<li>Ex=1 cannot represent an Ex=0 mode. In particular the cold perpendicular
+  ordinary root may exist but its electromagnetic eigenfunction is unavailable.
+  No alternative field gauge is introduced. Poles, rank degeneracy and off-mode
+  matrices can also invalidate fields.</li>
+<li>The equilibrium is nonrelativistic, homogeneous and gyrotropic, with parallel
+  equilibrium drifts. Arbitrary distributions, perpendicular equilibrium drifts,
+  relativity and MPI/OpenMP parallelization are not available.</li>
+<li>Cold-containing input requires collisionless d_ref. Cold anisotropy is ignored;
+  there is no cold pressure or cold kinetic absorption/FPC. Positive tauS, however
+  small, remains kinetic. Model-changing scans through zero are unsupported.</li>
+</ul>
+<p><a id="collisions-and-fpc"></a></p>
+<h2>Collisions and FPC</h2>
+<p>The all-kinetic collision_type=1 path is a nonconservative neutral-charged Krook
+response. It is not a general Coulomb or energy-conserving collision operator.
+The longitudinal collisional zz correction was independently validated and is
+not undone by legacy numerical switches. A separate finite-rate xz/yz issue
+remains outside the validated corrected-diagnostic scope. Do not generalize a
+passing zz test to all collisional tensor elements.</p>
+<p>Corrected heating requires collision_type=0. Explicit legacy all-kinetic
+collisional diagnostics retain historical behavior, without a new accuracy claim.
+Cold/mixed collisions are unsupported. Kn positivity/finiteness and some old
+inputs are incompletely validated; a huge default Kn is not a general collision
+model. Read <a href="input.html">Input</a> and record actual collision_type and Kn.</p>
+<p>Gyro/Cartesian FPC remains an all-kinetic historical pathway, including its thermal
+solver/header conventions. There is <strong>no mixed-plasma FPC support</strong>, even for
+warm species within a mixture. Susceptibility adaptive harmonics do not make
+FPC's fixed internal harmonic reconstruction adaptive. Distribution moments are
+debug integrations with substantial numerical limitations, not the validated
+analytical species moments. Header phase-speed normalization has a reference-
+anisotropy caveat; see <a href="README-JETPLUME.html">FPC appendix</a>.</p>
+<p>Reader NaN preservation fixes interpretation, not FPC physics, normalization or
+energy closure. Old species-index labels, header-offset retries and debug-only
+readers still need scrutiny. Unavailable samples are not physical zeros.</p>
+<p>The contour/resonance plotter's explicit <strong>file reader</strong> is not a universal
+cold-reference overlay calculator. Its <code>vthpar_over_ref</code> helper still forms
+<code>sqrt(mu*theta/beta_R)</code> in d_ref, which is undefined at beta_R=0. Reading a
+cold-reference mode table can therefore work while a reference-thermal
+resonance overlay does not. Use the physical units on Normalization and the
+supported data readers; no cold-reference overlay extension is claimed here.</p>
+<p><a id="diagnostic-and-workflow-boundaries"></a></p>
+<h2>Diagnostic and workflow boundaries</h2>
+<ul>
+<li>Corrected energy/heating is a real-frequency weak-mode approximation, not exact
+  conserved energy for strongly growing/damped, degenerate or reactive modes.
+  energy_status and applicability differ; formal H may be resolved while Ps is
+  unavailable. Cold real-frequency poles can block energy for a valid complex mode.</li>
+<li>Map eigen/tensor requests and legacy map heating are ignored with warnings;
+  corrected map heating is rejected. Map file schemas remain determinants and
+  candidates. Use a supported root/diagnostic workflow to obtain moments or heat.</li>
+<li>Two-dimensional eigen/heating flags come from the second scan; tensor output
+  needs both flags. Flag semantics are not identical across these diagnostics.</li>
+<li>Mixed/cold scans support wavevectors only. Corrected parameter heating is
+  supported for collisionless, all-kinetic <code>rho_ref</code> serial scans and 2D grids.
+  Other parameter workflows retain historical restrictions; radial heating is
+  legacy only. Scan support does not establish branch identity or heating
+  applicability at every point.</li>
+<li>Historical logarithmic <strong>frequency maps</strong> mix exponent origins with ratio
+  increments and discard imaginary signs. They do not reach requested endpoints.
+  Use linear map grids; <a href="modes.html#linear-versus-historical-logarithmic-maps">the exact equations</a>
+  remain unchanged pending a separate compatibility decision.</li>
+<li>nroot_max controls guesses/continued branch slots, not all .roots rows.
+  Candidate files precede final filters. Sorting by least damping is not the
+  enabled default. A mode label is a continuation slot, not proof of a universal
+  physical branch identity through crossings.</li>
+</ul>
+<p><a id="diagnosing-a-run"></a></p>
+<h2>Diagnosing a run</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check and next action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Indexed namelist cannot be found</td>
+<td>Use exact lowercase &amp;species_N/&amp;guess_N/&amp;scan_input_N headers, alone on their lines; no trailing header comments; correct consecutive indices</td>
+</tr>
+<tr>
+<td>Cannot open input/scratch</td>
+<td>Use a .in suffix, writable input directory and a short path; the historical argument buffer is 100 characters</td>
+</tr>
+<tr>
+<td>Cannot open output</td>
+<td>Run from repo root or a deliberately prepared working directory; mkdir -p data/<dataName>; writeOut=false does not suppress opens</td>
+</tr>
+<tr>
+<td>No .roots after supplied guesses</td>
+<td>option1/nscan0 refines/prints but does not write map candidate files</td>
+</tr>
+<tr>
+<td>No eigen/heating file after a map</td>
+<td>Map diagnostics are ignored/rejected; a flag is not evidence of a supported writer</td>
+</tr>
+<tr>
+<td>No .energy</td>
+<td>Require corrected direct diagnostics or a supported scan with heating=true; no map/FPC/legacy energy companion</td>
+</tr>
+<tr>
+<td>Too few/many roots</td>
+<td>Inspect finite refined candidates, final filters and nroot_max branch slots; vary map bounds/grid or guesses; .roots is not a final capped list</td>
+</tr>
+<tr>
+<td>NaN frequency at a scan point</td>
+<td>Inspect root/status warning, poles and finite matrix; last valid seed is retained on guarded paths; reduce step or reinitialize physically</td>
+</tr>
+<tr>
+<td>Finite frequency but NaN E/B</td>
+<td>Ex=0 gauge, unresolved rank/nullvector, off-mode matrix or invalid response; check Lambda E and independent mode polarization</td>
+</tr>
+<tr>
+<td>Only one species has NaN moments</td>
+<td>Inspect its status, density and Doppler/cyclotron poles; D=0 gives undefined relative moments; valid other species/fields survive</td>
+</tr>
+<tr>
+<td>Cold species has NaN Ps/channels</td>
+<td>Expected unavailability, not zero heat; its H_s may still be valid</td>
+</tr>
+<tr>
+<td>Warm Ps/channels NaN with finite H</td>
+<td>Check applicability bits for strong/near-reactive mode, or species/normalizer status; do not force weak energy balance</td>
+</tr>
+<tr>
+<td>H/fractions unavailable</td>
+<td>wr=0, real pole, unresolved derivative, cancellation or absent field; no small H floor; retain valid root/moments</td>
+</tr>
+<tr>
+<td>Bessel cap warning</td>
+<td>Finite calculation continued with unresolved tails; increase nmax and compare tensors/roots, not just one small coefficient</td>
+</tr>
+<tr>
+<td>Faddeeva nonrepresentable output</td>
+<td>Lower-half-plane growth of Z can exceed binary64; distinguish range failure from a physical pole; no silent legacy fallback</td>
+</tr>
+<tr>
+<td>Different rho/d_ref curves</td>
+<td>Convert k using sqrt(beta_R alpha_R), vtp and all tau; compare identical physical scan paths, not just identical numbers</td>
+</tr>
+<tr>
+<td>Missing values appear as zeros in a plot</td>
+<td>Keep readers' default NaNs; visualization_nan_to_zero is an explicit plot-only opt-in</td>
+</tr>
+<tr>
+<td>Reader gives plausible wrong diagnostics</td>
+<td>Select S, eigen, heating, low_n and correct file family; parameters are not heating; do not use debug .eigen as .modeN</td>
+</tr>
+<tr>
+<td>Ambiguous serial contour file</td>
+<td>Call reader API with scan_index=N; CLI currently has no selector; 2D schema uses scan2 flags</td>
+</tr>
+<tr>
+<td>Ragged low_n=false legacy file</td>
+<td>Orphan Ew record is historical; use explicit handling or supported rectangular/corrected companion; never treat Ew as energy</td>
+</tr>
+<tr>
+<td>Extra old mode files or mismatched companion counts</td>
+<td>Use a new outputName/isolated directory; complete the run; companions and buffered modes are not atomic under interruption</td>
+</tr>
+</tbody>
+</table>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

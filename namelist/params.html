@@ -53,12 +53,15 @@
 
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="../page/index.html">Readme</a></li>
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="../lists/types.html">Derived Types</a>
@@ -124,9 +127,16 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../namelist/params.html#variable-heating_convention">heating_convention</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-z_backend">z_backend</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-bessel_mode">bessel_mode</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-bessel_tol">bessel_tol</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-bessel_nmax">bessel_nmax</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-bessel_nfixed">bessel_nfixed</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-bessel_diagnostics">bessel_diagnostics</a>
             <a class="list-group-item" href="../namelist/params.html#variable-betap">betap</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kperp">kperp</a>
-            <a class="list-group-item" href="../namelist/params.html#variable-kpar">kpar</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kperp~2">kperp</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-kpar~3">kpar</a>
             <a class="list-group-item" href="../namelist/params.html#variable-vtp">vtp</a>
             <a class="list-group-item" href="../namelist/params.html#variable-normalization">normalization</a>
             <a class="list-group-item" href="../namelist/params.html#variable-nspec">nspec</a>
@@ -140,6 +150,7 @@
             <a class="list-group-item" href="../namelist/params.html#variable-writeout">writeOut</a>
             <a class="list-group-item" href="../namelist/params.html#variable-dataname">dataName</a>
             <a class="list-group-item" href="../namelist/params.html#variable-outputname">outputName</a>
+            <a class="list-group-item" href="../namelist/params.html#variable-warnings_to_stdout">warnings_to_stdout</a>
         </div>
       </div>
     </div>
@@ -181,6 +192,55 @@
           <th>Description</th>
       </tr></thead>
       <tbody>
+              <tr id="variable-heating_convention">
+      <td><a href="#variable-heating_convention">heating_convention</a></td>
+      <td>character(len=16)</td>
+      <td>&#39;corrected&#39;</td>
+      <td><p>Collisionless heating/energy convention; independent of Z and Bessel modes.</p></td>
+    </tr>
+
+              <tr id="variable-z_backend">
+      <td><a href="#variable-z_backend">z_backend</a></td>
+      <td>character(len=16)</td>
+      <td>&#39;faddeeva&#39;</td>
+      <td><p>Independent Z evaluator: faddeeva (default) or legacy.</p></td>
+    </tr>
+
+              <tr id="variable-bessel_mode">
+      <td><a href="#variable-bessel_mode">bessel_mode</a></td>
+      <td>character(len=16)</td>
+      <td>&#39;adaptive&#39;</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-bessel_tol">
+      <td><a href="#variable-bessel_tol">bessel_tol</a></td>
+      <td>real</td>
+      <td>1.e-10</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-bessel_nmax">
+      <td><a href="#variable-bessel_nmax">bessel_nmax</a></td>
+      <td>integer</td>
+      <td>512</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-bessel_nfixed">
+      <td><a href="#variable-bessel_nfixed">bessel_nfixed</a></td>
+      <td>integer</td>
+      <td>128</td>
+      <td></td>
+    </tr>
+
+              <tr id="variable-bessel_diagnostics">
+      <td><a href="#variable-bessel_diagnostics">bessel_diagnostics</a></td>
+      <td>logical</td>
+      <td>.false.</td>
+      <td></td>
+    </tr>
+
               <tr id="variable-betap">
       <td><a href="#variable-betap">betap</a></td>
       <td>real</td>
@@ -189,16 +249,16 @@
 8 pi n_ref T_ref,par/B^2</p></td>
     </tr>
 
-              <tr id="variable-kperp">
-      <td><a href="#variable-kperp">kperp</a></td>
+              <tr id="variable-kperp~2">
+      <td><a href="#variable-kperp~2">kperp</a></td>
       <td>real</td>
       <td>None</td>
       <td><p>Wavenumber perpendicular to B0, in the selected input length units.
 rho_ref uses v_tperp,ref/|Omega_ref|; d_ref uses c/omega_p,ref.</p></td>
     </tr>
 
-              <tr id="variable-kpar">
-      <td><a href="#variable-kpar">kpar</a></td>
+              <tr id="variable-kpar~3">
+      <td><a href="#variable-kpar~3">kpar</a></td>
       <td>real</td>
       <td>None</td>
       <td><p>Wavenumber parallel to B0, in the selected input length units.</p></td>
@@ -273,9 +333,7 @@ F-&gt; Read nroot_max initial guesses for complex frequency solutions.
       <td><a href="#variable-low_n">low_n</a></td>
       <td>logical</td>
       <td>.true.</td>
-      <td><p>Toggle on low-n susceptibility suplementary calculation.
- 25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
- n=0, \pm 1 calculation we wish to perform.</p></td>
+      <td><p>Toggle on low-n susceptibility suplementary calculation.</p></td>
     </tr>
 
               <tr id="variable-collision_type">
@@ -315,6 +373,13 @@ Kn^{-1} = n_0 \sigma \rho_{ref}</p></td>
       <td>character(len=100)</td>
       <td>None</td>
       <td><p>Common name string for output files.</p></td>
+    </tr>
+
+              <tr id="variable-warnings_to_stdout">
+      <td><a href="#variable-warnings_to_stdout">warnings_to_stdout</a></td>
+      <td>logical</td>
+      <td>.false.</td>
+      <td></td>
     </tr>
 
       </tbody>

@@ -1,0 +1,651 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>interpolate &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>interpolate
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.3% of total for procedures.">21 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/scan_support.html'>scan_support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">interpolate</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>private  function interpolate(first, last, index, total, logarithmic, exclude_zero) result(value)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-first"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>first</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-last"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>last</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-index"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>index</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-total"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>total</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-logarithmic"></span>
+              logical,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>logarithmic</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-exclude_zero"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>exclude_zero</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-value"></span>
+          real
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~interpolate~~CalledByGraph Pages: 1 -->
+<svg id="procinterpolateCalledByGraph" width="641pt" height="129pt"
+ viewBox="0.00 0.00 641.00 129.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~interpolate~~CalledByGraph" class="graph" transform="scale(0.657018 0.657018) rotate(0) translate(4 192.27)">
+<title>proc~~interpolate~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-192.27 971.62,-192.27 971.62,4 -4,4"/>
+<!-- proc~interpolate -->
+<g id="proc~~interpolate~~CalledByGraph_node1" class="node">
+<title>proc~interpolate</title>
+<polygon fill="none" stroke="black" points="967.62,-85.27 897.6,-85.27 897.6,-61 967.62,-61 967.62,-85.27"/>
+<text xml:space="preserve" text-anchor="middle" x="932.61" y="-69.54" font-family="Helvetica,sans-Serif" font-size="10.50">interpolate</text>
+</g>
+<!-- proc~apply_coordinate -->
+<g id="proc~~interpolate~~CalledByGraph_node2" class="node">
+<title>proc~apply_coordinate</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node2"><a xlink:href="../proc/apply_coordinate.html" xlink:title="apply_coordinate">
+<polygon fill="#d9534f" stroke="#d9534f" points="861.6,-64.27 757.83,-64.27 757.83,-40 861.6,-40 861.6,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="809.72" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_coordinate</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_coordinate&#45;&gt;proc~interpolate -->
+<g id="proc~~interpolate~~CalledByGraph_edge1" class="edge">
+<title>proc~apply_coordinate&#45;&gt;proc~interpolate</title>
+<path fill="none" stroke="#000000" d="M861.99,-61.04C870.03,-62.44 878.29,-63.87 886.19,-65.25"/>
+<polygon fill="#000000" stroke="#000000" points="885.49,-68.68 895.94,-66.94 886.69,-61.78 885.49,-68.68"/>
+</g>
+<!-- proc~set_scalar_axis -->
+<g id="proc~~interpolate~~CalledByGraph_node3" class="node">
+<title>proc~set_scalar_axis</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node3"><a xlink:href="../proc/set_scalar_axis.html" xlink:title="set_scalar_axis">
+<polygon fill="#d9534f" stroke="#d9534f" points="855.23,-106.27 764.21,-106.27 764.21,-82 855.23,-82 855.23,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="809.72" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">set_scalar_axis</text>
+</a>
+</g>
+</g>
+<!-- proc~set_scalar_axis&#45;&gt;proc~interpolate -->
+<g id="proc~~interpolate~~CalledByGraph_edge2" class="edge">
+<title>proc~set_scalar_axis&#45;&gt;proc~interpolate</title>
+<path fill="none" stroke="#000000" d="M855.39,-86.38C865.46,-84.63 876.15,-82.77 886.25,-81.01"/>
+<polygon fill="#000000" stroke="#000000" points="886.58,-84.51 895.83,-79.35 885.38,-77.61 886.58,-84.51"/>
+</g>
+<!-- proc~apply_parameter_point -->
+<g id="proc~~interpolate~~CalledByGraph_node4" class="node">
+<title>proc~apply_parameter_point</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node4"><a xlink:href="../proc/apply_parameter_point.html" xlink:title="apply_parameter_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="721.83,-106.27 586.56,-106.27 586.56,-82 721.83,-82 721.83,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="654.19" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_parameter_point</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~apply_coordinate -->
+<g id="proc~~interpolate~~CalledByGraph_edge3" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~apply_coordinate</title>
+<path fill="none" stroke="#000000" d="M701.26,-81.53C717.2,-77.17 735.25,-72.23 751.95,-67.67"/>
+<polygon fill="#000000" stroke="#000000" points="752.5,-71.14 761.23,-65.13 750.66,-64.39 752.5,-71.14"/>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~set_scalar_axis -->
+<g id="proc~~interpolate~~CalledByGraph_edge5" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~set_scalar_axis</title>
+<path fill="none" stroke="#000000" d="M722.08,-94.14C732.31,-94.14 742.76,-94.14 752.72,-94.14"/>
+<polygon fill="#000000" stroke="#000000" points="752.62,-97.64 762.62,-94.14 752.62,-90.64 752.62,-97.64"/>
+</g>
+<!-- proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_node5" class="node">
+<title>proc~scan_coordinates</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node5"><a xlink:href="../proc/scan_coordinates.html" xlink:title="scan_coordinates">
+<polygon fill="#d9534f" stroke="#d9534f" points="518.31,-64.27 413.79,-64.27 413.79,-40 518.31,-40 518.31,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_coordinates</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_coordinates&#45;&gt;proc~apply_coordinate -->
+<g id="proc~~interpolate~~CalledByGraph_edge4" class="edge">
+<title>proc~scan_coordinates&#45;&gt;proc~apply_coordinate</title>
+<path fill="none" stroke="#000000" d="M518.57,-52.13C579.42,-52.13 680.6,-52.13 745.97,-52.13"/>
+<polygon fill="#000000" stroke="#000000" points="745.82,-55.64 755.82,-52.14 745.82,-48.64 745.82,-55.64"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~interpolate~~CalledByGraph_node6" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node6"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="171.64,-64.27 106.12,-64.27 106.12,-40 171.64,-40 171.64,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="138.88" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_edge10" class="edge">
+<title>proc~map_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M171.95,-52.13C225.3,-52.13 333.22,-52.13 402.17,-52.13"/>
+<polygon fill="#000000" stroke="#000000" points="401.79,-55.64 411.79,-52.14 401.79,-48.64 401.79,-55.64"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~interpolate~~CalledByGraph_node7" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node7"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.04,-24.27 234.27,-24.27 234.27,0 335.04,0 335.04,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~interpolate~~CalledByGraph_edge6" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M335.31,-8.78C389.56,-6.69 478.35,-7.92 550.56,-31.13 579.81,-40.54 609.3,-59.91 629.11,-74.7"/>
+<polygon fill="#000000" stroke="#000000" points="626.75,-77.3 636.82,-80.61 631.01,-71.75 626.75,-77.3"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_edge11" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M335.15,-23.17C356,-27.82 380.5,-33.28 402.58,-38.21"/>
+<polygon fill="#000000" stroke="#000000" points="401.53,-41.56 412.05,-40.32 403.05,-34.73 401.53,-41.56"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~interpolate~~CalledByGraph_node8" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node8"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.04,-188.27 255.27,-188.27 255.27,-164 314.04,-164 314.04,-188.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-172.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~interpolate~~CalledByGraph_edge7" class="edge">
+<title>proc~om_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M314.35,-174.06C363.46,-170 466.49,-159.32 550.56,-136.13 573.32,-129.86 597.82,-119.96 617.18,-111.35"/>
+<polygon fill="#000000" stroke="#000000" points="618.6,-114.54 626.26,-107.22 615.71,-108.17 618.6,-114.54"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_edge12" class="edge">
+<title>proc~om_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M314.42,-171.13C325.23,-168.04 336.97,-163.07 345.54,-155.13 374.74,-128.09 351.14,-98.83 381.54,-73.14 387.67,-67.95 394.9,-64.02 402.51,-61.04"/>
+<polygon fill="#000000" stroke="#000000" points="403.59,-64.37 411.99,-57.91 401.39,-57.72 403.59,-64.37"/>
+</g>
+<!-- proc~prepare_scan_start -->
+<g id="proc~~interpolate~~CalledByGraph_node9" class="node">
+<title>proc~prepare_scan_start</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node9"><a xlink:href="../proc/prepare_scan_start.html" xlink:title="prepare_scan_start">
+<polygon fill="#d9534f" stroke="#d9534f" points="340.66,-146.27 228.64,-146.27 228.64,-122 340.66,-122 340.66,-146.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-130.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">prepare_scan_start</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~interpolate~~CalledByGraph_edge8" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M340.92,-132.27C394.66,-129.96 478.5,-125.05 550.56,-115.14 562.49,-113.49 575.12,-111.3 587.28,-108.94"/>
+<polygon fill="#000000" stroke="#000000" points="587.69,-112.43 596.81,-107.04 586.32,-105.56 587.69,-112.43"/>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_edge13" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M329.74,-121.57C335.27,-119.17 340.68,-116.37 345.54,-113.14 365.45,-99.88 361.05,-85.48 381.54,-73.14 388.08,-69.2 395.33,-65.99 402.75,-63.39"/>
+<polygon fill="#000000" stroke="#000000" points="403.73,-66.75 412.24,-60.44 401.65,-60.07 403.73,-66.75"/>
+</g>
+<!-- proc~validate_parameter_workflow -->
+<g id="proc~~interpolate~~CalledByGraph_node10" class="node">
+<title>proc~validate_parameter_workflow</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node10"><a xlink:href="../proc/validate_parameter_workflow.html" xlink:title="validate_parameter_workflow">
+<polygon fill="#d9534f" stroke="#d9534f" points="550.56,-106.27 381.54,-106.27 381.54,-82 550.56,-82 550.56,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_parameter_workflow</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~interpolate~~CalledByGraph_edge9" class="edge">
+<title>proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M550.87,-94.14C558.84,-94.14 566.91,-94.14 574.83,-94.14"/>
+<polygon fill="#000000" stroke="#000000" points="574.79,-97.64 584.79,-94.14 574.79,-90.64 574.79,-97.64"/>
+</g>
+<!-- proc~validate_scan_inputs -->
+<g id="proc~~interpolate~~CalledByGraph_node11" class="node">
+<title>proc~validate_scan_inputs</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node11"><a xlink:href="../proc/validate_scan_inputs.html" xlink:title="validate_scan_inputs">
+<polygon fill="#d9534f" stroke="#d9534f" points="345.54,-104.27 223.77,-104.27 223.77,-80 345.54,-80 345.54,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-88.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_scan_inputs</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~interpolate~~CalledByGraph_edge14" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M341.92,-79.59C361.17,-75.3 382.81,-70.47 402.52,-66.08"/>
+<polygon fill="#000000" stroke="#000000" points="403.08,-69.54 412.07,-63.95 401.55,-62.71 403.08,-69.54"/>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow -->
+<g id="proc~~interpolate~~CalledByGraph_edge19" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow</title>
+<path fill="none" stroke="#000000" d="M345.89,-92.81C353.57,-92.89 361.57,-92.98 369.64,-93.07"/>
+<polygon fill="#000000" stroke="#000000" points="369.5,-96.57 379.54,-93.18 369.58,-89.57 369.5,-96.57"/>
+</g>
+<!-- proc~read_scan_input -->
+<g id="proc~~interpolate~~CalledByGraph_node12" class="node">
+<title>proc~read_scan_input</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node12"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="187.77,-106.27 90,-106.27 90,-82 187.77,-82 187.77,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="138.88" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
+</a>
+</g>
+</g>
+<!-- proc~read_scan_input&#45;&gt;proc~validate_scan_inputs -->
+<g id="proc~~interpolate~~CalledByGraph_edge20" class="edge">
+<title>proc~read_scan_input&#45;&gt;proc~validate_scan_inputs</title>
+<path fill="none" stroke="#000000" d="M188.16,-93.46C195.87,-93.36 203.98,-93.24 212.09,-93.13"/>
+<polygon fill="#000000" stroke="#000000" points="212.04,-96.63 221.99,-92.99 211.94,-89.63 212.04,-96.63"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~interpolate~~CalledByGraph_node13" class="node">
+<title>program~plume</title>
+<g id="a_proc~~interpolate~~CalledByGraph_node13"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-106.27 0,-106.27 0,-82 54,-82 54,-106.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-90.54" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~interpolate~~CalledByGraph_edge15" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M54.32,-84.07C66.54,-79.4 81.39,-73.73 95.16,-68.47"/>
+<polygon fill="#000000" stroke="#000000" points="96.4,-71.74 104.49,-64.9 93.9,-65.2 96.4,-71.74"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~interpolate~~CalledByGraph_edge16" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M36.14,-81.65C46.61,-66.75 66.32,-42.44 90,-31.13 131.2,-11.46 182.88,-7.26 222.48,-7.68"/>
+<polygon fill="#000000" stroke="#000000" points="222.25,-11.18 232.32,-7.9 222.4,-4.18 222.25,-11.18"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~interpolate~~CalledByGraph_edge17" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M42.82,-106.64C54.81,-116.13 72.51,-128.75 90,-136.13 140.55,-157.48 203.48,-167.77 243.61,-172.48"/>
+<polygon fill="#000000" stroke="#000000" points="243.22,-175.96 253.54,-173.58 243.99,-169 243.22,-175.96"/>
+</g>
+<!-- program~plume&#45;&gt;proc~prepare_scan_start -->
+<g id="proc~~interpolate~~CalledByGraph_edge18" class="edge">
+<title>program~plume&#45;&gt;proc~prepare_scan_start</title>
+<path fill="none" stroke="#000000" d="M54.48,-104.59C65.33,-108.49 78.11,-112.57 90,-115.14 131.75,-124.13 179.49,-128.87 217.13,-131.37"/>
+<polygon fill="#000000" stroke="#000000" points="216.75,-134.86 226.95,-131.98 217.19,-127.87 216.75,-134.86"/>
+</g>
+<!-- program~plume&#45;&gt;proc~read_scan_input -->
+<g id="proc~~interpolate~~CalledByGraph_edge21" class="edge">
+<title>program~plume&#45;&gt;proc~read_scan_input</title>
+<path fill="none" stroke="#000000" d="M54.32,-94.14C61.65,-94.14 69.93,-94.14 78.35,-94.14"/>
+<polygon fill="#000000" stroke="#000000" points="78.34,-97.64 88.34,-94.14 78.34,-90.64 78.34,-97.64"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocinterpolateCalledByGraph = svgPanZoom('#procinterpolateCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

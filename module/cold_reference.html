@@ -1,0 +1,1106 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cold_reference &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>cold_reference
+      <small>Module</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.9% of total for modules and submodules.">80 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+            <li class="breadcrumb-item active" aria-current="page">cold_reference</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+
+  <div class="row">
+    <div class="col-md-3">
+        <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#subs-0"
+         aria-expanded="false" aria-controls="subs-0">
+         <h4 class="card-header bg-primary text-white">Subroutines</h4>
+      </a>
+      <div id="subs-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../module/cold_reference.html#proc-calc_warm_auxiliary">calc_warm_auxiliary</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+
+    <div class="col-md-9" id='text'>
+      <p>Auxiliary warm responses only. Cold preflight, wave assembly and root
+handling remain in disprels. No authoritative input or solver_* state changes.</p>
+<br>          <div class="card mb-4">
+      <h3 class="card-header card-title bg-light">Uses</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <ul class="list-inline">
+                  <li class="list-inline-item"><a href='vars.html'>vars</a></li>
+                  <li class="list-inline-item"><a href='adaptive_kinetic.html'>adaptive_kinetic</a></li>
+                  <li class="list-inline-item"><a href='http://fortranwiki.org/fortran/show/ieee_arithmetic'>ieee_arithmetic</a></li>
+                  <li class="list-inline-item"><a href='kinetic_core.html'>kinetic_core</a></li>
+                  <li class="list-inline-item"><a href='auxiliary_normalization.html'>auxiliary_normalization</a></li>
+              </ul>
+            </li>
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: module~~cold_reference~~UsesGraph Pages: 1 -->
+<svg id="modulecold_referenceUsesGraph" width="641pt" height="278pt"
+ viewBox="0.00 0.00 641.00 278.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~cold_reference~~UsesGraph" class="graph" transform="scale(0.932567 0.932567) rotate(0) translate(4 293.92)">
+<title>module~~cold_reference~~UsesGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-293.92 683.35,-293.92 683.35,4 -4,4"/>
+<!-- module~cold_reference -->
+<g id="module~~cold_reference~~UsesGraph_node1" class="node">
+<title>module~cold_reference</title>
+<polygon fill="none" stroke="black" points="679.35,-119.77 589.08,-119.77 589.08,-95.5 679.35,-95.5 679.35,-119.77"/>
+<text xml:space="preserve" text-anchor="middle" x="634.21" y="-104.03" font-family="Helvetica,sans-Serif" font-size="10.50">cold_reference</text>
+</g>
+<!-- ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_node2" class="node">
+<title>ieee_arithmetic</title>
+<g id="a_module~~cold_reference~~UsesGraph_node2"><a xlink:href="http://fortranwiki.org/fortran/show/ieee_arithmetic" xlink:title="ieee_arithmetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.77,-99.77 0,-99.77 0,-75.5 94.77,-75.5 94.77,-99.77"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-84.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_arithmetic</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge1" class="edge">
+<title>module~cold_reference&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M609.73,-95.22C543.75,-61.88 350.99,24.94 189.65,-7.63"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M187.65,-7.63C161.5,-12.77 154.41,-14.33 130.77,-26.63 109,-37.97 86.77,-54.8 70.9,-67.91"/>
+<polygon fill="#000000" stroke="#000000" points="68.88,-65.03 63.5,-74.15 73.4,-70.38 68.88,-65.03"/>
+</g>
+<!-- module~adaptive_kinetic -->
+<g id="module~~cold_reference~~UsesGraph_node3" class="node">
+<title>module~adaptive_kinetic</title>
+<g id="a_module~~cold_reference~~UsesGraph_node3"><a xlink:href="../module/adaptive_kinetic.html" xlink:title="adaptive_kinetic">
+<polygon fill="#337ab7" stroke="#337ab7" points="553.08,-119.77 454.56,-119.77 454.56,-95.5 553.08,-95.5 553.08,-119.77"/>
+<text xml:space="preserve" text-anchor="middle" x="503.82" y="-104.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">adaptive_kinetic</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~adaptive_kinetic -->
+<g id="module~~cold_reference~~UsesGraph_edge2" class="edge">
+<title>module~cold_reference&#45;&gt;module~adaptive_kinetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M588.67,-107.63C580.89,-107.63 572.69,-107.63 564.58,-107.63"/>
+<polygon fill="#000000" stroke="#000000" points="564.74,-104.13 554.74,-107.63 564.74,-111.13 564.74,-104.13"/>
+</g>
+<!-- module~auxiliary_normalization -->
+<g id="module~~cold_reference~~UsesGraph_node4" class="node">
+<title>module~auxiliary_normalization</title>
+<g id="a_module~~cold_reference~~UsesGraph_node4"><a xlink:href="../module/auxiliary_normalization.html" xlink:title="auxiliary_normalization">
+<polygon fill="#337ab7" stroke="#337ab7" points="418.56,-259.77 282.54,-259.77 282.54,-235.5 418.56,-235.5 418.56,-259.77"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-244.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">auxiliary_normalization</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~auxiliary_normalization -->
+<g id="module~~cold_reference~~UsesGraph_edge3" class="edge">
+<title>module~cold_reference&#45;&gt;module~auxiliary_normalization</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-207.63C475.25,-216.99 444.24,-225.52 417.52,-232.28"/>
+<polygon fill="#000000" stroke="#000000" points="416.67,-228.89 407.82,-234.7 418.37,-235.68 416.67,-228.89"/>
+</g>
+<!-- module~kinetic_core -->
+<g id="module~~cold_reference~~UsesGraph_node5" class="node">
+<title>module~kinetic_core</title>
+<g id="a_module~~cold_reference~~UsesGraph_node5"><a xlink:href="../module/kinetic_core.html" xlink:title="kinetic_core">
+<polygon fill="#337ab7" stroke="#337ab7" points="388.18,-179.77 312.91,-179.77 312.91,-155.5 388.18,-155.5 388.18,-179.77"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-164.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">kinetic_core</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~kinetic_core -->
+<g id="module~~cold_reference~~UsesGraph_edge4" class="edge">
+<title>module~cold_reference&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M622.79,-119.99C602.73,-142.67 556.19,-190.2 504.82,-207.63"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-207.63C482.68,-214.47 430.61,-197.98 393.19,-184.15"/>
+<polygon fill="#000000" stroke="#000000" points="394.58,-180.93 383.99,-180.69 392.12,-187.49 394.58,-180.93"/>
+</g>
+<!-- module~vars -->
+<g id="module~~cold_reference~~UsesGraph_node6" class="node">
+<title>module~vars</title>
+<g id="a_module~~cold_reference~~UsesGraph_node6"><a xlink:href="../module/vars.html" xlink:title="vars">
+<polygon fill="#337ab7" stroke="#337ab7" points="215.65,-219.77 161.65,-219.77 161.65,-195.5 215.65,-195.5 215.65,-219.77"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-204.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">vars</text>
+</a>
+</g>
+</g>
+<!-- module~cold_reference&#45;&gt;module~vars -->
+<g id="module~~cold_reference~~UsesGraph_edge5" class="edge">
+<title>module~cold_reference&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M502.82,-207.63C452.83,-224.6 298.48,-215.83 226.87,-210.6"/>
+<polygon fill="#000000" stroke="#000000" points="227.45,-207.13 217.22,-209.88 226.93,-214.12 227.45,-207.13"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge6" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M479.28,-95C462.61,-86.36 439.57,-74.99 418.56,-66.63 389.56,-55.11 381.81,-53.28 351.55,-45.63"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-45.63C314.14,-36.68 225.45,-0.41 189.65,-7.63"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~kinetic_core -->
+<g id="module~~cold_reference~~UsesGraph_edge10" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~kinetic_core</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M472.04,-120.17C456.1,-126.63 436.31,-134.61 418.56,-141.63 410.9,-144.66 402.74,-147.86 394.84,-150.94"/>
+<polygon fill="#000000" stroke="#000000" points="393.77,-147.6 385.71,-154.48 396.3,-154.12 393.77,-147.6"/>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~vars -->
+<g id="module~~cold_reference~~UsesGraph_edge11" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-127.63C319.13,-133.36 310.7,-133.77 282.54,-146.63 258.11,-157.8 232.78,-174.86 214.76,-188.1"/>
+<polygon fill="#000000" stroke="#000000" points="212.66,-185.3 206.76,-194.1 216.86,-190.9 212.66,-185.3"/>
+</g>
+<!-- ieee_exceptions -->
+<g id="module~~cold_reference~~UsesGraph_node7" class="node">
+<title>ieee_exceptions</title>
+<g id="a_module~~cold_reference~~UsesGraph_node7"><a xlink:href="http://fortranwiki.org/fortran/show/IEEE+arithmetic" xlink:title="ieee_exceptions">
+<polygon fill="#337ab7" stroke="#337ab7" points="237.16,-139.77 140.14,-139.77 140.14,-115.5 237.16,-115.5 237.16,-139.77"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-124.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">ieee_exceptions</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;ieee_exceptions -->
+<g id="module~~cold_reference~~UsesGraph_edge7" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M454.24,-112.69C424.47,-116.13 385.65,-121.22 351.55,-127.63"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-127.63C316.65,-133.82 279.27,-134.18 248.92,-132.83"/>
+<polygon fill="#000000" stroke="#000000" points="249.34,-129.35 239.17,-132.32 248.97,-136.34 249.34,-129.35"/>
+</g>
+<!-- module~bessel_cache -->
+<g id="module~~cold_reference~~UsesGraph_node9" class="node">
+<title>module~bessel_cache</title>
+<g id="a_module~~cold_reference~~UsesGraph_node9"><a xlink:href="../module/bessel_cache.html" xlink:title="bessel_cache">
+<polygon fill="#337ab7" stroke="#337ab7" points="391.93,-99.77 309.16,-99.77 309.16,-75.5 391.93,-75.5 391.93,-99.77"/>
+<text xml:space="preserve" text-anchor="middle" x="350.55" y="-84.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">bessel_cache</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~bessel_cache -->
+<g id="module~~cold_reference~~UsesGraph_edge8" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~bessel_cache</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M454.12,-101.2C437.84,-99.04 419.65,-96.64 403.15,-94.46"/>
+<polygon fill="#000000" stroke="#000000" points="403.92,-91.03 393.55,-93.19 403.01,-97.97 403.92,-91.03"/>
+</g>
+<!-- module~harmonic_selection -->
+<g id="module~~cold_reference~~UsesGraph_node10" class="node">
+<title>module~harmonic_selection</title>
+<g id="a_module~~cold_reference~~UsesGraph_node10"><a xlink:href="../module/harmonic_selection.html" xlink:title="harmonic_selection">
+<polygon fill="#337ab7" stroke="#337ab7" points="246.54,-59.77 130.77,-59.77 130.77,-35.5 246.54,-35.5 246.54,-59.77"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-44.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">harmonic_selection</text>
+</a>
+</g>
+</g>
+<!-- module~adaptive_kinetic&#45;&gt;module~harmonic_selection -->
+<g id="module~~cold_reference~~UsesGraph_edge9" class="edge">
+<title>module~adaptive_kinetic&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M349.55,-45.63C320.09,-38.19 286.58,-37.48 257.88,-39.1"/>
+<polygon fill="#000000" stroke="#000000" points="257.98,-35.58 248.24,-39.76 258.45,-42.57 257.98,-35.58"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge12" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M323.78,-260.16C280.13,-279.39 190.55,-310.05 130.77,-270.63 96.86,-248.27 111.39,-223.7 94.77,-186.63 82.96,-160.31 68.82,-130.34 59.28,-110.34"/>
+<polygon fill="#000000" stroke="#000000" points="62.5,-108.95 55.03,-101.44 56.19,-111.97 62.5,-108.95"/>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;module~vars -->
+<g id="module~~cold_reference~~UsesGraph_edge14" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M299.4,-235.09C275.95,-229.22 248.52,-222.36 226.94,-216.96"/>
+<polygon fill="#000000" stroke="#000000" points="227.96,-213.61 217.4,-214.58 226.26,-220.4 227.96,-213.61"/>
+</g>
+<!-- module~nrtype -->
+<g id="module~~cold_reference~~UsesGraph_node11" class="node">
+<title>module~nrtype</title>
+<g id="a_module~~cold_reference~~UsesGraph_node11"><a xlink:href="../module/nrtype.html" xlink:title="nrtype">
+<polygon fill="#337ab7" stroke="#337ab7" points="215.65,-261.77 161.65,-261.77 161.65,-237.5 215.65,-237.5 215.65,-261.77"/>
+<text xml:space="preserve" text-anchor="middle" x="188.65" y="-246.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">nrtype</text>
+</a>
+</g>
+</g>
+<!-- module~auxiliary_normalization&#45;&gt;module~nrtype -->
+<g id="module~~cold_reference~~UsesGraph_edge13" class="edge">
+<title>module~auxiliary_normalization&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M282.2,-248.48C263.39,-248.71 243.61,-248.96 227.2,-249.16"/>
+<polygon fill="#000000" stroke="#000000" points="227.37,-245.66 217.41,-249.29 227.45,-252.66 227.37,-245.66"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge15" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.59,-170.41C267.97,-172.43 191.38,-171.59 130.77,-148.63 107.12,-139.68 84.34,-121.87 68.75,-107.79"/>
+<polygon fill="#000000" stroke="#000000" points="71.25,-105.34 61.56,-101.07 66.47,-110.45 71.25,-105.34"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~vars -->
+<g id="module~~cold_reference~~UsesGraph_edge18" class="edge">
+<title>module~kinetic_core&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.46,-176.91C286.75,-183.34 252.63,-191.88 226.88,-198.32"/>
+<polygon fill="#000000" stroke="#000000" points="226.38,-194.84 217.53,-200.66 228.08,-201.63 226.38,-194.84"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;ieee_exceptions -->
+<g id="module~~cold_reference~~UsesGraph_edge16" class="edge">
+<title>module~kinetic_core&#45;&gt;ieee_exceptions</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M312.46,-158.36C293.45,-153.6 269.85,-147.7 248.43,-142.34"/>
+<polygon fill="#000000" stroke="#000000" points="249.49,-138.99 238.93,-139.96 247.79,-145.78 249.49,-138.99"/>
+</g>
+<!-- module~kinetic_core&#45;&gt;module~nrtype -->
+<g id="module~~cold_reference~~UsesGraph_edge17" class="edge">
+<title>module~kinetic_core&#45;&gt;module~nrtype</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M330.76,-180.17C310.53,-193.33 277.13,-214.08 246.54,-228.63 240.18,-231.66 233.25,-234.54 226.49,-237.15"/>
+<polygon fill="#000000" stroke="#000000" points="225.7,-233.71 217.54,-240.46 228.13,-240.27 225.7,-233.71"/>
+</g>
+<!-- iso_fortran_env -->
+<g id="module~~cold_reference~~UsesGraph_node8" class="node">
+<title>iso_fortran_env</title>
+<g id="a_module~~cold_reference~~UsesGraph_node8"><a xlink:href="http://fortranwiki.org/fortran/show/iso_fortran_env" xlink:title="iso_fortran_env">
+<polygon fill="#337ab7" stroke="#337ab7" points="94.02,-219.77 0.75,-219.77 0.75,-195.5 94.02,-195.5 94.02,-219.77"/>
+<text xml:space="preserve" text-anchor="middle" x="47.38" y="-204.03" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">iso_fortran_env</text>
+</a>
+</g>
+</g>
+<!-- module~vars&#45;&gt;iso_fortran_env -->
+<g id="module~~cold_reference~~UsesGraph_edge19" class="edge">
+<title>module~vars&#45;&gt;iso_fortran_env</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M161.46,-207.63C145.79,-207.63 125.24,-207.63 105.95,-207.63"/>
+<polygon fill="#000000" stroke="#000000" points="106,-204.13 96,-207.63 106,-211.13 106,-204.13"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge20" class="edge">
+<title>module~bessel_cache&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M308.93,-87.63C256.78,-87.63 165.92,-87.63 106.47,-87.63"/>
+<polygon fill="#000000" stroke="#000000" points="106.53,-84.13 96.53,-87.63 106.53,-91.13 106.53,-84.13"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~vars -->
+<g id="module~~cold_reference~~UsesGraph_edge22" class="edge">
+<title>module~bessel_cache&#45;&gt;module~vars</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M308.86,-100.26C299.84,-103.91 290.57,-108.36 282.54,-113.63 278.3,-116.42 235.59,-160.22 209.58,-187.04"/>
+<polygon fill="#000000" stroke="#000000" points="207.29,-184.37 202.85,-193.99 212.32,-189.24 207.29,-184.37"/>
+</g>
+<!-- module~bessel_cache&#45;&gt;module~harmonic_selection -->
+<g id="module~~cold_reference~~UsesGraph_edge21" class="edge">
+<title>module~bessel_cache&#45;&gt;module~harmonic_selection</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M308.79,-77.44C291.31,-73.06 270.51,-67.86 251.22,-63.03"/>
+<polygon fill="#000000" stroke="#000000" points="252.09,-59.65 241.54,-60.61 250.39,-66.44 252.09,-59.65"/>
+</g>
+<!-- module~harmonic_selection&#45;&gt;ieee_arithmetic -->
+<g id="module~~cold_reference~~UsesGraph_edge23" class="edge">
+<title>module~harmonic_selection&#45;&gt;ieee_arithmetic</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M143.97,-60.18C130.88,-63.94 116.36,-68.11 102.67,-72.04"/>
+<polygon fill="#000000" stroke="#000000" points="102.01,-68.59 93.37,-74.71 103.95,-75.32 102.01,-68.59"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulecold_referenceUsesGraph = svgPanZoom('#modulecold_referenceUsesGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsesGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsesGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="511pt" height="32pt"
+ viewBox="0.00 0.00 511.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 506.88,-28.27 506.88,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24.27 0,-24.27 0,0 54,0 54,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="144.13,-24.27 71.87,-24.27 71.87,0 144.13,0 144.13,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="108" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="231.63,-24.27 162.37,-24.27 162.37,0 231.63,0 231.63,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="197" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="306.26,-24.27 249.74,-24.27 249.74,0 306.26,0 306.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="278" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381.26,-24.27 324.74,-24.27 324.74,0 381.26,0 381.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="353" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="502.88,-24.27 399.12,-24.27 399.12,0 502.88,0 502.88,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="451" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+          <div class="card">
+      <h3 class="card-header card-title bg-light">Used by</h3>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: module~~cold_reference~~UsedByGraph Pages: 1 -->
+<svg id="modulecold_referenceUsedByGraph" width="641pt" height="179pt"
+ viewBox="0.00 0.00 641.00 179.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="module~~cold_reference~~UsedByGraph" class="graph" transform="scale(0.970697 0.970697) rotate(0) translate(4 180.27)">
+<title>module~~cold_reference~~UsedByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-180.27 656.35,-180.27 656.35,4 -4,4"/>
+<!-- module~cold_reference -->
+<g id="module~~cold_reference~~UsedByGraph_node1" class="node">
+<title>module~cold_reference</title>
+<polygon fill="none" stroke="black" points="90.27,-73.27 0,-73.27 0,-49 90.27,-49 90.27,-73.27"/>
+<text xml:space="preserve" text-anchor="middle" x="45.13" y="-57.53" font-family="Helvetica,sans-Serif" font-size="10.50">cold_reference</text>
+</g>
+<!-- module~heating_response -->
+<g id="module~~cold_reference~~UsedByGraph_node2" class="node">
+<title>module~heating_response</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node2"><a xlink:href="../module/heating_response.html" xlink:title="heating_response">
+<polygon fill="#337ab7" stroke="#337ab7" points="231.54,-94.27 126.27,-94.27 126.27,-70 231.54,-70 231.54,-94.27"/>
+<text xml:space="preserve" text-anchor="middle" x="178.9" y="-78.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_response</text>
+</a>
+</g>
+</g>
+<!-- module~heating_response&#45;&gt;module~cold_reference -->
+<g id="module~~cold_reference~~UsedByGraph_edge1" class="edge">
+<title>module~heating_response&#45;&gt;module~cold_reference</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M125.83,-73.84C117.91,-72.57 109.71,-71.27 101.71,-69.99"/>
+<polygon fill="#000000" stroke="#000000" points="102.52,-66.58 92.1,-68.46 101.42,-73.49 102.52,-66.58"/>
+</g>
+<!-- proc~disp_mixed -->
+<g id="module~~cold_reference~~UsedByGraph_node3" class="node">
+<title>proc~disp_mixed</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node3"><a xlink:href="../proc/disp_mixed.html" xlink:title="disp_mixed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="214.66,-52.27 143.14,-52.27 143.14,-28 214.66,-28 214.66,-52.27"/>
+<text xml:space="preserve" text-anchor="middle" x="178.9" y="-36.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed</text>
+</a>
+</g>
+</g>
+<!-- proc~disp_mixed&#45;&gt;module~cold_reference -->
+<g id="module~~cold_reference~~UsedByGraph_edge2" class="edge">
+<title>proc~disp_mixed&#45;&gt;module~cold_reference</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M142.94,-45.71C130.3,-47.72 115.71,-50.05 101.74,-52.27"/>
+<polygon fill="#000000" stroke="#000000" points="101.55,-48.76 92.23,-53.79 102.65,-55.67 101.55,-48.76"/>
+</g>
+<!-- module~heating_diagnostics -->
+<g id="module~~cold_reference~~UsedByGraph_node4" class="node">
+<title>module~heating_diagnostics</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node4"><a xlink:href="../module/heating_diagnostics.html" xlink:title="heating_diagnostics">
+<polygon fill="#337ab7" stroke="#337ab7" points="515.58,-136.27 398.31,-136.27 398.31,-112 515.58,-112 515.58,-136.27"/>
+<text xml:space="preserve" text-anchor="middle" x="456.94" y="-120.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_diagnostics</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~heating_response -->
+<g id="module~~cold_reference~~UsedByGraph_edge3" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M397.96,-119.55C360.57,-116.13 310.98,-110.73 267.54,-103.13 258.12,-101.49 248.21,-99.43 238.58,-97.26"/>
+<polygon fill="#000000" stroke="#000000" points="239.44,-93.86 228.91,-95 237.86,-100.68 239.44,-93.86"/>
+</g>
+<!-- module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_node5" class="node">
+<title>module~heating_energy</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node5"><a xlink:href="../module/heating_energy.html" xlink:title="heating_energy">
+<polygon fill="#337ab7" stroke="#337ab7" points="362.31,-94.27 267.54,-94.27 267.54,-70 362.31,-70 362.31,-94.27"/>
+<text xml:space="preserve" text-anchor="middle" x="314.92" y="-78.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">heating_energy</text>
+</a>
+</g>
+</g>
+<!-- module~heating_diagnostics&#45;&gt;module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_edge11" class="edge">
+<title>module~heating_diagnostics&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M413.93,-111.53C399.67,-107.26 383.56,-102.42 368.57,-97.93"/>
+<polygon fill="#000000" stroke="#000000" points="369.94,-94.68 359.36,-95.16 367.93,-101.39 369.94,-94.68"/>
+</g>
+<!-- module~heating_energy&#45;&gt;module~heating_response -->
+<g id="module~~cold_reference~~UsedByGraph_edge4" class="edge">
+<title>module~heating_energy&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M267.05,-82.13C259.36,-82.13 251.27,-82.13 243.25,-82.13"/>
+<polygon fill="#000000" stroke="#000000" points="243.53,-78.64 233.53,-82.14 243.53,-85.64 243.53,-78.64"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="module~~cold_reference~~UsedByGraph_node6" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node6"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="652.35,-83.27 551.58,-83.27 551.58,-59 652.35,-59 652.35,-83.27"/>
+<text xml:space="preserve" text-anchor="middle" x="601.96" y="-67.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_response -->
+<g id="module~~cold_reference~~UsedByGraph_edge5" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M558.54,-58.56C530.32,-51.19 492.26,-43.12 457.94,-42.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M455.94,-42.13C393.74,-40.35 376.8,-29.19 315.92,-42.13"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~cold_reference~~UsedByGraph_edge7" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M567.74,-83.67C551.95,-89.6 532.8,-96.77 515.58,-103.13 511.65,-104.59 507.57,-106.09 503.48,-107.59"/>
+<polygon fill="#000000" stroke="#000000" points="502.32,-104.29 494.13,-111.01 504.72,-110.86 502.32,-104.29"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_edge12" class="edge">
+<title>proc~om_double_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M455.94,-42.13C419.69,-41.09 380.1,-53.78 352.3,-65.14"/>
+<polygon fill="#000000" stroke="#000000" points="351.11,-61.84 343.28,-68.96 353.85,-68.28 351.11,-61.84"/>
+</g>
+<!-- proc~om_scan -->
+<g id="module~~cold_reference~~UsedByGraph_node7" class="node">
+<title>proc~om_scan</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node7"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="631.35,-24.27 572.58,-24.27 572.58,0 631.35,0 631.35,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="601.96" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_response -->
+<g id="module~~cold_reference~~UsedByGraph_edge6" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_response</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M572.27,-6.82C543.24,-2.32 497.19,2.45 457.94,-4.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M455.94,-4.13C392.35,-14.81 379,-28.72 315.92,-42.13"/>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M313.92,-42.13C284.65,-48.36 252.5,-57.86 227.02,-66.05"/>
+<polygon fill="#000000" stroke="#000000" points="226.05,-62.68 217.62,-69.11 228.22,-69.34 226.05,-62.68"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_diagnostics -->
+<g id="module~~cold_reference~~UsedByGraph_edge8" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M581.98,-24.58C572.27,-31.45 560.63,-40.53 551.58,-50.13 532.05,-70.86 538.04,-85.64 515.58,-103.13 514.27,-104.16 512.9,-105.13 511.49,-106.06"/>
+<polygon fill="#000000" stroke="#000000" points="510,-102.89 503,-110.84 513.43,-108.99 510,-102.89"/>
+</g>
+<!-- proc~om_scan&#45;&gt;module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_edge13" class="edge">
+<title>proc~om_scan&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M455.94,-4.13C428.58,-8.73 422.28,-14.16 398.31,-28.13 380.8,-38.34 379.2,-44.93 362.31,-56.13 358.33,-58.78 354.06,-61.41 349.79,-63.94"/>
+<polygon fill="#000000" stroke="#000000" points="348.19,-60.82 341.25,-68.83 351.66,-66.9 348.19,-60.82"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="module~~cold_reference~~UsedByGraph_node8" class="node">
+<title>proc~read_in_params</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node8"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="650.1,-134.27 553.83,-134.27 553.83,-110 650.1,-110 650.1,-134.27"/>
+<text xml:space="preserve" text-anchor="middle" x="601.96" y="-118.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;module~heating_diagnostics -->
+<g id="module~~cold_reference~~UsedByGraph_edge9" class="edge">
+<title>proc~read_in_params&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M553.34,-122.8C545.04,-122.92 536.24,-123.04 527.49,-123.16"/>
+<polygon fill="#000000" stroke="#000000" points="527.52,-119.66 517.57,-123.3 527.62,-126.66 527.52,-119.66"/>
+</g>
+<!-- proc~scan_read -->
+<g id="module~~cold_reference~~UsedByGraph_node9" class="node">
+<title>proc~scan_read</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node9"><a xlink:href="../proc/scan_read.html" xlink:title="scan_read">
+<polygon fill="#d9534f" stroke="#d9534f" points="489.7,-94.27 424.18,-94.27 424.18,-70 489.7,-70 489.7,-94.27"/>
+<text xml:space="preserve" text-anchor="middle" x="456.94" y="-78.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_read</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_read&#45;&gt;module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_edge14" class="edge">
+<title>proc~scan_read&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M423.82,-82.13C408.99,-82.13 390.9,-82.13 373.81,-82.13"/>
+<polygon fill="#000000" stroke="#000000" points="374.28,-78.64 364.28,-82.14 374.28,-85.64 374.28,-78.64"/>
+</g>
+<!-- proc~test_disp -->
+<g id="module~~cold_reference~~UsedByGraph_node10" class="node">
+<title>proc~test_disp</title>
+<g id="a_module~~cold_reference~~UsedByGraph_node10"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="630.97,-176.27 572.95,-176.27 572.95,-152 630.97,-152 630.97,-176.27"/>
+<text xml:space="preserve" text-anchor="middle" x="601.96" y="-160.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_diagnostics -->
+<g id="module~~cold_reference~~UsedByGraph_edge10" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_diagnostics</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M572.71,-156.23C555.95,-151.54 534.11,-145.44 513.99,-139.81"/>
+<polygon fill="#000000" stroke="#000000" points="515.06,-136.48 504.49,-137.15 513.18,-143.22 515.06,-136.48"/>
+</g>
+<!-- proc~test_disp&#45;&gt;module~heating_energy -->
+<g id="module~~cold_reference~~UsedByGraph_edge15" class="edge">
+<title>proc~test_disp&#45;&gt;module~heating_energy</title>
+<path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M572.64,-166.29C532.4,-168.3 457.05,-168.13 398.31,-145.13 374.34,-135.75 351.45,-117.2 335.91,-102.65"/>
+<polygon fill="#000000" stroke="#000000" points="338.36,-100.15 328.75,-95.7 333.49,-105.18 338.36,-100.15"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panmodulecold_referenceUsedByGraph = svgPanZoom('#modulecold_referenceUsedByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#UsedByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="UsedByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="511pt" height="32pt"
+ viewBox="0.00 0.00 511.00 32.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 506.88,-28.27 506.88,4 -4,4"/>
+<!-- Module -->
+<g id="node1" class="node">
+<title>Module</title>
+<polygon fill="#337ab7" stroke="#337ab7" points="54,-24.27 0,-24.27 0,0 54,0 54,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Module</text>
+</g>
+<!-- Submodule -->
+<g id="node2" class="node">
+<title>Submodule</title>
+<polygon fill="#5bc0de" stroke="#5bc0de" points="144.13,-24.27 71.87,-24.27 71.87,0 144.13,0 144.13,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="108" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Submodule</text>
+</g>
+<!-- Subroutine -->
+<g id="node3" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="231.63,-24.27 162.37,-24.27 162.37,0 231.63,0 231.63,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="197" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node4" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="306.26,-24.27 249.74,-24.27 249.74,0 306.26,0 306.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="278" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Program -->
+<g id="node5" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="381.26,-24.27 324.74,-24.27 324.74,0 381.26,0 381.26,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="353" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node6" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="502.88,-24.27 399.12,-24.27 399.12,0 502.88,0 502.88,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="451" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a submodule to the (sub)module which it is
+descended from. Dashed arrows point from a module or program unit to 
+modules which it uses.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+            </li>
+        </ul>
+      </div>
+    </div>
+
+      <br>
+
+
+
+
+
+
+
+
+        <section>
+          <h2>Subroutines</h2>
+              <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-calc_warm_auxiliary"></span> <h3>public  subroutine <a href='../proc/calc_warm_auxiliary.html'>calc_warm_auxiliary</a>(spec, omega, kpar, kperp, va, chi, ierr, bessel, zet_in, chi_low, auxiliary_beta)  
+</h3></div>
+    <div class="card-body">
+          
+  
+
+  <h4>Arguments</h4>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-spec~4"></span>
+              type(<a href='../type/specie.html'>specie</a>),
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>spec</strong>(:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-omega~18"></span>
+              complex,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>omega</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kpar~13"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kpar</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kperp~11"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kperp</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-va"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>va</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chi~9"></span>
+              complex,
+            </td>
+<td>intent(inout)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chi</strong>(:,:,:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-ierr~22"></span>
+              integer,
+            </td>
+<td>intent(out)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>ierr</strong></td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function bessel(n, x)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-n~27"></span>
+              integer
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>n</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-x~22"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>x</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>real</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="7">
+              <small>    <h5>
+    private  function zet_in(k, z)  
+
+    </h5>
+  
+
+  <h6>Arguments</h6>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-k~4"></span>
+              real
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>k</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-z~12"></span>
+              complex
+            </td>
+<td></td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>z</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h6>
+    Return Value
+    <small>complex</small>
+    </h6>
+    
+</small>
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-chi_low~3"></span>
+              complex,
+            </td>
+<td>intent(out),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>chi_low</strong>(:,:,:,-1:)</td>
+            <td>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-auxiliary_beta~3"></span>
+              real,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>auxiliary_beta</strong></td>
+            <td>
+
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+    </div>
+  </div>
+
+        </section>
+        <br>
+
+
+
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

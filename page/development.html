@@ -1,0 +1,378 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>Developer APIs, verification and historical reports &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>Developer APIs, verification and historical reports</h1>
+    <div class="container p-2 mb-4 bg-light border rounded-3">
+      <div class="row align-items-center justify-content-between">
+        <div class="col">
+          <ul class="list-inline" style="margin-bottom:0px; display:inline">
+          </ul>
+        </div>
+        <div class="col">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='index.html'>Plasma in a Linear Uniform Magnetized Environment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Developer APIs, verification and historical reports</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+      <div class="col-3">
+        <div class="card card-body bg-light" id="sidebar-toc">
+          <ul class="nav flex-column align-items">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Plasma in a Linear Uniform Magnetized Environment</a>
+            </li>
+          </ul>
+          <hr>
+          <nav class="nav nav-pills flex-column">
+              <a class="nav-link" href="INSTALL.html">Installation and verification</a>
+              <a class="nav-link" href="tutorial.html">Quick Start: a small mixed-plasma wave</a>
+              <a class="nav-link" href="input.html">Input reference</a>
+              <a class="nav-link" href="normalization.html">Normalization and physical units</a>
+              <a class="nav-link" href="models.html">Plasma Models</a>
+              <a class="nav-link" href="modes.html">Calculation modes, maps and continuation</a>
+              <a class="nav-link" href="eigenfunctions.html">Electromagnetic eigenfunctions and species moments</a>
+              <a class="nav-link" href="heating.html">Kinetic absorption/emission and electromagnetic wave energy</a>
+              <a class="nav-link" href="output.html">Output files and Python reading</a>
+              <a class="nav-link" href="examples.html">Examples: a twelve-lesson curriculum</a>
+              <a class="nav-link" href="numerics.html">Numerical methods and scientific checks</a>
+              <a class="nav-link" href="limitations.html">Limitations and troubleshooting</a>
+              <a class="nav-link" href="reproducibility.html">Historical reproduction and provenance</a>
+              <a class="nav-link active disabled" href="development.html">Developer APIs, verification and historical reports</a>
+              <a class="nav-link" href="README-JETPLUME.html">JET-PLUME: historical field-particle correlations</a>
+          </nav>
+        </div>
+      </div>
+
+    <div class="col-9" id='text'>
+      <p><a id="developer-apis-verification-and-historical-reports"></a></p>
+<h1>Developer APIs, verification and historical reports</h1>
+<p><a href="index.html">Manual home</a> · <a href="numerics.html">Numerics</a> · <a href="input.html">Input contract</a></p>
+<p>The scientific user entry points are the manual and input workflows, not a list
+of generic internal procedures. FORD-generated API documentation remains useful
+for developers tracing exact signatures and source comments. It is not an
+alternative authoritative definition when historical comments conflict with
+current equations, output writers or tests.</p>
+<p><a id="dependency-map"></a></p>
+<h2>Dependency map</h2>
+<div class="codehilite"><pre><span></span><code><span class="n">plume</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">functions</span><span class="o">:</span><span class="w"> </span><span class="nf">parse</span><span class="w"> </span><span class="n">indexed</span><span class="w"> </span><span class="n">namelists</span><span class="w"> </span><span class="kr">and</span><span class="w"> </span><span class="kr">validate</span>
+<span class="w">              </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">map_search</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">refine_guess</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="kr">scan</span><span class="w"> </span><span class="n">loops</span>
+<span class="w">                 </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">disp</span><span class="o">:</span><span class="w"> </span><span class="n">composition</span><span class="o">/</span><span class="n">normalization</span><span class="w"> </span><span class="n">dispatch</span>
+<span class="w">                    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">kinetic</span><span class="w"> </span><span class="kr">or</span><span class="w"> </span><span class="n">auxiliary</span><span class="w"> </span><span class="n">kinetic</span><span class="w"> </span><span class="n">response</span>
+<span class="w">                    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">cold</span><span class="w"> </span><span class="n">susceptibility</span>
+<span class="w">                    </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">species</span><span class="w"> </span><span class="n">susc</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="n">lam</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">determinant</span>
+<span class="w">                 </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">electromagnetic</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="kr">and</span><span class="w"> </span><span class="n">species</span><span class="w"> </span><span class="n">moments</span>
+<span class="w">                 </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">corrected</span><span class="w"> </span><span class="kr">local</span><span class="w"> </span><span class="n">heating</span><span class="o">/</span><span class="n">energy</span><span class="w"> </span><span class="n">snapshots</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">companion</span><span class="w"> </span><span class="n">writer</span>
+<span class="w">                 </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">mode</span><span class="o">/</span><span class="n">tensor</span><span class="w"> </span><span class="n">writers</span>
+</code></pre></div>
+
+<p>Species chi uses ordinary dimensionless susceptibility; lambda includes vacuum
+and electromagnetic terms once. <code>solver_*</code> are derived thermal coordinates,
+not authoritative physical inputs. Cold-reference and fully cold dispatch must
+not construct a physical zero-temperature gyroradius. Heating derivatives must
+not leave global state at the real or perturbed frequency rather than the
+accepted complex mode.</p>
+<p><a id="api-entry-points"></a></p>
+<h2>API entry points</h2>
+<p>FORD links below resolve in a built current-source site. They retain the existing
+modules/procedures rather than introducing a second documentation API.</p>
+<table>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../module/disprels.html">disprels</a> / <a href="../proc/disp.html">disp</a></td>
+<td>Public production determinant callback, ordinary species susc and total lam</td>
+</tr>
+<tr>
+<td><a href="../module/functions.html">functions</a> / <a href="../proc/read_in_params.html">read_in_params</a></td>
+<td>Input parser and indexed-group setup</td>
+</tr>
+<tr>
+<td><a href="../module/vars.html">vars</a></td>
+<td>Physical species/scanner types, input and derived state</td>
+</tr>
+<tr>
+<td><a href="../proc/calc_chi_cold.html">calc_chi_cold</a></td>
+<td>Explicit single-species cold response, native inertial coordinates, status codes</td>
+</tr>
+<tr>
+<td><a href="../proc/calc_warm_auxiliary.html">calc_warm_auxiliary</a></td>
+<td>Warm response in explicit auxiliary coordinates, physical inputs read-only</td>
+</tr>
+<tr>
+<td><a href="../proc/calc_em_eigen.html">calc_em_eigen</a> / <a href="../proc/calc_em_fields.html">calc_em_fields</a></td>
+<td>Existing Ex=1 field method with explicit physical normalization</td>
+</tr>
+<tr>
+<td><a href="../proc/calc_cold_moments.html">calc_cold_moments</a> / <a href="../proc/calc_kinetic_moments.html">calc_kinetic_moments</a></td>
+<td>Explicit species fluid or susceptibility-current moment kernels</td>
+</tr>
+<tr>
+<td><a href="../proc/calculate_heating.html">calculate_heating</a> / <a href="../proc/write_energy_record.html">write_energy_record</a></td>
+<td>State-isolated corrected diagnostics and versioned companion writer</td>
+</tr>
+<tr>
+<td><a href="../proc/zet_in.html">zet_in</a></td>
+<td>Production-facing signed-k Z interface, selectable backend</td>
+</tr>
+<tr>
+<td><a href="../proc/rtsec.html">rtsec</a></td>
+<td>Existing secant method; not a replacement root algorithm</td>
+</tr>
+<tr>
+<td><a href="../module/fpc.html">fpc</a></td>
+<td>Historical all-kinetic FPC distribution/debug routines</td>
+</tr>
+</tbody>
+</table>
+<p>The new numerical modules follow compiler-promoted production real/complex
+kinds and strict IEEE behavior where required. Do not assume nrtype::DP is
+binary64 under every promoted build. The Faddeeva C ABI explicitly uses the
+ISO C double-complex interface. Shared kinetic includes avoid independently
+edited copies of the equations; fixed128 compiler-sensitive arithmetic is
+protected by exact tests.</p>
+<p><a id="verification"></a></p>
+<h2>Verification</h2>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>-j2
+<span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/plume-mpl<span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>tests<span class="w"> </span>-p<span class="w"> </span><span class="s1">'test_*.py'</span><span class="w"> </span>-v
+</code></pre></div>
+
+<p>Tests include independent cold fluid/current solutions, NHDS/Stix tensor
+references, SciPy/Faddeeva and optional arbitrary precision, componentwise
+susceptibility checks, roots, field/nullspace/Faraday checks, energy derivatives,
+reader markers, wrapper roundtrips and checked Fortran builds. A passing suite
+is evidence for those cases, not universal validation of collisional/FPC or
+strong-mode interpretations. Exact expected data should not be edited to hide
+numerical changes. <a href="reproducibility.html">Historical reproduction</a> identifies the
+pinned comparisons and settings.</p>
+<p><a id="local-documentation-build"></a></p>
+<h2>Local documentation build</h2>
+<p>The current manual sources are the Markdown files in <code>docs/</code>, with
+<code>docs/index.md</code> as the homepage and images in <code>docs/assets/</code>. The GitHub overview
+remains in the root <code>README.md</code>. From the repository root, run:</p>
+<div class="codehilite"><pre><span></span><code>./scripts/build_docs.sh
+xdg-open<span class="w"> </span>docs_out/page/index.html
+</code></pre></div>
+
+<p>The script requires Python 3, FORD and Graphviz. It stages the complete manual
+in a temporary directory, converts local Markdown links without changing the
+sources, and generates API documentation from the current Fortran sources.
+Historical reports remain in <code>tests/</code> and are linked through the evidence index
+below rather than listed in primary navigation.</p>
+<p>Before replacing <code>docs_out/</code>, the builder checks all manual pages, local links,
+fragments, images, parameter anchors, rendered tables, math markup and linked API
+destinations. It preserves the previous output in a uniquely named backup.
+Detailed validation results and separate generated API link issues are recorded
+in <code>docs_out/validation.json</code>; FORD warnings are recorded in <code>docs_out/build.log</code>.
+The checker can also be run independently:</p>
+<div class="codehilite"><pre><span></span><code>python3<span class="w"> </span>tests/check_user_manual.py<span class="w"> </span>--site<span class="w"> </span>docs_out
+</code></pre></div>
+
+<p>The documentation CI workflow uses the same builder and retains its existing
+publication triggers. Running the local script does not deploy a website or
+fetch the optional ADS citing-paper list. External references are not certified
+by local link checks, and MathJax uses an external CDN. Existing FORD interface
+anchor defects and source-comment parsing warnings can remain even when manual
+validation passes; inspect the generated reports rather than treating a
+successful build as scientific validation.</p>
+<p><a id="historical-development-evidence"></a></p>
+<h2>Historical development evidence</h2>
+<p>The following reports describe the state <strong>at their development milestone</strong>.
+Statements such as “heating is deferred” or “warm species with a cold reference
+are rejected” may be superseded. Use <a href="models.html">Models</a>, <a href="heating.html">Heating</a>
+and <a href="output.html">Output</a> for the current supported contract. The reports retain
+scientific derivations, independent benchmarks and implementation rationale.</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Historical report / evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dual normalization</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/NORMALIZATION_IMPLEMENTATION_HISTORY.md">Original implementation audit</a></td>
+</tr>
+<tr>
+<td>Cold kernel convention</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/COLD_SUSCEPTIBILITY_DESIGN.md">Cold susceptibility design</a></td>
+</tr>
+<tr>
+<td>Mixed dispersion, warm reference</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/MIXED_DISPERSION_REPORT.md">Mixed dispersion report</a></td>
+</tr>
+<tr>
+<td>Fully cold dispersion</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/FULLY_COLD_DISPERSION_REPORT.md">Fully cold report</a></td>
+</tr>
+<tr>
+<td>Auxiliary scale mathematics</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/AUXILIARY_THERMAL_NORMALIZATION.md">Auxiliary audit</a></td>
+</tr>
+<tr>
+<td>Cold-reference mixed production</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/COLD_REFERENCE_MIXED_REPORT.md">Cold-reference report</a></td>
+</tr>
+<tr>
+<td>Adaptive harmonics/cache</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/ADAPTIVE_BESSEL_CACHE_REPORT.md">Bessel report</a></td>
+</tr>
+<tr>
+<td>Z accuracy audit</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/PLASMA_DISPERSION_AUDIT.md">Plasma dispersion audit</a></td>
+</tr>
+<tr>
+<td>Faddeeva integration</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/FADDEEVA_BACKEND_REPORT.md">Faddeeva report</a></td>
+</tr>
+<tr>
+<td>Collisional zz</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/COLLISIONAL_ZZ_CORRECTION.md">Longitudinal correction</a>; not general collisional validation</td>
+</tr>
+<tr>
+<td>Mixed scans</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/MIXED_SCAN_REPORT.md">Scan report</a></td>
+</tr>
+<tr>
+<td>Electromagnetic fields</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/MIXED_EIGENFUNCTION_REPORT.md">Field report</a></td>
+</tr>
+<tr>
+<td>Species moments</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/COLD_FLUID_EIGENFUNCTION_REPORT.md">Cold-fluid/kinetic moments</a></td>
+</tr>
+<tr>
+<td>Heating audit and correction</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/MIXED_HEATING_ENERGY_AUDIT.md">Audit</a>, <a href="https://github.com/kgklein/PLUME/blob/main/tests/MIXED_HEATING_ENERGY_REPORT.md">corrected implementation</a></td>
+</tr>
+<tr>
+<td>Documentation/output inventory</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/PLUME_DOCUMENTATION_OUTPUT_AUDIT.md">Stage 5A</a></td>
+</tr>
+<tr>
+<td>Targeted reader/workflow fixes</td>
+<td><a href="https://github.com/kgklein/PLUME/blob/main/tests/PLUME_5B0_CORRECTIONS.md">Stage 5B.0</a></td>
+</tr>
+</tbody>
+</table>
+<p>Companion audit JSON files remain alongside these reports. None of their frozen
+historical measurements is rewritten to match current documentation or tests.</p>
+    </div>
+  </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

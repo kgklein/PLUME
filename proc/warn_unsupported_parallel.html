@@ -1,0 +1,756 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>warn_unsupported_parallel &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>warn_unsupported_parallel
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">10 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/scan_support.html'>scan_support</a></li>
+            <li class="breadcrumb-item active" aria-current="page">warn_unsupported_parallel</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine warn_unsupported_parallel(kp)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-kp"></span>
+              real,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>kp</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Calls</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~warn_unsupported_parallel~~CallsGraph Pages: 1 -->
+<svg id="procwarn_unsupported_parallelCallsGraph" width="576pt" height="94pt"
+ viewBox="0.00 0.00 576.00 94.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~warn_unsupported_parallel~~CallsGraph" class="graph" transform="scale(1 1) rotate(0) translate(4 90.27)">
+<title>proc~~warn_unsupported_parallel~~CallsGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-90.27 572.08,-90.27 572.08,4 -4,4"/>
+<!-- proc~warn_unsupported_parallel -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_node1" class="node">
+<title>proc~warn_unsupported_parallel</title>
+<polygon fill="none" stroke="black" points="156.27,-45.27 0,-45.27 0,-21 156.27,-21 156.27,-45.27"/>
+<text xml:space="preserve" text-anchor="middle" x="78.13" y="-29.53" font-family="Helvetica,sans-Serif" font-size="10.50">warn_unsupported_parallel</text>
+</g>
+<!-- proc~emit_warning -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_node2" class="node">
+<title>proc~emit_warning</title>
+<g id="a_proc~~warn_unsupported_parallel~~CallsGraph_node2"><a xlink:href="../proc/emit_warning.html" xlink:title="emit_warning">
+<polygon fill="#d9534f" stroke="#d9534f" points="285.54,-66.27 202.02,-66.27 202.02,-42 285.54,-42 285.54,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="243.78" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">emit_warning</text>
+</a>
+</g>
+</g>
+<!-- proc~warn_unsupported_parallel&#45;&gt;proc~emit_warning -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_edge1" class="edge">
+<title>proc~warn_unsupported_parallel&#45;&gt;proc~emit_warning</title>
+<path fill="none" stroke="#000000" d="M156.64,-43.08C168.05,-44.55 179.57,-46.02 190.31,-47.4"/>
+<polygon fill="#000000" stroke="#000000" points="189.75,-50.86 200.11,-48.66 190.64,-43.92 189.75,-50.86"/>
+</g>
+<!-- proc~has_cold_species -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_node3" class="node">
+<title>proc~has_cold_species</title>
+<g id="a_proc~~warn_unsupported_parallel~~CallsGraph_node3"><a xlink:href="../proc/has_cold_species.html" xlink:title="has_cold_species">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="295.29,-24.27 192.27,-24.27 192.27,0 295.29,0 295.29,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="243.78" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">has_cold_species</text>
+</a>
+</g>
+</g>
+<!-- proc~warn_unsupported_parallel&#45;&gt;proc~has_cold_species -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_edge2" class="edge">
+<title>proc~warn_unsupported_parallel&#45;&gt;proc~has_cold_species</title>
+<path fill="none" stroke="#000000" d="M156.64,-23.19C164.75,-22.15 172.91,-21.1 180.81,-20.09"/>
+<polygon fill="#000000" stroke="#000000" points="181.18,-23.57 190.65,-18.82 180.29,-16.63 181.18,-23.57"/>
+</g>
+<!-- proc~close_warnings -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_node4" class="node">
+<title>proc~close_warnings</title>
+<g id="a_proc~~warn_unsupported_parallel~~CallsGraph_node4"><a xlink:href="../proc/close_warnings.html" xlink:title="close_warnings">
+<polygon fill="#d9534f" stroke="#d9534f" points="423.81,-86.27 331.29,-86.27 331.29,-62 423.81,-62 423.81,-86.27"/>
+<text xml:space="preserve" text-anchor="middle" x="377.55" y="-70.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">close_warnings</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~close_warnings -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_edge3" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~close_warnings</title>
+<path fill="none" stroke="#000000" d="M285.75,-60.35C296.52,-61.99 308.32,-63.78 319.76,-65.52"/>
+<polygon fill="#000000" stroke="#000000" points="319.11,-68.96 329.52,-67 320.16,-62.04 319.11,-68.96"/>
+</g>
+<!-- proc~warning_io_failure -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_node5" class="node">
+<title>proc~warning_io_failure</title>
+<g id="a_proc~~warn_unsupported_parallel~~CallsGraph_node5"><a xlink:href="../proc/warning_io_failure.html" xlink:title="warning_io_failure">
+<polygon fill="#d9534f" stroke="#d9534f" points="568.08,-66.27 459.81,-66.27 459.81,-42 568.08,-42 568.08,-66.27"/>
+<text xml:space="preserve" text-anchor="middle" x="513.94" y="-50.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">warning_io_failure</text>
+</a>
+</g>
+</g>
+<!-- proc~emit_warning&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_edge4" class="edge">
+<title>proc~emit_warning&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M285.71,-53.56C300.11,-53.39 316.42,-53.22 331.29,-53.13 372.41,-52.9 382.69,-52.9 423.81,-53.13 431.7,-53.18 439.98,-53.25 448.19,-53.32"/>
+<polygon fill="#000000" stroke="#000000" points="448.14,-56.82 458.17,-53.42 448.21,-49.82 448.14,-56.82"/>
+</g>
+<!-- proc~close_warnings&#45;&gt;proc~warning_io_failure -->
+<g id="proc~~warn_unsupported_parallel~~CallsGraph_edge5" class="edge">
+<title>proc~close_warnings&#45;&gt;proc~warning_io_failure</title>
+<path fill="none" stroke="#000000" d="M424.05,-67.36C431.9,-66.2 440.2,-64.96 448.44,-63.73"/>
+<polygon fill="#000000" stroke="#000000" points="448.73,-67.23 458.1,-62.3 447.7,-60.31 448.73,-67.23"/>
+</g>
+</g>
+</svg>
+</div>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CallsGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CallsGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~warn_unsupported_parallel~~CalledByGraph Pages: 1 -->
+<svg id="procwarn_unsupported_parallelCalledByGraph" width="641pt" height="168pt"
+ viewBox="0.00 0.00 641.00 168.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph" class="graph" transform="scale(0.604506 0.604506) rotate(0) translate(4 274.27)">
+<title>proc~~warn_unsupported_parallel~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-274.27 1056.37,-274.27 1056.37,4 -4,4"/>
+<!-- proc~warn_unsupported_parallel -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node1" class="node">
+<title>proc~warn_unsupported_parallel</title>
+<polygon fill="none" stroke="black" points="1052.37,-144.27 896.1,-144.27 896.1,-120 1052.37,-120 1052.37,-144.27"/>
+<text xml:space="preserve" text-anchor="middle" x="974.23" y="-128.53" font-family="Helvetica,sans-Serif" font-size="10.50">warn_unsupported_parallel</text>
+</g>
+<!-- proc~check_scan_kpar -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node2" class="node">
+<title>proc~check_scan_kpar</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node2"><a xlink:href="../proc/check_scan_kpar.html" xlink:title="check_scan_kpar">
+<polygon fill="#d9534f" stroke="#d9534f" points="860.1,-185.27 757.83,-185.27 757.83,-161 860.1,-161 860.1,-185.27"/>
+<text xml:space="preserve" text-anchor="middle" x="808.96" y="-169.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">check_scan_kpar</text>
+</a>
+</g>
+</g>
+<!-- proc~check_scan_kpar&#45;&gt;proc~warn_unsupported_parallel -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge1" class="edge">
+<title>proc~check_scan_kpar&#45;&gt;proc~warn_unsupported_parallel</title>
+<path fill="none" stroke="#000000" d="M859.84,-160.61C876.3,-156.48 894.81,-151.83 912.02,-147.51"/>
+<polygon fill="#000000" stroke="#000000" points="912.79,-150.92 921.64,-145.09 911.08,-144.13 912.79,-150.92"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node3" class="node">
+<title>proc~read_in_params</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node3"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="332.79,-24.27 236.52,-24.27 236.52,0 332.79,0 332.79,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;proc~warn_unsupported_parallel -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge2" class="edge">
+<title>proc~read_in_params&#45;&gt;proc~warn_unsupported_parallel</title>
+<path fill="none" stroke="#000000" d="M333.23,-13.6C386.41,-15.7 474.99,-20.53 550.56,-31.13 686.32,-50.18 842.3,-93.07 921.4,-116.36"/>
+<polygon fill="#000000" stroke="#000000" points="920.01,-119.6 930.59,-119.09 922,-112.89 920.01,-119.6"/>
+</g>
+<!-- proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node4" class="node">
+<title>proc~scan_coordinates</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node4"><a xlink:href="../proc/scan_coordinates.html" xlink:title="scan_coordinates">
+<polygon fill="#d9534f" stroke="#d9534f" points="706.45,-144.27 601.93,-144.27 601.93,-120 706.45,-120 706.45,-144.27"/>
+<text xml:space="preserve" text-anchor="middle" x="654.19" y="-128.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">scan_coordinates</text>
+</a>
+</g>
+</g>
+<!-- proc~scan_coordinates&#45;&gt;proc~warn_unsupported_parallel -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge3" class="edge">
+<title>proc~scan_coordinates&#45;&gt;proc~warn_unsupported_parallel</title>
+<path fill="none" stroke="#000000" d="M706.65,-132.13C754.61,-132.13 827.15,-132.13 884.45,-132.13"/>
+<polygon fill="#000000" stroke="#000000" points="884.19,-135.64 894.19,-132.14 884.19,-128.64 884.19,-135.64"/>
+</g>
+<!-- proc~apply_parameter_point -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node5" class="node">
+<title>proc~apply_parameter_point</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node5"><a xlink:href="../proc/apply_parameter_point.html" xlink:title="apply_parameter_point">
+<polygon fill="#d9534f" stroke="#d9534f" points="721.83,-225.27 586.56,-225.27 586.56,-201 721.83,-201 721.83,-225.27"/>
+<text xml:space="preserve" text-anchor="middle" x="654.19" y="-209.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">apply_parameter_point</text>
+</a>
+</g>
+</g>
+<!-- proc~apply_parameter_point&#45;&gt;proc~check_scan_kpar -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge4" class="edge">
+<title>proc~apply_parameter_point&#45;&gt;proc~check_scan_kpar</title>
+<path fill="none" stroke="#000000" d="M703.11,-200.59C717.69,-196.77 733.88,-192.53 749.09,-188.55"/>
+<polygon fill="#000000" stroke="#000000" points="749.7,-192.01 758.49,-186.09 747.93,-185.24 749.7,-192.01"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node6" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node6"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="498.81,-64.27 433.29,-64.27 433.29,-40 498.81,-40 498.81,-64.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-48.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~check_scan_kpar -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge5" class="edge">
+<title>proc~map_scan&#45;&gt;proc~check_scan_kpar</title>
+<path fill="none" stroke="#000000" d="M498.93,-55.42C548.48,-61.42 646.16,-76.82 721.83,-111.13 745.62,-121.92 769.47,-139.77 786.02,-153.56"/>
+<polygon fill="#000000" stroke="#000000" points="783.39,-155.91 793.27,-159.74 787.94,-150.59 783.39,-155.91"/>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge9" class="edge">
+<title>proc~map_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M499.26,-60.67C514.97,-65.21 534.01,-71.27 550.56,-78.13 575.43,-88.45 602.31,-102.72 622.33,-114"/>
+<polygon fill="#000000" stroke="#000000" points="620.39,-116.92 630.81,-118.84 623.86,-110.84 620.39,-116.92"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node7" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node7"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="516.43,-270.27 415.66,-270.27 415.66,-246 516.43,-246 516.43,-270.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-254.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~check_scan_kpar -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge6" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~check_scan_kpar</title>
+<path fill="none" stroke="#000000" d="M516.61,-260.9C569.2,-262.16 653.93,-259.31 721.83,-234.13 746.33,-225.05 770.26,-207.16 786.65,-193.09"/>
+<polygon fill="#000000" stroke="#000000" points="788.65,-196.01 793.81,-186.76 784,-190.77 788.65,-196.01"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge10" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M516.92,-251.17C528.57,-248.08 540.5,-243.6 550.56,-237.13 572.11,-223.29 568.98,-210.77 586.56,-192.13 600.01,-177.87 616.36,-163.12 629.49,-151.82"/>
+<polygon fill="#000000" stroke="#000000" points="631.49,-154.71 636.84,-145.57 626.96,-149.38 631.49,-154.71"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge14" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M516.93,-246.08C539.43,-240.64 566.26,-234.15 590.13,-228.38"/>
+<polygon fill="#000000" stroke="#000000" points="590.85,-231.81 599.75,-226.05 589.21,-225 590.85,-231.81"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node8" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node8"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="495.43,-186.27 436.66,-186.27 436.66,-162 495.43,-162 495.43,-186.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-170.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~check_scan_kpar -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge7" class="edge">
+<title>proc~om_scan&#45;&gt;proc~check_scan_kpar</title>
+<path fill="none" stroke="#000000" d="M495.82,-174.05C550.75,-173.89 671.69,-173.53 745.86,-173.32"/>
+<polygon fill="#000000" stroke="#000000" points="745.85,-176.82 755.84,-173.29 745.83,-169.82 745.85,-176.82"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge11" class="edge">
+<title>proc~om_scan&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M495.73,-167.66C520.91,-161.98 558.42,-153.52 590.51,-146.28"/>
+<polygon fill="#000000" stroke="#000000" points="591.15,-149.72 600.13,-144.11 589.61,-142.89 591.15,-149.72"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge15" class="edge">
+<title>proc~om_scan&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M495.73,-180.14C518.8,-184.98 552.22,-191.98 582.35,-198.29"/>
+<polygon fill="#000000" stroke="#000000" points="581.28,-201.64 591.79,-200.27 582.72,-194.79 581.28,-201.64"/>
+</g>
+<!-- proc~prepare_scan_start -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node9" class="node">
+<title>proc~prepare_scan_start</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node9"><a xlink:href="../proc/prepare_scan_start.html" xlink:title="prepare_scan_start">
+<polygon fill="#d9534f" stroke="#d9534f" points="522.06,-144.27 410.04,-144.27 410.04,-120 522.06,-120 522.06,-144.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-128.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">prepare_scan_start</text>
+</a>
+</g>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge12" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M522.4,-132.13C543.75,-132.13 568.3,-132.13 590.31,-132.13"/>
+<polygon fill="#000000" stroke="#000000" points="590.05,-135.64 600.05,-132.14 590.05,-128.64 590.05,-135.64"/>
+</g>
+<!-- proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge16" class="edge">
+<title>proc~prepare_scan_start&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M522.12,-143.63C531.75,-146.3 541.56,-149.46 550.56,-153.13 577.53,-164.15 605.96,-181.26 626.04,-194.39"/>
+<polygon fill="#000000" stroke="#000000" points="623.94,-197.19 634.2,-199.82 627.82,-191.37 623.94,-197.19"/>
+</g>
+<!-- proc~validate_scan_inputs -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node10" class="node">
+<title>proc~validate_scan_inputs</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node10"><a xlink:href="../proc/validate_scan_inputs.html" xlink:title="validate_scan_inputs">
+<polygon fill="#d9534f" stroke="#d9534f" points="345.54,-104.27 223.77,-104.27 223.77,-80 345.54,-80 345.54,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="284.65" y="-88.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_scan_inputs</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~scan_coordinates -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge13" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~scan_coordinates</title>
+<path fill="none" stroke="#000000" d="M345.86,-94.22C399.7,-96.61 480.67,-101.52 550.56,-111.13 563.45,-112.91 577.15,-115.33 590.2,-117.9"/>
+<polygon fill="#000000" stroke="#000000" points="589.49,-121.33 599.99,-119.88 590.88,-114.47 589.49,-121.33"/>
+</g>
+<!-- proc~validate_parameter_workflow -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node13" class="node">
+<title>proc~validate_parameter_workflow</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node13"><a xlink:href="../proc/validate_parameter_workflow.html" xlink:title="validate_parameter_workflow">
+<polygon fill="#d9534f" stroke="#d9534f" points="550.56,-228.27 381.54,-228.27 381.54,-204 550.56,-204 550.56,-228.27"/>
+<text xml:space="preserve" text-anchor="middle" x="466.05" y="-212.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">validate_parameter_workflow</text>
+</a>
+</g>
+</g>
+<!-- proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge24" class="edge">
+<title>proc~validate_scan_inputs&#45;&gt;proc~validate_parameter_workflow</title>
+<path fill="none" stroke="#000000" d="M293.52,-104.43C308.12,-126.22 341.58,-171.52 381.54,-195.13 383.87,-196.51 386.3,-197.8 388.79,-199.01"/>
+<polygon fill="#000000" stroke="#000000" points="387.35,-202.2 397.92,-202.91 390.1,-195.76 387.35,-202.2"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node11" class="node">
+<title>program~plume</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node11"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-124.27 0,-124.27 0,-100 54,-100 54,-124.27"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-108.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~read_in_params -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge8" class="edge">
+<title>program~plume&#45;&gt;proc~read_in_params</title>
+<path fill="none" stroke="#000000" d="M34.48,-99.72C44.1,-82.68 63.87,-52.53 90,-38.13 131.2,-15.45 184.57,-9.71 224.85,-9.21"/>
+<polygon fill="#000000" stroke="#000000" points="224.59,-12.71 234.59,-9.21 224.59,-5.71 224.59,-12.71"/>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge18" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M42.11,-99.58C53.97,-89.87 71.86,-77.1 90,-71.13 205,-33.35 350.46,-40.38 421.72,-47.09"/>
+<polygon fill="#000000" stroke="#000000" points="421.1,-50.55 431.4,-48.05 421.8,-43.58 421.1,-50.55"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge19" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M44.04,-124.72C56.11,-133.68 73.36,-145.46 90,-153.13 212.43,-209.64 251.35,-202.02 381.54,-237.13 389,-239.15 396.84,-241.2 404.62,-243.2"/>
+<polygon fill="#000000" stroke="#000000" points="403.5,-246.52 414.05,-245.6 405.23,-239.74 403.5,-246.52"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge20" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M54.27,-121.35C65.2,-124.88 78.1,-128.65 90,-131.13 210.69,-156.32 356.53,-167.71 425.38,-171.98"/>
+<polygon fill="#000000" stroke="#000000" points="424.84,-175.45 435.03,-172.56 425.26,-168.47 424.84,-175.45"/>
+</g>
+<!-- program~plume&#45;&gt;proc~prepare_scan_start -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge21" class="edge">
+<title>program~plume&#45;&gt;proc~prepare_scan_start</title>
+<path fill="none" stroke="#000000" d="M54.36,-113.34C121.46,-116.41 300.38,-124.6 398.46,-129.09"/>
+<polygon fill="#000000" stroke="#000000" points="398.05,-132.57 408.2,-129.53 398.37,-125.58 398.05,-132.57"/>
+</g>
+<!-- proc~read_scan_input -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_node12" class="node">
+<title>proc~read_scan_input</title>
+<g id="a_proc~~warn_unsupported_parallel~~CalledByGraph_node12"><a xlink:href="../proc/read_scan_input.html" xlink:title="read_scan_input">
+<polygon fill="#d9534f" stroke="#d9534f" points="187.77,-104.27 90,-104.27 90,-80 187.77,-80 187.77,-104.27"/>
+<text xml:space="preserve" text-anchor="middle" x="138.88" y="-88.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_scan_input</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~read_scan_input -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge23" class="edge">
+<title>program~plume&#45;&gt;proc~read_scan_input</title>
+<path fill="none" stroke="#000000" d="M54.32,-107.34C61.74,-105.99 70.12,-104.47 78.64,-102.92"/>
+<polygon fill="#000000" stroke="#000000" points="79.15,-106.38 88.36,-101.15 77.9,-99.5 79.15,-106.38"/>
+</g>
+<!-- proc~read_scan_input&#45;&gt;proc~validate_scan_inputs -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge22" class="edge">
+<title>proc~read_scan_input&#45;&gt;proc~validate_scan_inputs</title>
+<path fill="none" stroke="#000000" d="M188.16,-92.13C195.87,-92.13 203.98,-92.13 212.09,-92.13"/>
+<polygon fill="#000000" stroke="#000000" points="211.99,-95.64 221.99,-92.14 211.99,-88.64 211.99,-95.64"/>
+</g>
+<!-- proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point -->
+<g id="proc~~warn_unsupported_parallel~~CalledByGraph_edge17" class="edge">
+<title>proc~validate_parameter_workflow&#45;&gt;proc~apply_parameter_point</title>
+<path fill="none" stroke="#000000" d="M550.87,-214.78C558.84,-214.66 566.91,-214.53 574.83,-214.4"/>
+<polygon fill="#000000" stroke="#000000" points="574.84,-217.9 584.79,-214.24 574.73,-210.9 574.84,-217.9"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprocwarn_unsupported_parallelCalledByGraph = svgPanZoom('#procwarn_unsupported_parallelCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>

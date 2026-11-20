@@ -1,0 +1,644 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Documentation for PLUME">
+    <meta name="author" content="Kristopher Klein, Gregory Howes, Collin Brown" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>has_cold_reference &ndash; PLUME</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">PLUME </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../page/index.html">Plasma in a Linear Uniform Magnetized Environment</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/namelists.html">Namelists</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../program/plume.html">Program</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>has_cold_reference
+      <small>Function</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">6 statements</a>
+            </li>
+
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../module/vars.html'>vars</a></li>
+            <li class="breadcrumb-item active" aria-current="page">has_cold_reference</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+    <em>None</em>
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  function has_cold_reference()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+      <h3>Return Value
+        <small>
+          <span class="anchor" id="variable-has_cold_reference"></span>
+          logical
+        </small>
+      </h3>
+      
+    <br>
+    <div class="card">
+      <div class="card-header">
+  <h3 class="card-title">Called by</h3>
+      </div>
+      <div class="card-body">
+  <div class="depgraph"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: proc~~has_cold_reference~~CalledByGraph Pages: 1 -->
+<svg id="prochas_cold_referenceCalledByGraph" width="641pt" height="256pt"
+ viewBox="0.00 0.00 641.00 256.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="proc~~has_cold_reference~~CalledByGraph" class="graph" transform="scale(0.681647 0.681647) rotate(0) translate(4 371.64)">
+<title>proc~~has_cold_reference~~CalledByGraph</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-371.64 936.37,-371.64 936.37,4 -4,4"/>
+<!-- proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node1" class="node">
+<title>proc~has_cold_reference</title>
+<polygon fill="none" stroke="black" points="932.37,-167.64 818.1,-167.64 818.1,-143.37 932.37,-143.37 932.37,-167.64"/>
+<text xml:space="preserve" text-anchor="middle" x="875.23" y="-151.9" font-family="Helvetica,sans-Serif" font-size="10.50">has_cold_reference</text>
+</g>
+<!-- proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node2" class="node">
+<title>proc~disp</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node2"><a xlink:href="../proc/disp.html" xlink:title="disp">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="551.44,-207.64 497.44,-207.64 497.44,-183.37 551.44,-183.37 551.44,-207.64"/>
+<text xml:space="preserve" text-anchor="middle" x="524.44" y="-191.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp</text>
+</a>
+</g>
+</g>
+<!-- proc~disp&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge1" class="edge">
+<title>proc~disp&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M551.82,-194.86C598.5,-193.42 698.59,-189.04 782.1,-176.5 792.58,-174.93 803.63,-172.82 814.3,-170.53"/>
+<polygon fill="#000000" stroke="#000000" points="814.76,-174.01 823.77,-168.43 813.25,-167.18 814.76,-174.01"/>
+</g>
+<!-- proc~disp_mixed -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node3" class="node">
+<title>proc~disp_mixed</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node3"><a xlink:href="../proc/disp_mixed.html" xlink:title="disp_mixed">
+<polygon fill="#d94e8f" stroke="#d94e8f" points="731.1,-167.64 659.58,-167.64 659.58,-143.37 731.1,-143.37 731.1,-167.64"/>
+<text xml:space="preserve" text-anchor="middle" x="695.34" y="-151.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">disp_mixed</text>
+</a>
+</g>
+</g>
+<!-- proc~disp&#45;&gt;proc~disp_mixed -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge14" class="edge">
+<title>proc~disp&#45;&gt;proc~disp_mixed</title>
+<path fill="none" stroke="#000000" d="M551.83,-189.25C577.62,-183.15 617.39,-173.73 648.37,-166.39"/>
+<polygon fill="#000000" stroke="#000000" points="648.95,-169.85 657.87,-164.14 647.33,-163.04 648.95,-169.85"/>
+</g>
+<!-- proc~disp_mixed&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge2" class="edge">
+<title>proc~disp_mixed&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M731.49,-155.5C752.92,-155.5 781.03,-155.5 806.63,-155.5"/>
+<polygon fill="#000000" stroke="#000000" points="806.29,-159 816.29,-155.5 806.29,-152 806.29,-159"/>
+</g>
+<!-- proc~om_double_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node4" class="node">
+<title>proc~om_double_scan</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node4"><a xlink:href="../proc/om_double_scan.html" xlink:title="om_double_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="335.79,-107.64 235.02,-107.64 235.02,-83.37 335.79,-83.37 335.79,-107.64"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-91.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_double_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge3" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M336.28,-97.03C425.96,-100.3 620.17,-109.81 782.1,-134.5 792.57,-136.1 803.62,-138.23 814.29,-140.52"/>
+<polygon fill="#000000" stroke="#000000" points="813.24,-143.87 823.76,-142.62 814.76,-137.03 813.24,-143.87"/>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge10" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M315.95,-107.97C359.24,-126.23 439.86,-160.24 486.84,-180.06"/>
+<polygon fill="#000000" stroke="#000000" points="485.21,-183.17 495.78,-183.83 487.93,-176.72 485.21,-183.17"/>
+</g>
+<!-- proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node9" class="node">
+<title>proc~calc_eigen</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node9"><a xlink:href="../proc/calc_eigen.html" xlink:title="calc_eigen">
+<polygon fill="#d9534f" stroke="#d9534f" points="440.31,-247.64 371.79,-247.64 371.79,-223.37 440.31,-223.37 440.31,-247.64"/>
+<text xml:space="preserve" text-anchor="middle" x="406.05" y="-231.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">calc_eigen</text>
+</a>
+</g>
+</g>
+<!-- proc~om_double_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge22" class="edge">
+<title>proc~om_double_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M307.45,-107.91C316.76,-114.01 327.46,-121.89 335.79,-130.5 360.19,-155.73 381.25,-190.66 393.54,-213.17"/>
+<polygon fill="#000000" stroke="#000000" points="390.35,-214.62 398.14,-221.79 396.52,-211.32 390.35,-214.62"/>
+</g>
+<!-- proc~om_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node5" class="node">
+<title>proc~om_scan</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node5"><a xlink:href="../proc/om_scan.html" xlink:title="om_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.79,-367.64 256.02,-367.64 256.02,-343.37 314.79,-343.37 314.79,-367.64"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-351.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_scan</text>
+</a>
+</g>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge4" class="edge">
+<title>proc~om_scan&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M315.25,-353.69C394.31,-347.69 619.38,-323.74 782.1,-238.5 811.76,-222.96 839.39,-195.67 856.51,-176.64"/>
+<polygon fill="#000000" stroke="#000000" points="859.08,-179.01 863.04,-169.18 853.82,-174.4 859.08,-179.01"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge12" class="edge">
+<title>proc~om_scan&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M315.22,-346.4C347.63,-335.29 400.87,-314.36 440.31,-285.5 467.04,-265.95 492,-236.89 507.47,-217.12"/>
+<polygon fill="#000000" stroke="#000000" points="510.24,-219.26 513.53,-209.19 504.68,-215 510.24,-219.26"/>
+</g>
+<!-- proc~om_scan&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge24" class="edge">
+<title>proc~om_scan&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M315.1,-346.48C322.3,-343.39 329.71,-339.43 335.79,-334.5 361.86,-313.37 382.39,-279.99 394.13,-257.92"/>
+<polygon fill="#000000" stroke="#000000" points="397.17,-259.66 398.62,-249.17 390.94,-256.47 397.17,-259.66"/>
+</g>
+<!-- proc~read_in_params -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node6" class="node">
+<title>proc~read_in_params</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node6"><a xlink:href="../proc/read_in_params.html" xlink:title="read_in_params">
+<polygon fill="#d9534f" stroke="#d9534f" points="572.58,-47.64 476.31,-47.64 476.31,-23.37 572.58,-23.37 572.58,-47.64"/>
+<text xml:space="preserve" text-anchor="middle" x="524.44" y="-31.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">read_in_params</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge5" class="edge">
+<title>proc~read_in_params&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M559.38,-22.96C610.85,-6.15 710.27,17.44 782.1,-20.5 827.02,-44.23 854.17,-100.79 866.44,-132.66"/>
+<polygon fill="#000000" stroke="#000000" points="863.04,-133.57 869.77,-141.75 869.61,-131.16 863.04,-133.57"/>
+</g>
+<!-- proc~write_normalization_metadata -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node8" class="node">
+<title>proc~write_normalization_metadata</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node8"><a xlink:href="../proc/write_normalization_metadata.html" xlink:title="write_normalization_metadata">
+<polygon fill="#d9534f" stroke="#d9534f" points="782.1,-53.64 608.58,-53.64 608.58,-29.37 782.1,-29.37 782.1,-53.64"/>
+<text xml:space="preserve" text-anchor="middle" x="695.34" y="-37.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">write_normalization_metadata</text>
+</a>
+</g>
+</g>
+<!-- proc~read_in_params&#45;&gt;proc~write_normalization_metadata -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge19" class="edge">
+<title>proc~read_in_params&#45;&gt;proc~write_normalization_metadata</title>
+<path fill="none" stroke="#000000" d="M572.94,-37.19C580.52,-37.46 588.6,-37.75 596.84,-38.04"/>
+<polygon fill="#000000" stroke="#000000" points="596.53,-41.53 606.65,-38.39 596.78,-34.54 596.53,-41.53"/>
+</g>
+<!-- proc~test_disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node7" class="node">
+<title>proc~test_disp</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node7"><a xlink:href="../proc/test_disp.html" xlink:title="test_disp">
+<polygon fill="#d9534f" stroke="#d9534f" points="314.41,-325.64 256.39,-325.64 256.39,-301.37 314.41,-301.37 314.41,-325.64"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-309.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">test_disp</text>
+</a>
+</g>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge6" class="edge">
+<title>proc~test_disp&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M314.89,-308.93C345.87,-303.81 396.79,-294.99 440.31,-285.5 593.46,-252.12 634.48,-251.21 782.1,-198.5 801.92,-191.43 823.27,-181.61 840.42,-173.15"/>
+<polygon fill="#000000" stroke="#000000" points="841.79,-176.38 849.15,-168.76 838.65,-170.12 841.79,-176.38"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge13" class="edge">
+<title>proc~test_disp&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M314.65,-305.64C346.31,-296.24 398.66,-278.92 440.31,-256.5 461.92,-244.87 484.23,-228.2 500.29,-215.23"/>
+<polygon fill="#000000" stroke="#000000" points="502.3,-218.1 507.8,-209.05 497.85,-212.7 502.3,-218.1"/>
+</g>
+<!-- proc~test_disp&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge25" class="edge">
+<title>proc~test_disp&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M312.22,-300.9C319.95,-296.87 328.34,-292.22 335.79,-287.5 344.55,-281.96 363.98,-267.29 380.03,-254.95"/>
+<polygon fill="#000000" stroke="#000000" points="382.02,-257.84 387.79,-248.95 377.74,-252.3 382.02,-257.84"/>
+</g>
+<!-- proc~write_normalization_metadata&#45;&gt;proc~has_cold_reference -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge7" class="edge">
+<title>proc~write_normalization_metadata&#45;&gt;proc~has_cold_reference</title>
+<path fill="none" stroke="#000000" d="M751.48,-54.04C762.02,-57.58 772.69,-62.01 782.1,-67.5 812.28,-85.12 840.3,-114.51 857.33,-134.43"/>
+<polygon fill="#000000" stroke="#000000" points="854.5,-136.5 863.59,-141.93 859.87,-132.01 854.5,-136.5"/>
+</g>
+<!-- proc~calc_eigen&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge8" class="edge">
+<title>proc~calc_eigen&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M440.72,-223.93C455.05,-219.01 471.83,-213.24 486.5,-208.2"/>
+<polygon fill="#000000" stroke="#000000" points="487.5,-211.56 495.82,-205 485.22,-204.94 487.5,-211.56"/>
+</g>
+<!-- proc~map_search -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node10" class="node">
+<title>proc~map_search</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node10"><a xlink:href="../proc/map_search.html" xlink:title="map_search">
+<polygon fill="#d9534f" stroke="#d9534f" points="323.41,-163.64 247.39,-163.64 247.39,-139.37 323.41,-139.37 323.41,-163.64"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-147.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_search</text>
+</a>
+</g>
+</g>
+<!-- proc~map_search&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge9" class="edge">
+<title>proc~map_search&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M323.7,-158.43C367.99,-166.65 441.42,-180.28 485.84,-188.52"/>
+<polygon fill="#000000" stroke="#000000" points="485.05,-191.94 495.52,-190.32 486.33,-185.05 485.05,-191.94"/>
+</g>
+<!-- proc~om_radial -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node11" class="node">
+<title>proc~om_radial</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node11"><a xlink:href="../proc/om_radial.html" xlink:title="om_radial">
+<polygon fill="#d9534f" stroke="#d9534f" points="317.79,-207.64 253.02,-207.64 253.02,-183.37 317.79,-183.37 317.79,-207.64"/>
+<text xml:space="preserve" text-anchor="middle" x="285.4" y="-191.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">om_radial</text>
+</a>
+</g>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge11" class="edge">
+<title>proc~om_radial&#45;&gt;proc~disp</title>
+<path fill="none" stroke="#000000" d="M317.88,-195.5C361.21,-195.5 439.13,-195.5 485.59,-195.5"/>
+<polygon fill="#000000" stroke="#000000" points="485.45,-199 495.45,-195.5 485.45,-192 485.45,-199"/>
+</g>
+<!-- proc~om_radial&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge23" class="edge">
+<title>proc~om_radial&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M318.2,-206.22C331.33,-210.65 346.77,-215.85 360.96,-220.64"/>
+<polygon fill="#000000" stroke="#000000" points="359.48,-223.83 370.07,-223.71 361.72,-217.2 359.48,-223.83"/>
+</g>
+<!-- program~plume -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node12" class="node">
+<title>program~plume</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node12"><a xlink:href="../program/plume.html" xlink:title="plume">
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="54,-205.64 0,-205.64 0,-181.37 54,-181.37 54,-205.64"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-189.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">plume</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~om_double_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge15" class="edge">
+<title>program~plume&#45;&gt;proc~om_double_scan</title>
+<path fill="none" stroke="#000000" d="M33.93,-180.92C43.13,-162.94 62.69,-130.45 90,-115.5 130.58,-93.29 183.09,-89.06 223.3,-89.97"/>
+<polygon fill="#000000" stroke="#000000" points="222.94,-93.46 233.05,-90.31 223.18,-86.46 222.94,-93.46"/>
+</g>
+<!-- program~plume&#45;&gt;proc~om_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge16" class="edge">
+<title>program~plume&#45;&gt;proc~om_scan</title>
+<path fill="none" stroke="#000000" d="M29.92,-206.14C34.72,-232.93 49.86,-295.47 90,-325.5 134.86,-359.07 202.08,-361.94 244.56,-359.66"/>
+<polygon fill="#000000" stroke="#000000" points="244.59,-363.17 254.34,-359.01 244.13,-356.18 244.59,-363.17"/>
+</g>
+<!-- program~plume&#45;&gt;proc~read_in_params -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge17" class="edge">
+<title>program~plume&#45;&gt;proc~read_in_params</title>
+<path fill="none" stroke="#000000" d="M31.23,-181.03C37.9,-158.01 55.55,-109.14 90,-86.5 205.26,-10.76 375.74,-16.95 464.65,-26.84"/>
+<polygon fill="#000000" stroke="#000000" points="464.02,-30.29 474.36,-27.98 464.83,-23.34 464.02,-30.29"/>
+</g>
+<!-- program~plume&#45;&gt;proc~test_disp -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge18" class="edge">
+<title>program~plume&#45;&gt;proc~test_disp</title>
+<path fill="none" stroke="#000000" d="M31.22,-205.88C37.88,-228.69 55.5,-277.01 90,-298.5 136.91,-327.73 203.06,-325.78 244.82,-320.53"/>
+<polygon fill="#000000" stroke="#000000" points="245.26,-324 254.68,-319.15 244.29,-317.07 245.26,-324"/>
+</g>
+<!-- program~plume&#45;&gt;proc~map_search -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge27" class="edge">
+<title>program~plume&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M35.78,-180.9C46.04,-165.64 65.66,-140.7 90,-130.5 139.23,-109.88 201.31,-122.51 241.9,-135.33"/>
+<polygon fill="#000000" stroke="#000000" points="240.71,-138.62 251.31,-138.44 242.91,-131.98 240.71,-138.62"/>
+</g>
+<!-- proc~compute_fpc_cart -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node13" class="node">
+<title>proc~compute_fpc_cart</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node13"><a xlink:href="../proc/compute_fpc_cart.html" xlink:title="compute_fpc_cart">
+<polygon fill="#d9534f" stroke="#d9534f" points="197.89,-247.64 91.12,-247.64 91.12,-223.37 197.89,-223.37 197.89,-247.64"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-231.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_cart</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_cart -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge29" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_cart</title>
+<path fill="none" stroke="#000000" d="M54.21,-203.03C67.28,-207.79 83.46,-213.67 98.44,-219.12"/>
+<polygon fill="#000000" stroke="#000000" points="97.06,-222.34 107.65,-222.46 99.45,-215.76 97.06,-222.34"/>
+</g>
+<!-- proc~compute_fpc_gyro -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node14" class="node">
+<title>proc~compute_fpc_gyro</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node14"><a xlink:href="../proc/compute_fpc_gyro.html" xlink:title="compute_fpc_gyro">
+<polygon fill="#d9534f" stroke="#d9534f" points="199.02,-289.64 90,-289.64 90,-265.37 199.02,-265.37 199.02,-289.64"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-273.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">compute_fpc_gyro</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~compute_fpc_gyro -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge30" class="edge">
+<title>program~plume&#45;&gt;proc~compute_fpc_gyro</title>
+<path fill="none" stroke="#000000" d="M37.52,-205.93C48.75,-219.87 68.62,-242.38 90,-256.5 91.81,-257.7 93.7,-258.84 95.64,-259.94"/>
+<polygon fill="#000000" stroke="#000000" points="93.8,-262.93 104.31,-264.29 96.95,-256.68 93.8,-262.93"/>
+</g>
+<!-- proc~map_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node15" class="node">
+<title>proc~map_scan</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node15"><a xlink:href="../proc/map_scan.html" xlink:title="map_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="177.27,-163.64 111.75,-163.64 111.75,-139.37 177.27,-139.37 177.27,-163.64"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-147.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">map_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~map_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge31" class="edge">
+<title>program~plume&#45;&gt;proc~map_scan</title>
+<path fill="none" stroke="#000000" d="M54.21,-183.97C68.06,-178.94 85.39,-172.64 101.09,-166.93"/>
+<polygon fill="#000000" stroke="#000000" points="102.02,-170.32 110.22,-163.61 99.62,-163.74 102.02,-170.32"/>
+</g>
+<!-- proc~radial_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_node16" class="node">
+<title>proc~radial_scan</title>
+<g id="a_proc~~has_cold_reference~~CalledByGraph_node16"><a xlink:href="../proc/radial_scan.html" xlink:title="radial_scan">
+<polygon fill="#d9534f" stroke="#d9534f" points="180.64,-205.64 108.38,-205.64 108.38,-181.37 180.64,-181.37 180.64,-205.64"/>
+<text xml:space="preserve" text-anchor="middle" x="144.51" y="-189.9" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">radial_scan</text>
+</a>
+</g>
+</g>
+<!-- program~plume&#45;&gt;proc~radial_scan -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge32" class="edge">
+<title>program~plume&#45;&gt;proc~radial_scan</title>
+<path fill="none" stroke="#000000" d="M54.21,-193.5C66.82,-193.5 82.31,-193.5 96.84,-193.5"/>
+<polygon fill="#000000" stroke="#000000" points="96.69,-197 106.69,-193.5 96.69,-190 96.69,-197"/>
+</g>
+<!-- proc~compute_fpc_cart&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge20" class="edge">
+<title>proc~compute_fpc_cart&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M198.34,-235.5C245.96,-235.5 315.22,-235.5 360.2,-235.5"/>
+<polygon fill="#000000" stroke="#000000" points="360.13,-239 370.13,-235.5 360.13,-232 360.13,-239"/>
+</g>
+<!-- proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge21" class="edge">
+<title>proc~compute_fpc_gyro&#45;&gt;proc~calc_eigen</title>
+<path fill="none" stroke="#000000" d="M199.35,-270.36C237.52,-265.11 289.9,-257.51 335.79,-249.5 343.68,-248.13 352.04,-246.54 360.13,-244.95"/>
+<polygon fill="#000000" stroke="#000000" points="360.7,-248.4 369.82,-243 359.32,-241.54 360.7,-248.4"/>
+</g>
+<!-- proc~map_scan&#45;&gt;proc~map_search -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge26" class="edge">
+<title>proc~map_scan&#45;&gt;proc~map_search</title>
+<path fill="none" stroke="#000000" d="M177.72,-151.5C194.93,-151.5 216.46,-151.5 235.66,-151.5"/>
+<polygon fill="#000000" stroke="#000000" points="235.44,-155 245.44,-151.5 235.44,-148 235.44,-155"/>
+</g>
+<!-- proc~radial_scan&#45;&gt;proc~om_radial -->
+<g id="proc~~has_cold_reference~~CalledByGraph_edge28" class="edge">
+<title>proc~radial_scan&#45;&gt;proc~om_radial</title>
+<path fill="none" stroke="#000000" d="M180.92,-194.01C199.38,-194.28 222.09,-194.61 241.54,-194.89"/>
+<polygon fill="#000000" stroke="#000000" points="241.29,-198.38 251.34,-195.03 241.39,-191.38 241.29,-198.38"/>
+</g>
+</g>
+</svg>
+</div>                <script>
+                  var panprochas_cold_referenceCalledByGraph = svgPanZoom('#prochas_cold_referenceCalledByGraph',
+                    {zoomEnabled: true, controlIconsEnabled: true, fit: true, center: true,}
+                  );
+                </script>          <div>
+            <a type="button" class="graph-help" data-bs-toggle="modal" href="#CalledByGraph-help-text">Help</a>
+          </div>
+          <div class="modal fade" id="CalledByGraph-help-text" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title" id="-graph-help-label">Graph Key</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+<p>Nodes of different colours represent the following: </p>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generated by graphviz version 14.1.2 (0)
+ -->
+<!-- Title: Graph Key Pages: 1 -->
+<svg width="641pt" height="28pt"
+ viewBox="0.00 0.00 641.00 28.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(0.873868 0.873868) rotate(0) translate(4 28.27)">
+<title>Graph Key</title>
+<polygon fill="white" stroke="none" points="-4,4 -4,-28.27 729.52,-28.27 729.52,4 -4,4"/>
+<!-- Subroutine -->
+<g id="node1" class="node">
+<title>Subroutine</title>
+<polygon fill="#d9534f" stroke="#d9534f" points="69.27,-24.27 0,-24.27 0,0 69.27,0 69.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="34.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Subroutine</text>
+</g>
+<!-- Function -->
+<g id="node2" class="node">
+<title>Function</title>
+<polygon fill="#d94e8f" stroke="#d94e8f" points="143.89,-24.27 87.38,-24.27 87.38,0 143.89,0 143.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="115.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Function</text>
+</g>
+<!-- Interface -->
+<g id="node3" class="node">
+<title>Interface</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="221.39,-24.27 161.88,-24.27 161.88,0 221.39,0 221.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="191.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Interface</text>
+</g>
+<!-- Type Bound Procedure -->
+<g id="node4" class="node">
+<title>Type Bound Procedure</title>
+<polygon fill="#a7506f" stroke="#a7506f" points="368.27,-24.27 239,-24.27 239,0 368.27,0 368.27,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="303.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Type Bound Procedure</text>
+</g>
+<!-- Unknown Procedure Type -->
+<g id="node5" class="node">
+<title>Unknown Procedure Type</title>
+<polygon fill="#777777" stroke="#777777" points="529.39,-24.27 385.88,-24.27 385.88,0 529.39,0 529.39,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="457.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Unknown Procedure Type</text>
+</g>
+<!-- Program -->
+<g id="node6" class="node">
+<title>Program</title>
+<polygon fill="#f0ad4e" stroke="#f0ad4e" points="603.89,-24.27 547.38,-24.27 547.38,0 603.89,0 603.89,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="575.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50" fill="white">Program</text>
+</g>
+<!-- This Page&#39;s Entity -->
+<g id="node7" class="node">
+<title>This Page&#39;s Entity</title>
+<polygon fill="none" stroke="black" points="725.52,-24.27 621.75,-24.27 621.75,0 725.52,0 725.52,-24.27"/>
+<text xml:space="preserve" text-anchor="middle" x="673.63" y="-8.53" font-family="Helvetica,sans-Serif" font-size="10.50">This Page&#39;s Entity</text>
+</g>
+</g>
+</svg>
+
+<p>Solid arrows point from a procedure to one which it calls. Dashed 
+arrows point from an interface to procedures which implement that interface.
+This could include the module procedures in a generic interface or the
+implementation in a submodule of an interface in a parent module.
+</p>
+ </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              PLUME
+ was developed by Kristopher Klein, Gregory Howes, Collin Brown<br>              &copy; 2026 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+            </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
