@@ -203,7 +203,7 @@ but results should remain physically equivalent within the documented numerical 
 
 ## Diagnostic units
 
-Let \( E=\delta E/\deltaE_x\), \(B=\delta B/\delta E_x\) and \(e_0=\delta E_x/B_0\).
+Let \( E=\delta E/\delta E_x\), \(B=\delta B/\delta E_x\) and \(e_0=\delta E_x/B_0\).
 We choose the \(E_x=1\) gauge to fix the shared phase and amplitude eigenvalue convention.
 This lets us write:
 
@@ -222,19 +222,19 @@ Density uses each species' own equilibrium \(n_0s\).
 The physical moments follow by multiplying \(v_s\) by \(c e_0\) and \(\eta_s\) by \(n_0 e_0\).
 All amplitudes are generally complex.
 For drifting populations the current is
-\(q_s(n_{0s} \delta U_s+\delta n_s U_s \zhat)\),
+\(q_s(n_{0s} \delta U_s+\delta n_s U_s \hat{z})\),
 not just \(q_s n_{0s} \delta U_s\).
 
 Heating uses dimensionless
 
 \[
-Ps_s=\Im\left(E^{\dagger} \chi_s E\right)/H.
+P_s=\Im\frac{\left(E^{\dagger} \chi_s E\right)}{H}.
 \]
 
 Formal energy is
 
 \[
-W=\abs(\delta E_x)^2 H/(16 \pi)
+W={\rm abs}\frac{(\delta E_x)^2 H}{16 \pi}
 \]
 
 where H has separate vacuum electric, magnetic and species terms.
