@@ -11,6 +11,7 @@
 !=============================================================================!
 !=============================================================================!
 module functions
+  use vars, only: emit_warning, initialize_warnings, warnings_to_stdout
   !!Calculates Misc. functions, esp. I/O operations.
    implicit none
    private
@@ -48,7 +49,13 @@ contains
       use vars, only: dataName, nscan, nroot_max, use_map, outputName, pi
       use vars, only: collision_type, Kn 
       use vars, only: low_n, susc_low
+      use vars, only: z_backend,heating_convention
+      use heating_diagnostics, only: reset_energy_output
+      use scan_support, only: warn_unsupported_parallel
+      use vars, only: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
+      use adaptive_kinetic, only: validate_bessel_input
       use vars, only: normalization, sync_solver_state, write_normalization_metadata
+      use vars, only: has_cold_reference, validate_cold_reference
       use vars, only: vperpmin, vperpmax, vparmin, vparmax, delv
       use vars, only: vxmin, vxmax, vymin, vymax, vzmin, vzmax, elecdircontribution
       implicit none
@@ -64,10 +71,11 @@ contains
 
       !Read in the basic parameter list.
       nameList /params/ &
+         heating_convention,z_backend,bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics, &
          betap, kperp, kpar, vtp, normalization, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
          collision_type, Kn, &
-         writeOut, dataName, outputName
+         writeOut, dataName, outputName, warnings_to_stdout
 
       nameList /fpc/ &
          vperpmin, vperpmax, vparmin, vparmax, delv, &
@@ -83,6 +91,15 @@ contains
       unit = input_unit_no
       open (unit=unit, file=runname, status='old', action='read')
       read (unit=unit, nml=params)
+      call initialize_warnings()
+      if (z_backend/='faddeeva' .and. z_backend/='legacy') &
+           error stop 'ERROR: z_backend must be faddeeva or legacy.'
+      if (heating_convention/='corrected' .and. heating_convention/='legacy') &
+           error stop 'ERROR: heating_convention must be corrected or legacy.'
+      if (heating_convention=='corrected' .and. collision_type/=0 .and. option==-1) &
+           error stop 'ERROR: corrected diagnostics require collision_type=0; select legacy for historical collisional diagnostics.'
+      call validate_bessel_input
+      if (writeOut) write(*,'(2a)') 'Z backend: ',trim(z_backend)
       if (normalization /= 'rho_ref' .and. normalization /= 'd_ref') then
          write(*,'(3a)') 'ERROR: normalization=',trim(normalization),'; use rho_ref or d_ref.'
          error stop 1
@@ -111,8 +128,14 @@ contains
          sum_nqv = sum_nqv + spec(is)%vv_s*spec(is)%D_s/spec(is)%Q_s
          close (unit)
       end do
-      call sync_solver_state
+      if (has_cold_reference()) then
+         call validate_cold_reference
+      else
+         call sync_solver_state
+      endif
+      call warn_unsupported_parallel(kperp)
       call write_normalization_metadata
+      call reset_energy_output
 
       !Check that ref mass ratio is 1 (in the python wrapper, this is used to help determine the output format to load in sweeps, which is why we check it)
       if (spec(1)%mu_s - 1 > 0.0000001) then
@@ -130,18 +153,33 @@ contains
       close (input_unit_no)
 
       !Notify if not Quasineutral,
-      if (abs(sum_nq) .ge. 1.E-6) &
-         write (*, '(a,es11.4)') &
-         'ERROR: Plasma not quasineutral:     Sum [n_s Q_s] =', sum_nq
+      if (abs(sum_nq) .ge. 1.E-6) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
+         'WARNING: Plasma not charge neutral:     Sum [D_s/Q_s] =', sum_nq
+            call emit_warning(trim(warning_text))
+         end block
+      end if
       !or not Current-free (not strictly required by linear theory but plasma is likely unstable and thus likely poorly described by linear theory)
-      if (abs(sum_nqv) .ge. 1.E-6) &
-         write (*, '(a,es11.4)') &
-         'ERROR?/WARNING: Non zero Current:        Sum [n_s q_s V_s] =', sum_nqv
+      if (abs(sum_nqv) .ge. 1.E-6) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
+         'WARNING: Nonzero equilibrium current:    Sum [D_s*vv_s/Q_s] =', sum_nqv
+            call emit_warning(trim(warning_text))
+         end block
+      end if
       !Take note User: Make sure the above sums are zero.
       !Note if:
-      if (spec(1)%vv_s .ne. 0.) &
-         write (*, '(a,es11.4)') &
+      if (spec(1)%vv_s .ne. 0.) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
          'ERROR?/WARNING: Not in reference species rest frame:    v_par drift ref =', spec(1)%vv_s
+            call emit_warning(trim(warning_text))
+         end block
+      end if
 
       !You always need pi. Always. And sometimes pie too.
       pi = 4.*atan(1.)
@@ -196,17 +234,23 @@ contains
       spec(is)%D_s = Ds
       spec(is)%vv_s = vvS
 
-      if (tauS <= 0.) then
-         write(*,'(a,i0,a)') 'ERROR: species ',is,' has nonpositive tauS; cold-fluid species are not implemented.'
+      if (tauS < 0.) then
+         write(*,'(a,i0,a)') 'ERROR: species ',is,' has negative tauS; use positive temperature or zero for cold-fluid.'
          error stop 1
       endif
-      if (muS <= 0. .or. alphS <= 0. .or. Qs == 0.) then
+      if (muS <= 0. .or. Qs == 0.) then
          write(*,'(a,i0,a)') 'ERROR: species ',is,' requires positive muS/alphS and nonzero Qs.'
          error stop 1
       endif
 
+      ! Fortran does not promise short-circuit evaluation: an undefined cold
+      ! anisotropy must not be compared even when tauS>0 is false.
+      if (tauS>0.) then
+         if (alphS<=0.) error stop 'ERROR: warm species require positive alphS.'
+      endif
+
       !calculate neutral-charged collision frequency
-      if (Kn > 1.0e25) then
+      if (tauS == 0. .or. Kn > 1.0e25) then
          spec(is)%nu_ns = 0.0 !Treat large default Kn as effectively collisionless (streamlines fpc.f90)
       else if (normalization == 'd_ref') then
          spec(is)%nu_ns = sqrt(muS*tauS)/(sqrt(2.)*Kn)
@@ -251,6 +295,16 @@ end subroutine read_map_input
        positive_roots,nr,ni
 
       read (unit=unit, nml=maps)
+      if (loggridw .or. loggridg) then
+         block
+            character(2048) :: warning_text
+            write(warning_text,'(a)') &
+           'WARNING: historical logarithmic frequency maps mix exponent origins with frequency-ratio increments; '// &
+           'loggridw starts at 10**omi; loggridg starts at -10**abs(gami) and discards signs. '// &
+           'Bounds are not physical endpoints. See input.md (logarithmic maps). Equations are unchanged.'
+            call emit_warning(trim(warning_text))
+         end block
+      end if
 
    end subroutine map_read
 
@@ -260,6 +314,7 @@ end subroutine read_map_input
   !!Read in limits for scans in plasma parameter space.
   !! Invokes [[scan_read(subroutine)]].
       use vars, only: nscan, scan
+      use scan_support, only: validate_scan_inputs
       implicit none
       integer :: is
   !!Scan index.
@@ -279,6 +334,7 @@ end subroutine read_map_input
          close (unit)
       end do
       close (input_unit_no)
+      call validate_scan_inputs()
 
    end subroutine read_scan_input
 
@@ -286,7 +342,8 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine scan_read(is)
   !!Subroutine for reading in scan parameters.
-      use vars, only: scan
+      use vars, only: scan, spec, default_heating_gamma_ratio_max
+      use heating_energy, only: validate_heating_gamma_ratio_max
       implicit none
       !Passed
       integer :: is
@@ -314,6 +371,9 @@ end subroutine read_map_input
       logical :: swlog
   !! Linear or Logarithmic scan.
 
+      real :: heating_gamma_ratio_max
+  !! Maximum abs(gamma/omega_r) for corrected heating.
+
       logical :: heating
   !! Controls supplementary heating calculation.
 
@@ -325,8 +385,18 @@ end subroutine read_map_input
 
       nameList /scan_input/ &
          scan_type, swi, swf, swlog, scan_style, ns, nres, &
-         heating, eigen, tensor
+         heating, eigen, tensor, heating_gamma_ratio_max
+      heating=.false.; eigen=.false.; tensor=.false.
+      heating_gamma_ratio_max=default_heating_gamma_ratio_max
       read (unit=unit, nml=scan_input)
+      call validate_heating_gamma_ratio_max(heating_gamma_ratio_max)
+
+      if (scan_style < -1 .or. scan_style > size(spec)) &
+           error stop 'ERROR: invalid parameter scan species/style index.'
+      if (scan_style > 0 .and. scan_type == 0) then
+         if (swi <= 0. .or. swf <= 0. .or. spec(scan_style)%tau_s == 0.) &
+              error stop 'ERROR: temperature scans reaching or leaving cold-fluid tauS=0 are unsupported in Stage 2.'
+      endif
 
       !Assign dummy values to scan array.
       scan(is)%range_i = swi
@@ -338,6 +408,7 @@ end subroutine read_map_input
       scan(is)%n_res = nres
       scan(is)%eigen_s = eigen
       scan(is)%heat_s = heating
+      scan(is)%heating_gamma_ratio_max = heating_gamma_ratio_max
       scan(is)%tensor_s = tensor
 
    end subroutine scan_read
@@ -580,13 +651,15 @@ end subroutine read_map_input
 !-=-=-=-=-
    subroutine radial_read
   !!Subroutine for reading in radial scan global parameters
-      use vars, only: nRad, nRad_sub, modelName, radial_heating, radial_eigen, k_scan
+      use vars, only: nRad, nRad_sub, modelName, radial_heating, radial_eigen, k_scan,heating_convention
       implicit none
 
   nameList /radial_input/ nRad, nRad_sub, modelName, &
        radial_heating, radial_eigen, k_scan
   nRad_sub = 1
   read (unit=unit,nml=radial_input)
+  if (radial_heating .and. heating_convention=='corrected') &
+       error stop 'ERROR: corrected radial heating is deferred; use legacy for historical radial diagnostics.'
 
    end subroutine radial_read
 

@@ -11,6 +11,7 @@
 !=============================================================================!
 !=============================================================================!
 module vars
+   use, intrinsic :: iso_fortran_env, only: output_unit, error_unit
   !! Contains all global variables.
    implicit none
    private
@@ -33,14 +34,31 @@ module vars
    real, target :: vtp
   !!rho_ref: v_t,ref,par/c; d_ref: v_A,ref/c.
 
+   character(16) :: heating_convention = 'corrected'
+   !! Collisionless heating/energy convention; independent of Z and Bessel modes.
+   public :: heating_convention
+   real,parameter,public :: default_heating_gamma_ratio_max = 0.05
+
+   character(16) :: z_backend = 'faddeeva'
+   !! Independent Z evaluator: faddeeva (default) or legacy.
+   public :: z_backend
+
+   character(16) :: bessel_mode = 'adaptive'
+   real :: bessel_tol = 1.e-10
+   integer :: bessel_nmax = 512, bessel_nfixed = 128
+   logical :: bessel_diagnostics = .false.
+   public :: bessel_mode,bessel_tol,bessel_nmax,bessel_nfixed,bessel_diagnostics
+
    character(16) :: normalization = 'rho_ref'
    !! Input convention: rho_ref (legacy) or d_ref (inertial length).
 
    ! Input values above remain in their selected convention. The kinetic
-   ! calculation uses these derived rho_ref values, refreshed before disp().
+   ! calculation uses these derived rho_ref values; fully cold runs bypass them.
    real :: solver_betap, solver_kperp, solver_kpar, solver_vtp
    integer :: reference_scan_source = 0
    !! 0: validate reference beta; 1: beta scan; 2: reference tau scan.
+   integer :: dispersion_status = 0
+   !! Last cold-containing dispersion evaluation: cold kernel codes 1-4, 5=nonfinite arithmetic.
 
    integer :: nspec
   !!Number of species/components to be included in calculation.
@@ -124,6 +142,9 @@ module vars
      !! Linear or Logarithmic scan.
      !!T-> log, F-> linear scan
 
+      real :: heating_gamma_ratio_max = default_heating_gamma_ratio_max
+     !! Maximum abs(gamma/omega_r) for corrected heating applicability.
+
       logical :: heat_s
      !! Controls supplementary heating calculation.
      !!T-> Heating Calculation; F-> No heating calculation.
@@ -204,8 +225,6 @@ module vars
 
    logical :: low_n = .true.
    !!Toggle on low-n susceptibility suplementary calculation.
-   !! 25-09-08: Deprecated 'new_low_n' variable, as that is now the only version of the
-   !! n=0, \pm 1 calculation we wish to perform.
 
    complex, dimension(3, 3) :: lam
   !!Matrix in Wave equation.
@@ -384,8 +403,109 @@ module vars
    public :: normalization, solver_betap, solver_kperp, solver_kpar
    public :: solver_vtp, solver_spec, reference_scan_source
    public :: sync_solver_state, write_normalization_metadata
+   public :: has_cold_species, all_species_cold, has_cold_reference, validate_cold_reference, dispersion_status
+
+   logical, public :: warnings_to_stdout = .false.
+   integer :: warning_unit
+   logical :: warning_open = .false., warning_io_failed = .false.
+   public :: initialize_warnings, emit_warning, close_warnings
 
 contains
+
+   subroutine initialize_warnings()
+      integer :: ios
+      character(512) :: message
+      call close_warnings()
+      warning_io_failed = .false.
+      open(newunit=warning_unit, file='data/'//trim(dataName)//'/'//trim(outputName)//'.warn', &
+           status='replace', action='write', iostat=ios, iomsg=message)
+      warning_open = ios==0
+      if (ios/=0) call warning_io_failure(message)
+   end subroutine
+
+   subroutine emit_warning(message)
+      character(*), intent(in) :: message
+      integer :: ios
+      character(512) :: io_message
+      if (warning_open) then
+         write(warning_unit,'(a)',iostat=ios,iomsg=io_message) message
+         if (ios==0) flush(warning_unit,iostat=ios,iomsg=io_message)
+         if (ios/=0) then
+            call warning_io_failure(io_message)
+            call close_warnings()
+         endif
+      endif
+      ! Before initialization or after I/O failure, never discard a warning.
+      if (.not.warning_open) write(error_unit,'(a)') message
+      if (warnings_to_stdout) write(output_unit,'(a)') message
+   end subroutine
+
+   subroutine warning_io_failure(message)
+      character(*), intent(in) :: message
+      if (.not.warning_io_failed) write(error_unit,'(2a)') &
+           'WARNING: unable to write warning log; using stderr: ',trim(message)
+      warning_io_failed = .true.
+   end subroutine
+
+   subroutine close_warnings()
+      integer :: ios
+      character(512) :: message
+      if (.not.warning_open) return
+      close(warning_unit,iostat=ios,iomsg=message)
+      warning_open = .false.
+      if (ios/=0) call warning_io_failure(message)
+   end subroutine
+
+   logical function has_cold_species()
+      has_cold_species = .false.
+      if (allocated(spec)) has_cold_species = any(spec%tau_s == 0.)
+   end function has_cold_species
+
+   logical function all_species_cold()
+      all_species_cold = .false.
+      if (allocated(spec)) all_species_cold = size(spec) > 0 .and. all(spec%tau_s == 0.)
+   end function all_species_cold
+
+   logical function has_cold_reference()
+      has_cold_reference=.false.
+      if (allocated(spec)) then
+         if (size(spec)>0) has_cold_reference=spec(1)%tau_s==0.
+      endif
+   end function has_cold_reference
+
+   subroutine validate_cold_reference
+      !! Native inertial state: never construct or allocate thermal solver state.
+      implicit none
+      integer :: i
+      if (normalization /= 'd_ref') &
+           error stop 'ERROR: cold-fluid species require normalization=d_ref.'
+      if (betap /= 0.) &
+           error stop 'ERROR: cold-fluid reference d_ref requires betap=0, equal to species_1 tauS.'
+      if (vtp <= 0.) error stop 'ERROR: cold-fluid reference d_ref requires positive vtp=v_A,ref/c.'
+      if (nscan>0 .and. kpar==0.) &
+           error stop 'ERROR: k_parallel=0: exact perpendicular scans are outside Stage 4A.'
+      if (.not. all_species_cold() .and. kpar==0.) &
+           error stop 'ERROR: warm-species calculations require nonzero kpar; the warm perpendicular limit is deferred.'
+      do i=1,nspec
+         if (spec(i)%tau_s<0.) error stop 'ERROR: negative tauS is invalid.'
+         if (spec(i)%tau_s>0.) then
+            if (spec(i)%alph_s<=0.) error stop 'ERROR: warm species require positive alphS.'
+         endif
+         if (spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) &
+              error stop 'ERROR: cold-fluid species require positive muS and nonzero Qs.'
+         if (spec(i)%D_s < 0.) &
+              error stop 'ERROR: cold-fluid species require nonnegative density Ds.'
+      enddo
+      if (collision_type /= 0) &
+           error stop 'ERROR: cold-fluid calculations require collision_type=0; cold collisions are unsupported.'
+      if (option == 6 .or. option == 7) &
+           error stop 'ERROR: cold-fluid FPC diagnostics are unavailable.'
+      if (option == 5 .or. (nscan > 0 .and. option/=1 .and. option/=2 .and. option/=4)) &
+           error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred.'
+      if (option /= -1 .and. option /= 0 .and. option /= 1 .and. &
+           .not.(nscan>0 .and. (option==2 .or. option==4))) &
+           error stop 'ERROR: cold-fluid calculations support only option=-1, 0, or 1 without parameter scans.'
+   end subroutine validate_cold_reference
 
    subroutine sync_solver_state
       implicit none
@@ -396,20 +516,46 @@ contains
          if (reference_scan_source == 1) spec(1)%tau_s = betap
          if (reference_scan_source == 2) betap = spec(1)%tau_s
       endif
+      if (normalization == 'd_ref' .and. spec(1)%tau_s == 0.) &
+           error stop 'ERROR: cold-fluid reference must bypass the thermal adapter.'
       if (betap <= 0. .or. vtp <= 0.) then
-         write(*,'(a)') 'ERROR: kinetic PLUME requires positive betap and vtp; cold-fluid species are not implemented.'
+         write(*,'(a)') 'ERROR: positive betap and vtp are required by the thermal adapter; cold-fluid runs must bypass it.'
          error stop 1
       endif
       do i=1,nspec
-         if (spec(i)%tau_s <= 0.) then
-            write(*,'(a,i0,a)') 'ERROR: species ',i,' has nonpositive tauS; cold-fluid species are not implemented.'
+         if (spec(i)%tau_s < 0.) then
+            write(*,'(a,i0,a)') 'ERROR: species ',i,' has negative tauS; use positive temperature or zero for cold-fluid.'
             error stop 1
          endif
-         if (spec(i)%alph_s <= 0. .or. spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
+         if (spec(i)%mu_s <= 0. .or. spec(i)%Q_s == 0.) then
             write(*,'(a,i0,a)') 'ERROR: species ',i,' requires positive alphS/muS and nonzero Qs.'
             error stop 1
          endif
+         if (spec(i)%tau_s>0.) then
+            if (spec(i)%alph_s<=0.) error stop 'ERROR: warm species require positive alphS.'
+         endif
+         if (spec(i)%tau_s == 0. .and. spec(i)%D_s < 0.) &
+              error stop 'ERROR: cold-fluid species require nonnegative density Ds.'
       enddo
+      if (has_cold_species()) then
+         if (normalization /= 'd_ref') &
+              error stop 'ERROR: cold-fluid species require normalization=d_ref in Stage 2.'
+         if (spec(1)%tau_s == 0.) &
+              error stop 'ERROR: cold-fluid reference species unsupported; species_1 must have positive tauS.'
+         if (collision_type /= 0) &
+              error stop 'ERROR: cold-fluid mixtures require collision_type=0; cold collisions are unsupported.'
+         if (option == 6 .or. option == 7) &
+              error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
+         if (option == 5 .or. (nscan > 0 .and. option/=1 .and. option/=2 .and. option/=4)) &
+              error stop 'ERROR: cold-fluid parameter scans (including eigenfunctions/heating) are deferred beyond Stage 2.'
+         if (option /= -1 .and. option /= 0 .and. option /= 1 .and. &
+           .not.(nscan>0 .and. (option==2 .or. option==4))) &
+              error stop 'ERROR: mixed Stage 2 supports only option=-1, 0, or 1 without parameter scans.'
+         if (nscan>0 .and. kpar==0.) &
+              error stop 'ERROR: k_parallel=0: exact perpendicular scans are outside Stage 4A.'
+         if (kpar == 0.) &
+              error stop 'ERROR: mixed calculations require nonzero kpar; the warm perpendicular limit is not implemented.'
+      endif
       if (normalization == 'd_ref') then
          if (abs(spec(1)%tau_s-betap) > 1.e-8*max(abs(betap),abs(spec(1)%tau_s))) then
             write(*,'(a)') 'ERROR: d_ref requires species_1 tauS = betap.'
@@ -425,6 +571,7 @@ contains
          solver_kpar = kpar*length_ratio
          solver_vtp = vtp*sqrt(betap)
          do i=1,nspec
+            if (spec(i)%tau_s == 0.) cycle ! Never convert a cold temperature.
             solver_spec(i)%tau_s = betap/spec(i)%tau_s
             if (collision_type > 0 .and. Kn <= 1.e25) then
                solver_spec(i)%nu_ns = sqrt(spec(i)%mu_s*spec(i)%tau_s)/(sqrt(2.)*Kn)
@@ -439,7 +586,7 @@ contains
 
    subroutine write_normalization_metadata
       implicit none
-      integer :: unit_no
+      integer :: unit_no, i
       logical :: exists
       character(240) :: metadata_file
       metadata_file = 'data/'//trim(dataName)//'/normalization_'//trim(outputName)//'.txt'
@@ -457,8 +604,39 @@ contains
       write(unit_no,'(a)') 'normalization=d_ref'
       write(unit_no,'(a)') 'kperp,kpar: k*d_ref; vtp: v_A,ref/c; tauS: 2*T_parallel,s/(m_ref*v_A,ref^2)'
       write(unit_no,'(a)') 'betap=tauS(species_1); omega: omega/Omega_ref'
-      write(unit_no,'(a)') 'reference_species=1; rho_ref=v_t_perp,ref/abs(Omega_ref)'
-      write(unit_no,'(a)') 'FPC file headers and velocity grids retain the derived rho_ref solver convention.'
+      if (has_cold_species()) then
+         write(unit_no,'(a)') 'EM fields: Ex=1; omega*B=(k_d/(v_A/c)) cross E where the gauge is available.'
+         write(unit_no,'(a)') 'Species velocities: deltaU/(c*deltaEx/B0); densities: (delta n/n0)/(deltaEx/B0).'
+         write(unit_no,'(a)') 'tauS=0: cold-fluid moments; tauS>0: kinetic current/continuity moments; original species order.'
+         write(unit_no,'(a)') 'Unavailable/failed species moments contain NaN; warnings identify species and status.'
+         write(unit_no,'(a)') 'Moment status: 0=valid,1=input,2=frequency,3=Doppler,4=cyclotron,5=numerical,6=absent.'
+         write(unit_no,'(a)') 'heating_convention='//trim(heating_convention)
+         if (heating_convention=='corrected') then
+            write(unit_no,'(a)') 'Corrected collisionless energy/heating in companion .energy; cold kinetic heating is NaN.'
+         else
+            write(unit_no,'(a)') 'Legacy mixed/cold heating is unavailable.'
+         endif
+         write(unit_no,'(a)') 'FPC remains unavailable for cold-containing runs.'
+         do i=1,nspec
+            if (spec(i)%tau_s==0.) then
+               write(unit_no,'(a,i0,a)') 'moment_species=',i,'; model=cold-fluid'
+            else
+               write(unit_no,'(a,i0,a)') 'moment_species=',i,'; model=kinetic current/continuity'
+            endif
+         enddo
+      endif
+      if (has_cold_reference()) then
+         write(unit_no,'(a)') 'reference_species=1; cold reference; no thermal reference scale is constructed.'
+         write(unit_no,'(a)') 'Direct evaluation prints raw det(Lambda); thermal diagnostics are unavailable.'
+         do i=1,nspec
+            if (spec(i)%tau_s<=0.) cycle
+            write(unit_no,'(a,i0,a,es24.16)') 'auxiliary_first_warm_species=',i,'; b_star=',spec(i)%tau_s
+            exit
+         enddo
+      else
+         write(unit_no,'(a)') 'reference_species=1; rho_ref=v_t_perp,ref/abs(Omega_ref)'
+         write(unit_no,'(a)') 'FPC file headers and velocity grids retain the derived rho_ref solver convention.'
+      endif
       close(unit_no)
    end subroutine write_normalization_metadata
 

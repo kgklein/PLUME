@@ -10,12 +10,14 @@
 !=============================================================================!
 !=============================================================================!
 module disprels
+  use vars, only: emit_warning
+  use plasma_z_backend, only: zetout
   !! Dispersion relation function and associated eigenfunction and minimization
   !! calculations.
   implicit none
   private
 
-  integer, parameter :: nbrack=128
+  include 'kinetic_harmonics.inc'
   !!Number of Bessel functions to sum
 
   real, parameter :: tol=1.0E-13
@@ -44,7 +46,8 @@ module disprels
       use vars, only : loggridw,loggridg,omi,omf,gami,gamf,nr,ni,nroot_max
       use vars, only : nroots,wroots,writeOut,dataName,numroots,scan,print_Name
       use vars, only : betap,kperp,kpar,vtp,nspec,spec,option,outputName,positive_roots
-      use vars, only : normalization
+      use vars, only : normalization, has_cold_species, dispersion_status,z_backend
+      use cold_susceptibility, only : finite_complex, invalid_complex
       implicit none
       
       real :: dr
@@ -98,6 +101,7 @@ module disprels
       integer :: is
       !! Species/component index.
 
+      integer :: invalid_points = 0
       integer :: ir
       !! Real Frequency Index.
 
@@ -184,6 +188,7 @@ module disprels
     
     write(fmt,'(a,i0,a)')'(6es14.4,',6*nspec,'es14.4)'
 
+    invalid_points = 0
     !Determine spacing in complex omega space (Normal or log)
     if (loggridw) then
        dr=(log10(omf)-log10(omi))/real(nr)
@@ -216,10 +221,31 @@ module disprels
            om(ir,ii)=omega
            
            dal(ir,ii)=disp(omega)
-           val(ir,ii)=abs(dal(ir,ii))           
+           val(ir,ii)=abs(dal(ir,ii))
+           if ((has_cold_species() .or. z_backend=='faddeeva') .and. dispersion_status /= 0) then
+              val(ir,ii)=huge(1.) ! Search mask, never a substitute tensor/determinant.
+              invalid_points=invalid_points+1
+           endif
         enddo
      enddo
 
+     if (invalid_points > 0) then
+        if (has_cold_species()) then
+           block
+              character(2048) :: warning_text
+              write(warning_text,'(a,i0,a)') &
+                'WARNING: excluded ',invalid_points,' singular/nonfinite mixed map points from root search.'
+              call emit_warning(trim(warning_text))
+           end block
+        else
+           block
+              character(2048) :: warning_text
+              write(warning_text,'(a,i0,a)') &
+                'WARNING: excluded ',invalid_points,' singular/nonfinite map points from root search.'
+              call emit_warning(trim(warning_text))
+           end block
+        endif
+     endif
      write(*,*)'finding minima'
      
      !Find Local minima (roots) in map
@@ -255,16 +281,18 @@ module disprels
               om2=omega*(1.+prec)
               
               omega=rtsec(disp,om1,om2,tol,iflag)
+              if ((has_cold_species() .or. z_backend=='faddeeva') .and. iflag < 0) cycle
               
               !check to see if the found root is already
               !an identified solution
-              if (j.eq.1) then
+              if ((j.eq.1 .and. .not. (has_cold_species() .or. z_backend=='faddeeva')) .or. &
+                   ((has_cold_species() .or. z_backend=='faddeeva') .and. k==0)) then
                  k=k+1
                  wroots(1,k)=real(omega)
                  wroots(2,k)=aimag(omega)
               else
                  unique_root=.true.
-                 do ig=1,j-1 !loop through previous solutions
+                 do ig=1,merge(k,j-1,(has_cold_species() .or. z_backend=='faddeeva')) ! Accepted mixed roots; legacy behavior otherwise.
                     if ( (abs(omega-cmplx(wroots(1,ig),wroots(2,ig)))).lt.D_gap) then
                        !repeated mode identified
                        unique_root=.false.
@@ -279,6 +307,7 @@ module disprels
              endif !
           endif !end omega !=0 loop
        enddo !end nroots loop
+       if ((has_cold_species() .or. z_backend=='faddeeva')) nroots=k
     endif !end refine loop
 
     !Eliminate all roots with a (LARGE) positive damping rate
@@ -327,6 +356,9 @@ module disprels
           do ii=0,ni
              !kgk 250108: change in output format: supressing indices,
              !and outputting val and dal directly
+             if ((has_cold_species() .or. z_backend=='faddeeva')) then
+                if (.not. finite_complex(dal(ir,ii))) val(ir,ii)=real(invalid_complex())
+             endif
              write(21,'(3es14.6,2es14.4)')&
                   om(ir,ii),log10(val(ir,ii)),&                  
                   dal(ir,ii)
@@ -424,7 +456,7 @@ module disprels
     if (writeOut) then
        !WRITE out roots 
        write(*,'(a)')'Dispersion Solutions '
-       do is = 1,nroot_max
+       do is = 1,merge(nroots,nroot_max,(has_cold_species() .or. z_backend=='faddeeva'))
           write(*,'(i3,2es14.4)')is,wroots(1:2,is)
        enddo
     endif
@@ -436,9 +468,13 @@ module disprels
   !-=-=-=-=-
   subroutine test_disp
     !! Testing routine for single evaluation of dispersion relation.   
-    use vars, only : wroots, nroot_max, writeOut, nspec, scan
-    use vars, only : kperp, kpar, solver_vtp
+    use vars, only : wroots, nroot_max, writeOut, nspec, scan, low_n
+    use vars, only : kperp, kpar, solver_vtp, has_cold_species, has_cold_reference, dispersion_status,z_backend
 
+    use electromagnetic_fields, only: calc_mixed_eigen
+    use vars, only: heating_convention
+    use heating_energy, only: heating_result
+    use heating_diagnostics, only: calc_corrected_eigen,write_energy_record
     implicit none
 
     !Eigenfunctions
@@ -471,7 +507,8 @@ module disprels
     complex :: D
     !! Output of dispersion relation function.
 
-    integer :: i,j
+    integer :: i,j,em_status,moment_status(nspec)
+    type(heating_result) :: energy
     
     
 
@@ -479,9 +516,73 @@ module disprels
     
     D = disp(omega)
 
-    write(*,'(4es14.4)') omega,D*solver_vtp**6.
+    if (has_cold_reference()) then
+       write(*,'(a)') 'Cold reference: omega and raw det(Lambda)'
+       write(*,'(4es14.4)') omega,D
+    else
+       write(*,'(4es14.4)') omega,D*solver_vtp**6.
+    endif
     write(*,'(2es14.4)')kperp,kpar
 
+    if (heating_convention=='corrected') then
+       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in)
+       write(*,'(a)') 'Heating convention: corrected'
+       if (energy%field_status==0) then
+          write(*,*) 'ef ='
+          write(*,'(3(1x,es14.6))') ef
+          write(*,*) 'bf ='
+          write(*,'(3(1x,es14.6))') bf
+          write(*,*) 'ns ='
+          write(*,'(100(1x,es14.6))') (ns(i),i=1,nspec)
+          write(*,*) 'Us ='
+          do i=1,nspec
+             write(*,'(3(1x,es14.6))') (Us(j,i),j=1,3)
+          enddo
+       else
+          write(*,'(a,i0)') 'Electromagnetic eigenfunction unavailable; determinant only. Field status: ',energy%field_status
+       endif
+       write(*,*) 'Ps ='
+       write(*,'(100(1x,es14.6))') Ps
+       if (low_n) then
+          write(*,*) 'Ps_split ='
+          do i=1,nspec
+             write(*,'(4(1x,es14.6))') (Ps_split(j,i),j=1,4)
+          enddo
+       endif
+       write(*,'(a,4es25.16e3)') 'H_total,H_E,H_B,H_species_total: ', &
+            energy%total,energy%electric,energy%magnetic,energy%species_total
+       write(*,'(a,2i5)') 'Energy numerical status and applicability: ',energy%status,energy%applicability
+       write(*,'(a)') 'All seven channels and energy components/statuses are in the .energy companion; FPC unchanged.'
+       call write_energy_record(energy,omega,-1,0,0,0,1,energy%field_status==0,'stdout')
+       return
+    endif
+
+    if (has_cold_species()) then
+       write(*,'(a,i0)') 'Mixed dispersion status (0=valid, 1=input, 2-4=pole, 5=numerical): ',dispersion_status
+       call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.false.,em_status,disp,moment_status)
+       if (em_status==0) then
+          write(*,*) 'ef ='
+          write(*,'(3(1x,es14.6))') ef
+          write(*,*) 'bf ='
+          write(*,'(3(1x,es14.6))') bf
+          write(*,*) 'ns ='
+          write(*,'(100(1x,es14.6))') (ns(i), i=1,nspec)
+          write(*,*) 'Us ='
+          do i=1,nspec
+             write(*,'(3(1x,es14.6))') (Us(j,i), j=1,3)
+          enddo
+          write(*,'(a)') 'Species moment statuses (0=valid; 1=input, 2=frequency, 3=Doppler, 4=cyclotron, 5=numerical, 6=absent):'
+          write(*,'(100i4)') moment_status
+          write(*,'(a)') 'Wave energy, heating and FPC unavailable.'
+       else
+          write(*,'(a,i0)') 'Electromagnetic eigenfunction unavailable; determinant only. Field status: ',em_status
+       endif
+       return
+    endif
+    if (z_backend=='faddeeva' .and. dispersion_status/=0) then
+       write(*,'(a,i0)') 'Dispersion evaluation failed; diagnostics unavailable. Status: ',dispersion_status
+       return
+    endif
     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,.true.,.true.)
 
 
@@ -516,7 +617,7 @@ module disprels
 !-=-=-=-=-
 subroutine refine_guess
   !!Refine solutions for roots of dispersion relation.
-  use vars, only : wroots, nroot_max, writeOut
+  use vars, only : wroots, nroot_max, writeOut, has_cold_species,z_backend
   implicit none
   
   complex :: omega
@@ -535,6 +636,8 @@ subroutine refine_guess
   !!Solution index.
 
   do j=1,nroot_max
+     if ((has_cold_species() .or. z_backend=='faddeeva') .and. all(wroots(1:2,j)==0.)) &
+          error stop 'ERROR: root guess is at the zero-frequency pole.'
      if (wroots(1,j) .ne. 0. .or. wroots(2,j) .ne. 0.) then
         
         omega=cmplx(wroots(1,j),wroots(2,j))
@@ -543,7 +646,9 @@ subroutine refine_guess
         om2=omega*(1.+prec)
         
         omega=rtsec(disp,om1,om2,tol,iflag)
-        
+        if ((has_cold_species() .or. z_backend=='faddeeva') .and. iflag < 0) &
+             error stop 'ERROR: root refinement failed: singular/nonfinite trial or iteration limit.'
+
         wroots(1,j)=real(omega)
         wroots(2,j)=aimag(omega)
         
@@ -563,6 +668,10 @@ end subroutine refine_guess
 !-=-=-=-=-
 !-=-=-=-=-=
 subroutine map_scan
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate complex frequency maps for scanned parameters.
   !! Intervatively calls [[map_search(subroutine)]]
   !! over a fixed range of parameters.
@@ -602,6 +711,8 @@ subroutine map_scan
   real :: kpari
   !! Initial value of \( k_{\parallel} \).
 
+  type(scan_frame) :: geometry
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call set_map_pointers(outName,diff,diff2)
   !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
@@ -636,6 +747,9 @@ subroutine map_scan
   !%n_res should be set to 1 for these type of runs, as there
   !is no information passed between each map calculation.
   do jj = 0, (scan(1)%n_scan*scan(1)%n_res) 
+     if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(1),jj,kperp,kpar)
+     else
      !Advance scanned parameter values
      if ((scan(1)%style_s)==-1)then
         if ((scan(1)%type_s)==0) then
@@ -674,6 +788,8 @@ subroutine map_scan
         endif
      endif
 
+     endif
+     if (wavevector_scan(scan(1))) call check_scan_kpar()
      do iq=1, nspec
         if (collision_type.gt.0 .and. normalization=='rho_ref') &
              spec(iq)%nu_ns = (sqrt(2.d0)*Kn)**(-1.d0)* &
@@ -686,8 +802,10 @@ subroutine map_scan
            !k_0 -> k_1; 
            !k_0= current k
            !kperp_1 = range_i, kpar_1 = range_f
-           kpari=kpar
-           kperpi=kperp
+           if (.not.has_cold_species()) then
+              kpari=kpar
+              kperpi=kperp
+           endif
            write(print_Name,'(a,i0,a,i0)')&
                 trim(outName),int(10000*sw),&
                 '_',int(10000*sw2)
@@ -703,7 +821,7 @@ subroutine map_scan
            !k_0= current k
            !|k_1|=swf
            write(print_Name,'(a,i0)')&
-                trim(outName),int(10000*sw/sin(theta))
+                trim(outName),int(10000*sign(sqrt(kperp**2+kpar**2),kpar))
         endif
      else
         write(print_Name,'(a,i0)')&
@@ -714,6 +832,7 @@ subroutine map_scan
      !Edit map span. Hard code in the desired range.
      !Will add an improved interface for the future.
      
+     if (.not.has_cold_species()) then
      write(*,'(a)')'Modifying Span of Complex Frequency Space:'
      if (normalization=='d_ref') then
         omi=-3.*sqrt(kperp**2.+kpar**2.)*sqrt(spec(1)%alph_s)
@@ -727,6 +846,7 @@ subroutine map_scan
         gamf=0.5*sqrt(kperp**2.+kpar**2.)/sqrt(betap)
      endif
      
+     endif
      call map_search
 
   enddo  
@@ -737,6 +857,16 @@ end subroutine map_scan
 !-=-=-=-=-=
 !-=-=-=-=-=
 subroutine om_scan(is)
+  use electromagnetic_fields, only: calc_mixed_eigen
+  use vars, only: heating_convention
+  use heating_energy, only: heating_result,heat_root_failed
+  use heating_response, only: diagnostic_nan
+  use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point,parameter_scan_workflow, &
+       parameter_scan_state,capture_scan_state,apply_parameter_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate solutions as a function of the variation of
   !! a single parameter.
   use vars, only : wroots,scan,nroot_max,nspec,sw,sw2, low_n, pi
@@ -827,6 +957,9 @@ subroutine om_scan(is)
   real    :: val
   !!Dispersion Relation Value
   
+  logical :: root_valid
+  integer :: em_status
+  type(heating_result) :: energy
   integer :: iflag
   !!Flag for Root search
 
@@ -859,6 +992,12 @@ subroutine om_scan(is)
   real, dimension(1:6,1:nspec) :: params
   !!Species parameters:
 
+  type(scan_frame) :: geometry
+  type(parameter_scan_state) :: native_state
+  logical :: parameter_workflow
+  parameter_workflow=parameter_scan_workflow()
+  if (parameter_workflow) call capture_scan_state(native_state)
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
   !pointer sw, (and sw2 if needed) is assigned in GET_OUT_NAME 
@@ -916,6 +1055,11 @@ subroutine om_scan(is)
 
   !Output %n_scan steps, with %n_res steps inbetween each output
   do jj = 0, (scan(is)%n_scan*scan(is)%n_res) 
+     if (parameter_workflow) then
+        call apply_parameter_point(native_state,scan(is),jj)
+     else if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(is),jj,kperp,kpar)
+     else
      !Advance scanned parameter values
      if ((scan(is)%style_s)==-1)then
         if ((scan(is)%type_s)==0) then
@@ -954,7 +1098,9 @@ subroutine om_scan(is)
         endif
      endif
 
-     call sync_solver_state
+     endif
+     if (wavevector_scan(scan(is))) call check_scan_kpar()
+     if (.not.has_cold_reference()) call sync_solver_state
      !construct params array for formated output
      do ii = 1,nspec
         !calculate neutral-charged collision frequency
@@ -981,30 +1127,50 @@ subroutine om_scan(is)
 
         iflag=0
         !Find New Omega Value
-        omega=rtsec(disp,om1,om2,tol,iflag)
+        call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+        root_valid=iflag>0
+        if (.not.root_valid) then
+           ef=omega;bf=omega;ns=omega;Us=omega
+           Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+        endif
         
         !Save Root
-        omlast(ii)=omega        
+        if (root_valid) omlast(ii)=omega
         
         !Output value every %n_res steps
         if (mod(jj,scan(is)%n_res)==0) then
            !Calculate eigenfns, heating only every %n_res steps
            
-           if ((scan(is)%eigen_s).or.((scan(is)%heat_s))) then
-              val=abs(disp(omega))
+           if (root_valid .and. (scan(is)%eigen_s.or.scan(is)%heat_s)) then
+              if (root_valid) val=abs(disp(omega))
               !>>>GGH: 1/18/23
+              if (scan(is)%heat_s .and. heating_convention=='corrected') then
+                 call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in, &
+                         heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max)
+              else if (has_cold_species()) then
+                 call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(is)%heat_s,em_status,disp)
+              else
               call calc_eigen(omega,ef,bf,Us,ns,Ps,&
                    Ps_split,scan(is)%eigen_s,scan(is)%heat_s)
+              endif
               !<<<GGH: 1/18/23
               omega=omlast(ii)
+              if (.not.has_cold_species() .and. heating_convention=='legacy') then
               if (abs(real(omega)).lt.1.E-15) then
                  Ps=0.1
                  Ps_split=-0.1
                  !<<<GGH: 1/18/23
               endif
+              endif
            endif
 
-           if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+           if (root_valid) then
+              ! Keep corrected snapshots and their written frequency identical;
+              ! retain the historical output rounding for other workflows.
+              if (heating_convention=='legacy' .or. .not.scan(is)%heat_s) then
+                 if (abs(real(omega)).lt.1.E-15) omega=cmplx(0.,aimag(omega))
+              endif
+           endif
 
            !1, 2, 3, 4
 
@@ -1014,6 +1180,14 @@ subroutine om_scan(is)
            !19,20 21,22 23,24 : 25,26 27,28 29,30 :
            !31,32 33,34
            !35, 36
+
+           if (scan(is)%heat_s .and. heating_convention=='corrected') then
+              if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
+              Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
+              call write_energy_record(energy,omega,1,is,0,jj,ii,root_valid,outName, &
+                   heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max, &
+                   record_parameters=parameter_workflow)
+           endif
 
            select case(out_type)
            case(0)!Om, Eigen, Heating
@@ -1048,11 +1222,15 @@ subroutine om_scan(is)
                       Ps(1:nspec),Ps_split(1:7,1:nspec),&
                       params(1:6,1:nspec)
               else
+                 if (heating_convention=='corrected') then
+                    write(out_unit(ii),fmt) kperp,kpar,betap,vtp,omega,Ps(1:nspec),params(1:6,1:nspec)
+                 else
                  write(out_unit(ii),fmt)&
                       kperp,kpar,betap,vtp,&
                       omega,&            
                       Ps(1:nspec),&
                       params(1:6,1:nspec),Ew
+                 endif
               endif
            case(3) !Om
               write(out_unit(ii),fmt)&
@@ -1065,7 +1243,7 @@ subroutine om_scan(is)
               stop
            end select
            if (scan(is)%tensor_s) then
-              val=abs(disp(omega))
+              if (root_valid) val=abs(disp(omega))
               write(out_unit_2(ii),fmt_tnsr)&
                    kperp,kpar,betap,vtp,&
                    susc(1:nspec,1,1),susc(1:nspec,1,2),susc(1:nspec,1,3),&
@@ -1081,8 +1259,8 @@ subroutine om_scan(is)
 
         !Save Roots for further scans:        
         if (jj==scan(is)%n_scan*scan(is)%n_res) then
-           wroots(1,ii)=real(omega)
-           wroots(2,ii)=aimag(omega)
+           wroots(1,ii)=real(omlast(ii))
+           wroots(2,ii)=aimag(omlast(ii))
            if (writeOut) &
                 write(*,'(a,i3,a,2es14.4)')&
                 'Root ',ii,' Out: ',wroots(1,ii),wroots(2,ii)
@@ -1104,6 +1282,16 @@ end subroutine om_scan
 
 !-=-=-=-=-
 subroutine om_double_scan
+  use electromagnetic_fields, only: calc_mixed_eigen
+  use vars, only: heating_convention
+  use heating_energy, only: heating_result,heat_root_failed
+  use heating_response, only: diagnostic_nan
+  use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
+  use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
+       wavevector_scan,refine_scan_point,parameter_scan_workflow, &
+       parameter_scan_state,capture_scan_state,apply_parameter_point
+  use vars, only: has_cold_reference,has_cold_species
+
   !! Calculate solutions as a function of the variation of
   !! two parameters, creating a surface in parameter space.
   use vars, only: scan, spec, betap, kpar, kperp, vtp, sw, sw2, sw3, sw4, pi
@@ -1201,6 +1389,9 @@ subroutine om_double_scan
   real    :: val
   !!Dispersion Relation Value
   
+  logical :: root_valid
+  integer :: em_status
+  type(heating_result) :: energy
   integer :: iflag
   !!Flag for Root search
   
@@ -1236,6 +1427,12 @@ subroutine om_double_scan
   real, dimension(1:6,1:nspec) :: params
   !!Species parameters:
   
+  type(scan_frame) :: geometry
+  type(parameter_scan_state) :: native_state
+  logical :: parameter_workflow
+  parameter_workflow=parameter_scan_workflow()
+  if (parameter_workflow) call capture_scan_state(native_state)
+  if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
   !pointer sw, sw3 (and sw2, sw4 if needed) is assigned in GET_DOUBLE_OUT_NAME 
@@ -1293,6 +1490,11 @@ subroutine om_double_scan
   !Output %n_scan steps, with %n_res steps inbetween each output
   do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
+     if (parameter_workflow) then
+        call apply_parameter_point(native_state,scan(1),kk,scan(2),0)
+     else if (has_cold_species()) then
+        call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
+     else
      !Advance scanned parameter values
 
      !Global Two-Component Scans
@@ -1340,6 +1542,8 @@ subroutine om_double_scan
         endif
      endif
 
+     endif
+     if (wavevector_scan(scan(1))) call check_scan_kpar()
      !calculate neutral-charged collision frequency
      do iq=1, nspec
         if (collision_type.gt.0 .and. normalization=='rho_ref') &
@@ -1356,10 +1560,15 @@ subroutine om_double_scan
 
         iflag=0
         !Find New Omega Value
-        omega=rtsec(disp,om1,om2,tol,iflag)
+        call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+        root_valid=iflag>0
+        if (.not.root_valid) then
+           ef=omega;bf=omega;ns=omega;Us=omega
+           Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+        endif
         
         !Save Root
-        omlast(ii)=omega      
+        if (root_valid) omlast(ii)=omega
 
      enddo
 
@@ -1382,6 +1591,11 @@ subroutine om_double_scan
         !Parameter 2 scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
+           if (parameter_workflow) then
+              call apply_parameter_point(native_state,scan(1),kk,scan(2),jj)
+           else if (has_cold_species()) then
+              call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),jj)
+           else
            !Advance scanned parameter values
 
            !Global Two-Component Scans
@@ -1429,7 +1643,9 @@ subroutine om_double_scan
               endif
            endif
 
-           call sync_solver_state
+           endif
+           if (wavevector_scan(scan(2))) call check_scan_kpar()
+           if (.not.has_cold_reference()) call sync_solver_state
            !construct params array for formated output
            do ii = 1,nspec
               !calculate neutral-charged collision frequency
@@ -1455,28 +1671,50 @@ subroutine om_double_scan
               
               iflag=0
               !Find New Omega Value
-              omega=rtsec(disp,om1,om2,tol,iflag)
+              call refine_scan_point(om1,om2,tol,omega,iflag,rtsec,disp)
+              root_valid=iflag>0
+              if (.not.root_valid) then
+                 ef=omega;bf=omega;ns=omega;Us=omega
+                 Ps=real(omega);Ps_split=real(omega);Ew=real(omega)
+              endif
               
               !Save Root
-              omlast(ii)=omega        
+              if (root_valid) omlast(ii)=omega
               
               !Output value every %n_res steps
               if (mod(jj,scan(2)%n_res)==0) then
                  !Calculate eigenfns, heating only every %n_res steps
                  
-                 if ((scan(2)%eigen_s).or.((scan(2)%heat_s))) then
-                    val=abs(disp(omega))
+                 if (root_valid .and. (scan(2)%eigen_s.or.scan(2)%heat_s)) then
+                    if (root_valid) val=abs(disp(omega))
                     !>>>GGH: 1/18/23
+                    if (scan(2)%heat_s .and. heating_convention=='corrected') then
+                       call calc_corrected_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,energy,disp,bessel,zet_in, &
+                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max)
+                    else if (has_cold_species()) then
+                       call calc_mixed_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%heat_s,em_status,disp)
+                    else
                     call calc_eigen(omega,ef,bf,Us,ns,Ps,Ps_split,scan(2)%eigen_s,scan(2)%heat_s)
+                    endif
                     !<<<GGH: 1/18/23
+                    if (.not.has_cold_species() .and. heating_convention=='legacy') then
                     if (abs(real(omega)).lt.1.E-7) then
                        Ps=-0.1
                        Ps_split=1.0
                        !>>>GGH: 1/18/23
                     endif
+                    endif
 
                  endif
                  
+                 if (scan(2)%heat_s .and. heating_convention=='corrected') then
+                    if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
+                    Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
+                    call write_energy_record(energy,omega,2,0,kk,jj,ii,root_valid,outName, &
+                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max, &
+                         record_parameters=parameter_workflow)
+                 endif
+
                  select case(out_type)
                  case(0) !Om, Eigen, Heating                    
                     if (low_n) then
@@ -1510,11 +1748,15 @@ subroutine om_double_scan
                                Ps(1:nspec),Ps_split(1:7,1:nspec),&
                                params(1:6,1:nspec)
                     else
+                       if (heating_convention=='corrected') then
+                          write(out_unit(ii),fmt) kperp,kpar,betap,vtp,omega,Ps(1:nspec),params(1:6,1:nspec)
+                       else
                        write(out_unit(ii),fmt)&
                             kperp,kpar,betap,vtp,&
                             omega,&            
                             Ps(1:nspec),&
                             params(1:6,1:nspec),Ew
+                       endif
                     endif
                  case(3) !Om
                     write(out_unit(ii),fmt)&
@@ -1524,8 +1766,11 @@ subroutine om_double_scan
                  end select
               endif
 
-              if ((scan(1)%tensor_s).and.(scan(2)%tensor_s)) then
-                 val=abs(disp(omega))
+              ! New parameter workflows align tensors with written mode rows;
+              ! retain the historical hidden-step tensor behavior otherwise.
+              if ((scan(1)%tensor_s).and.(scan(2)%tensor_s) .and. &
+                   (.not.parameter_workflow.or.mod(jj,scan(2)%n_res)==0)) then
+                 if (root_valid) val=abs(disp(omega))
                  write(out_unit_2(ii),fmt_tnsr)&
                       kperp,kpar,betap,vtp,&
                       susc(1:nspec,1,1),susc(1:nspec,1,2),susc(1:nspec,1,3),&
@@ -1542,6 +1787,11 @@ subroutine om_double_scan
         enddo     !End Parameter 2 Scan
         jj=0
         !Return scanned parameter 2 value
+           if (parameter_workflow) then
+              call apply_parameter_point(native_state,scan(1),kk,scan(2),0)
+           else if (has_cold_species()) then
+              call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
+           else
            if ((scan(2)%style_s)==-1)then
               if ((scan(2)%type_s)==0) then
                  if (scan(2)%log_scan) then
@@ -1587,6 +1837,7 @@ subroutine om_double_scan
                  sw3=(scan(2)%range_i)+diff(2,1)*real(jj)    
               endif
            endif
+           endif
            !Recall Saved roots
            do ii = 1,nroot_max
               omlast(ii)=omsafe(ii)
@@ -1598,6 +1849,11 @@ subroutine om_double_scan
         endif
      
      enddo  !End Parameter 1 Scan
+
+  do ii=1,nroot_max
+     close(out_unit(ii))
+     if (scan(1)%tensor_s.and.scan(2)%tensor_s) close(out_unit_2(ii))
+  enddo
 
 end subroutine om_double_scan
 
@@ -2329,6 +2585,7 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
 !<<<GGH: 1/18/23
   use vars, only : spec=>solver_spec,betap=>solver_betap,vtp=>solver_vtp
   use vars, only : kperp=>solver_kperp,kpar=>solver_kpar,nspec,susc,lam,low_n,susc_low
+  use vars, only : has_cold_species
   implicit none
   !!Passed!!
   complex :: omega
@@ -2410,14 +2667,13 @@ subroutine calc_eigen(omega,electric,magnetic,vmean,ns,Ps,&
   real :: ewave
   !! Wave Energy.
 
+  if (has_cold_species()) &
+       error stop 'ERROR: cold-fluid eigenfunctions and heating diagnostics are unavailable in Stage 2.'
+
   !CALCULATE FIELDS FLUCTUATIONS==========================================
   !Calculate Electric Fields
   !This seems to be correct --GGH 20 JUN 2008
-  electric(1) = cmplx(1.,0.)
-  electric(3)=-electric(1)*(lam(2,1)*lam(3,2)-lam(3,1)*lam(2,2))
-  electric(3)= electric(3)/(lam(2,3)*lam(3,2)-lam(3,3)*lam(2,2))
-  electric(2) = -electric(3)*lam(3,3) - electric(1)*lam(3,1)
-  electric(2) = electric(2)/lam(3,2)
+  include 'electromagnetic_electric.inc'
 
   !Calculate Magnetic Fields
   !NOTE: There appears to be an overall sign error here --GGH 20 JUN 2008
@@ -2648,6 +2904,7 @@ end subroutine calc_eigen
 !-=-=-=-=-=-
 !-=-=-=-=-=-
 subroutine set_map_pointers(outName,diff,diff2)
+  use vars, only: has_cold_species
   !! Sets step sizes for all classes of parameter scans
   !! called in for [[map_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,pi
@@ -2775,6 +3032,9 @@ subroutine set_map_pointers(outName,diff,diff2)
              '|k| = ',ki,' to ',scan(1)%range_f,&
              ' at fixed theta = ',theta * 180./pi
 
+        if (has_cold_species()) then
+           diff=0.;diff2=0. ! Computed by the native coordinate frame instead.
+        else
         if (scan(1)%log_scan) then
            !Log spacing
            diff=(log10(sin(theta)*scan(1)%range_f)-log10(kperp))/&
@@ -2787,6 +3047,7 @@ subroutine set_map_pointers(outName,diff,diff2)
                 real(scan(1)%n_scan*scan(1)%n_res)
            diff2=((cos(theta)*scan(1)%range_f)-(kpar))/&
                 real(scan(1)%n_scan*scan(1)%n_res)
+        endif
         endif
 
      endif
@@ -2891,6 +3152,7 @@ end subroutine set_map_pointers
 
 !-=-=-=-=-=-
 subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
+  use vars, only: has_cold_species
   !!Sets I/O strings, step sizes, and formats for [[om_scan(subroutine)]].
   use vars, only : scan,nspec,dataName,writeOut,outputName,pi
   use vars, only : spec,sw,sw2,betap,vtp,kperp,kpar,low_n,reference_scan_source
@@ -3090,6 +3352,9 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
                 int(1000 * theta * 180./pi)
         endif
 
+        if (has_cold_species()) then
+           diff=0.;diff2=0. ! Computed by the native coordinate frame instead.
+        else
         if (scan(is)%log_scan) then
            !Log spacing
            diff=(log10(sin(theta)*scan(is)%range_f)-log10(kperp))/&
@@ -3102,6 +3367,7 @@ subroutine get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
                 real(scan(is)%n_scan*scan(is)%n_res)
            diff2=((cos(theta)*scan(is)%range_f)-(kpar))/&
                 real(scan(is)%n_scan*scan(is)%n_res)
+        endif
         endif
 
      endif
@@ -3674,12 +3940,23 @@ end subroutine get_double_out_name
 !-=-=-=-
 !Our method for selecting different dispersion relations
 complex function disp(om)
-  use vars, only : collision_type, sync_solver_state
+  use vars, only : collision_type, sync_solver_state, has_cold_species, dispersion_status
+  use vars, only : has_cold_reference, validate_cold_reference
   
   complex :: om
   !!Complex Frequency
 
+  if (has_cold_reference()) then
+     call validate_cold_reference
+     disp = disp_mixed(om)
+     return
+  endif
   call sync_solver_state
+  dispersion_status = 0
+  if (has_cold_species()) then
+     disp = disp_mixed(om)
+     return
+  endif
   select case (collision_type)
 
   case (0)
@@ -3698,6 +3975,156 @@ complex function disp(om)
   return
   
 end function disp
+
+complex function disp_mixed(om)
+  !! Shared cold preflight/status handling; keep outside disp for legacy numerics.
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
+  use vars, only : has_cold_species, all_species_cold, has_cold_reference, dispersion_status,z_backend
+  use cold_reference, only : calc_warm_auxiliary
+  use kinetic_core, only : guarded_parallel
+  use vars, only : nspec, spec, kpar, kperp, vtp, susc, lam, low_n, susc_low
+  use cold_susceptibility, only : calc_chi_cold, finite_complex, invalid_complex
+
+  complex :: om
+  !!Complex Frequency
+  integer :: is, row, column
+  complex :: cold_chi(3,3)
+
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp_mixed,z_reject)
+  if (z_reject) return
+  dispersion_status = 0
+  if (has_cold_species()) then
+     ! Preflight all cold components BEFORE any warm thermal or wave expression.
+     ! Inputs here are native d_ref; disp0 uses the derived warm rho_ref state.
+     if (.not. finite_complex(om)) then
+        dispersion_status = 1
+     else if (om == cmplx(0.,0.)) then
+        dispersion_status = 2
+     else
+        do is=1,nspec
+           if (spec(is)%tau_s /= 0.) cycle
+           call calc_chi_cold(spec(is),om,kpar,kperp,vtp,cold_chi,dispersion_status)
+           susc(is,:,:) = cold_chi
+           if (dispersion_status /= 0) exit
+           if (low_n) susc_low(is,:,:,:) = invalid_complex()
+        enddo
+     endif
+     if (dispersion_status /= 0) then
+        susc = invalid_complex()
+        lam = invalid_complex()
+        if (low_n) susc_low = invalid_complex()
+        disp_mixed = invalid_complex()
+        call end_z_evaluation(z_guard,disp_mixed)
+        return
+     endif
+  endif
+  if (all_species_cold()) then
+     disp_mixed = disp_all_cold(om)
+  else if (kperp == 0.) then
+     if (has_cold_reference()) then
+        call guarded_parallel(om,disp_mixed,dispersion_status,disp_mixed_parallel)
+     else
+        disp_mixed = disp_mixed_parallel(om)
+     endif
+  else if (has_cold_reference()) then
+     call calc_warm_auxiliary(spec,om,kpar,kperp,vtp,susc,dispersion_status,bessel,zet_in)
+     if (dispersion_status==0) then
+        if (low_n) susc_low=invalid_complex()
+        disp_mixed=disp_all_cold(om) ! Shared native wave assembly, now including warm chi.
+     else
+        disp_mixed=invalid_complex()
+     endif
+  else
+     disp_mixed = disp0(om)
+  endif
+
+  if (has_cold_species()) then
+     if (dispersion_status==0 .and. .not. finite_complex(disp_mixed)) dispersion_status = 5
+     if (dispersion_status==0) then
+        do row=1,3
+           do column=1,3
+              if (.not. finite_complex(lam(row,column))) dispersion_status = 5
+           enddo
+        enddo
+     endif
+     if (dispersion_status /= 0) then
+        susc = invalid_complex()
+        lam = invalid_complex()
+        if (low_n) susc_low = invalid_complex()
+        disp_mixed = invalid_complex()
+     endif
+  endif
+  call end_z_evaluation(z_guard,disp_mixed)
+  return
+
+end function disp_mixed
+
+complex function disp_all_cold(om)
+  !! Cold susceptibilities have passed disp_mixed preflight in native d_ref units.
+  !! No beta, anisotropy, solver_* state or thermal functions are accessed here.
+  use vars, only: kpar, kperp, vtp, susc, lam
+  implicit none
+  complex, intent(in) :: om
+  complex :: nx, nz
+  integer :: j
+  lam=sum(susc,dim=1)
+  do j=1,3
+     lam(j,j)=lam(j,j)+1.
+  enddo
+  nx=kperp/(vtp*om)
+  nz=kpar/(vtp*om)
+  lam(1,1)=lam(1,1)-nz**2
+  lam(2,2)=lam(2,2)-nx**2-nz**2
+  lam(3,3)=lam(3,3)-nx**2
+  lam(1,3)=lam(1,3)+nx*nz
+  lam(3,1)=lam(3,1)+nx*nz
+  ! Same Cartesian determinant convention as disp0; transpose, not conjugate.
+  disp_all_cold=lam(1,1)*(lam(2,2)*lam(3,3)+lam(2,3)**2) &
+       +2.*lam(1,2)*lam(2,3)*lam(1,3)-lam(1,3)**2*lam(2,2)+lam(1,2)**2*lam(3,3)
+end function disp_all_cold
+
+complex function disp_mixed_parallel(om)
+  !! Exact kperp=0 limit of the same bi-Maxwellian harmonic sum, mixed runs only.
+  !! Only n=+/-1 contributes transversely; n=0 gives the longitudinal response.
+  !! Cold susceptibilities were evaluated by disp_mixed in native d_ref units.
+  use vars, only: nspec, spec, kpar, vtp, susc, lam, low_n, susc_low
+  use cold_susceptibility, only: invalid_complex
+  implicit none
+  complex, intent(in) :: om
+  complex :: delta, zeta, response, nz2
+  complex, parameter :: imaginary=(0.,1.)
+  real :: gyro, plasma, thermal
+  integer :: is, n, j
+
+  do is=1,nspec
+     if (spec(is)%tau_s == 0.) cycle
+     thermal=sqrt(spec(is)%mu_s*spec(is)%tau_s)
+     gyro=spec(is)%mu_s/spec(is)%Q_s
+     plasma=spec(is)%D_s*spec(is)%mu_s/(spec(is)%Q_s**2*vtp**2)
+     delta=om-kpar*spec(is)%vv_s
+     susc(is,:,:)=cmplx(0.,0.)
+     do n=-1,1,2
+        include 'kinetic_parallel_response.inc'
+        susc(is,1,1)=susc(is,1,1)+plasma*response/(2.*om**2)
+        susc(is,1,2)=susc(is,1,2)+imaginary*n*plasma*response/(2.*om**2)
+     enddo
+     susc(is,2,2)=susc(is,1,1)
+     susc(is,2,1)=-susc(is,1,2)
+     include 'kinetic_parallel_longitudinal.inc'
+  enddo
+  if (low_n) susc_low=invalid_complex() ! Resonance heating is unavailable for mixtures.
+  lam=sum(susc,dim=1)
+  do j=1,3
+     lam(j,j)=lam(j,j)+1.
+  enddo
+  nz2=(kpar/(vtp*om))**2
+  lam(1,1)=lam(1,1)-nz2
+  lam(2,2)=lam(2,2)-nz2
+  disp_mixed_parallel=(lam(1,1)*lam(2,2)+lam(1,2)**2)*lam(3,3)
+end function disp_mixed_parallel
 
 !-=-=-=-=-=-=
 !  The parameters upon which this dispersion relation depends are:
@@ -3721,9 +4148,11 @@ end function disp
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
 complex function disp1(om)
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
   !!Returns Plasma Dispersion Function for input complex frequency
   !! and global values of the dimensionless plasma parameters.
   !! updated to include weak neutral-charged collision
+  use adaptive_kinetic, only : dynamic_harmonics, disp_adaptive
   use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
   use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
   use vars,  only: low_n, susc_low, pi
@@ -3872,7 +4301,18 @@ complex function disp1(om)
   !! Either use previous Bessel array, or recalculate,
   !! based on if argument for a particular species/component changes.
 
-  if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
+
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp1,z_reject)
+  if (z_reject) return
+  if (dynamic_harmonics()) then
+     disp1=disp_adaptive(om,bessel,zet_in)
+     call end_z_evaluation(z_guard,disp1)
+     return
+  endif
+  if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))
   if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
   if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
   if (.not. allocated(alph_last)) allocate(alph_last(nspec))          
@@ -3925,390 +4365,7 @@ complex function disp1(om)
      disp_v    =spec(is)%vv_s
      disp_nuns =spec(is)%nu_ns
      
-     !frequently employed v drift normalization
-     Vdrifts = kpar * disp_v / sqrt(betap*alphp)
-     
-     lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
-     
-     !Clear the Temporary Susceptability
-     eps_xx_t = cmplx(0.,0.) 
-     eps_xy_t = cmplx(0.,0.) 
-     eps_xz_t = cmplx(0.,0.) 
-     eps_yy_t = cmplx(0.,0.) 
-     eps_yz_t = cmplx(0.,0.) 
-     eps_zz_t = cmplx(0.,0.)
-
-     !Compute all necessary plasma dispersion functions and bessel functions
-     tsi=0. ;  zz=0. ;
-     if (.not. reuse_bessel(is)) then 
-        do n = -nbrack-1, nbrack+1
-           jn(n,is)=bessel(abs(n),lambdas)
-        enddo
-        do n = -nbrack, nbrack
-           jpn(n,is)=0.5*(jn(n+1,is)+jn(n-1,is))
-        enddo
-     endif
-     
-     do n = -nbrack, nbrack
-        !here, we add i nu_ns/Omega_ref to the numerator
-        tsi(n) = sqrt((alphp * disp_tau)/(disp_mu))*&
-             ( om - Vdrifts - dble(n)* disp_mu/disp_Q + c_i * disp_nuns)/kpar
-        zz(n)=zet_in(kpar,tsi(n))
-     enddo
-
-     !Set normalizations for susceptibilites
-     !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-     !-=-=-=-=-=-=-=-=-=-=
-     !XX
-     norm(1)=( betap * disp_mu * disp_D  )/&
-          ( om *om * vtp**2. * disp_Q**2. * lambdas  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !XY
-     norm(4)=((-c_i * betap * disp_mu * disp_D  )/&
-          ( om * om* vtp**2. * disp_Q**2. * kpar ))* &
-          sqrt(alphp * disp_tau / disp_mu)
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !XZ
-     norm(5)=( betap * disp_D * kperp )/&
-          ( om * om *vtp**2. * disp_Q * lambdas * kpar  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !YY
-     norm(2)=( betap * disp_mu * disp_D  )/&
-          ( om * om* vtp**2. * disp_Q**2. * lambdas  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !YZ
-     norm(6)=( c_i * betap * disp_D * kperp )/&
-          ( om * om * vtp**2. * disp_Q * kpar  )
-     
-     !-=-=-=-=-=-=-=-=-=-=
-     !ZZ
-     norm(3)=(2. * betap * alphp* disp_tau  * disp_D)/&
-          ( om * om* vtp**2. * disp_Q**2. * kpar * kpar * disp_alph)
-
-     !Sum over the Susceptibilities
-     do n = 1, nbrack
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xx_t  = eps_xx_t  + &
-             n*n*jn(n,is)*( 2.*(disp_alph-1.) &
-             + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-             (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-             (zz(n)+zz(-n)) &
-             + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YY
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_yy_t = eps_yy_t + &
-             (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-             (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (disp_alph*(om - Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*&
-             (zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
-             (1.-disp_alph)*(zz(n)-zz(-n))))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !ZZ
-        !A plethora of cross terms added.
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_zz_t = eps_zz_t + &
-             jn(n,is)*(2.*om* &
-             (om*disp_alph - Vdrifts+c_i *disp_nuns*(disp_alph-1.d0)) - &
-             2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-             +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-             (zz(n)+zz(-n))*&
-             (om*(om+c_i*disp_nuns)*&
-             (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-             + n*n*disp_mu**2.*&
-             (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-             2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-             +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*&
-             (om*om*(1.d0-3.d0*disp_alph) +&
-             (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-             (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-             -c_i*disp_nuns*om*disp_alph)+&
-             n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) 
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XY
-        !Minimal change; addition of (alph_s-1)*i*\nu_ns
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xy_t = eps_xy_t + &
-             n*(jn(n,is)-jpn(n,is))*( &
-             (zz(n)-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1)*c_i*disp_nuns)&
-             +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XZ
-        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_xz_t = eps_xz_t + &
-             n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-             (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (zz(n) -zz(-n))*&
-             ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) )-&
-             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-             (zz(n) +zz(-n))*&
-             (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-             +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YZ
-        !Moderate changes; addition of several (alph_s-1)*i*\nu_ns terms
-        !-=-=-=-=-=-=-=-=-=-=
-        eps_yz_t = eps_yz_t + &
-             (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)) &
-             +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-             (zz(n)+zz(-n))*&
-             ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-             (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-             +(zz(n)-zz(-n))*&
-             (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-             2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-        
-        !-=-=-=-=-=-=-=-=-=-=
-        !n=\pm 1 susceptibility
-        if ((low_n).and.(n==1)) then
-           
-           !\chi_xx
-           susc_low(is,1,1,1) = norm(1)*&
-                n*n*jn(n,is)*( (disp_alph-1.) &
-                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-                (zz(n)) &
-                + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-           
-           susc_low(is,1,1,-1) = norm(1)*&
-                n*n*jn(n,is)*( (disp_alph-1.) &
-                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                (disp_alph* (om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)* &
-                (zz(-n)) &
-                + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-           !\chi_xy
-           susc_low(is,1,2,1) = norm(4)*&
-                n*(jn(n,is)-jpn(n,is))*( &
-                (zz(n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns)&
-                +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-           
-           susc_low(is,1,2,-1) = norm(4)*&
-                n*(jn(n,is)-jpn(n,is))*( &
-                (-zz(-n))*(disp_alph*(om-Vdrifts) +(disp_alph-1.d0)*c_i*disp_nuns) &
-                +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-           !\chi_yx
-           susc_low(is,2,1,1) = -susc_low(is,1,2,1)
-           
-           susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
-
-           !\chi_xz
-           susc_low(is,1,3,1) = norm(5)*&
-                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n))*&
-                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                (zz(n))*&
-                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-           
-           susc_low(is,1,3,-1) = norm(5)*&
-                n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (-zz(-n))*&
-                ((om+c_i*disp_nuns)*((om-Vdrifts)*disp_alph+c_i *disp_nuns*(disp_alph-1.d0) ) -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                (zz(-n))*&
-                (disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph&
-                +2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-                           
-           !\chi_zx
-           susc_low(is,3,1,1) = susc_low(is,1,3,1)
-           
-           susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
-           
-           !\chi_yy
-           susc_low(is,2,2,1) = norm(2)*&
-                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(n)) + &
-                (n*disp_mu/(disp_Q))*&
-                (1.-disp_alph)*(zz(n))))
-           
-           susc_low(is,2,2,-1) = norm(2)*&
-                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (disp_alph*(om - Vdrifts) + (disp_alph-1.d0)*c_i*disp_nuns)*(zz(-n)) + &
-                (n*disp_mu/(disp_Q))*&
-                (1.-disp_alph)*(-zz(-n))))
-
-           !\chi_yz
-           susc_low(is,2,3,1) = norm(6)*&
-                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n))*&
-                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-                +(zz(n))*&
-                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-
-           susc_low(is,2,3,-1) = norm(6)*&
-                (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(-n))*&
-                ((om+c_i*disp_nuns)*(disp_alph*(om-Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0) )  -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph) ) &
-                +(-zz(-n))*&
-                (n*disp_mu*(om-disp_alph*(2.*om-Vdrifts) +&
-                2.d0*c_i*disp_nuns*(1.d0-disp_alph))/disp_Q) ))
-           
-           !\chi_zy
-           susc_low(is,3,2,1) = -susc_low(is,2,3,1)
-           
-           susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)
-
-           !\chi_zz
-           susc_low(is,3,3,1) = norm(3)*&
-                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                (zz(n))*(om*(om+c_i*disp_nuns)*&
-                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-                + n*n*disp_mu**2.*&
-                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-                +(n * disp_mu/disp_Q )*(zz(n))*& 
-                (om*om*(1.d0-3.d0*disp_alph) +&
-                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-                -c_i*disp_nuns*om*disp_alph)+&
-                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
-
-           susc_low(is,3,3,1) = norm(3)*&
-                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                (zz(n))*(om*(om+c_i*disp_nuns)*&
-                (disp_alph * (om - Vdrifts) +c_i*disp_nuns*(disp_alph-1.d0))&
-                + n*n*disp_mu**2.*&
-                (om*(3.*disp_alph-2.) -disp_alph*Vdrifts+&
-                2.d0*c_i*disp_nuns*(disp_alph-1.d0))/disp_Q**2.) &
-                +(n * disp_mu/disp_Q )*(-zz(-n))*& 
-                (om*om*(1.d0-3.d0*disp_alph) +&
-                (2.d0*om + c_i *disp_nuns)*disp_alph*Vdrifts+&
-                (disp_alph-1.d0)*(disp_nuns*disp_nuns-2.d0*c_i*disp_nuns*om)&
-                -c_i*disp_nuns*om*disp_alph)+&
-                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) )
-           
-        endif
-           
-     enddo !end n loop
-
-     !Add in the n=zero term
-     
-     !No n=0 XX term
-     
-     !No n=0 XY,YX terms
-     
-     !No n=0 XZ,ZX terms
-     
-     !YY term
-     eps_yy_t = eps_yy_t + &
-          (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-          ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-          (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0)))
-
-     !YZ term
-     eps_yz_t = eps_yz_t + &
-          (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
-          zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-          (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))
-
-     !ZZ term
-     eps_zz_t = eps_zz_t + &
-          jn(0,is)*om*(&
-          om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
-          zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-          *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) )
-     
-
-     if (low_n) then
-
-        !xx
-        susc_low(is,1,1,0)=cmplx(0.d0,0.d0)
-
-        !yy
-        susc_low(is,2,2,0) =  (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-             ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-             (disp_alph*(om-Vdrifts)+(disp_alph-1.d0)*c_i*disp_nuns)*(zz(0))) * norm(2)
-
-        !xy
-        susc_low(is,1,2,0)=cmplx(0.d0,0.d0)
-
-        !yx
-        susc_low(is,2,1,0)=cmplx(0.d0,0.d0)
-
-        !xz
-        susc_low(is,1,3,0)=cmplx(0.d0,0.d0)
-
-        !zx
-        susc_low(is,3,1,0)=cmplx(0.d0,0.d0)
-        
-        !yz
-        susc_low(is,2,3,0) = &
-             (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+c_i*disp_nuns*(disp_alph-1.d0)+&
-             zz(0)*(sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-             (disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0))*(om+c_i*disp_nuns))*&
-             norm(6)
-        
-        !zy
-        susc_low(is,3,2,0) = -susc_low(is,2,3,0)
-
-        !zz
-        susc_low(is,3,3,0) = &
-             jn(0,is)*om*(&
-             om*disp_alph-Vdrifts +c_i*disp_nuns*(disp_alph-1.d0)+&
-             zz(0) * (om +c_i*disp_nuns)* (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-             *(disp_alph*(om-Vdrifts)+c_i*disp_nuns*(disp_alph-1.d0)) ) * norm(3)
-        
-     endif
-
-             !Apply the correct species normalization
-           !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        eps_xx_t=eps_xx_t*norm(1)
-        !XY
-        eps_xy_t=eps_xy_t*norm(4)
-        !XZ
-        eps_xz_t=eps_xz_t*norm(5)
-        !YY
-        eps_yy_t=eps_yy_t*norm(2)
-        !YZ
-        eps_yz_t=eps_yz_t*norm(6)
-        !ZZ
-        eps_zz_t=eps_zz_t*norm(3)
-
-        !Add the drift term
-        eps_zz_t = eps_zz_t + &
-             ((2.*disp_v)/(kpar*vtp**2.)) * &
-             (disp_D*disp_tau*sqrt(betap*alphp)/(om*disp_alph*disp_Q**2.))
-
-        !Save the temporary susceptibility to the 'susc' array
-        susc(is,1,1) = eps_xx_t
-        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
-        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
-        susc(is,2,2) = eps_yy_t
-        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
-        susc(is,3,3) = eps_zz_t
+     include 'kinetic_collisional_species.inc'
 
         !-=-=-=-=-=-=-=-=-=-=
         !Add to the total susceptibility
@@ -4355,8 +4412,9 @@ complex function disp1(om)
      !Save values of lambda_s components to save on Bessel function calculations
      kperp_last=kperp
 
-     return
+     call end_z_evaluation(z_guard,disp1)
 
+     return
 end function disp1
   
 !THE BEATING HEART OF THE CODE....
@@ -4389,8 +4447,10 @@ end function disp1
 !NOTE: REFERENCE SPECIES ASSUMED TO BE FIRST SPECIES
 !!!!
    complex function disp0(om)
+  use plasma_z_backend, only: z_evaluation_guard,begin_z_evaluation,end_z_evaluation
      !!Returns Plasma Dispersion Function for input complex frequency
      !! and global values of the dimensionless plasma parameters.
+  use adaptive_kinetic, only : dynamic_harmonics, disp_adaptive
      use vars, only: betap=>solver_betap,kperp=>solver_kperp,kpar=>solver_kpar
      use vars, only: vtp=>solver_vtp,nspec,spec=>solver_spec,susc,lam
      use vars,  only: low_n, susc_low, pi
@@ -4532,6 +4592,17 @@ end function disp1
      !! Either use previous Bessel array, or recalculate,
      !! based on if argument for a particular species/component changes.
 
+
+  type(z_evaluation_guard) :: z_guard
+  logical :: z_reject
+
+  call begin_z_evaluation(om,z_guard,disp0,z_reject)
+  if (z_reject) return
+     if (dynamic_harmonics()) then
+       disp0=disp_adaptive(om,bessel,zet_in)
+       call end_z_evaluation(z_guard,disp0)
+       return
+     endif
      if (.not. allocated(jn)) allocate(jn(-nbrack-1:nbrack+1,nspec))          
      if (.not. allocated(jpn)) allocate(jpn(-nbrack:nbrack,nspec))          
      if (.not. allocated(tau_last)) allocate(tau_last(nspec))          
@@ -4545,7 +4616,8 @@ end function disp1
      !lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
      !changes, the bessel functions need to be recalculated...
      if ((kperp .eq. kperp_last ).and.(spec(1)%alph_s .eq. alph_last(1))) then
-        do is=1, nspec 
+        do is=1, nspec
+           if (spec(is)%tau_s == 0.) cycle
            if ((spec(is)%tau_s .eq. tau_last(is)) .and. &
                (spec(is)%alph_s .eq. alph_last(is)) .and. &
                (spec(is)%mu_s .eq. mu_last(is)) .and. &
@@ -4577,6 +4649,16 @@ end function disp1
 
      !Calculate the Susceptibility Tensor for Each Species:
      do is=1,nspec
+        if (spec(is)%tau_s == 0.) then
+           ! Ordinary chi_s precomputed in disp(); no thermal conversion/Bessel/Z.
+           eps_xx = eps_xx + susc(is,1,1)
+           eps_xy = eps_xy + susc(is,1,2)
+           eps_xz = eps_xz + susc(is,1,3)
+           eps_yy = eps_yy + susc(is,2,2)
+           eps_yz = eps_yz + susc(is,2,3)
+           eps_zz = eps_zz + susc(is,3,3)
+           cycle
+        endif
         disp_tau  =spec(is)%tau_s
         disp_mu   =spec(is)%mu_s
         disp_alph =spec(is)%alph_s
@@ -4584,309 +4666,7 @@ end function disp1
         disp_D    =spec(is)%D_s
         disp_v    =spec(is)%vv_s
         
-        !frequently employed v drift normalization
-        Vdrifts = kpar * disp_v / sqrt(betap*alphp)
-
-        lambdas=lambdap*(disp_Q**2. * disp_alph)/(disp_mu * disp_tau * alphp)
-        
-        !Clear the Temporary Susceptability
-        eps_xx_t = cmplx(0.,0.) 
-        eps_xy_t = cmplx(0.,0.) 
-        eps_xz_t = cmplx(0.,0.) 
-        eps_yy_t = cmplx(0.,0.) 
-        eps_yz_t = cmplx(0.,0.) 
-        eps_zz_t = cmplx(0.,0.) 
-
-     !Compute all necessary plasma dispersion functions and bessel functions
-        tsi=0. ;  zz=0. ;
-        if (.not. reuse_bessel(is)) then 
-           do n = -nbrack-1, nbrack+1
-              jn(n,is)=bessel(abs(n),lambdas)
-           enddo
-           do n = -nbrack, nbrack
-              jpn(n,is)=0.5*(jn(n+1,is)+jn(n-1,is))
-           enddo
-        endif
-
-        do n = -nbrack, nbrack
-           tsi(n) = sqrt((alphp * disp_tau)/(disp_mu))*&
-                ( om - Vdrifts - dble(n)* disp_mu/disp_Q)/kpar
-           zz(n)=zet_in(kpar,tsi(n))
-        enddo
-
-        !Set normalizations for susceptibilites
-        !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        norm(1)=( betap * disp_mu * disp_D  )/&
-             ( om *om * vtp**2. * disp_Q**2. * lambdas  )
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XY
-        norm(4)=((-c_i * betap * disp_mu * disp_D  )/&
-             ( om * om* vtp**2. * disp_Q**2. * kpar ))* &
-             sqrt(alphp * disp_tau / disp_mu)
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !XZ
-        norm(5)=( betap * disp_D * kperp )/&
-             ( om * om *vtp**2. * disp_Q * lambdas * kpar  )
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YY
-        norm(2)=( betap * disp_mu * disp_D  )/&
-             ( om * om* vtp**2. * disp_Q**2. * lambdas  )
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !YZ
-        norm(6)=( c_i * betap * disp_D * kperp )/&
-             ( om * om * vtp**2. * disp_Q * kpar  )
-
-        !-=-=-=-=-=-=-=-=-=-=
-        !ZZ
-        norm(3)=(2. * betap * alphp* disp_tau  * disp_D)/&
-             ( om * om* vtp**2. * disp_Q**2. * kpar * kpar * disp_alph)
-
-        !Sum over the Susceptibilities
-        do n = 1, nbrack
-           !-=-=-=-=-=-=-=-=-=-=
-           !XX
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_xx_t  = eps_xx_t  + &
-                n*n*jn(n,is)*( 2.*(disp_alph-1.) &
-                + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                disp_alph* (om - Vdrifts) * (zz(n)+zz(-n)) &
-                + (zz(n)-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-           !-=-=-=-=-=-=-=-=-=-=
-           !YY
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_yy_t = eps_yy_t + &
-                (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                (2.*(disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                disp_alph*(om - Vdrifts)*(zz(n)+zz(-n)) + (n*disp_mu/(disp_Q))*&
-                (1.-disp_alph)*(zz(n)-zz(-n))))
-           
-           !-=-=-=-=-=-=-=-=-=-=
-           !ZZ
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_zz_t = eps_zz_t + &
-                jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                (zz(n)+zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
-                + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
-                +(n * disp_mu/disp_Q )*(zz(n)-zz(-n))*& !changed sign
-                (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
-                n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
-           
-           
-           !-=-=-=-=-=-=-=-=-=-=
-           !XY
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_xy_t = eps_xy_t + &
-                n*(jn(n,is)-jpn(n,is))*( &
-                (zz(n)-zz(-n))*disp_alph*(om-Vdrifts) &
-                +(zz(n)+zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-           !-=-=-=-=-=-=-=-=-=-=
-           !XZ
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_xz_t = eps_xz_t + &
-                n*jn(n,is)*(2.*n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n) -zz(-n))*(disp_alph*om*(om-Vdrifts)-&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                (zz(n) +zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
-
-           !-=-=-=-=-=-=-=-=-=-=
-           !YZ
-           !-=-=-=-=-=-=-=-=-=-=
-           eps_yz_t = eps_yz_t + &
-                (jn(n,is)-jpn(n,is))*(2.*(om*disp_alph-Vdrifts) &
-                +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                (zz(n)+zz(-n))*(disp_alph*om*(om-Vdrifts) -&
-                (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                +(zz(n)-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
-           
-           !-=-=-=-=-=-=-=-=-=-=
-           !n=\pm 1 susceptibility
-           if ((low_n).and.(n==1)) then
-              
-              !\chi_xx
-              susc_low(is,1,1,1) = norm(1)*&
-                   n*n*jn(n,is)*( (disp_alph-1.) &
-                   + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                   disp_alph* (om - Vdrifts) * (zz(n)) &
-                   + (zz(n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-              susc_low(is,1,1,-1) = norm(1)*&
-                   n*n*jn(n,is)*( (disp_alph-1.) &
-                   + (sqrt(alphp * disp_tau/ disp_mu )/ kpar )*(&
-                   disp_alph* (om - Vdrifts) * (zz(-n)) &
-                   + (-zz(-n))*(1.-disp_alph)*(n*disp_mu/(disp_Q ))))
-
-              !\chi_xy
-              susc_low(is,1,2,1) = norm(4)*&
-                   n*(jn(n,is)-jpn(n,is))*( &
-                   (zz(n))*disp_alph*(om-Vdrifts) &
-                   +(zz(n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-              susc_low(is,1,2,-1) = norm(4)*&
-                   n*(jn(n,is)-jpn(n,is))*( &
-                   (-zz(-n))*disp_alph*(om-Vdrifts) &
-                   +(zz(-n))*(1.-disp_alph)*n*disp_mu/(disp_Q ))
-
-              !\chi_yx
-              susc_low(is,2,1,1) = -susc_low(is,1,2,1)
-
-              susc_low(is,2,1,-1) = -susc_low(is,1,2,-1)
-
-              !\chi_xz
-              susc_low(is,1,3,1) = norm(5)*&
-                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                   (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n))*(disp_alph*om*(om-Vdrifts)-&
-                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                   (zz(n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
-
-              susc_low(is,1,3,-1) = norm(5)*&
-                   n*jn(n,is)*(n*(1.-disp_alph)*disp_mu/(disp_Q) + &
-                   (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (-zz(-n))*(disp_alph*om*(om-Vdrifts)-&
-                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) + &
-                   (zz(-n))*(disp_mu*n*(om-2.*om*disp_alph+Vdrifts*disp_alph)/disp_Q) ))
-
-              !\chi_zx
-              susc_low(is,3,1,1) = susc_low(is,1,3,1)
-              susc_low(is,3,1,-1) = susc_low(is,1,3,-1)
-
-              !\chi_yy
-              susc_low(is,2,2,1) = norm(2)*&
-                   (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   disp_alph*(om - Vdrifts)*(zz(n)) + (n*disp_mu/(disp_Q))*&
-                   (1.-disp_alph)*(zz(n))))
-
-              susc_low(is,2,2,-1) = norm(2)*&
-                   (n*n*jn(n,is) + 2.*lambdas*lambdas*(jn(n,is)-jpn(n,is)))*&
-                   ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   disp_alph*(om - Vdrifts)*(zz(-n)) + (n*disp_mu/(disp_Q))*&
-                   (1.-disp_alph)*(-zz(-n))))
-
-              !\chi_yz
-              susc_low(is,2,3,1) = norm(6)*&
-                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                   +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(n))*(disp_alph*om*(om-Vdrifts) -&
-                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                   +(zz(n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
-
-              susc_low(is,2,3,-1) = norm(6)*&
-                   (jn(n,is)-jpn(n,is))*((om*disp_alph-Vdrifts) &
-                   +(sqrt(alphp*disp_tau/disp_mu)/kpar)*(&
-                   (zz(-n))*(disp_alph*om*(om-Vdrifts) -&
-                   (n*n*disp_mu**2./(disp_Q**2.))*(1.-disp_alph)) &
-                   +(-zz(-n))*(n*disp_mu*(om-disp_alph*(2.*om-Vdrifts))/disp_Q) ))
-
-              !\chi_zy
-              susc_low(is,3,2,1) = -susc_low(is,2,3,1)
-              
-              susc_low(is,3,2,-1) = -susc_low(is,2,3,-1)  
-
-              !\chi_zz
-              susc_low(is,3,3,1) = norm(3)*&
-                   jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                   2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                   +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                   (zz(n))*(om*om*disp_alph * (om - Vdrifts) &
-                   + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
-                   +(n * disp_mu/disp_Q )*(zz(n))*& !changed sign
-                   (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
-                   n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
-
-              susc_low(is,3,3,-1) = norm(3)*&
-                   jn(n,is)*(2.*om* (om*disp_alph - Vdrifts) - &
-                   2.*n*n*disp_mu**2.* (1.-disp_alph)/(disp_Q**2.) &
-                   +(sqrt(alphp*disp_tau/disp_mu)/kpar) * (&
-                   (zz(-n))*(om*om*disp_alph * (om - Vdrifts) &
-                   + n*n*disp_mu**2.*(om*(3.*disp_alph-2.) -disp_alph*Vdrifts)/disp_Q**2.) &
-                   +(n * disp_mu/disp_Q )*(-zz(-n))*& !changed sign
-                   (om*(om+2.*disp_alph *Vdrifts -3.*disp_alph*om)+&
-                   n*n*disp_mu**2.*(1.-disp_alph)/( disp_Q**2.)) ) )!?
-              
-           endif
-
-        enddo
-
-        !Add in the n=zero term
-
-        !No n=0 XX term
-
-        !No n=0 XY term
-
-        !No n=0 XZ term
-
-        !YY term
-           eps_yy_t = eps_yy_t + &
-                (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-                (disp_alph*(om-Vdrifts))*(zz(0)))
-
-        !YZ term
-           eps_yz_t = eps_yz_t + &
-                (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+&
-                disp_alph*(om-Vdrifts)*om*(sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0))
-
-        !ZZ term
-           eps_zz_t = eps_zz_t + &
-                jn(0,is)*om*(&
-                om*disp_alph-Vdrifts +&
-                zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-                *disp_alph*(om-Vdrifts))
-
-           if (low_n) then
-              susc_low(is,2,2,0) =  (2.*lambdas*lambdas*(jn(0,is)-jpn(0,is)))*&
-                ((disp_alph-1.) + (sqrt(alphp*disp_tau/disp_mu)/kpar)*&
-                (disp_alph*(om-Vdrifts))*(zz(0))) * norm(2)
-              susc_low(is,2,3,0) = (jn(0,is)-jpn(0,is))*(om*disp_alph-Vdrifts+&
-                disp_alph*(om-Vdrifts)*om*&
-                (sqrt(alphp*disp_tau/disp_mu)/kpar)*zz(0)) * norm(6)
-              susc_low(is,3,2,0) = -susc_low(is,2,3,0)
-              susc_low(is,3,3,0) = jn(0,is)*om*(&
-                om*disp_alph-Vdrifts +&
-                zz(0) * om * (sqrt(alphp*disp_tau/disp_mu)/kpar) &
-                *disp_alph*(om-Vdrifts))* norm(3)
-           endif
-           
-        !Apply the correct species normalization
-           !1- xx, 2- yy, 3- zz, 4- xy, 5- xz, 6- yz
-        !-=-=-=-=-=-=-=-=-=-=
-        !XX
-        eps_xx_t=eps_xx_t*norm(1)
-        !XY
-        eps_xy_t=eps_xy_t*norm(4)
-        !XZ
-        eps_xz_t=eps_xz_t*norm(5)
-        !YY
-        eps_yy_t=eps_yy_t*norm(2)
-        !YZ
-        eps_yz_t=eps_yz_t*norm(6)
-        !ZZ
-        eps_zz_t=eps_zz_t*norm(3)
-
-        !Add the drift term
-        eps_zz_t = eps_zz_t + &
-             ((2.*disp_v)/(kpar*vtp**2.)) * &
-             (disp_D*disp_tau*sqrt(betap*alphp)/(om*disp_alph*disp_Q**2.))
-
-        !Save the temporary susceptibility to the 'susc' array
-        susc(is,1,1) = eps_xx_t
-        susc(is,1,2) = eps_xy_t; susc(is,2,1) = -eps_xy_t        
-        susc(is,1,3) = eps_xz_t; susc(is,3,1) = eps_xz_t        
-        susc(is,2,2) = eps_yy_t
-        susc(is,2,3) = eps_yz_t; susc(is,3,2) = -eps_yz_t	       
-        susc(is,3,3) = eps_zz_t
+        include 'kinetic_species.inc'
 
         !-=-=-=-=-=-=-=-=-=-=
         !Add to the total susceptibility
@@ -4932,8 +4712,9 @@ end function disp1
      !Save values of lambda_s components to save on Bessel function calculations
      kperp_last=kperp
 
-     return
+     call end_z_evaluation(z_guard,disp0)
 
+     return
    end function disp0
 
    !------------------------------------------------------------------------------
@@ -4942,6 +4723,8 @@ end function disp1
    !     NOTE: This routine was adapted from f77 routine by Eliot Quataert
    complex function rtsec(func,x1,x2,xacc,iflag)
      !!Secant routine to find minimum value of dispersion relation function.
+     use vars, only : has_cold_species, lam,z_backend
+     use cold_susceptibility, only : finite_complex, invalid_complex
      integer, parameter :: maxit=75
      !!Maximum number of iterations.
      
@@ -4994,7 +4777,21 @@ end function disp1
      endif
      
      fl=func(x1)
+     if (has_cold_species() .or. z_backend=='faddeeva') then
+        if (.not. finite_complex(fl)) then
+           iflag=-1
+           rtsec=invalid_complex()
+           return
+        endif
+     endif
      f=func(x2)
+     if (has_cold_species() .or. z_backend=='faddeeva') then
+        if (.not. finite_complex(f)) then
+           iflag=-1
+           rtsec=invalid_complex()
+           return
+        endif
+     endif
           
      if(abs(fl).lt.abs(f))then
         rtsec=x1
@@ -5030,8 +4827,25 @@ end function disp1
 
         f=func(rtsec)
 
-        if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
+        if (has_cold_species() .or. z_backend=='faddeeva') then
+           if (.not. finite_complex(f)) then
+              iflag=-1
+              rtsec=invalid_complex()
+              return
+           endif
+        endif
+        if (has_cold_species()) then
+           if (abs(dx)<xacc .or. abs(f)==0.) then
+              if (abs(f)/maxval(abs(lam))**3 < 1.e-8) return
+           endif
+        else
+           if(abs(dx).lt.xacc.or. Abs(f) .eq. 0.)return
+        endif
      enddo
+     if (has_cold_species() .or. z_backend=='faddeeva') then
+        iflag=-2
+        rtsec=invalid_complex()
+     endif
      return
    end function rtsec
 !------------------------------------------------------------------------------
@@ -5168,7 +4982,11 @@ end subroutine find_minima
 !-------------------------------------------------------------------------------
    function zet_in(kpar,zin)
      !!Evaluate Plasma Dispersion Function (Z) for kparallel >/< 0
-     !! Calls [[zetout(function)]] with appropriate argument.
+     !! Default: binary64 Faddeeva Landau continuation; legacy is selectable.
+     !! kpar<0 returns -Z(-zin); failed accurate calls return assigned quiet NaNs.
+     !! Evaluation guards mark a nonfinite susceptibility/determinant as failed.
+     use vars, only: z_backend
+     use plasma_z_faddeeva, only: z_faddeeva_value
      implicit none
      !passed
      real :: kpar
@@ -5180,6 +4998,10 @@ end subroutine find_minima
      complex :: zet_in
      !! Value of plasma dispersion function.
      
+     if (z_backend=='faddeeva') then
+        zet_in=z_faddeeva_value(kpar,zin)
+        return
+     endif
      if (kpar.gt.0.) zet_in=zetout(zin)
      if (kpar.lt.0.) zet_in=-zetout(-zin)
      return
@@ -5188,105 +5010,7 @@ end subroutine find_minima
 
 !------------------------------------------------------------------------------
 !Greg Howes, 2004
-   complex function zetout(zin)
-     !! This is the subroutine used by Linsker to evaluate his Z-function.
-     complex :: z,dzetaz,term,fmult,terme,an1,bn1,zsquar
-     complex :: hold,temp1,temp2,ddzeta,dddzet,zin,zetaoz
-     real :: imagte,imagmu,imagse,imagsu
-     real :: error,x,y,fn,realte,realmu,realsu,realse
-     logical :: fail
-     integer :: n
 
-     error=1.e-7
-     z=zin
-     zsquar=z*z
-     x=real(z)
-     y=aimag(z)
-     fn=real(zsquar)
-     if (y.gt.0.) go to 99
-     if (abs(fn) < 174. .and. abs(aimag(zsquar)) < 5.e4) go to 98
-     if (fn.gt.0.) go to 97
-11    format (' argument wp of subroutine zetvec has too large a negative imaginary part, wp = '/2e14.7)
-! GGH: Modification to return with a fail=.true.
-     fail=.true.
-     return
-
-97   hold=(0.,0.)
-     go to 99
-98   hold=(0.,1.77245385090551603)*cexp(-zsquar)
-99   if (x*x+y*y > 9.) go to 200
-     if (abs(y) >= 1.) go to 300
-     realte=-2.*x
-     imagte=-2.*y
-     realmu=.5*(imagte*imagte-realte*realte)
-     imagmu=-imagte*realte
-     realsu=realte
-     imagsu=imagte
-     if (x == 0. .and. y == 0.) go to 103
-     fn=3.
-100  realse=realte
-     imagse=imagte
-     realte=(realse*realmu-imagse*imagmu)/fn
-     imagte=(realse*imagmu+imagse*realmu)/fn
-     realse=realsu
-     imagse=imagsu
-     realsu=realsu+realte
-     imagsu=imagsu+imagte
-     fn=fn+2.
-     if (abs(realse-realsu) > error .or. abs(imagse-imagsu) > error) go to 100
-103  x=realsu
-     fn=imagsu
-     if (y > 0.) hold=(0.,1.77245385090551603)*cexp(-zsquar)
-     zetaoz=cmplx(x,fn)+hold
-     go to 401
-200  fn=5.
-     dddzet=6.
-     term=dddzet
-     fmult=.5/zsquar
-201  terme=term
-     term=term*fmult*fn*(fn-1.)/(fn-3.)
-     zetaoz=term/terme
-     if (abs(real(zetaoz))+abs(aimag(zetaoz)) > 1.) go to 250
-     zetaoz=dddzet
-     dddzet=dddzet+term
-     fn=fn+2.
-     if (cabs(zetaoz-dddzet) > error) go to 201
-250  dddzet=dddzet/(zsquar*zsquar)
-     if (y > 0.) go to 260
-     fn=1.
-     if (y < 0.) fn=2.
-     dddzet=dddzet-4.*fn*hold*z*(2.*zsquar-3.)
-260  ddzeta=-(4.+(zsquar-.5)*dddzet)/(z*(2.*zsquar-3.))
-     dzetaz=(2.-z*ddzeta)/(2.*zsquar-1.)
-     zetaoz=-(1.+.5*dzetaz)/z
-     go to 401
-300  if (y < 0.) z=conjg(z)
-     terme=(1.,0.)
-     term=(0.,0.)
-     dzetaz=term
-     fmult=terme
-     n=0
-     an1=z
-     bn1=-z*z+.5
-301  temp1=bn1*term+an1*terme
-     temp2=bn1*fmult+an1*dzetaz
-     zetaoz=temp1/temp2
-     dzetaz=(zetaoz-term/fmult)/zetaoz
-     if (abs(real(dzetaz)) < error .and. abs(aimag(dzetaz)) < error) go to 302
-     bn1=bn1+2.
-     n=n+1
-     an1=-.5*float(n*(n+n-1))
-     terme=term
-     dzetaz=fmult
-     term=temp1
-     fmult=temp2
-     if (n < 30) go to 301
-302  if (y >= 0.) go to 401
-     zetaoz=conjg(zetaoz)+2.*hold
-401  zetout=zetaoz
-9999 continue
-
-   end function zetout
 
 !------------------------------------------------------------------------------
 !                           Greg Howes, 2006

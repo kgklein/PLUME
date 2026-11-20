@@ -13,6 +13,7 @@
 !=============================================================================!
 !=============================================================================!
 module fpc
+  use vars, only: emit_warning
   !! Perturbed distribution function calculation from eigenfunctions and
   !! associated routines to calculate the FPC from it
 
@@ -41,6 +42,7 @@ contains
       use vars, only: outputName, dataName
       use vars, only: computemoment, EpsilonSokhotski_Plemelj, vxshift, vyshift, vzshift
 
+      use vars, only: has_cold_species
       use disprels, only: calc_eigen, rtsec, disp
 
       integer, intent(in) :: wrootindex
@@ -256,6 +258,8 @@ contains
       real :: fs0val
 
 
+      if (has_cold_species()) error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
+
       exbar = sqrt(betap)/vtp*(1.0, 0.)
       eeuler = EXP(1.0)
 
@@ -300,9 +304,9 @@ contains
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
-         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler'
-         write (*, *) 'The assumptions made to derive the FPC (see appendix B of Brown et al 2025)' 
-         write (*, *) 'might be significantly incorrect (although this cutoff is somewhat arbitrary)!'
+         call emit_warning(' '//'WARNING: damping term of omega is stronger than 1/eeuler')
+         call emit_warning(' '//'The assumptions made to derive the FPC (see appendix B of Brown et al 2025)')
+         call emit_warning(' '//'might be significantly incorrect (although this cutoff is somewhat arbitrary)!')
       end if
 
       !==============================================================================
@@ -312,12 +316,30 @@ contains
       ! Create velocity grid variables: vvx,vvy,vvz
       ! NOTE: All (x,y,z) velocity values are normalized to species parallel thermal velocity
       ! NOTE: Code below assumes max.min values are integer multiples of delv (if not, throw warning flag!)
-      ivxmin = int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write (*, *) 'WARNING: vxmin not integer multiple of delv'
-      ivxmax = int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write (*, *) 'WARNING: vxmax not integer multiple of delv'
-      ivymin = int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write (*, *) 'WARNING: vymin not integer multiple of delv'
-      ivymax = int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write (*, *) 'WARNING: vymax not integer multiple of delv'
-      ivzmin = int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write (*, *) 'WARNING: vzmin not integer multiple of delv'
-      ivzmax = int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write (*, *) 'WARNING: vzmax not integer multiple of delv'
+      ivxmin = int(vxmin/delv)
+      if (real(ivxmin) .ne. vxmin/delv) then
+         call emit_warning(' '//'WARNING: vxmin not integer multiple of delv')
+      end if
+      ivxmax = int(vxmax/delv)
+      if (real(ivxmax) .ne. vxmax/delv) then
+         call emit_warning(' '//'WARNING: vxmax not integer multiple of delv')
+      end if
+      ivymin = int(vymin/delv)
+      if (real(ivymin) .ne. vymin/delv) then
+         call emit_warning(' '//'WARNING: vymin not integer multiple of delv')
+      end if
+      ivymax = int(vymax/delv)
+      if (real(ivymax) .ne. vymax/delv) then
+         call emit_warning(' '//'WARNING: vymax not integer multiple of delv')
+      end if
+      ivzmin = int(vzmin/delv)
+      if (real(ivzmin) .ne. vzmin/delv) then
+         call emit_warning(' '//'WARNING: vzmin not integer multiple of delv')
+      end if
+      ivzmax = int(vzmax/delv)
+      if (real(ivzmax) .ne. vzmax/delv) then
+         call emit_warning(' '//'WARNING: vzmax not integer multiple of delv')
+      end if
 
       !Allocate velocity grid variables
       allocate (vvx(ivxmin:ivxmax)); vvx(:) = 0.
@@ -559,8 +581,12 @@ contains
          ! OR add the residual of this PV integral. We choose the first as it was easier to implement
          !In general, ep
          if (abs(EpsilonSokhotski_Plemelj) < 0.0001) then
-            write (*, *) 'WARNING: either epsilon is zero or too small! EpsilonSokhotski_Plemelj = ', &
+            block
+               character(2048) :: warning_text
+               write (warning_text, *) 'WARNING: either epsilon is zero or too small! EpsilonSokhotski_Plemelj = ', &
                  EpsilonSokhotski_Plemelj
+               call emit_warning(trim(warning_text))
+            end block
             write (*, *) 'It is strongly suggested you change the value of EpsilonSokhotski_Plemelj in the vars.f90 file!'
          end if
 
@@ -1030,6 +1056,7 @@ contains
       use vars, only: outputName, dataName
       use vars, only: computemoment
 
+      use vars, only: has_cold_species
       use disprels, only: calc_eigen, rtsec, disp
 
       integer, intent(in) :: wrootindex
@@ -1183,6 +1210,8 @@ contains
       complex    :: exbar
       !! amplitude factor of fs1 which is \propto Ex/B0 (B0 is external B)
 
+      if (has_cold_species()) error stop 'ERROR: cold-fluid FPC diagnostics are unavailable in Stage 2.'
+
       exbar = (1.0, 0.) !assume a default value...
 
       pi = 4.0*ATAN(1.0)
@@ -1190,7 +1219,8 @@ contains
 
       if (computemoment) then
          !It would be computationally intense and not needed as our goal is simply to verify calc_fs1, which can be done using the cartesian case
-         write (*, *) "WARNING! The gyro routine does not support computing moments at this time due to computational demand!" 
+         call emit_warning( &
+              ' '//"WARNING! The gyro routine does not support computing moments at this time due to computational demand!")
       end if
 
       ! Check if the "data" directory exists
@@ -1232,9 +1262,9 @@ contains
       call calc_eigen(omega, ef, bf, Us, ns, Ps, Ps_split, .true., .true.)
 
       if (ABS(aimag(omega)) .gt. 1./eeuler) then
-         write (*, *) 'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC '
-         write (*, *) '(see appendix B of Brown et al 2025) might be significantly incorrect '
-         write (*, *) '(although this cutoff is somewhat arbitrary)!'
+         call emit_warning(' '//'WARNING: damping term of omega is stronger than 1/eeuler- the assumptions made to derive the FPC ')
+         call emit_warning(' '//'(see appendix B of Brown et al 2025) might be significantly incorrect ')
+         call emit_warning(' '//'(although this cutoff is somewhat arbitrary)!')
       end if
 
       !==============================================================================
@@ -1243,14 +1273,22 @@ contains
       ! Create velocity grid variables: vvx,vvy,vvz
       ! NOTE: All (x,y,z) velocity values are normalized to species parallel thermal velocity
       ! NOTE: Code below assumes max.min values are integer multiples of delv (if not, throw warning flag!)
-      ivparmin = int(vparmin/delv); if (real(ivparmin) .ne. vparmin/delv) &
-      write (*, *) 'WARNING: vparmin not integer multiple of delv'
-      ivparmax = int(vparmax/delv); if (real(ivparmax) .ne. vparmax/delv) &
-      write (*, *) 'WARNING: vparmax not integer multiple of delv'
-      ivperpmin = int(vperpmin/delv); if (real(ivperpmin) .ne. vperpmin/delv) &
-      write (*, *) 'WARNING: vperpmin not integer multiple of delv'
-      ivperpmax = int(vperpmax/delv); if (real(ivperpmax) .ne. vperpmax/delv) &
-      write (*, *) 'WARNING: vperpmax not integer multiple of delv'
+      ivparmin = int(vparmin/delv)
+      if (real(ivparmin) .ne. vparmin/delv) then
+         call emit_warning(' '//'WARNING: vparmin not integer multiple of delv')
+      end if
+      ivparmax = int(vparmax/delv)
+      if (real(ivparmax) .ne. vparmax/delv) then
+         call emit_warning(' '//'WARNING: vparmax not integer multiple of delv')
+      end if
+      ivperpmin = int(vperpmin/delv)
+      if (real(ivperpmin) .ne. vperpmin/delv) then
+         call emit_warning(' '//'WARNING: vperpmin not integer multiple of delv')
+      end if
+      ivperpmax = int(vperpmax/delv)
+      if (real(ivperpmax) .ne. vperpmax/delv) then
+         call emit_warning(' '//'WARNING: vperpmax not integer multiple of delv')
+      end if
       ivphimin = 0
       ivphimax = 30
 
@@ -1928,12 +1966,30 @@ contains
       integer :: unit_number
 
       !COMPUTE NUMERICALLY----------------------------
-      ivxmin = int(vxmin/delv); if (real(ivxmin) .ne. vxmin/delv) write (*, *) 'WARNING: vxmin not integer multiple of delv'
-      ivxmax = int(vxmax/delv); if (real(ivxmax) .ne. vxmax/delv) write (*, *) 'WARNING: vxmax not integer multiple of delv'
-      ivymin = int(vymin/delv); if (real(ivymin) .ne. vymin/delv) write (*, *) 'WARNING: vymin not integer multiple of delv'
-      ivymax = int(vymax/delv); if (real(ivymax) .ne. vymax/delv) write (*, *) 'WARNING: vymax not integer multiple of delv'
-      ivzmin = int(vzmin/delv); if (real(ivzmin) .ne. vzmin/delv) write (*, *) 'WARNING: vzmin not integer multiple of delv'
-      ivzmax = int(vzmax/delv); if (real(ivzmax) .ne. vzmax/delv) write (*, *) 'WARNING: vzmax not integer multiple of delv'
+      ivxmin = int(vxmin/delv)
+      if (real(ivxmin) .ne. vxmin/delv) then
+         call emit_warning(' '//'WARNING: vxmin not integer multiple of delv')
+      end if
+      ivxmax = int(vxmax/delv)
+      if (real(ivxmax) .ne. vxmax/delv) then
+         call emit_warning(' '//'WARNING: vxmax not integer multiple of delv')
+      end if
+      ivymin = int(vymin/delv)
+      if (real(ivymin) .ne. vymin/delv) then
+         call emit_warning(' '//'WARNING: vymin not integer multiple of delv')
+      end if
+      ivymax = int(vymax/delv)
+      if (real(ivymax) .ne. vymax/delv) then
+         call emit_warning(' '//'WARNING: vymax not integer multiple of delv')
+      end if
+      ivzmin = int(vzmin/delv)
+      if (real(ivzmin) .ne. vzmin/delv) then
+         call emit_warning(' '//'WARNING: vzmin not integer multiple of delv')
+      end if
+      ivzmax = int(vzmax/delv)
+      if (real(ivzmax) .ne. vzmax/delv) then
+         call emit_warning(' '//'WARNING: vzmax not integer multiple of delv')
+      end if
 
       !Allocate velocity grid variables
       allocate (vvx(ivxmin:ivxmax)); vvx(:) = 0.
@@ -2073,11 +2129,12 @@ contains
       b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r))
 
       if (nbesmax/2 < b_s) then
-         write (*, *) "***************************************"
-         write (*, *) "Warning in check_nbesmax in fpc.f90!!! (see for more info)"
-         write (*, *) "nbesmax is too small!!!"
-         write (*, *) "nbesmax should be great than b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r)) for all species!!!"
-         write (*, *) "***************************************"
+         call emit_warning(' '//"***************************************")
+         call emit_warning(' '//"Warning in check_nbesmax in fpc.f90!!! (see for more info)")
+         call emit_warning(' '//"nbesmax is too small!!!")
+         call emit_warning( &
+              ' '//"nbesmax should be great than b_s = ABS(kperp*vperpmax/sqrt(mu_s*tau_s*aleph_r)) for all species!!!")
+         call emit_warning(' '//"***************************************")
       end if
 
    end subroutine check_nbesmax
