@@ -1,4 +1,5 @@
 module electromagnetic_fields
+  use vars, only: emit_warning
   !! Existing PLUME cofactor polarization and Faraday fields, isolated from
   !! kinetic moments/heating and from the reference thermal normalization.
   use vars, only: lam_state=>lam,spec,kpar_state=>kpar,kperp_state=>kperp, &
@@ -147,14 +148,26 @@ contains
        if (normalization=='d_ref') call calc_species_moments(spec,omega,kpar_state,kperp_state,vtp, &
             electric,magnetic,susc,velocity,density,status)
        do s=1,size(status)
-          if (status(s)/=0) write(*,'(a,i0,a,i0,a,2es15.6)') &
+          if (status(s)/=0) then
+             block
+                character(2048) :: warning_text
+                write(warning_text,'(a,i0,a,i0,a,2es15.6)') &
                'WARNING: species moment unavailable; species=',s,'; status=',status(s), &
                '; kperp,kpar=',kperp_state,kpar_state
+                call emit_warning(trim(warning_text))
+             end block
+          end if
        enddo
     endif
     if (present(moment_status)) moment_status=status
-    if (ierr/=em_ok) write(*,'(a,i0,a,2es15.6)') &
+    if (ierr/=em_ok) then
+       block
+          character(2048) :: warning_text
+          write(warning_text,'(a,i0,a,2es15.6)') &
          'WARNING: electromagnetic eigenfunction unavailable; status=',ierr,'; kperp,kpar=',kperp_state,kpar_state
+          call emit_warning(trim(warning_text))
+       end block
+    end if
   end subroutine
 
   pure function cross(a,b) result(c)

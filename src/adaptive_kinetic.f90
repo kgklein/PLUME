@@ -1,4 +1,5 @@
 module adaptive_kinetic
+  use vars, only: emit_warning
   !! Runtime harmonic ranges around the shared, unchanged susceptibility algebra.
   use vars
   use kinetic_core, only: kinetic_normalization
@@ -199,7 +200,7 @@ contains
     open(newunit=unit,file='data/'//trim(dataName)//'/'//trim(outputName)//'.bessel', &
          status='replace',action='write',iostat=status)
     if (status/=0) then
-       write(*,'(a)') 'WARNING: unable to write Bessel metadata.'
+       call emit_warning('WARNING: unable to write Bessel metadata.')
        return
     endif
     write(unit,'(a,a)') 'bessel_mode=',trim(bessel_mode)

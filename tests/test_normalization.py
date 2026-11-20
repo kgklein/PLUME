@@ -330,8 +330,14 @@ class NormalizationTests(unittest.TestCase):
                            cwd=baseline, check=True, capture_output=True)
             for relative in ('inputs/example/example_map_par.in', 'tests/drift_cbe_test.in'):
                 source = (ROOT / relative).read_text()
-                old = run_case(old_probe, source)[0]
-                new = run_case(self.probe, source.replace('&params', "&params\nheating_convention='legacy'\nz_backend='legacy'\nbessel_mode='fixed128'", 1))[0]
+                # Examples now state modern defaults explicitly. The historical
+                # parser cannot read them; select its matching controls below.
+                historical_source = re.sub(
+                    r'(?im)^[ \t]*(?:normalization|heating_convention|z_backend|'
+                    r'bessel_mode|bessel_tol|bessel_nmax|bessel_nfixed|bessel_diagnostics|'
+                    r'warnings_to_stdout|heating_gamma_ratio_max)[ \t]*=.*\n', '', source)
+                old = run_case(old_probe, historical_source)[0]
+                new = run_case(self.probe, historical_source.replace('&params', "&params\nheating_convention='legacy'\nz_backend='legacy'\nbessel_mode='fixed128'", 1))[0]
                 self.assertEqual(old.returncode, 0, old.stderr + old.stdout)
                 self.assertEqual(new.returncode, 0, new.stderr + new.stdout)
                 self.assertEqual(numeric_records(old.stdout), numeric_records(new.stdout))
@@ -474,6 +480,9 @@ class NormalizationTests(unittest.TestCase):
                 self.assertTrue(outputs[0])
                 self.assertEqual(outputs[0].keys(), outputs[1].keys())
                 for name in outputs[0]:
+                    if name.endswith('.warn'):
+                        self.assertEqual(outputs[0][name], outputs[1][name], name)
+                        continue
                     left = outputs[0][name].splitlines()
                     right = outputs[1][name].splitlines()
                     self.assertEqual(len(left), len(right), name)

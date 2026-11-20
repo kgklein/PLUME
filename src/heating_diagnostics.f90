@@ -1,8 +1,9 @@
 module heating_diagnostics
+  use vars, only: emit_warning
   !! Production corrected workflow and versioned companion IO, kept separate
   !! from the historical calc_eigen/FPC and the root/dispersion implementation.
   use vars, only: spec,susc,kpar,kperp,vtp,betap,normalization,nspec,collision_type, &
-       heating_convention,dataName,outputName,option,z_backend,bessel_mode,default_heating_gamma_ratio_max
+       heating_convention,dataName,outputName,option,z_backend,bessel_mode,default_heating_gamma_ratio_max,scan
   use electromagnetic_fields, only: calc_em_eigen
   use species_moments, only: calc_species_moments
   use heating_response
@@ -77,8 +78,14 @@ contains
     endif
     call calc_species_moments(physical,w,kz,kp,a,e,b,susc,velocity,density,moment_status)
     do j=1,size(spec)
-       if (moment_status(j)/=0) write(*,'(a,i0,a,i0)') &
+       if (moment_status(j)/=0) then
+          block
+             character(2048) :: warning_text
+             write(warning_text,'(a,i0,a,i0)') &
             'WARNING: species moment unavailable; species=',j,'; status=',moment_status(j)
+             call emit_warning(trim(warning_text))
+          end block
+       end if
     enddo
     if (collision_type/=0) then
        r%status=heat_collision;r%field_status=0;return
@@ -118,19 +125,50 @@ contains
     path='data/'//trim(dataName)//'/'//trim(outputName)//'.energy'
   end function
 
+  subroutine write_parameter_axes(u,workflow,scan_index)
+    integer,intent(in) :: u,workflow,scan_index
+    integer :: s,first,last
+    first=scan_index;last=scan_index
+    if (workflow==2) then
+       first=1;last=2
+    endif
+    do s=first,last
+       write(u,'(a,i0,a,i0,a,i0,2(a,es25.16e3),a,i0,a,i0,a,l1)') &
+            '# scan_axis index=',s,' scan_style=',scan(s)%style_s,' scan_type=',scan(s)%type_s, &
+            ' swi=',scan(s)%range_i,' swf=',scan(s)%range_f,' ns=',scan(s)%n_scan, &
+            ' nres=',scan(s)%n_res,' swlog=',scan(s)%log_scan
+    enddo
+  end subroutine
+
+  subroutine write_parameter_state(u,record)
+    !! Add exact per-point provenance without changing plume-energy-v1 columns.
+    integer,intent(in) :: u,record
+    integer :: s
+    write(u,'(a,i0,2(a,es25.16e3))') '# point_state record=',record,' betap=',betap,' vtp=',vtp
+    do s=1,nspec
+       write(u,'(a,i0,a,i0,6(a,es25.16e3))') '# species_state record=',record,' species=',s, &
+            ' tauS=',spec(s)%tau_s,' muS=',spec(s)%mu_s,' alphS=',spec(s)%alph_s, &
+            ' Qs=',spec(s)%Q_s,' Ds=',spec(s)%D_s,' vvS=',spec(s)%vv_s
+    enddo
+  end subroutine
+
   subroutine write_energy_record(r,w,workflow,scan_index,outer,point,mode,root_valid,source, &
-       heating_gamma_ratio_max)
+       heating_gamma_ratio_max,record_parameters)
     type(heating_result),intent(in) :: r
     complex,intent(in) :: w
     integer,intent(in) :: workflow,scan_index,outer,point,mode
     logical,intent(in) :: root_valid
     real,intent(in),optional :: heating_gamma_ratio_max
     real :: gamma_ratio_max
+    logical,intent(in),optional :: record_parameters
+    logical :: with_parameters
     character(*),intent(in) :: source
     character(300) :: path,mode_file
     character(30) :: index_text
     integer :: u,j,c
     if (heating_convention/='corrected') return
+    with_parameters=.false.
+    if (present(record_parameters)) with_parameters=record_parameters
     gamma_ratio_max=default_heating_gamma_ratio_max
     if (present(heating_gamma_ratio_max)) gamma_ratio_max=heating_gamma_ratio_max
     path=energy_path()
@@ -177,9 +215,11 @@ contains
     if (record_count==0 .or. workflow/=output_workflow .or. scan_index/=output_scan) then
        write(u,'(a,i0,a,i0,a,es25.16e3)') '# workflow=',workflow,' scan=',scan_index, &
             ' heating_gamma_ratio_max=',gamma_ratio_max
+       if (with_parameters) call write_parameter_axes(u,workflow,scan_index)
        output_workflow=workflow;output_scan=scan_index
     endif
     record_count=record_count+1
+    if (with_parameters) call write_parameter_state(u,record_count)
     write(u,'(11(i0,1x),*(es25.16e3,1x))',advance='no') record_count,workflow,scan_index,outer,point,mode, &
          merge(1,0,root_valid),r%field_status,r%status,r%applicability,r%response_status, &
          kperp,kpar,real(w),aimag(w),r%total,r%electric,r%magnetic,r%species_total,r%f_e,r%f_b, &
@@ -193,7 +233,13 @@ contains
     endif
     write(u,'(a)') '"'//trim(mode_file)//'"'
     close(u)
-    if (r%status/=0 .or. r%applicability/=0) write(*,'(a,4i5)') &
+    if (r%status/=0 .or. r%applicability/=0) then
+       block
+          character(2048) :: warning_text
+          write(warning_text,'(a,4i5)') &
          'WARNING: corrected heating/energy status, applicability, point, mode:',r%status,r%applicability,point,mode
+          call emit_warning(trim(warning_text))
+       end block
+    end if
   end subroutine
 end module heating_diagnostics

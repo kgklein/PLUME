@@ -19,6 +19,14 @@ writeOut=.true.
 dataName='example'
 outputName='mixed_fields_cold_reference'
 
+! Explicit runtime defaults.
+heating_convention='corrected'
+bessel_tol=1.e-10
+bessel_nfixed=128
+low_n=.true.
+collision_type=0
+Kn=1.e30
+warnings_to_stdout=.false.
 /
 &species_1
 tauS=0
@@ -51,4 +59,5 @@ swlog=.false.
 tensor=.false.
 heating=.false.
 eigen=.true.
+heating_gamma_ratio_max=0.05
 /

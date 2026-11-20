@@ -117,13 +117,13 @@ class AdaptiveDispersionTests(unittest.TestCase):
     def test_checked_and_cap_metadata(self):
         sp=[(1.,1.,1.,1.,1.,0.),(.2,1836.,.8,-1.,1.,.03)]
         out,_,stdout,files=self.evaluate(sp,[.73+.2j]*3,kperp=20.,cap=2,checked=True)
-        self.assertEqual(stdout.count('WARNING: Bessel cap:'),2)
+        self.assertEqual(files['test.warn'].count('WARNING: Bessel cap:'),2)
         self.assertIn('unresolved=T',files['test.bessel'])
         self.assertIn(' F ',files['test.bessel'])
         self.assertIn('species lambda N capacity',files['test.bessel'])
         self.assertTrue(np.isfinite(out[0]['chi']).all())
         out2=self.evaluate(sp,[.73+.2j],kperp=20.,cap=1024,checked=True)
-        self.assertNotIn('WARNING: Bessel cap:',out2[2])
+        self.assertNotIn('WARNING: Bessel cap:',out2[3]['test.warn'])
         self.assertIn('unresolved=F',out2[3]['test.bessel'])
 
     def test_frequency_reuse_and_cold_no_array(self):

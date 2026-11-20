@@ -51,9 +51,10 @@ def example(checkout,path,artifacts,timeout):
                     f_E_range=[float(np.nanmin(a['f_E'])),float(np.nanmax(a['f_E']))] if np.isfinite(a['f_E']).any() else None)
             except Exception as e:f['parse_error']=str(e)
         files.append(f)
+    warning_text='\n'.join(p.read_text() for p in (work/'data').rglob('*.warn'))
     return dict(path=str(path.relative_to(checkout)),returncode=code,timeout=timed_out,seconds=time.perf_counter()-started,
-        root_failures=stdout.count('scan root failed'),unavailable=stdout.lower().count('unavailable'),
-        energy_warnings=stdout.count('WARNING: corrected heating/energy'),stderr_tail=stderr[-800:],stdout_tail=stdout[-800:],files=files,
+        root_failures=warning_text.count('scan root failed'),unavailable=(stdout+warning_text).lower().count('unavailable'),
+        energy_warnings=warning_text.count('WARNING: corrected heating/energy'),stderr_tail=stderr[-800:],stdout_tail=stdout[-800:],files=files,
         interpretation='execution/finite-row check only; branch identity is not inferred from exit code')
 
 

@@ -223,8 +223,8 @@ class FaddeevaBackendTests(unittest.TestCase):
                  'gami=-.005\ngamf=.005\nnr=20\nni=10\npositive_roots=.true.\n/\n')
         result,files=mixed.run(ROOT/'plume.e',source)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-        self.assertIn('singular/nonfinite map points',result.stdout)
-        self.assertEqual(result.stdout.count('WARNING: excluded'),1)
+        self.assertIn('singular/nonfinite map points',files['test.warn'])
+        self.assertEqual(files['test.warn'].count('WARNING: excluded'),1)
         records=[list(map(float,line.split())) for line in files['dispersion_test.roots'].splitlines() if line.strip()]
         expected=.06098715236206473-1.270996796077086e-5j
         self.assertTrue(any(abs(complex(*row[4:6])-expected)<5e-6 for row in records),result.stdout)

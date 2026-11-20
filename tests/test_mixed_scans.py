@@ -161,7 +161,7 @@ class MixedScanTests(unittest.TestCase):
                     type(self).measurements['cases'][f'{name}/{checked}/{sign}']=e
                     if sp[0][0]==0 and any(s[0]>0 for s in sp):
                         self.assertIn('b_star=',files['normalization_test.txt'])
-                    self.assertLessEqual(stdout.count('WARNING: Nonzero equilibrium current'),1)
+                    self.assertLessEqual(files['test.warn'].count('WARNING: Nonzero equilibrium current'),1)
 
     def test_perpendicular_component_forward_reverse_and_normalizations(self):
         for sp in [[P,E],[P,CE],[CP,E],[CP,CE]]:
@@ -255,7 +255,7 @@ class MixedScanTests(unittest.TestCase):
             data=next(iter(mode_rows(files).values()))
             self.assertTrue(np.isnan(data[1,4:6]).all(),result.stdout)
             self.assertTrue(np.isfinite(data[2:,4:6]).all(),result.stdout)
-            self.assertIn('retaining last valid continuation seed',result.stdout)
+            self.assertIn('retaining last valid continuation seed',files['test.warn'])
             self.assertIn('PHYSICAL_STATE_UNCHANGED',result.stdout)
             self.validate_rows(sp,data[2:],checked=checked)
             type(self).measurements['cases'][f'coarse_scan_recovery/{checked}']=data[:,[0,4,5]].tolist()
@@ -291,7 +291,7 @@ class MixedScanTests(unittest.TestCase):
             self.assertIn('ATTEMPT 3 FLAG -3',result.stdout)
             self.assertIn('ATTEMPT 4 FLAG -2',result.stdout)
             self.assertIn('ATTEMPT 5 FLAG 3',result.stdout)
-            self.assertEqual(result.stdout.count('WARNING: scan root failed'),3)
+            self.assertEqual(result.stderr.count('WARNING: scan root failed'),3)
 
     def test_reject_zero_parallel_and_unsupported_requests(self):
         for checked in [False,True]:

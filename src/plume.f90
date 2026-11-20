@@ -19,7 +19,7 @@
 program plume
   use adaptive_kinetic, only: finish_bessel_diagnostics
   use scan_support, only: prepare_scan_start
-  use vars, only: option,nscan,use_map,nroot_max,wroots,writeOut,scan
+  use vars, only: close_warnings,option,nscan,use_map,nroot_max,wroots,writeOut,scan
   use functions, only: read_in_params,read_map_input,read_scan_input
   use functions, only: read_guess_input,read_radial_input
   use disprels, only: map_search,refine_guess,om_scan,om_double_scan,map_scan
@@ -257,4 +257,5 @@ program plume
    end select
 
   call finish_bessel_diagnostics
+  call close_warnings()
 end program plume

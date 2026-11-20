@@ -11,6 +11,7 @@
 !=============================================================================!
 !=============================================================================!
 module vars
+   use, intrinsic :: iso_fortran_env, only: output_unit, error_unit
   !! Contains all global variables.
    implicit none
    private
@@ -404,7 +405,56 @@ module vars
    public :: sync_solver_state, write_normalization_metadata
    public :: has_cold_species, all_species_cold, has_cold_reference, validate_cold_reference, dispersion_status
 
+   logical, public :: warnings_to_stdout = .false.
+   integer :: warning_unit
+   logical :: warning_open = .false., warning_io_failed = .false.
+   public :: initialize_warnings, emit_warning, close_warnings
+
 contains
+
+   subroutine initialize_warnings()
+      integer :: ios
+      character(512) :: message
+      call close_warnings()
+      warning_io_failed = .false.
+      open(newunit=warning_unit, file='data/'//trim(dataName)//'/'//trim(outputName)//'.warn', &
+           status='replace', action='write', iostat=ios, iomsg=message)
+      warning_open = ios==0
+      if (ios/=0) call warning_io_failure(message)
+   end subroutine
+
+   subroutine emit_warning(message)
+      character(*), intent(in) :: message
+      integer :: ios
+      character(512) :: io_message
+      if (warning_open) then
+         write(warning_unit,'(a)',iostat=ios,iomsg=io_message) message
+         if (ios==0) flush(warning_unit,iostat=ios,iomsg=io_message)
+         if (ios/=0) then
+            call warning_io_failure(io_message)
+            call close_warnings()
+         endif
+      endif
+      ! Before initialization or after I/O failure, never discard a warning.
+      if (.not.warning_open) write(error_unit,'(a)') message
+      if (warnings_to_stdout) write(output_unit,'(a)') message
+   end subroutine
+
+   subroutine warning_io_failure(message)
+      character(*), intent(in) :: message
+      if (.not.warning_io_failed) write(error_unit,'(2a)') &
+           'WARNING: unable to write warning log; using stderr: ',trim(message)
+      warning_io_failed = .true.
+   end subroutine
+
+   subroutine close_warnings()
+      integer :: ios
+      character(512) :: message
+      if (.not.warning_open) return
+      close(warning_unit,iostat=ios,iomsg=message)
+      warning_open = .false.
+      if (ios/=0) call warning_io_failure(message)
+   end subroutine
 
    logical function has_cold_species()
       has_cold_species = .false.

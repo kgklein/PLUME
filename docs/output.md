@@ -36,6 +36,26 @@ Supplied-root option=1/nscan=0 prints solutions but does not write a standalone
 .roots file. Map files do not gain eigen/heating/tensor blocks when flags request
 them; ignored map diagnostics now warn, and corrected map heating is rejected.
 
+<a id="warning-output"></a>
+
+## Warning output
+
+Warnings are written to `data/D/O.warn`, including equilibrium, scan,
+field/moment, heating/energy, Bessel and FPC warnings. The file is replaced after
+reading `&params` on each run and is empty if no warnings occur. Records are
+flushed as they are written, including before an abnormal termination.
+
+Set `warnings_to_stdout=.true.` in `&params` to also print warnings to stdout.
+The default is `.false.`, independently of `writeOut`. The Python wrapper accepts
+`warnings_to_stdout=True` in `set_params` and preserves the namelist control on
+read/write roundtrips. Fatal errors and ordinary
+progress and result output retain their existing destinations. Warning conditions,
+status codes and numerical results are unchanged.
+
+The output directory must already exist. If the warning log cannot be opened or
+written, an I/O warning is reported once on stderr and subsequent warnings are
+sent there. Warnings emitted before log initialization also use stderr.
+
 <a id="maps-and-candidate-roots"></a>
 
 ## Maps and candidate roots
@@ -140,6 +160,55 @@ A field failure can coexist with a valid root; a species moment failure does not
 overwrite valid fields or other species. Use companion statuses and warnings,
 not a blanket replacement of missing values with zero.
 
+<a id="mode-column-diagrams"></a>
+
+### Illustrated mode columns
+
+The diagrams below map quantities to **one-based column numbers** within a
+single output row for two, three and four species, with `eigen=.true.`,
+`heating=.true.` and `low_n=.true.`. Each complex quantity occupies a real/imaginary
+pair. Species are numbered in input order; \(R\) denotes reference species 1.
+Velocity components are ordered \(x,y,z\) for every species.
+
+The coordinate and species-parameter labels use `rho_ref`; `d_ref` retains the
+column ordering with the native units defined in [Normalization](normalization.md).
+Field and moment normalizations are defined in
+[Eigenfunctions](eigenfunctions.md#species-density-and-velocity-normalization).
+The heating labels follow `heating_convention='corrected'`, with separate
+transverse \(n=+1\) and \(n=-1\) channels; see [Heating](heating.md).
+Legacy heating retains the column ordering but uses its historical definitions.
+The corrected `.energy` companion has its own schema below.
+
+**Two species: 62 columns.** [Open full-size diagram](assets/PLUME-Output-Table.svg).
+
+![Two-species mode-row layout: coordinate/root prefix, fields, species velocities and densities, heating totals and channels, and species input parameters.](assets/PLUME-Output-Table.svg)
+
+**Three species: 84 columns.** [Open full-size diagram](assets/PLUME-Output-Table-2.svg).
+
+![Three-species mode-row layout, showing one-based column numbers and real/imaginary pairs for fields and moments.](assets/PLUME-Output-Table-2.svg)
+
+**Four species: 106 columns.** [Open full-size diagram](assets/PLUME-Output-Table-3.svg).
+
+![Four-species mode-row layout, showing one-based column numbers through the final species-parameter block.](assets/PLUME-Output-Table-3.svg)
+
+#### Regenerating the diagrams
+
+LaTeX sources: [two species](assets/PLUME-Table.tex),
+[three species](assets/PLUME-Table-2.tex), and
+[four species](assets/PLUME-Table-3.tex).
+With LaTeX (including `standalone`) and `pdf2svg` installed, run from the repository
+root to regenerate all three SVGs; intermediate files remain in a temporary directory:
+
+```bash
+table_build=$(mktemp -d)
+for suffix in '' '-2' '-3'; do
+    pdflatex -interaction=nonstopmode -halt-on-error \
+        -output-directory="$table_build" "docs/assets/PLUME-Table${suffix}.tex" || break
+    pdf2svg "$table_build/PLUME-Table${suffix}.pdf" \
+        "docs/assets/PLUME-Output-Table${suffix}.svg" || break
+done
+```
+
 <a id="susceptibility-files"></a>
 
 ## Susceptibility files
@@ -237,6 +306,21 @@ near-reactive warning. Both may be set. Formal H can be resolved while normalize
 Ps/channels are unavailable. Negative H alone is not failure. Species statuses:
 0 valid kinetic, 1 cold kinetic heating unavailable, 2 absent, 3 input/response
 failure, 4 derivative, 5 unavailable energy normalizer, 6 applicability.
+
+For corrected `rho_ref` parameter scans, comment records preserve the changing
+plasma without changing `plume-energy-v1` numeric columns:
+
+- `# scan_axis` records the scan index, style/type, bounds, counts and spacing at
+  the start of a workflow or serial segment.
+- `# point_state record=N betap=... vtp=...` gives the native beta and velocity
+  control for energy record `N`.
+- `# species_state record=N species=S tauS=... muS=... alphS=... Qs=... Ds=... vvS=...`
+  gives all six native inputs for species `S` at that record.
+
+Values use the companion's full numeric precision. Wavevector and frequency are
+already in the associated energy row. These comments are written for failed
+points as well as successful ones; existing readers continue to ignore them.
+The `.modeN` parameter suffix retains its established ordering and precision.
 
 <a id="joining-energy-and-modes"></a>
 

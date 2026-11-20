@@ -11,6 +11,7 @@
 !=============================================================================!
 !=============================================================================!
 module functions
+  use vars, only: emit_warning, initialize_warnings, warnings_to_stdout
   !!Calculates Misc. functions, esp. I/O operations.
    implicit none
    private
@@ -74,7 +75,7 @@ contains
          betap, kperp, kpar, vtp, normalization, nspec, nscan, option, nroot_max, &
          use_map, low_n, &
          collision_type, Kn, &
-         writeOut, dataName, outputName
+         writeOut, dataName, outputName, warnings_to_stdout
 
       nameList /fpc/ &
          vperpmin, vperpmax, vparmin, vparmax, delv, &
@@ -90,6 +91,7 @@ contains
       unit = input_unit_no
       open (unit=unit, file=runname, status='old', action='read')
       read (unit=unit, nml=params)
+      call initialize_warnings()
       if (z_backend/='faddeeva' .and. z_backend/='legacy') &
            error stop 'ERROR: z_backend must be faddeeva or legacy.'
       if (heating_convention/='corrected' .and. heating_convention/='legacy') &
@@ -151,18 +153,33 @@ contains
       close (input_unit_no)
 
       !Notify if not Quasineutral,
-      if (abs(sum_nq) .ge. 1.E-6) &
-         write (*, '(a,es11.4)') &
+      if (abs(sum_nq) .ge. 1.E-6) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
          'WARNING: Plasma not charge neutral:     Sum [D_s/Q_s] =', sum_nq
+            call emit_warning(trim(warning_text))
+         end block
+      end if
       !or not Current-free (not strictly required by linear theory but plasma is likely unstable and thus likely poorly described by linear theory)
-      if (abs(sum_nqv) .ge. 1.E-6) &
-         write (*, '(a,es11.4)') &
+      if (abs(sum_nqv) .ge. 1.E-6) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
          'WARNING: Nonzero equilibrium current:    Sum [D_s*vv_s/Q_s] =', sum_nqv
+            call emit_warning(trim(warning_text))
+         end block
+      end if
       !Take note User: Make sure the above sums are zero.
       !Note if:
-      if (spec(1)%vv_s .ne. 0.) &
-         write (*, '(a,es11.4)') &
+      if (spec(1)%vv_s .ne. 0.) then
+         block
+            character(2048) :: warning_text
+            write (warning_text, '(a,es11.4)') &
          'ERROR?/WARNING: Not in reference species rest frame:    v_par drift ref =', spec(1)%vv_s
+            call emit_warning(trim(warning_text))
+         end block
+      end if
 
       !You always need pi. Always. And sometimes pie too.
       pi = 4.*atan(1.)
@@ -278,10 +295,16 @@ end subroutine read_map_input
        positive_roots,nr,ni
 
       read (unit=unit, nml=maps)
-      if (loggridw .or. loggridg) write(*,'(a)') &
+      if (loggridw .or. loggridg) then
+         block
+            character(2048) :: warning_text
+            write(warning_text,'(a)') &
            'WARNING: historical logarithmic frequency maps mix exponent origins with frequency-ratio increments; '// &
            'loggridw starts at 10**omi; loggridg starts at -10**abs(gami) and discards signs. '// &
            'Bounds are not physical endpoints. See input.md (logarithmic maps). Equations are unchanged.'
+            call emit_warning(trim(warning_text))
+         end block
+      end if
 
    end subroutine map_read
 
@@ -368,6 +391,8 @@ end subroutine read_map_input
       read (unit=unit, nml=scan_input)
       call validate_heating_gamma_ratio_max(heating_gamma_ratio_max)
 
+      if (scan_style < -1 .or. scan_style > size(spec)) &
+           error stop 'ERROR: invalid parameter scan species/style index.'
       if (scan_style > 0 .and. scan_type == 0) then
          if (swi <= 0. .or. swf <= 0. .or. spec(scan_style)%tau_s == 0.) &
               error stop 'ERROR: temperature scans reaching or leaving cold-fluid tauS=0 are unsupported in Stage 2.'

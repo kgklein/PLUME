@@ -69,7 +69,8 @@ class FullyColdDispersionTests(unittest.TestCase):
 
     def evaluate(self, species, frequencies, checked=False, roots=False, **kwargs):
         stdin = ''.join(f'{w.real:.17g} {w.imag:.17g} {int(roots)}\n' for w in frequencies)
-        result, _ = run(self.probes[checked], input_text(species,**kwargs), stdin)
+        result, files = run(self.probes[checked], input_text(species,**kwargs), stdin)
+        self.last_warnings = files["test.warn"]
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         blocks, found = parse(result.stdout, len(species))
         self.assertEqual(len(found) if roots else len(blocks), len(frequencies), result.stdout)
@@ -217,8 +218,8 @@ class FullyColdDispersionTests(unittest.TestCase):
     def test_warning_only_equilibria(self):
         species=[replace_species(P,drift=.1),replace_species(E,density=.8,drift=-.1)]
         _,_,stdout=self.evaluate(species,[.5+.05j,.6-.01j])
-        self.assertEqual(stdout.count('WARNING: Plasma not charge neutral'),1)
-        self.assertEqual(stdout.count('WARNING: Nonzero equilibrium current'),1)
+        self.assertEqual(self.last_warnings.count('WARNING: Plasma not charge neutral'),1)
+        self.assertEqual(self.last_warnings.count('WARNING: Nonzero equilibrium current'),1)
 
     def test_public_boundaries(self):
         source=input_text([P,E])
@@ -248,7 +249,7 @@ class FullyColdDispersionTests(unittest.TestCase):
                  'gami=-.1\ngamf=.1\nnr=10\nni=2\npositive_roots=.false.\n/\n')
         result,files=run(ROOT/'plume.e',source)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-        self.assertIn('singular/nonfinite mixed map points',result.stdout)
+        self.assertIn('singular/nonfinite mixed map points',files['test.warn'])
         rows=np.array([list(map(float,l.split())) for l in files['dispersion_test.map'].splitlines() if l.strip()])
         self.assertTrue(np.isnan(rows[:,2:]).all(axis=1).any())
         self.assertTrue(np.isfinite(rows).all(axis=1).any())

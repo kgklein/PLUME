@@ -137,7 +137,7 @@ class WrapperRoundtripTests(unittest.TestCase):
         scans=[scan(0,.05,.07,eigen=True,heat=True,tensor=True)]
         for species in ([P,E],[P,CE],[CP,E],[CP,E,P,CE]):
             text=source(species,scans).replace("heating_convention='legacy'","heating_convention='corrected'")
-            self.roundtrip(text.replace('nscan=1','low_n=.false.\nnscan=1'))
+            self.roundtrip(text.replace('nscan=1','warnings_to_stdout=.true.\nlow_n=.false.\nnscan=1'))
         text=source([P,E],[scan(0,.05,.07,eigen=True,tensor=True)],option=4)
         text+='&maps loggridw=.true., loggridg=.true., positive_roots=.false., omi=.1, omf=1, gami=-1d-4, gamf=-1d-2, nr=7, ni=9 /\n'
         self.roundtrip(text)
@@ -274,7 +274,7 @@ class ProductionWorkflowTests(unittest.TestCase):
                 text+=f'&maps loggridw={str(real_log).replace("True",".true.").replace("False",".false.")}, loggridg={str(imag_log).replace("True",".true.").replace("False",".false.")}, omi=.1, omf=1, gami={g0}, gamf={g1}, nr=2, ni=2 /\n'
                 result,files=mixed.run(ROOT/'plume.e',text)
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-                self.assertEqual(result.stdout.count('WARNING: historical logarithmic frequency maps'),1)
+                self.assertEqual(files['test.warn'].count('WARNING: historical logarithmic frequency maps'),1)
                 actual=np.loadtxt(io.StringIO(next(v for k,v in files.items() if k.endswith('.map'))))
                 wr=10**(.1+np.arange(3)*.5) if real_log else np.linspace(.1,1,3)
                 wi=-10**(abs(g0)+np.arange(3)) if imag_log else np.linspace(g0,g1,3)
@@ -286,8 +286,8 @@ class ProductionWorkflowTests(unittest.TestCase):
         text+='&maps loggridw=.false.,loggridg=.false.,omi=.04,omf=.08,gami=-.001,gamf=.001,nr=2,ni=2 /\n'
         result,files=mixed.run(ROOT/'plume.e',text)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-        self.assertEqual(result.stdout.count('eigen/tensor requests are ignored'),1)
-        self.assertEqual(result.stdout.count('legacy heating request is ignored'),1)
+        self.assertEqual(files['test.warn'].count('eigen/tensor requests are ignored'),1)
+        self.assertEqual(files['test.warn'].count('legacy heating request is ignored'),1)
         for name,contents in files.items():
             if name.endswith('.map'):
                 self.assertEqual(np.loadtxt(io.StringIO(contents)).shape[1],5)
@@ -297,9 +297,9 @@ class ProductionWorkflowTests(unittest.TestCase):
         for species in ([P,E],[P,CE],[CP,E],[CP,CE]):
             text=source(species,[],option=0,kperp=0)
             text+='&maps loggridw=.false.,loggridg=.false.,omi=.04,omf=.08,gami=.001,gamf=.002,nr=1,ni=1 /\n'
-            result,_=mixed.run(ROOT/'plume.e',text)
+            result,files=mixed.run(ROOT/'plume.e',text)
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-            self.assertEqual(result.stdout.count('WARNING: exact-parallel all-kinetic'),int(all(s[0]>0 for s in species)))
+            self.assertEqual(files['test.warn'].count('WARNING: exact-parallel all-kinetic'),int(all(s[0]>0 for s in species)))
 
 
 class CheckedWorkflowTests(unittest.TestCase):
@@ -334,9 +334,9 @@ class CheckedWorkflowTests(unittest.TestCase):
     def test_checked_input_warnings_do_not_evaluate_unsupported_kernel(self):
         text=source([P,E],[scan(0,0,.01,eigen=True,heat=True,tensor=True)],option=4,kperp=0)
         text+='&maps loggridw=.true.,loggridg=.true.,omi=.1,omf=1,gami=-.0001,gamf=-.01,nr=2,ni=2 /\n'
-        result,_=mixed.run(self.input_probe,text)
+        result,files=mixed.run(self.input_probe,text)
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         for warning in ('WARNING: exact-parallel all-kinetic','eigen/tensor requests are ignored',
                         'legacy heating request is ignored','WARNING: historical logarithmic frequency maps'):
-            self.assertEqual(result.stdout.count(warning),1,result.stdout)
+            self.assertEqual(files['test.warn'].count(warning),1,result.stdout)
         self.assertIn('INPUT_OK',result.stdout)

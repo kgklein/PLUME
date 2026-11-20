@@ -10,6 +10,7 @@
 !=============================================================================!
 !=============================================================================!
 module disprels
+  use vars, only: emit_warning
   use plasma_z_backend, only: zetout
   !! Dispersion relation function and associated eigenfunction and minimization
   !! calculations.
@@ -230,11 +231,19 @@ module disprels
 
      if (invalid_points > 0) then
         if (has_cold_species()) then
-           write(*,'(a,i0,a)') &
+           block
+              character(2048) :: warning_text
+              write(warning_text,'(a,i0,a)') &
                 'WARNING: excluded ',invalid_points,' singular/nonfinite mixed map points from root search.'
+              call emit_warning(trim(warning_text))
+           end block
         else
-           write(*,'(a,i0,a)') &
+           block
+              character(2048) :: warning_text
+              write(warning_text,'(a,i0,a)') &
                 'WARNING: excluded ',invalid_points,' singular/nonfinite map points from root search.'
+              call emit_warning(trim(warning_text))
+           end block
         endif
      endif
      write(*,*)'finding minima'
@@ -854,7 +863,8 @@ subroutine om_scan(is)
   use heating_response, only: diagnostic_nan
   use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
   use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
-       wavevector_scan,refine_scan_point
+       wavevector_scan,refine_scan_point,parameter_scan_workflow, &
+       parameter_scan_state,capture_scan_state,apply_parameter_point
   use vars, only: has_cold_reference,has_cold_species
 
   !! Calculate solutions as a function of the variation of
@@ -983,6 +993,10 @@ subroutine om_scan(is)
   !!Species parameters:
 
   type(scan_frame) :: geometry
+  type(parameter_scan_state) :: native_state
+  logical :: parameter_workflow
+  parameter_workflow=parameter_scan_workflow()
+  if (parameter_workflow) call capture_scan_state(native_state)
   if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,is,diff,diff2)
@@ -1041,7 +1055,9 @@ subroutine om_scan(is)
 
   !Output %n_scan steps, with %n_res steps inbetween each output
   do jj = 0, (scan(is)%n_scan*scan(is)%n_res) 
-     if (has_cold_species()) then
+     if (parameter_workflow) then
+        call apply_parameter_point(native_state,scan(is),jj)
+     else if (has_cold_species()) then
         call scan_coordinates(geometry,scan(is),jj,kperp,kpar)
      else
      !Advance scanned parameter values
@@ -1169,7 +1185,8 @@ subroutine om_scan(is)
               if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
               Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
               call write_energy_record(energy,omega,1,is,0,jj,ii,root_valid,outName, &
-                   heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max)
+                   heating_gamma_ratio_max=scan(is)%heating_gamma_ratio_max, &
+                   record_parameters=parameter_workflow)
            endif
 
            select case(out_type)
@@ -1271,7 +1288,8 @@ subroutine om_double_scan
   use heating_response, only: diagnostic_nan
   use heating_diagnostics, only: calc_corrected_eigen,write_energy_record,failed_heating_result
   use scan_support, only: scan_frame,initialize_scan_frame,scan_coordinates,check_scan_kpar, &
-       wavevector_scan,refine_scan_point
+       wavevector_scan,refine_scan_point,parameter_scan_workflow, &
+       parameter_scan_state,capture_scan_state,apply_parameter_point
   use vars, only: has_cold_reference,has_cold_species
 
   !! Calculate solutions as a function of the variation of
@@ -1410,6 +1428,10 @@ subroutine om_double_scan
   !!Species parameters:
   
   type(scan_frame) :: geometry
+  type(parameter_scan_state) :: native_state
+  logical :: parameter_workflow
+  parameter_workflow=parameter_scan_workflow()
+  if (parameter_workflow) call capture_scan_state(native_state)
   if (has_cold_species()) call initialize_scan_frame(geometry,kperp,kpar)
   !Assign output name for scan is
   call get_double_out_name(outName,tensorName,fmt,fmt_tnsr,out_type,diff)
@@ -1468,7 +1490,9 @@ subroutine om_double_scan
   !Output %n_scan steps, with %n_res steps inbetween each output
   do kk = 0, (scan(1)%n_scan*scan(1)%n_res) 
 
-     if (has_cold_species()) then
+     if (parameter_workflow) then
+        call apply_parameter_point(native_state,scan(1),kk,scan(2),0)
+     else if (has_cold_species()) then
         call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
      else
      !Advance scanned parameter values
@@ -1567,7 +1591,9 @@ subroutine om_double_scan
         !Parameter 2 scan
         !Output %n_scan steps, with %n_res steps inbetween each output
         do jj = 0, (scan(2)%n_scan*scan(2)%n_res) 
-           if (has_cold_species()) then
+           if (parameter_workflow) then
+              call apply_parameter_point(native_state,scan(1),kk,scan(2),jj)
+           else if (has_cold_species()) then
               call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),jj)
            else
            !Advance scanned parameter values
@@ -1685,7 +1711,8 @@ subroutine om_double_scan
                     if (.not.root_valid) call failed_heating_result(energy,heat_root_failed)
                     Ew=real(diagnostic_nan()) ! Not the corrected wave energy.
                     call write_energy_record(energy,omega,2,0,kk,jj,ii,root_valid,outName, &
-                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max)
+                         heating_gamma_ratio_max=scan(2)%heating_gamma_ratio_max, &
+                         record_parameters=parameter_workflow)
                  endif
 
                  select case(out_type)
@@ -1739,7 +1766,10 @@ subroutine om_double_scan
                  end select
               endif
 
-              if ((scan(1)%tensor_s).and.(scan(2)%tensor_s)) then
+              ! New parameter workflows align tensors with written mode rows;
+              ! retain the historical hidden-step tensor behavior otherwise.
+              if ((scan(1)%tensor_s).and.(scan(2)%tensor_s) .and. &
+                   (.not.parameter_workflow.or.mod(jj,scan(2)%n_res)==0)) then
                  if (root_valid) val=abs(disp(omega))
                  write(out_unit_2(ii),fmt_tnsr)&
                       kperp,kpar,betap,vtp,&
@@ -1757,7 +1787,9 @@ subroutine om_double_scan
         enddo     !End Parameter 2 Scan
         jj=0
         !Return scanned parameter 2 value
-           if (has_cold_species()) then
+           if (parameter_workflow) then
+              call apply_parameter_point(native_state,scan(1),kk,scan(2),0)
+           else if (has_cold_species()) then
               call scan_coordinates(geometry,scan(1),kk,kperp,kpar,scan(2),0)
            else
            if ((scan(2)%style_s)==-1)then
@@ -1817,6 +1849,11 @@ subroutine om_double_scan
         endif
      
      enddo  !End Parameter 1 Scan
+
+  do ii=1,nroot_max
+     close(out_unit(ii))
+     if (scan(1)%tensor_s.and.scan(2)%tensor_s) close(out_unit_2(ii))
+  enddo
 
 end subroutine om_double_scan
 

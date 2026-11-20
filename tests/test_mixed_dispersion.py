@@ -93,7 +93,8 @@ class MixedDispersionTests(unittest.TestCase):
     def evaluate(self, species, frequencies, root=False, **kwargs):
         source = input_text(species, **kwargs)
         stdin = ''.join(f'{w.real:.17g} {w.imag:.17g} {int(root)}\n' for w in frequencies)
-        result, _ = run(self.probe, source, stdin)
+        result, files = run(self.probe, source, stdin)
+        self.last_warnings = files["test.warn"]
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         blocks, roots = parse(result.stdout, len(species))
         self.assertEqual(len(roots) if root else len(blocks), len(frequencies), result.stdout)
@@ -122,8 +123,8 @@ class MixedDispersionTests(unittest.TestCase):
                         np.testing.assert_allclose(block['lam'], wave_matrix(species,w,kpar,.05,1e-3),
                                                    rtol=2e-7, atol=1e-5)
                         np.testing.assert_allclose(block['det'], np.linalg.det(block['lam']), rtol=2e-12)
-                self.assertLessEqual(stdout.count('WARNING: Plasma not charge neutral'), 1)
-                self.assertLessEqual(stdout.count('WARNING: Nonzero equilibrium current'), 1)
+                self.assertLessEqual(self.last_warnings.count('WARNING: Plasma not charge neutral'), 1)
+                self.assertLessEqual(self.last_warnings.count('WARNING: Nonzero equilibrium current'), 1)
 
     def test_warm_contributions_unchanged(self):
         # Changing only electron/alpha temperature must not affect any warm chi.
@@ -216,8 +217,8 @@ class MixedDispersionTests(unittest.TestCase):
     def test_equilibrium_warnings_once(self):
         species = [PROTON, replace_species(COLD_E, density=.9, drift=.1)]
         _, _, stdout = self.evaluate(species, [.07+.005j, .08+.005j, .09+.005j])
-        self.assertEqual(stdout.count('WARNING: Plasma not charge neutral'), 1)
-        self.assertEqual(stdout.count('WARNING: Nonzero equilibrium current'), 1)
+        self.assertEqual(self.last_warnings.count('WARNING: Plasma not charge neutral'), 1)
+        self.assertEqual(self.last_warnings.count('WARNING: Nonzero equilibrium current'), 1)
 
     def test_example_and_python_wrapper(self):
         sys.path.insert(0,str(ROOT))
@@ -293,7 +294,7 @@ class MixedDispersionTests(unittest.TestCase):
                    'gami=-.05\ngamf=.05\nnr=8\nni=2\npositive_roots=.false.\n/\n')
         result, files = run(ROOT/'plume.e', source)
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
-        self.assertIn('singular/nonfinite mixed map points', result.stdout)
+        self.assertIn('singular/nonfinite mixed map points', files['test.warn'])
         rows = [list(map(float,l.split())) for l in files['dispersion_test.map'].splitlines() if l.strip()]
         self.assertTrue(any(np.isnan(r[2:]).all() for r in rows))
         self.assertTrue(any(np.isfinite(r).all() for r in rows))

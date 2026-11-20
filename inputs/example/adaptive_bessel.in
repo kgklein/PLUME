@@ -21,6 +21,13 @@ writeOut=.true.
 collision_type=0
 dataName='example'
 outputName='adaptive_bessel'
+! Explicit runtime defaults.
+heating_convention='corrected'
+z_backend='faddeeva'
+bessel_nfixed=128
+low_n=.true.
+Kn=1.e30
+warnings_to_stdout=.false.
 /
 &species_1
 tauS=1.

@@ -1,10 +1,13 @@
 program probe
+  use vars, only: dataName, outputName, initialize_warnings, close_warnings
   use bessel_cache
   implicit none
   type(bessel_entry), pointer :: entry
   real :: x,t
   integer :: s,count,cap,fixed,status,ios,n
   character(16) :: mode
+  dataName='cache'; outputName='test'
+  call initialize_warnings()
   do
      read(*,*,iostat=ios) s,count,x,mode,t,cap,fixed
      if (ios/=0) exit
@@ -14,4 +17,5 @@ program probe
      call write_bessel_stats(6)
      write(*,'(a,*(es27.17e3,1x))') 'VALUES ',entry%jn(0:entry%active+1,1)
   enddo
+  call close_warnings()
 end program

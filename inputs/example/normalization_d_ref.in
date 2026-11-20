@@ -13,6 +13,18 @@ use_map=.false.
 writeOut=.false.
 dataName='example'
 outputName='normalization_d_ref'
+! Explicit runtime defaults.
+heating_convention='corrected'
+z_backend='faddeeva'
+bessel_mode='adaptive'
+bessel_tol=1.e-10
+bessel_nmax=512
+bessel_nfixed=128
+bessel_diagnostics=.false.
+low_n=.true.
+collision_type=0
+Kn=1.e30
+warnings_to_stdout=.false.
 /
 &species_1
 tauS=0.4
@@ -41,6 +53,7 @@ nres=1
 heating=.true.
 eigen=.true.
 tensor=.true.
+heating_gamma_ratio_max=0.05
 /
 &guess_1
 g_om=0.01

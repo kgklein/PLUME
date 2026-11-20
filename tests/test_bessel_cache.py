@@ -12,13 +12,15 @@ class BesselCacheTests(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp=tempfile.TemporaryDirectory(); cls.addClassCleanup(cls.tmp.cleanup)
         cls.exe=Path(cls.tmp.name)/'cache'
+        (Path(cls.tmp.name)/'data/cache').mkdir(parents=True)
         subprocess.run(['gfortran','-O2','-fdefault-real-8','-fcheck=all',
                         '-ffpe-trap=invalid,zero,overflow','-J',cls.tmp.name,
-                        str(ROOT/'src/harmonic_selection.f90'),str(ROOT/'src/bessel_cache.f90'),
+                        str(ROOT/'src/vars.f90'),str(ROOT/'src/harmonic_selection.f90'),str(ROOT/'src/bessel_cache.f90'),
                         str(ROOT/'tests/bessel_cache_probe.f90'),'-o',str(cls.exe)],check=True)
 
     def run_cache(self,records):
-        output=subprocess.check_output([self.exe],input='\n'.join(records)+'\n',text=True)
+        output=subprocess.check_output([self.exe],input='\n'.join(records)+'\n',text=True,cwd=self.tmp.name)
+        self.warnings=(Path(self.tmp.name)/'data/cache/test.warn').read_text()
         snapshots=[]
         for block in output.split('STATUS ')[1:]:
             lines=block.splitlines(); self.assertEqual(lines[0],'0')
@@ -55,7 +57,7 @@ class BesselCacheTests(unittest.TestCase):
     def test_cap_warning_once_and_recovery(self):
         out,rows=self.run_cache(['1 1 1000 adaptive 1e-10 3 128']*3+
                                ['1 1 1000 adaptive 1e-10 512 128'])
-        self.assertEqual(out.count('WARNING:'),1)
+        self.assertEqual(self.warnings.count('WARNING:'),1)
         self.assertEqual(rows[0][0][0][2],'3')
         self.assertEqual(rows[0][0][0][4],'F')
         self.assertEqual(rows[-1][0][0][4],'T')

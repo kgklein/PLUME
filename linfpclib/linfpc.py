@@ -76,7 +76,7 @@ class plume_input:
     def set_params(self,betap,kperp,kpar,vtp,nspec,nscan,option,\
                     nroot_max,use_map,writeOut,collision_type=0,Kn=None,
                     normalization='rho_ref', bessel_mode='adaptive', bessel_tol=1e-10,
-                    bessel_nmax=512, bessel_nfixed=128, bessel_diagnostics=False, z_backend='faddeeva', heating_convention='corrected'):
+                    bessel_nmax=512, bessel_nfixed=128, bessel_diagnostics=False, z_backend='faddeeva', heating_convention='corrected', warnings_to_stdout=False):
         """Set PLUME inputs; adaptive Bessel harmonics are the default.
 
         In d_ref, k uses d_ref, vtp is v_A/c, and tauS is 2T_parallel/(m_ref*v_A^2).
@@ -126,6 +126,7 @@ class plume_input:
                        'nroot_max':int(nroot_max),
                        'use_map':use_map_out,
                        'writeOut':usewriteOut_out,
+                       'warnings_to_stdout':'.true.' if warnings_to_stdout else '.false.',
                        'collision_type':int(collision_type),
                        'Kn':Kn
         })

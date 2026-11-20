@@ -80,9 +80,11 @@ supported data readers; no cold-reference overlay extension is claimed here.
   candidates. Use a supported root/diagnostic workflow to obtain moments or heat.
 - Two-dimensional eigen/heating flags come from the second scan; tensor output
   needs both flags. Flag semantics are not identical across these diagnostics.
-- Mixed/cold scans support wavevectors only. Historical plasma-parameter and
-  radial workflows are all kinetic, with old restrictions and legacy heating.
-  They are not automatically validated for arbitrary models or new diagnostics.
+- Mixed/cold scans support wavevectors only. Corrected parameter heating is
+  supported for collisionless, all-kinetic `rho_ref` serial scans and 2D grids.
+  Other parameter workflows retain historical restrictions; radial heating is
+  legacy only. Scan support does not establish branch identity or heating
+  applicability at every point.
 - Historical logarithmic **frequency maps** mix exponent origins with ratio
   increments and discard imaginary signs. They do not reach requested endpoints.
   Use linear map grids; [the exact equations](modes.md#linear-versus-historical-logarithmic-maps)
@@ -120,20 +122,3 @@ supported data readers; no cold-reference overlay extension is claimed here.
 | Ragged low_n=false legacy file | Orphan Ew record is historical; use explicit handling or supported rectangular/corrected companion; never treat Ew as energy |
 | Extra old mode files or mismatched companion counts | Use a new outputName/isolated directory; complete the run; companions and buffered modes are not atomic under interruption |
 
-<a id="scientific-acceptance-is-more-than-process-success"></a>
-
-## Scientific acceptance is more than process success
-
-Check finite frequency, status, normalized determinant and matrix/nullvector
-residuals. Compare species-current/continuity and Faraday identities when using
-moments. Perform convergence checks in step size and harmonic cap/tolerance.
-A very small raw determinant, a finite old Ew, a smooth continuation curve or a
-plot without NaNs does not independently establish accuracy.
-
-Validation gaps remain for some global count/storage/finite/Kn/warm-density
-inputs and reference self-ratios. The wrapper is an intentionally restricted
-scalar parser, not a general namelist editor. Its explicit rejection of unknown
-controls prevents silent loss, but does not certify a physically meaningful run.
-Preserve inputs, source revision and numerical options for reproducibility.
-The later documentation/example/deployment stages will address remaining workflow
-presentation issues; they do not silently extend these scientific capabilities.

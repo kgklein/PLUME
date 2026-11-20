@@ -109,7 +109,7 @@ cold_reference.o: auxiliary_normalization.o kinetic_core.o adaptive_kinetic.o va
 # Selection/cache checks require IEEE semantics, including in optimized builds.
 harmonic_selection.o: src/harmonic_selection.f90 | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
-bessel_cache.o: src/bessel_cache.f90 harmonic_selection.o | $(MODDIR)
+bessel_cache.o: src/bessel_cache.f90 harmonic_selection.o vars.o | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<
 adaptive_kinetic.o: src/adaptive_kinetic.f90 vars.o kinetic_core.o bessel_cache.o src/kinetic_species.inc src/kinetic_collisional_species.inc | $(MODDIR)
 	$(COMP) -c $(FLAGS) $(COLD_FLAGS) $<

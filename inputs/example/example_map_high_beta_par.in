@@ -30,6 +30,19 @@ writeOut=.true.
 dataName='example'
 !Name to be included in output files.
 outputName='map_high_beta_par'
+! Explicit runtime defaults.
+heating_convention='corrected'
+z_backend='faddeeva'
+bessel_mode='adaptive'
+bessel_tol=1.e-10
+bessel_nmax=512
+bessel_nfixed=128
+bessel_diagnostics=.false.
+normalization='rho_ref'
+low_n=.true.
+collision_type=0
+Kn=1.e30
+warnings_to_stdout=.false.
 /
 
 !The reference species/component
@@ -98,6 +111,7 @@ heating=.true.
 eigen=.true.
 !output tensor components
 tensor=.false.
+heating_gamma_ratio_max=0.05
 /
 
 !intial guess, to be used if use_map=.false.

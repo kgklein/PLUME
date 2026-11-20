@@ -65,18 +65,3 @@ compatibility. Those are specific verified comparisons with explicit settings,
 not a promise of universal byte identity for every input/compiler/platform.
 
 <a id="keep-a-reproducibility-record"></a>
-
-## Keep a reproducibility record
-
-Save the full input, Git commit, compiler/version/flags, numerical selectors,
-normalization, original species order, stdout warnings and output companions.
-For scans record bounds, ns/nres, initial guess/map and branch identity evidence.
-Retain unresolved harmonic/energy flags; do not strip failed rows to improve
-plots. The normalization pair demonstrates equivalent physics after conversion,
-not byte-identical native coordinate columns.
-
-The versioned energy header and Bessel metadata help, but neither replaces the
-input and source record. Most mode/root files have no self-describing header;
-absence of normalization metadata does not identify arbitrary external files.
-A source archive without Git history cannot run the pinned-revision tests as
-if it were a full checkout.

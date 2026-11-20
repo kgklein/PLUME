@@ -16,6 +16,15 @@ writeOut=.true.
 collision_type=0
 dataName='example'
 outputName='faddeeva_accuracy'
+! Explicit runtime defaults.
+heating_convention='corrected'
+bessel_tol=1.e-10
+bessel_nmax=512
+bessel_nfixed=128
+bessel_diagnostics=.false.
+low_n=.true.
+Kn=1.e30
+warnings_to_stdout=.false.
 /
 &species_1
 tauS=0.4

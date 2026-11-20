@@ -46,3 +46,5 @@ __pycache__
 !inputs/example/mixed_moments_multispecies.in
 
 !inputs/example/heating_*.in
+
+!inputs/example/example_simple_grid.in

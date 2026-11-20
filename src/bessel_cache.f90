@@ -1,4 +1,5 @@
 module bessel_cache
+  use vars, only: emit_warning
   !! Per-species, in-memory coefficient storage. Frequency never enters a key.
   use harmonic_selection
   use, intrinsic :: ieee_arithmetic
@@ -107,9 +108,13 @@ contains
     if (mode=='adaptive' .and. .not.converged) then
        if (.not.allocated(cap_events)) allocate(cap_events(0))
        cap_events=[cap_events,cap_record(species,limit,argument,tolerance,e0,e2)]
-       write(*,'(a,i0,a,es12.4,a,es12.4,a,i0,a,2es12.4)') &
+       block
+          character(2048) :: warning_text
+          write(warning_text,'(a,i0,a,es12.4,a,es12.4,a,i0,a,2es12.4)') &
             'WARNING: Bessel cap: species ',species,', lambda=',argument,', tolerance=',tolerance, &
             ', maximum=',limit,', tail bounds=',e0,e2
+          call emit_warning(trim(warning_text))
+       end block
     endif
   end subroutine
 

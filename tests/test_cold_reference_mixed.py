@@ -172,8 +172,8 @@ class ColdReferenceMixedTests(unittest.TestCase):
         for alpha in (0.,-3.,1.,1e100):
             species=[mixed.replace_species(P,alpha=alpha,drift=.1),mixed.replace_species(E,density=.8,drift=-.1)]
             blocks,_,stdout,files=self.evaluate(species,[.13+.03j,.13-.03j],native=True)
-            self.assertEqual(stdout.count('WARNING: Plasma not charge neutral'),1)
-            self.assertEqual(stdout.count('WARNING: Nonzero equilibrium current'),1)
+            self.assertEqual(files['test.warn'].count('WARNING: Plasma not charge neutral'),1)
+            self.assertEqual(files['test.warn'].count('WARNING: Nonzero equilibrium current'),1)
             if base is not None:
                 np.testing.assert_array_equal(blocks[0]['chi'],base)
             base=blocks[0]['chi']
